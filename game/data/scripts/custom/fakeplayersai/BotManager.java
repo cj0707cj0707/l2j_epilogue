@@ -431,6 +431,9 @@ public class BotManager
 	
 	public static void init()
 	{
+		TacticalSettings.init();
+		CombatAnalytics.init();
+
 		if (_initialized)
 		{
 			return;
@@ -510,7 +513,7 @@ public class BotManager
 		// of this session has finished yet - see olympiadPointsCatchUp().
 		ThreadPool.schedule(BotManager::olympiadPointsCatchUp, (SETTINGS.getSpawnDelaySeconds() + 70) * 1000L);
 
-		LOGGER.info("FakePlayersAI: initialized, " + SETTINGS.getBotCount() + " bots scheduled; predictive-chase v2 (movement ownership).");
+		LOGGER.info("FakePlayersAI: initialized, " + SETTINGS.getBotCount() + " bots scheduled; predictive-chase v2; Olympiad tactical suite v1.");
 	}
 
 	// ------------------------------------------------------------------
@@ -1013,7 +1016,7 @@ public class BotManager
 				// engines there (it stops them on purpose for the distance-breaking runs);
 				// the fast combat tick repairs them when needed.
 				if (!_combatPaused && (!bot.isAutoPlaying() || bot.getAutoUseSettings().getAutoSkills().isEmpty())
-					&& !BERSERKER_STATES.containsKey(bot.getObjectId()) && !OlympiadChase.isPursuing(bot.getObjectId()))
+					&& !BERSERKER_STATES.containsKey(bot.getObjectId()) && !OlympiadChase.isPursuing(bot.getObjectId()) && !BotTactics.isOwned(bot.getObjectId()))
 				{
 					final BotClassPreset preset = BotPresets.getPresetByClassId(BOT_CLASSES.getOrDefault(bot.getObjectId(), bot.getPlayerClass().getId()));
 					if (preset != null)
@@ -1028,7 +1031,7 @@ public class BotManager
 					if ((_tickerCycle % 3) == 0)
 					{
 						final WorldObject t = bot.getTarget();
-						LOGGER.info("FakePlayersAI: oly-dbg " + bot.getName() + ": tgt=" + (t != null ? t.getName() : "null") + ", distToTgt=" + (t != null ? (int) bot.calculateDistance2D(t) : -1) + ", intent=" + bot.getAI().getIntention() + ", mv=" + bot.isMoving() + ", start=" + bot.isOlympiadStart() + ", gameId=" + bot.getOlympiadGameId() + ", pos=" + bot.getX() + "," + bot.getY() + ", chase=" + OlympiadChase.describe(bot.getObjectId()) + ", autoPlay=" + bot.isAutoPlaying() + ", cast=" + bot.isCastingNow());
+						LOGGER.info("FakePlayersAI: oly-dbg " + bot.getName() + ": tgt=" + (t != null ? t.getName() : "null") + ", distToTgt=" + (t != null ? (int) bot.calculateDistance2D(t) : -1) + ", intent=" + bot.getAI().getIntention() + ", mv=" + bot.isMoving() + ", start=" + bot.isOlympiadStart() + ", gameId=" + bot.getOlympiadGameId() + ", pos=" + bot.getX() + "," + bot.getY() + ", chase=" + OlympiadChase.describe(bot.getObjectId()) + ", autoPlay=" + bot.isAutoPlaying() + ", cast=" + bot.isCastingNow() + ", " + BotTactics.describe(bot.getObjectId()));
 					}
 					continue;
 				}
@@ -1634,7 +1637,7 @@ public class BotManager
 							armBerserkerCombat(bot, preset, berserkerState);
 						}
 					}
-					else if (!OlympiadChase.isPursuing(bot.getObjectId()) && (!bot.isAutoPlaying() || bot.getAutoUseSettings().getAutoSkills().isEmpty()))
+					else if (!OlympiadChase.isPursuing(bot.getObjectId()) && !BotTactics.isOwned(bot.getObjectId()) && (!bot.isAutoPlaying() || bot.getAutoUseSettings().getAutoSkills().isEmpty()))
 					{
 						BotSpawner.applyAutoCombat(bot, preset);
 					}
@@ -1787,6 +1790,15 @@ public class BotManager
 					continue;
 				}
 				withTarget++;
+
+				// The fast tactical driver is the only owner of decisions/intentions here.
+				// Keep the pre-existing resource/profile maintenance above and summons,
+				// but never reassert a second movement/attack/instant opener on its route.
+				if (inOlympiad && bot.isOlympiadStart() && BotTactics.isOwned(bot.getObjectId()))
+				{
+					BotSpawner.maintainOlympiadSummon(bot, preset, target);
+					continue;
+				}
 
 				// Opening curse: mage bots open the fight with the resist-lowering
 				// curse of their class (Archmage: Surrender to Fire, Mystic Muse:
@@ -2085,6 +2097,10 @@ public class BotManager
 					continue;
 				}
 
+				if (BotTactics.isOwned(bot.getObjectId()))
+				{
+					continue; // Includes self-target casts and deliberate sleep holds.
+				}
 				final WorldObject target = bot.getTarget();
 				if ((target == null) || !target.isCreature() || target.asCreature().isAlikeDead())
 				{
@@ -2130,7 +2146,7 @@ public class BotManager
 		}
 	}
 
-	/** Fast movement-only pass; never drives human players or actors outside a live match. */
+	/** Fast tactical/movement pass; never drives human players or actors outside a live match. */
 	private static void olympiadChaseTick()
 	{
 		for (Player bot : BOTS.values())
@@ -2139,6 +2155,7 @@ public class BotManager
 			{
 				if (!bot.isInOlympiadMode() || !bot.isOlympiadStart() || bot.isAlikeDead() || bot.isTeleporting())
 				{
+					BotTactics.forget(bot.getObjectId());
 					OlympiadChase.forget(bot.getObjectId());
 					continue;
 				}
@@ -2169,8 +2186,24 @@ public class BotManager
 					}
 					continue;
 				}
+				final Player opponent = getOlympiadOpponent(bot);
+				if (opponent != null) CombatAnalytics.watch(bot, opponent);
+				if (TacticalSettings.isEnabled() && !OLY_PENDING_OPENERS.containsKey(bot.getObjectId()) && (opponent != null))
+				{
+					if (!bot.isCastingNow()) bot.setTarget(opponent);
+					if (BotTactics.tick(bot, opponent, preset, true)) continue;
+				}
 				final boolean ranged = ((preset != null) && preset.isCaster()) || isKiterPreset(preset);
 				moveForOlympiadChase(bot, ranged ? CASTER_HOLD_RANGE : CHASE_RANGE, !ranged);
+				if (BotTactics.isOwned(bot.getObjectId()) && preset != null && !preset.isCaster() && opponent != null
+					&& !bot.isAttackingNow() && !bot.isCastingNow() && !bot.isMovementDisabled() && !bot.isOutOfControl()
+					&& !bot.isAllSkillsDisabled() && !bot.isMoving() && !opponent.isSleeping()
+					&& bot.calculateDistance2D(opponent) <= (ranged ? CASTER_HOLD_RANGE : CHASE_RANGE)
+					&& opponent.isAutoAttackable(bot) && GeoEngine.getInstance().canSeeTarget(bot, opponent))
+				{
+					bot.setTarget(opponent);
+					bot.getAI().setIntentionAttack(opponent);
+				}
 			}
 			catch (Throwable e)
 			{
@@ -2422,7 +2455,7 @@ public class BotManager
 			{
 				return true;
 			}
-			state.nextDecisionAt = now + 250;
+			state.nextDecisionAt = now + (TacticalSettings.isEnabled() ? TacticsPolicy.Difficulty.parse(BotTactics.getDifficulty(bot.getObjectId())).reactionMs : 250);
 			return driveBerserkerStep(bot, preset, state, enemy, now);
 		}
 	}
@@ -2491,6 +2524,8 @@ public class BotManager
 			return true; // Shield and rush cannot overwrite one another in one tick.
 		}
 
+        final boolean pressFinish = BerserkerCycle.shouldPressFinish(enemy.getCurrentHp(), enemy.isPlayer() ? enemy.asPlayer().getCurrentCp() : 0,
+            enemy.getMaxHp(), enemy.isPlayer() ? enemy.asPlayer().getMaxCp() : 0, dist);
 		if (!state.rushDone)
 		{
 			if ((dist >= 220) && canBerserkerCast(bot, BERSERKER_RUSH_IMPACT_ID) && state.movement.canRush(now))
@@ -2512,7 +2547,7 @@ public class BotManager
 					return true;
 				}
 			}
-			else if ((dist < 220) && canBerserkerCast(bot, BERSERKER_RUSH_IMPACT_ID)
+			else if ((dist < 220) && !pressFinish && canBerserkerCast(bot, BERSERKER_RUSH_IMPACT_ID)
 				&& state.movement.canRetreat(now, dist))
 			{
 				final boolean firstRetreatStep = !state.retreating;
@@ -2574,7 +2609,7 @@ public class BotManager
 		{
 			// Request another cycle only after the bounded retreat cooldown.
 			if (canBerserkerCast(bot, BERSERKER_RUSH_IMPACT_ID)
-				&& ((dist >= 220 && state.movement.canRush(now)) || state.movement.canRetreat(now, dist)))
+				&& ((dist >= 220 && state.movement.canRush(now)) || (!pressFinish && state.movement.canRetreat(now, dist))))
 			{
 				state.rushDone = false;
 			}

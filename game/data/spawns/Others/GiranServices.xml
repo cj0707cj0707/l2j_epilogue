@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list enabled="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/spawns.xsd">
+    <spawn name="Giran Olympiad and Help Services">
+        <npc id="1008000" x="83249" y="148613" z="-3455" heading="16384" respawnDelay="60" /> <!-- Olympiad Trainer -->
+        <npc id="1009000" x="83313" y="148613" z="-3455" heading="16384" respawnDelay="60" /> <!-- Preparation Master -->
+        <npc id="1010000" x="83377" y="148613" z="-3455" heading="16384" respawnDelay="60" /> <!-- Olympiad Steward -->
+        <npc id="1011000" x="83441" y="148613" z="-3455" heading="16384" respawnDelay="60" /> <!-- Server Guide -->
+    </spawn>
+</list>

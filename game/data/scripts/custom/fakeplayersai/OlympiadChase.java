@@ -25,6 +25,7 @@ public final class OlympiadChase
 	private static final Map<Integer, Engagement> ENGAGED = new HashMap<>();
 	// IDs only: no Player references retained after a match/despawn.
 	private static final Map<Integer, Engagement> ENGINE_HOLDS = new HashMap<>();
+	private static final Map<Integer, Integer> TRAINING_PAIRS = new HashMap<>();
 	private static final long STUCK_NANOS = 1_500_000_000L;
 
 	private record Engagement(int gameId, int enemyId)
@@ -53,11 +54,39 @@ public final class OlympiadChase
 	/** The berserker phase driver owns its engines; shared pursuit must not restart them. */
 	public static synchronized void update(Player bot, Player enemy, int holdRange, boolean attackInRange, int arenaX, int arenaY, double arenaRadius, boolean manageEngines)
 	{
+		updateInternal(bot, enemy, holdRange, attackInRange, arenaX, arenaY, arenaRadius, manageEngines, false);
+	}
+
+	public static synchronized void registerTrainingPair(Player bot, Player enemy)
+	{
+		if (bot.getClient() != null || bot.isInOlympiadMode() || enemy.isInOlympiadMode() || bot.getInstanceId() <= 0 || bot.getInstanceId() != enemy.getInstanceId())
+		{
+			throw new IllegalArgumentException("Invalid training pair");
+		}
+		forget(bot.getObjectId());
+		TRAINING_PAIRS.put(bot.getObjectId(), enemy.getObjectId());
+	}
+
+	public static synchronized void unregisterTrainingPair(int botId)
+	{
+		TRAINING_PAIRS.remove(botId);
+		forget(botId);
+	}
+
+	public static synchronized void updateTraining(Player bot, Player enemy, int holdRange, boolean attackInRange, int arenaX, int arenaY, double arenaRadius)
+	{
+		updateInternal(bot, enemy, holdRange, attackInRange, arenaX, arenaY, arenaRadius, false, true);
+	}
+
+	private static void updateInternal(Player bot, Player enemy, int holdRange, boolean attackInRange, int arenaX, int arenaY, double arenaRadius, boolean manageEngines, boolean training)
+	{
 		final int id = bot.getObjectId();
 		final long now = System.nanoTime();
-		if ((enemy == null) || (bot == enemy) || !bot.isInOlympiadMode() || !bot.isOlympiadStart()
-			|| !enemy.isInOlympiadMode() || !enemy.isOlympiadStart() || (bot.getOlympiadGameId() < 0)
-			|| (bot.getOlympiadGameId() != enemy.getOlympiadGameId()) || (bot.getInstanceId() != enemy.getInstanceId())
+		if ((enemy == null) || (bot == enemy) || (training ? (!Integer.valueOf(enemy.getObjectId()).equals(TRAINING_PAIRS.get(id)) || bot.getClient() != null
+				|| bot.isInOlympiadMode() || enemy.isInOlympiadMode() || bot.getInstanceId() <= 0)
+				: (!bot.isInOlympiadMode() || !bot.isOlympiadStart() || !enemy.isInOlympiadMode() || !enemy.isOlympiadStart()
+					|| bot.getOlympiadGameId() < 0 || bot.getOlympiadGameId() != enemy.getOlympiadGameId()))
+			|| (bot.getInstanceId() != enemy.getInstanceId())
 			|| bot.isAlikeDead() || enemy.isAlikeDead() || bot.isTeleporting() || enemy.isTeleporting()
 			|| !enemy.isAutoAttackable(bot) || !inside(bot.getX(), bot.getY(), arenaX, arenaY, arenaRadius)
 			|| !inside(enemy.getX(), enemy.getY(), arenaX, arenaY, arenaRadius))
@@ -206,7 +235,7 @@ public final class OlympiadChase
 	/** Called by setup/repair too: those paths must not overwrite a pursuit lease. */
 	public static synchronized void startAutoPlayUnlessPursuing(Player bot)
 	{
-		if (!ENGINE_HOLDS.containsKey(bot.getObjectId()))
+		if (!ENGINE_HOLDS.containsKey(bot.getObjectId()) && !BotTactics.isOwned(bot.getObjectId()))
 		{
 			AutoPlayTaskManager.getInstance().startAutoPlay(bot);
 		}
@@ -214,7 +243,7 @@ public final class OlympiadChase
 
 	private static void releaseEngines(Player bot)
 	{
-		if (ENGINE_HOLDS.remove(bot.getObjectId()) != null)
+		if ((ENGINE_HOLDS.remove(bot.getObjectId()) != null) && !BotTactics.isOwned(bot.getObjectId()))
 		{
 			AutoPlayTaskManager.getInstance().startAutoPlay(bot);
 		}

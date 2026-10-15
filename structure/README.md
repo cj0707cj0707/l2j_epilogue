@@ -49,6 +49,7 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 | [17-olympiad-predictive-chase.md](17-olympiad-predictive-chase.md) | Олимпийские боты: чтение направления движения противника, прогноз перехвата и сокращение дистанции |
 | [18-bot-combat-fixes-and-rollback.md](18-bot-combat-fixes-and-rollback.md) | Исправление ложных кастов ботов, улучшения боя и резервная точка/порядок отката |
 | [19-pursuit-movement-ownership.md](19-pursuit-movement-ownership.md) | Перехват v2: конфликт CAST-подхода/автокаста, приоритет движения, диагностика, установка и отдельный откат |
+| [20-olympiad-suite-and-giran-services.md](20-olympiad-suite-and-giran-services.md) | Тактика/сложности, изолированные тренировки, аналитика, четыре NPC Гирана, инструкция, восстановление и безопасный откат |
 
 ## Куда смотреть при типовых задачах
 
@@ -64,7 +65,7 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 | Добавить предмет в магазин | `05-datapack-data.md` → `buylists/`, `multisell/` |
 | Проблемы с БД, восстановление | `07-database.md` |
 | Аккаунты, баны, права | `08-admin-and-mods.md` |
-| Боты FakePlayersAI (спавн, ротации, олимпиада) | `09-fake-players-ai.md` |
+| Боты FakePlayersAI (спавн, ротации, олимпиада) | `09-fake-players-ai.md`; новая тактика/тренировки — `20-olympiad-suite-and-giran-services.md` |
 | Перехват убегающего противника ботами на олимпиаде | `17-olympiad-predictive-chase.md`; актуальный фикс/диагностика — `19-pursuit-movement-ownership.md` |
 | Визуальные эффекты (стан/звёзды), панель противника олимпиады | `10-stun-visual-and-olympiad-ui.md` |
 | Неработающие скиллы (Blink и т.п.) — что смотреть в цепочке каста | `12-blink-fix.md` |

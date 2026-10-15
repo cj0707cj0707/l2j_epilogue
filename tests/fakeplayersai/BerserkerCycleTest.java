@@ -51,6 +51,12 @@ public class BerserkerCycleTest
 		c.beginRetreat(8000, 180);
 		check(c.retreatUnproductive(8250, 90), "pressed retreat turns to fight immediately");
 		check(!c.canRetreat(9000, 220), "220 is engagement/rush threshold, not retreat");
-		System.out.println("PASS: " + checks + " Doombringer cycle-policy checks (no live server).");
+		check(BerserkerCycle.shouldPressFinish(200,0,1000,0,150), "low resources: finish instead of retreat");
+        check(!BerserkerCycle.shouldPressFinish(200,1000,1000,1000,150), "low HP but high CP is not a finish window");
+        check(BerserkerCycle.shouldPressFinish(250,250,1000,1000,219), "quarter effective resources boundary");
+        check(!BerserkerCycle.shouldPressFinish(250,251,1000,1000,219), "above boundary");
+        check(!BerserkerCycle.shouldPressFinish(100,0,1000,0,220), "distant enemy can still be rushed");
+        check(!BerserkerCycle.shouldPressFinish(0,0,0,0,100), "invalid max HP safe");
+        System.out.println("PASS: " + checks + " Doombringer cycle-policy checks (no live server).");
 	}
 }

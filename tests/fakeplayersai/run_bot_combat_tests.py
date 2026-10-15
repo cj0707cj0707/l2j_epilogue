@@ -19,7 +19,7 @@ def main():
     assert "return bot.useMagic(skill, true, true);" in manager, "Driver must not create walk-into-range casts"
     assert "synchronized (state)" in manager, "Concurrent driver passes need phase serialization"
     assert "OlympiadChase.startAutoPlayUnlessPursuing(player);" in spawner
-    assert spawner.count("if (OlympiadChase.isPursuing(player.getObjectId()))") == 2, "Both self-buff sync paths must respect pursuit"
+    assert spawner.count("if (OlympiadChase.isPursuing(player.getObjectId()) || BotTactics.isOwned(player.getObjectId()))") == 2, "Both self-buff sync paths must respect pursuit"
     assert "OLYMPIAD_ARENA_MAX_DISTANCE, !BERSERKER_STATES.containsKey(bot.getObjectId())" in manager
     assert "if ((bot.getAI().getIntention() == Intention.CAST) && (dist > CHASE_RANGE))" in manager
     driver = manager.split("private static boolean driveBerserkerStep(", 1)[1].split("private static Location berserkerRetreatPoint(", 1)[0]

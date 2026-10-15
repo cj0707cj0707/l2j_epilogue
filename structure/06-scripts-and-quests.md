@@ -144,3 +144,9 @@ public class Q00255_Tutorial extends Quest
 2. Новый квест — создать папку `quests\Q00XXX_Name\`, файл `Q00XXX_Name.java` с правильным `package`, зарегистрировать NPC/эвенты в конструкторе, положить HTML рядом.
 3. Отключить скрипт целиком — добавить `<exclude file="ИмяПапки"/>` в `game\config\Scripts.xml`.
 4. Ошибки компиляции видны в консоли и `log\error0.log`; скрипт с ошибкой просто не загрузится (сервер продолжит работу).
+
+## GiranServices и тактический слой FakePlayersAI
+
+`custom/GiranServices/GiranServices.java` обслуживает четыре новых NPC (1008000–1011000 с шагом 1000), генерирует диалоги/справочник и регистрирует только удалённые `.training leave/status/report`. `Preparation.java` — ограниченные расходники и три комплекта существующих objectId, без копирования предметов.
+
+Новые классы `custom/fakeplayersai`: `BotTactics`, `TacticsPolicy`, `TacticalSettings`, `TrainingArena`, `CombatAnalytics`. Интеграция в `BotManager`, `BotSpawner`, `OlympiadChase`, `BerserkerCycle`. Не переносить тестовые Java в исполняемый scripts! Карта ответственности, NPC, реальные ограничения тренировочной дуэли/аналитики и инструкция/безопасный откат — [20](20-olympiad-suite-and-giran-services.md).

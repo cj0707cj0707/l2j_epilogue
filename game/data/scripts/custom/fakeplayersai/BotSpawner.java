@@ -1278,15 +1278,19 @@ public class BotSpawner
 		player.addAutoSoulShot(BotPresets.getFighterShotId());
 		player.addAutoSoulShot(BLESSED_SPIRITSHOT_S);
 		
-		// AutoUse stays available for items; pursuit owns movement until combat range.
-		OlympiadChase.startAutoPlayUnlessPursuing(player);
-		AutoUseTaskManager.getInstance().startAutoUseTask(player);
+		// Legacy pursuit leaves items available; tactical ownership stops BOTH engines.
+		if (!BotTactics.isOwned(player.getObjectId()))
+		{
+			OlympiadChase.startAutoPlayUnlessPursuing(player);
+			AutoUseTaskManager.getInstance().startAutoUseTask(player);
+		}
 	}
 	
 	public static void stopAutoCombat(Player player)
 	{
 		// Reset the offline play marker first, so the stop calls below cannot touch
 		// the OfflinePlayTable (bots are never stored there).
+		BotTactics.forget(player.getObjectId());
 		OlympiadChase.forget(player.getObjectId());
 		player.setOfflinePlay(false);
 		player.getAutoUseSettings().setSelfCastOnly(false);
@@ -1325,7 +1329,7 @@ public class BotSpawner
 		}
 
 		final Collection<Integer> autoBuffs = player.getAutoUseSettings().getAutoBuffs();
-		if (OlympiadChase.isPursuing(player.getObjectId()))
+		if (OlympiadChase.isPursuing(player.getObjectId()) || BotTactics.isOwned(player.getObjectId()))
 		{
 			autoBuffs.clear(); // Do not create a new stationary cast during an intercept.
 			return;
@@ -1445,7 +1449,7 @@ public class BotSpawner
 
 		final Collection<Integer> autoBuffs = player.getAutoUseSettings().getAutoBuffs();
 
-		if (OlympiadChase.isPursuing(player.getObjectId()))
+		if (OlympiadChase.isPursuing(player.getObjectId()) || BotTactics.isOwned(player.getObjectId()))
 		{
 			autoBuffs.clear();
 			return;
@@ -1688,6 +1692,24 @@ public class BotSpawner
 		return removed;
 	}
 
+	/** Shared tactical gate: the new decision engine must not bypass admin rules
+	 * merely because it reads preset lists rather than the filtered auto lists. */
+	public static boolean tacticalSkillAllowed(Player player, Player enemy, Skill skill, boolean self)
+	{
+		if (player.isInOlympiadMode())
+		{
+			if (!player.isOlympiadStart() || isChantOfVictoryFamily(skill.getId()) || skill.isDance()
+				|| isOpenerOnlySkill(skill.getId()) || (self && isLongSelfBuff(player, skill.getId()))) return false;
+		}
+		if (BotManager.isTankBot(player) && isTankDefenseSkill(skill.getId()))
+		{
+			final int[] pool = enemy != null && enemy.isMageClass() ? TANK_DEFENSE_MAGIC : TANK_DEFENSE_PHYSICAL;
+			if (!containsId(pool, skill.getId())) return false;
+			for (int id : TANK_DEFENSE_ALL) if (player.isAffectedBySkill(id)) return false;
+		}
+		return true;
+	}
+
 	/**
 	 * Keeps the OLYMPIAD-BANNED buffs out of a BOT's live auto lists (skill rotation and
 	 * auto buffs) inside an olympiad match, so neither the core auto-use engine nor a
@@ -1706,6 +1728,7 @@ public class BotSpawner
 	 * preset, so the removal is re-asserted on every tick. Idempotent.
 	 * @param player the bot inside an olympiad match (countdown included)
 	 */
+
 	public static void trimOlympiadBannedSkillsFromAutoLists(Player player)
 	{
 		if (player == null)

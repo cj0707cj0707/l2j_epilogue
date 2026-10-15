@@ -289,3 +289,7 @@ UseItem 0 (выкл), RollDice 42, ItemPetSummon 16, HeroVoice 100, GlobalChat 5
 ### Вывод по кастому
 
 Из нестандартного на сервере реально работают: **офлайн-торговля и крафт, автопотки (CP/HP/MP 70%), рандомные спавны мобов, scheme-буфер, `/time`, чат-модерация, автофарм `.play` и боты FakePlayersAI**. Остальные моды настроены, но выключены — включаются флагом в своём `.ini` (+ обычно нужен рестарт).
+
+## OlympiadTactics.ini — новый тактический пакет
+
+`game/config/Custom/OlympiadTactics.ini`: `Enabled=true` — новый тактический слой рейтинговых ботов; `DefaultDifficulty=experienced` (`normal/experienced/strong`); `TrainingEnabled=true` — допуск новых изолированных тренировок. Ручные изменения флагов требуют перезапуска; GM-сложность можно сохранить у Server Guide. Отключение новых тренировок не отключает recovery. Сложность не повышает характеристики. См. [20](20-olympiad-suite-and-giran-services.md), включая аварийное отключение/порядок отката.

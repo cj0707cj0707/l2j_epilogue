@@ -47,6 +47,11 @@ final class BerserkerCycle
 		return landed ? RushStatus.LANDED : timeout ? RushStatus.TIMED_OUT : RushStatus.FAILED;
 	}
 
+    static boolean shouldPressFinish(double hp, double cp, double maxHp, double maxCp, double distance)
+    {
+        return distance < 220 && maxHp > 0 && (hp + Math.max(0,cp)) / (maxHp + Math.max(0,maxCp)) <= .25;
+    }
+
 	boolean canRetreat(long now, double distance)
 	{
 		return now >= nextRetreatAt && distance > 100 && distance < 220;

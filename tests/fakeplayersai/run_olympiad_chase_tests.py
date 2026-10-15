@@ -24,6 +24,7 @@ STUBS = {
         public double speed=240;
         public boolean mode=true,start=true,dead,teleport,casting,disabled,outOfControl,moving,attacking,allDisabled;
         public boolean attackable=true,autoPlaying,rejectMove;
+        public Object client; public Object getClient(){return client;}
         public int itemTicks,rotationTicks;
         public final Settings settings=new Settings();
         public static class Settings {
@@ -233,6 +234,19 @@ public class OlympiadChaseTest {
         check(stateCount()==1,"refused order is retried without a phantom throttle");
         OlympiadChase.forget(b.id);check(!OlympiadChase.isPursuing(b.id),"despawn drops movement lease");
 
+        b=bot();e=enemy();b.mode=e.mode=false;b.instance=e.instance=11;
+        org.l2jmobius.gameserver.taskmanagers.AutoPlayTaskManager.getInstance().stopAutoPlay(b);
+        OlympiadChase.registerTrainingPair(b,e);OlympiadChase.updateTraining(b,e,150,true,0,0,2000);
+        check(b.ai.moves==1 && !b.autoPlaying,"isolated training intercept needs no Olympiad flags or engines");
+        OlympiadChase.unregisterTrainingPair(b.id);b.ai.moves=0;OlympiadChase.updateTraining(b,e,150,true,0,0,2000);
+        check(b.ai.moves==0,"unregistered training pair cannot move an actor");
+        b.client=new Object();boolean rejected=false;try{OlympiadChase.registerTrainingPair(b,e);}catch(IllegalArgumentException ex){rejected=true;}
+        check(rejected,"client-backed human can never register as chase bot");
+        b=bot();e=enemy();update(b,e,150,true);BotTactics.owned=true;e.x=100;update(b,e,150,true);
+        check(!b.autoPlaying,"range release cannot rearm AutoPlay over tactical owner");
+        OlympiadChase.startAutoPlayUnlessPursuing(b);check(!b.autoPlaying,"setup respects tactical owner too");BotTactics.owned=false;
+        OlympiadChase.forget(b.id);
+
         java.util.Random random=new java.util.Random(15);
         for(int i=0;i<5000;i++){
             double bx=random.nextDouble()*3000-1500,by=random.nextDouble()*3000-1500;
@@ -274,6 +288,7 @@ public class Compile { public static void main(String[] args) {
         for name, body in STUBS.items():
             full = PACKAGE + name
             sources.append(write_java(tmp / "src", full, "package " + full.rsplit(".", 1)[0] + ";\n" + body))
+        sources.append(write_java(tmp / "src", "custom.fakeplayersai.BotTactics", "package custom.fakeplayersai; public class BotTactics { public static boolean owned; public static boolean isOwned(int id){return owned;} }"))
         sources.append(write_java(tmp / "src", "custom.fakeplayersai.OlympiadChaseTest", TEST))
         sources.append(ROOT / "tests/fakeplayersai/PursuitOwnershipRegression.java")
         subprocess.run(["java", str(launcher), "-d", str(tmp / "tests"), *map(str, sources), str(scripts / "OlympiadChase.java")], check=True)
