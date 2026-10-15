@@ -1,0 +1,210 @@
+#!/usr/bin/env python3
+"""Compile production bot scripts, then test pursuit with isolated API doubles.
+
+Run from any directory: python3 tests/fakeplayersai/run_olympiad_chase_tests.py
+Requires Python 3 and a Java 25 JDK (including jdk.compiler); no server or DB.
+The API doubles test logic only, not the real AI, geodata or networking.
+"""
+from pathlib import Path
+import os
+import subprocess
+import tempfile
+
+ROOT = Path(__file__).resolve().parents[2]
+PACKAGE = "org.l2jmobius.gameserver."
+STUBS = {
+    "ai.Intention": "public enum Intention { IDLE, ATTACK, CAST, MOVE_TO }",
+    "entity.Location": """public class Location {
+        private final int x,y,z;
+        public Location(int x,int y,int z){this.x=x;this.y=y;this.z=z;}
+        public int getX(){return x;} public int getY(){return y;} public int getZ(){return z;}
+    }""",
+    "entity.actor.Player": """public class Player {
+        public int id, x,y,z,dx,dy,dz,game=0,instance=0;
+        public double speed=240;
+        public boolean mode=true,start=true,dead,teleport,casting,disabled,outOfControl,moving,attacking,allDisabled;
+        public boolean attackable=true;
+        public Player target;
+        public final AI ai=new AI();
+        public Player(int id,int x,int y){this.id=id;this.x=x;this.y=y;}
+        public int getObjectId(){return id;} public int getX(){return x;} public int getY(){return y;} public int getZ(){return z;}
+        public int getXdestination(){return moving?dx:x;} public int getYdestination(){return moving?dy:y;} public int getZdestination(){return moving?dz:z;}
+        public int getOlympiadGameId(){return game;} public int getInstanceId(){return instance;}
+        public boolean isInOlympiadMode(){return mode;} public boolean isOlympiadStart(){return start;}
+        public boolean isAlikeDead(){return dead;} public boolean isTeleporting(){return teleport;} public boolean isCastingNow(){return casting;}
+        public boolean isMovementDisabled(){return disabled;} public boolean isOutOfControl(){return outOfControl;}
+        public boolean isAttackingNow(){return attacking;} public boolean isAllSkillsDisabled(){return allDisabled;}
+        public boolean isMoving(){return moving;} public boolean isAutoAttackable(Player p){return attackable;}
+        public double getMoveSpeed(){return speed;} public Player getTarget(){return target;}
+        public AI getAI(){return ai;} public double calculateDistance2D(Player p){return Math.hypot((double)x-p.x,(double)y-p.y);}
+        public class AI {
+            public org.l2jmobius.gameserver.ai.Intention intention=org.l2jmobius.gameserver.ai.Intention.IDLE;
+            public int moves=0,attacks=0,idles=0;
+            public org.l2jmobius.gameserver.ai.Intention getIntention(){return intention;}
+            public void setIntentionMoveTo(org.l2jmobius.gameserver.entity.Location p){moves++;dx=p.getX();dy=p.getY();dz=p.getZ();moving=true;intention=org.l2jmobius.gameserver.ai.Intention.MOVE_TO;}
+            public void setIntentionIdle(){idles++;moving=false;intention=org.l2jmobius.gameserver.ai.Intention.IDLE;}
+            public void setIntentionAttack(Player p){attacks++;moving=false;intention=org.l2jmobius.gameserver.ai.Intention.ATTACK;}
+        }
+    }""",
+    "geoengine.GeoEngine": """public class GeoEngine {
+        private static final GeoEngine INSTANCE=new GeoEngine();
+        public static boolean blocked=false; public static int minAllowedY=-100000;
+        public static GeoEngine getInstance(){return INSTANCE;}
+        public boolean canMoveToTarget(int x,int y,int z,int px,int py,int pz,int instance){return !blocked && py>=minAllowedY;}
+    }""",
+}
+TEST = r'''
+package custom.fakeplayersai;
+import org.l2jmobius.gameserver.ai.Intention;
+import org.l2jmobius.gameserver.entity.Location;
+import org.l2jmobius.gameserver.entity.actor.Player;
+import org.l2jmobius.gameserver.geoengine.GeoEngine;
+public class OlympiadChaseTest {
+    static int checks;
+    static void check(boolean b,String name){checks++;if(!b)throw new AssertionError(name);}
+    static Location point(double bx,double by,double bs,double ex,double ey,double dx,double dy,double es,double hold){
+        return OlympiadChase.intercept(bx,by,bs,ex,ey,0,dx,dy,es,hold);
+    }
+    static void update(Player b,Player e,int range,boolean attack){OlympiadChase.update(b,e,range,attack,0,0,2000);}
+    static Player bot(){OlympiadChase.forget(1);GeoEngine.blocked=false;GeoEngine.minAllowedY=-100000;return new Player(1,0,0);}
+    static Player enemy(){return new Player(2,800,0);}
+    static int stateCount()throws Exception {
+        var f=OlympiadChase.class.getDeclaredField("STATES");f.setAccessible(true);return ((java.util.Map<?,?>)f.get(null)).size();
+    }
+    static double simulate(int mode){
+        double bx=0,by=0,ex=500,ey=0,px=500,py=0;
+        double dt=0.05;
+        for(int tick=0;tick<300;tick++){
+            if(Math.hypot(ex-bx,ey-by)<=150)return tick*dt;
+            if(tick % (mode==0?40:5)==0){
+                Location p=(mode==2)?point(bx,by,240,ex,ey,ex,5000,200,100):new Location((int)ex,(int)ey,0);
+                px=p.getX();py=p.getY();
+            }
+            double d=Math.hypot(px-bx,py-by), step=Math.min(240*dt,d);
+            if(d>0){bx+=(px-bx)*step/d;by+=(py-by)*step/d;}
+            ey+=200*dt;
+        }
+        return Double.POSITIVE_INFINITY;
+    }
+    public static void main(String[] args)throws Exception {
+        Location p=point(0,0,240,800,0,800,0,0,100);
+        check(p.getX()==700 && p.getY()==0,"stationary opponent: direct approach with standoff");
+        p=point(0,0,240,800,0,800,2000,200,100);
+        check(p.getY()>0 && p.getX()<800,"lateral runner: aim ahead, not at old position");
+        p=point(0,0,240,800,0,0,0,200,100);
+        check(p.getX()<700,"oncoming runner: no run to old far endpoint");
+        p=point(0,0,200,800,0,2000,0,200,0);
+        check(p.getX()==1050,"equal-speed escape: bounded fallback, no infinity");
+        p=point(0,0,240,800,0,3000,0,1000,0);
+        check(p.getX()==1100,"lead capped at 300 units");
+        p=point(0,0,240,800,0,810,0,200,0);
+        check(p.getX()==810,"prediction never exceeds server movement endpoint");
+        p=point(0,0,240,800,0,800,0,999,100);
+        check(p.getX()==700,"zero-length route: no division by zero");
+        p=point(0,0,0,800,0,800,2000,200,100);
+        check(p.getX()==700 && p.getY()==0,"zero pursuer speed: no invalid quadratic");
+        p=point(0,0,240,300,0,1000,0,200,450);
+        check(p.getX()==0,"already in standoff: never step backward");
+        p=point(0,0,240,800,0,800,2000,200,450);
+        check(Math.abs(Math.hypot(800-p.getX(),250-p.getY())-450)<1,"ranged standoff from prediction");
+        double predictedTime=simulate(2),oldTime=simulate(0),reactiveTime=simulate(1);
+        check(predictedTime<oldTime,"deterministic lateral pursuit improves old capture time");
+        check(predictedTime<reactiveTime,"prediction improves capture vs equally frequent direct pursuit");
+        System.out.printf("Simulation (not a live match): predictive %.2fs, 250ms direct %.2fs; old 2s direct %s%n",predictedTime,reactiveTime,Double.isFinite(oldTime)?(oldTime+"s"):"not caught within 15s");
+
+        Player b=bot(),e=enemy();e.moving=true;e.dx=800;e.dy=1800;e.speed=200;b.target=e;
+        update(b,e,150,true);check(b.ai.moves==1 && b.dy>0,"server destination drives prediction");
+        update(b,e,150,true);check(b.ai.moves==1,"shared callers do not spam identical move commands");
+        int north=b.dy;Thread.sleep(270);e.dy=-1800;update(b,e,150,true);
+        check(b.ai.moves==2 && b.dy<0 && north>0,"direction reversal updates intercept");
+        Thread.sleep(270);e.moving=false;update(b,e,150,true);
+        check(b.dy==0,"stopped target discards old directional lead");
+        e.x=100;update(b,e,150,true);check(b.ai.attacks==1 && b.ai.intention==Intention.ATTACK,"melee in range returns to attacking");
+        check(stateCount()==0,"in-range route state cleared");
+
+        b=bot();e=enemy();b.target=e;update(b,e,500,false);
+        check(b.dx==350,"caster/bow far approach holds range, not enemy position");
+        e.x=400;update(b,e,500,false);check(b.ai.idles==1 && b.ai.attacks==0,"ranged stops owned approach without autoattack");
+        b=bot();e=enemy();update(b,e,500,false);
+        b.ai.setIntentionMoveTo(new Location(-300,0,0));e.x=400;
+        update(b,e,500,false);check(b.ai.idles==0 && b.dx==-300,"never stop an unrelated kite retreat");
+        b=bot();e=enemy();b.casting=true;update(b,e,150,true);check(b.ai.moves==0,"active cast untouched");
+        b=bot();e=enemy();b.ai.intention=Intention.CAST;update(b,e,150,true);check(b.ai.moves==0,"queued cast approach untouched");
+        b=bot();e=enemy();b.disabled=true;update(b,e,150,true);check(b.ai.moves==0,"root/stun/immobilization respected");
+        b=bot();e=enemy();b.outOfControl=true;update(b,e,150,true);check(b.ai.moves==0,"fear/confusion respected");
+        b=bot();e=enemy();b.attacking=true;update(b,e,150,true);check(b.ai.moves==0,"attack animation not replaced with a saved move");
+        b=bot();e=enemy();b.allDisabled=true;update(b,e,150,true);check(b.ai.moves==0,"all-skills-disabled move gate respected");
+
+        for(String field:new String[]{"mode","start","dead","teleport","attackable"}){
+            b=bot();e=enemy();Player.class.getField(field).setBoolean(e,field.equals("dead")||field.equals("teleport"));
+            update(b,e,150,true);check(b.ai.moves==0,"opponent invalid: "+field);
+        }
+        for(String field:new String[]{"mode","start","dead","teleport"}){
+            b=bot();e=enemy();Player.class.getField(field).setBoolean(b,field.equals("dead")||field.equals("teleport"));
+            update(b,e,150,true);check(b.ai.moves==0,"bot invalid: "+field);
+        }
+        b=bot();e=enemy();e.game=1;update(b,e,150,true);check(b.ai.moves==0,"other match ignored");
+        b=bot();e=enemy();e.instance=1;update(b,e,150,true);check(b.ai.moves==0,"other instance ignored");
+        b=bot();e=enemy();b.game=-1;e.game=-1;update(b,e,150,true);check(b.ai.moves==0,"no game ignored");
+        b=bot();update(b,null,150,true);check(b.ai.moves==0,"missing opponent ignored");
+        b=bot();update(b,b,150,true);check(b.ai.moves==0,"self ignored");
+        b=bot();e=enemy();e.x=2100;update(b,e,150,true);check(b.ai.moves==0,"opponent outside stadium ignored");
+        b=bot();e=enemy();b.x=-2100;update(b,e,150,true);check(b.ai.moves==0,"bot outside stadium ignored");
+        b=bot();e=enemy();GeoEngine.blocked=true;update(b,e,150,true);check(b.ai.moves==0,"blocked predicted AND direct routes issue no unsafe move");
+        b=bot();e=enemy();e.moving=true;e.dx=800;e.dy=-1800;e.speed=200;GeoEngine.minAllowedY=0;
+        update(b,e,150,true);check(b.ai.moves==1 && b.dy==0,"blocked shortcut falls back to walkable direct approach");
+        b=bot();e=enemy();update(b,e,150,true);GeoEngine.blocked=true;update(b,e,150,true);
+        check(b.ai.idles==1 && stateCount()==0,"invalidated owned route stops safely");
+        b=bot();e=enemy();update(b,e,150,true);b.start=false;update(b,e,150,true);
+        check(stateCount()==0,"end of match clears state");
+        b=bot();e=enemy();update(b,e,150,true);OlympiadChase.forget(b.id);
+        check(stateCount()==0,"despawn cleanup clears state");
+
+        java.util.Random random=new java.util.Random(15);
+        for(int i=0;i<5000;i++){
+            double bx=random.nextDouble()*3000-1500,by=random.nextDouble()*3000-1500;
+            double ex=random.nextDouble()*3000-1500,ey=random.nextDouble()*3000-1500;
+            double dx=random.nextDouble()*3000-1500,dy=random.nextDouble()*3000-1500;
+            p=point(bx,by,random.nextDouble()*500,ex,ey,dx,dy,random.nextDouble()*500,0);
+            if(Math.hypot(p.getX()-ex,p.getY()-ey)>301)throw new AssertionError("unbounded lead");
+            if((p.getX() < Math.min(ex,dx)-1)||(p.getX()>Math.max(ex,dx)+1)||(p.getY()<Math.min(ey,dy)-1)||(p.getY()>Math.max(ey,dy)+1))throw new AssertionError("prediction beyond endpoint");
+        }
+        check(true,"5000 deterministic geometry property cases");
+        System.out.println("PASS: "+checks+" checks, including 5000 geometry cases. API doubles only; not a running GameServer.");
+    }
+}
+'''
+
+def write_java(root, full_name, content):
+    path = root / (full_name.replace(".", "/") + ".java")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(content, encoding="utf-8")
+    return path
+
+
+def main():
+    with tempfile.TemporaryDirectory(prefix="olympiad-chase-") as tmp:
+        tmp = Path(tmp)
+        launcher = tmp / "Compile.java"
+        launcher.write_text("""import javax.tools.ToolProvider;
+public class Compile { public static void main(String[] args) {
+    System.exit(ToolProvider.getSystemJavaCompiler().run(null,System.out,System.err,args));
+} }""", encoding="utf-8")
+        scripts = ROOT / "game/data/scripts/custom/fakeplayersai"
+        jars = sorted((ROOT / "libs").glob("*.jar"))
+        if not jars:
+            raise SystemExit("Missing libs/*.jar: run from a checkout containing server libraries")
+        subprocess.run(["java", str(launcher), "-cp", os.pathsep.join(map(str, jars)), "-d", str(tmp / "production"),
+                        *map(str, sorted(scripts.glob("*.java")))], check=True)
+        print("Production scripts: compiled against repository JARs", flush=True)
+        sources = []
+        for name, body in STUBS.items():
+            full = PACKAGE + name
+            sources.append(write_java(tmp / "src", full, "package " + full.rsplit(".", 1)[0] + ";\n" + body))
+        sources.append(write_java(tmp / "src", "custom.fakeplayersai.OlympiadChaseTest", TEST))
+        subprocess.run(["java", str(launcher), "-d", str(tmp / "tests"), *map(str, sources), str(scripts / "OlympiadChase.java")], check=True)
+        subprocess.run(["java", "-cp", str(tmp / "tests"), "custom.fakeplayersai.OlympiadChaseTest"], check=True)
+
+
+if __name__ == "__main__":
+    main()

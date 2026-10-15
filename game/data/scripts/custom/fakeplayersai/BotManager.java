@@ -472,6 +472,10 @@ public class BotManager
 		// 2-second combat tick.
 		ThreadPool.scheduleAtFixedRate(BotManager::retargetTick, SETTINGS.getSpawnDelaySeconds() * 1000L, 1000L);
 		
+		// Olympiad-only movement prediction: react to opponent turns/stops at 250 ms,
+		// without changing the pace of buffs, rotations, registration or world combat.
+		ThreadPool.scheduleAtFixedRate(BotManager::olympiadChaseTick, SETTINGS.getSpawnDelaySeconds() * 1000L, 250L);
+
 		// Initial spawn at server start.
 		if (SETTINGS.isSpawnOnStart())
 		{
@@ -1847,8 +1851,8 @@ public class BotManager
 				// from the previously issued one or the bot is standing still, so the bot
 				// never walks to a stale position. While the distance is being closed the
 				// auto skill rotation keeps firing; a casting bot is never interrupted.
-				// Casters close in the same re-pathing way inside an active olympiad match
-				// and stop at the hold range (see CASTER_HOLD_RANGE).
+				// Active olympiad matches use the shared predictive driver instead; casters
+				// and bows keep their hold ranges, melee cuts toward the bounded intercept.
 				boolean closingIn = false;
 				if (!target.asCreature().isAlikeDead() && !bot.isCastingNow() && target.asCreature().isAutoAttackable(bot))
 				{
@@ -1911,18 +1915,8 @@ public class BotManager
 							}
 							if (distToTarget > KITE_HOLD_RANGE)
 							{
-								// Far: close in like the casters (re-path to the enemy's CURRENT position).
-								final int[] last = CHASE_POINTS.get(bot.getObjectId());
-								final boolean targetMoved = (last == null) || ((Math.abs(last[0] - target.getX()) + Math.abs(last[1] - target.getY())) > CHASE_REPATH_DISTANCE);
-								if (targetMoved || !bot.isMoving())
-								{
-									bot.getAI().setIntentionMoveTo(new Location(target.getX(), target.getY(), target.getZ()));
-									CHASE_POINTS.put(bot.getObjectId(), new int[]
-									{
-										target.getX(),
-										target.getY()
-									});
-								}
+								// Shared with the fast tick: predicted intercept, stop at bow range.
+								moveForOlympiadChase(bot, KITE_HOLD_RANGE, false);
 								closingIn = true;
 							}
 							else
@@ -1936,36 +1930,9 @@ public class BotManager
 					{
 						if (olympiadFight && (distToTarget > CASTER_HOLD_RANGE))
 						{
-							// Casters inside an active olympiad match close in like melee - but the
-							// approach point is PULLED BACK to CASTER_HOLD_RANGE from the enemy's
-							// CURRENT position (along the bot->enemy line), never the enemy position
-							// itself. A plain point move aimed at a MOVING opponent is always issued
-							// 2 seconds behind reality: while the caster runs to it, the enemy closes
-							// in as well, the two pass each other mid-arena, and the caster keeps
-							// running to the point the enemy occupied at issue time - visibly "to the
-							// enemy's spawn point". Caster pairs traded the sides of the arena for
-							// whole matches, casting only stray nukes on the crossings (log evidence
-							// 10.09.2026: MysticMuse ended a match at -80707 = the Soultaker spawn
-							// point, Soultaker at -78506 = the MysticMuse spawn point, 2.5 minutes,
-							// Soultaker damage 430). With the pulled point the caster always stops
-							// at hold range - inside the 600 cast range of its nukes - and fights
-							// from there; the re-path rule below is unchanged, and the "stale run"
-							// stop at hold range (the next branch) stays as the safety net.
-							final int[] last = CHASE_POINTS.get(bot.getObjectId());
-							final boolean targetMoved = (last == null) || ((Math.abs(last[0] - target.getX()) + Math.abs(last[1] - target.getY())) > CHASE_REPATH_DISTANCE);
-							if (targetMoved || !bot.isMoving())
-							{
-								final double distX = target.getX() - bot.getX();
-								final double distY = target.getY() - bot.getY();
-								final double scale = (distToTarget - CASTER_HOLD_RANGE) / distToTarget;
-								final Location holdPoint = new Location(bot.getX() + (int) (distX * scale), bot.getY() + (int) (distY * scale), bot.getZ());
-								bot.getAI().setIntentionMoveTo(holdPoint);
-								CHASE_POINTS.put(bot.getObjectId(), new int[]
-								{
-									target.getX(),
-									target.getY()
-								});
-							}
+							// Shared prediction prevents the 2-second driver from overwriting
+							// the fast intercept with an obsolete direct approach.
+							moveForOlympiadChase(bot, CASTER_HOLD_RANGE, false);
 							closingIn = true;
 						}
 						else if (olympiadFight && bot.isMoving() && (intention != Intention.ATTACK))
@@ -1990,6 +1957,11 @@ public class BotManager
 							}
 							CHASE_POINTS.remove(bot.getObjectId());
 						}
+					}
+					else if (olympiadFight && (distToTarget > CHASE_RANGE))
+					{
+						moveForOlympiadChase(bot, CHASE_RANGE, true);
+						closingIn = true;
 					}
 					else if (distToTarget > CHASE_RANGE)
 					{
@@ -2164,6 +2136,49 @@ public class BotManager
 		{
 			LOGGER.warning("FakePlayersAI: retarget tick error: " + e);
 		}
+	}
+
+	/** Fast movement-only pass; never drives human players or actors outside a live match. */
+	private static void olympiadChaseTick()
+	{
+		for (Player bot : BOTS.values())
+		{
+			try
+			{
+				if (!bot.isInOlympiadMode() || !bot.isOlympiadStart() || bot.isAlikeDead() || bot.isTeleporting())
+				{
+					OlympiadChase.forget(bot.getObjectId());
+					continue;
+				}
+				// The berserker driver exclusively owns its phases. Its generic
+				// fallback uses prediction in combatTick, never this concurrent pass.
+				if (BERSERKER_STATES.containsKey(bot.getObjectId()))
+				{
+					OlympiadChase.forget(bot.getObjectId());
+					continue;
+				}
+				final BotClassPreset preset = BotPresets.getPresetByClassId(getBotClassId(bot));
+				final boolean ranged = ((preset != null) && preset.isCaster()) || isKiterPreset(preset);
+				moveForOlympiadChase(bot, ranged ? CASTER_HOLD_RANGE : CHASE_RANGE, !ranged);
+			}
+			catch (Throwable e)
+			{
+				// One invalid participant must not stop pursuit for every other match.
+				LOGGER.warning("FakePlayersAI: olympiad chase " + bot.getObjectId() + ": " + e);
+			}
+		}
+	}
+
+	private static void moveForOlympiadChase(Player bot, int holdRange, boolean attackInRange)
+	{
+		final int gameId = bot.getOlympiadGameId();
+		if ((gameId < 0) || (gameId >= OLYMPIAD_STADIUM_CENTERS.length))
+		{
+			OlympiadChase.forget(bot.getObjectId());
+			return;
+		}
+		final int[] center = OLYMPIAD_STADIUM_CENTERS[gameId];
+		OlympiadChase.update(bot, getOlympiadOpponent(bot), holdRange, attackInRange, center[0], center[1], OLYMPIAD_ARENA_MAX_DISTANCE);
 	}
 
 	/**
@@ -2870,6 +2885,7 @@ public class BotManager
 			LOGGER.warning("FakePlayersAI: despawn of " + bot.getName() + " failed: " + e);
 		}
 		BOTS.remove(bot.getObjectId());
+		OlympiadChase.forget(bot.getObjectId());
 		CHASE_POINTS.remove(bot.getObjectId());
 		OPEN_CURSE_TARGETS.remove(bot.getObjectId());
 		CURSE_LAST_USE.remove(bot.getObjectId());
