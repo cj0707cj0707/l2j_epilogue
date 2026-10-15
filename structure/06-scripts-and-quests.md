@@ -70,11 +70,11 @@ CaptureTheFlag, Deathmatch, TeamVsTeam, Race, Elpies, Rabbits, CharacterBirthday
 
 DelevelManager, EchoCrystals, Enchanter, FactionSystem, FakePlayers, NoblessMaster, RaidbossInfo, SellBuff, ShadowWeapons, SkillEnchanter, Transmog, Validators — соответствуют конфигам в `game\config\Custom\` (→ [03-game-config.md](03-game-config.md)).
 
-### Кастомные сервисные NPC в Гиране: Enchanter, Skill Enchanter и Blacksmith Aug
+### Кастомные сервисные NPC в Гиране: Enchanter, Skill Enchanter, Blacksmith Aug и Adena Giver
 
-Три NPC стоят рядом на центральной площади Гирана и дают бесплатные услуги. Диалоги генерируются кодом (HTML собирается в `StringBuilder`), bypass-навигация — через `Script <ИмяКласса> <событие>` (класс регистрируется в `ScriptManager` по simple name, обработка — `onEvent`). NPC объявлены как `type="Folk"` (иначе не заполнится `_lastFolkNpc` и bypass-события не дойдут до скрипта).
+Четыре NPC стоят рядом на центральной площади Гирана и дают бесплатные услуги. Диалоги генерируются кодом (HTML формируется внутри скриптов), bypass-навигация — через `Script <ИмяКласса> <событие>` (класс регистрируется в `ScriptManager` по simple name, обработка — `onEvent`). NPC объявлены как `type="Folk"` (иначе не заполнится `_lastFolkNpc` и bypass-события не дойдут до скрипта).
 
-Все три NPC **рисуют свои окна в большом окне community board (alt+b), а не в диалоге NPC**:
+Все четыре NPC **рисуют свои окна в большом окне community board (alt+b), а не в диалоге NPC**:
 `onFirstTalk`/`onEvent` отправляют html через `HtmlUtil.sendCBHtml(player, html, npc.getObjectId())`
 и возвращают null; objectId NPC прикреплён к странице, поэтому bypass-ссылки проходят штатную
 проверку кэша с NPC в качестве origin (радиус 250). Лимит страницы — 48750 символов (ShowBoard ×3)
@@ -85,6 +85,7 @@ DelevelManager, EchoCrystals, Enchanter, FactionSystem, FakePlayers, NoblessMast
 | **Enchanter** («Free Enchant») — заточка экипировки | 1004000 | `data\stats\npcs\custom\Enchanter.xml` (displayId 31960), `data\spawns\Others\Enchanter.xml` (83057,148613,-3455), `data\scripts\custom\Enchanter\Enchanter.java` |
 | **Skill Enchanter** («Free Skill Enchant») — заточка скиллов | 1005000 | `data\stats\npcs\custom\SkillEnchanter.xml` (displayId 31960), `data\spawns\Others\SkillEnchanter.xml` (83121,148613,-3455, рядом с Enchanter), `data\scripts\custom\SkillEnchanter\SkillEnchanter.java` |
 | **Blacksmith Aug** («Skill Augment») — аугментация скиллов на выбор в оружие | 1006000 | `data\stats\npcs\custom\BlacksmithAug.xml` (displayId 31960), `data\spawns\Others\BlacksmithAug.xml` (82993,148613,-3455, рядом с Enchanter), `data\scripts\custom\BlacksmithAug\BlacksmithAug.java`, `data\stats\augmentation\options\25000-25099.xml` (кастомные augment-опции) |
+| **Adena Giver** («100 Million Adena») — выдача адены | 1007000 | `data\stats\npcs\custom\AdenaGiver.xml` (displayId 31960), `data\spawns\Others\AdenaGiver.xml` (83185,148613,-3455, рядом со Skill Enchanter), `data\scripts\custom\AdenaGiver\AdenaGiver.java` |
 
 **Enchanter** (1004000): бесплатная заточка экипировки по слотам, +1…+16 (`item.setEnchantLevel`, без расходов). Bypass: `Script Enchanter slot <слот>` / `Script Enchanter ench <слот> <уровень>`. С 12.09.2026 — окно в community board (alt+b), таблица расширена до 750 px (в странице слота заточка в 2 ряда по 8 уровней).
 
@@ -105,6 +106,8 @@ DelevelManager, EchoCrystals, Enchanter, FactionSystem, FakePlayers, NoblessMast
 - Защита от порчи списка умений: скилл, который игрок **уже знает**, аугментировать нельзя (`player.getKnownSkill(...) != null` → отказ), иначе надетый аугмент заменил бы свой вариант умения, а при снятии оружия умение вообще пропало бы до релогина.
 - Дополнительно: замена аугментации («Change») и её снятие («Remove») бесплатно; проверка валидности bypass — skillId обязан быть из списка предложений, optionId никогда не берётся от клиента.
 - Bypass: `Script BlacksmithAug` (список оружия) / `Script BlacksmithAug weapon <objectId>` / `Script BlacksmithAug list <objectId> <страница>` / `Script BlacksmithAug aug <objectId> <skillId> <страница>` / `Script BlacksmithAug remove <objectId>`.
+
+**Adena Giver** (1007000, добавлен 15.10.2026): кнопка `Get 100,000,000 Adena` выдаёт ровно **100 000 000 адены** за одно нажатие, бесплатно и повторно, без кулдауна/суточного лимита. Открытие окна само по себе ничего не выдаёт. Bypass: `Script AdenaGiver give`; сумма задана серверной константой `ADENA_AMOUNT = 100_000_000L`, клиент её не передаёт. Перед начислением проверяются правильный NPC (`npc.getId() == NPC_ID`), `npc.canInteract(player)`, состояние игрока и запас до `PlayerConfig.MAX_ADENA`. Если полная сумма не помещается, выдача отклоняется без частичного начисления. Используется штатный `player.addAdena(ItemProcessType.QUEST, ADENA_AMOUNT, npc, true)`; ядро обновляет инвентарь и отправляет системное сообщение. HTML генерируется внутри скрипта и отправляется через `HtmlUtil.sendCBHtml` с objectId NPC. Файлы, установка и проверки → [16-giran-adena-giver.md](16-giran-adena-giver.md).
 
 Отдельно стоит **`fakeplayersai\`** — кастомная система боевых ботов (BotManager / BotSpawner / BotPresets / BotSettings, реестр `registry.properties`): боты — настоящие безклиентские персонажи-игроки, которых ведут штатные авто-движки ядра (AutoPlayTaskManager + AutoUseTaskManager). Умеют PvP в мире и участвуют в олимпиаде; при спавне/загрузке ботам автоматически затачиваются скиллы (Power/Chance до максимума маршрута из `EnchantSkillGroups.xml`: +30 для 2-х классовых групп, +15 для 3-х). Управление — админ-команда `//bot` (`handlers\chat\commands\admin\AdminBot.java`). Подробно → [09-fake-players-ai.md](09-fake-players-ai.md).
 

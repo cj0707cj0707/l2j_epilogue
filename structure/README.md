@@ -45,6 +45,7 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 | [13-oly-remote-registration.md](13-oly-remote-registration.md) | Команда 14.09.2026: `/oly`, `//oly`, `.oly` — дистанционная регистрация на бесклассовую олимпиаду без менеджера; патч гейта AdminCommandHandler (команды с accessLevel=0 доступны игрокам) |
 | [14-bluff-turn.md](14-bluff-turn.md) | Фикс 18-19.09.2026: Bluff / Blinding Blow разворачивают противника спиной (ValidateLocation окружающим + «нулевой шаг» MoveToLocation/StopMove собственному клиенту жертвы — без телепорта и затемнения экрана) |
 | [15-dominator-enlightenment.md](15-dominator-enlightenment.md) | Фикс 03.10.2026: Enlightenment у Dominator — «волшебный» вариант 1532 (+40% M.Atk) вместо «хилерского» 1533 (+10% M.Atk/+40% Heal), как у всех магических классов; то же в бот-пресете |
+| [16-giran-adena-giver.md](16-giran-adena-giver.md) | NPC Adena Giver в Гиране: 100 000 000 адены за нажатие, файлы, проверки и установка |
 
 ## Куда смотреть при типовых задачах
 
@@ -56,6 +57,7 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 | Добавить/поправить квест или ИИ NPC | `06-scripts-and-quests.md` |
 | Поправить диалог NPC | `05-datapack-data.md` → `html/` |
 | Изменить спавны/добавить мобов | `05-datapack-data.md` → `spawns/` |
+| NPC для выдачи 100 миллионов адены в Гиране | `16-giran-adena-giver.md` |
 | Добавить предмет в магазин | `05-datapack-data.md` → `buylists/`, `multisell/` |
 | Проблемы с БД, восстановление | `07-database.md` |
 | Аккаунты, баны, права | `08-admin-and-mods.md` |
