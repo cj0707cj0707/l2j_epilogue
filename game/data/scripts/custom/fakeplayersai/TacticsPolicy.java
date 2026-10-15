@@ -107,6 +107,63 @@ final class TacticsPolicy
         return sawCast || paid || elapsed >= 350;
     }
 
+	static long observeSleep(long observed, boolean sleeping, long time)
+	{
+		return !sleeping ? -1 : observed < 0 ? time : observed;
+	}
+
+	static double defensePriority(int id)
+	{
+		return switch (id) { case 110,760 -> 20; case 368 -> 12; case 916 -> 8; default -> 0; };
+	}
+
+	/** Only Dominator gets a bounded curse phase, then damage to break sleep. */
+	static boolean sleepOffenseAllowed(boolean dominator, boolean sleeping, long elapsed, boolean directDamage, boolean sleepSkill)
+	{
+		if (!sleeping) { return true; }
+		if (!dominator || sleepSkill) { return false; }
+		return elapsed < 5000 ? !directDamage : directDamage;
+	}
+
+	static boolean basicAttackAllowed(boolean dagger, boolean caster, boolean disarmed)
+	{
+		return !dagger && !caster && !disarmed;
+	}
+	static double effectiveRange(boolean aura, int castRange, int affectRange, int physicalRange, double collision)
+	{
+		if (aura && affectRange <= 0) { return 0; }
+		return (aura ? affectRange : castRange > 0 ? castRange : Math.max(0, physicalRange)) + Math.max(0, collision);
+	}
+	static int boundedApproachRange(double reach)
+	{
+		return (int)Math.max(20,Math.min(1000,Math.floor(reach)));
+	}
+	static boolean recoveryStepAllowed(boolean disarmed, boolean offenseAvailable, boolean offenseReady, double distance, boolean enemyControlled)
+	{
+		return !enemyControlled && distance > 1 && distance < 350 && (disarmed || !offenseAvailable && !offenseReady);
+	}
+	static boolean recoveryEnemyControlled(boolean dominator, boolean sleeping, boolean immobile, boolean outOfControl)
+	{
+		// Dominator may reposition during its bounded sleep phase if no curse/damage
+		// is usable; other classes preserve the existing sleep-protection hold.
+		return dominator && sleeping ? false : sleeping || immobile || outOfControl;
+	}
+	static double defenseScore(double hp, double cp, boolean threatened)
+	{
+		if (hp < .35) { return 155; }
+		if (threatened && (hp < .65 || cp < .35)) { return 140; }
+		return hp < .65 ? 85 : -1;
+	}
+	static boolean defenseSkill(int id)
+	{
+		return switch (id)
+		{
+			case 110, 368, 350, 439, 527, 112, 82, 86, 760, 913, 351, 72, 916,
+				111, 139, 447, 761, 788, 499 -> true;
+			default -> false;
+		};
+	}
+
 	static long failureBackoff(int failures)
 	{
 		return Math.min(8000, 500L << Math.min(4, Math.max(0, failures - 1)));

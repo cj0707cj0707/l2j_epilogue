@@ -16,7 +16,7 @@ public final class TacticalSettings
     private static boolean initialized;
     private static volatile boolean enabled = true;
     private static volatile boolean trainingEnabled = true;
-    private static volatile int trainingPreparationSeconds = 30;
+    private static volatile int trainingPreparationSeconds = 10;
     private TacticalSettings() {}
     public static synchronized void init()
     {
@@ -29,12 +29,16 @@ public final class TacticalSettings
         }
         enabled = Boolean.parseBoolean(values.getProperty("Enabled", "true"));
         trainingEnabled = Boolean.parseBoolean(values.getProperty("TrainingEnabled", "true"));
-        try { trainingPreparationSeconds = Math.max(30, Math.min(60, Integer.parseInt(values.getProperty("TrainingPreparationSeconds", "30").trim()))); }
-        catch (NumberFormatException e) { trainingPreparationSeconds = 30; }
+        trainingPreparationSeconds = parsePreparationSeconds(values.getProperty("TrainingPreparationSeconds", "10"));
         String difficulty = values.getProperty("DefaultDifficulty", "strong");
         if (!validDifficulty(difficulty)) difficulty = "strong";
         BotTactics.setDefaultDifficulty(difficulty);
         initialized = true;
+    }
+    static int parsePreparationSeconds(String value)
+    {
+        try { return Math.max(10, Math.min(60, Integer.parseInt(value == null ? "10" : value.trim()))); }
+        catch (NumberFormatException e) { return 10; }
     }
     public static boolean isEnabled() { init(); return enabled; }
     public static int getTrainingPreparationSeconds() { init(); return trainingPreparationSeconds; }
@@ -56,7 +60,7 @@ public final class TacticalSettings
         {
             Files.createDirectories(FILE.getParent());
             Path temporary = FILE.resolveSibling(FILE.getFileName() + ".tmp");
-            try (OutputStream out = Files.newOutputStream(temporary)) { data.store(out, "Olympiad tactical decisions; no stat multipliers"); }
+            try (OutputStream out = Files.newOutputStream(temporary)) { data.store(out, "Olympiad tactical decisions; training preparation 10..60s; no stat multipliers"); }
             try { Files.move(temporary, FILE, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE); }
             catch (java.nio.file.AtomicMoveNotSupportedException e) { Files.move(temporary, FILE, StandardCopyOption.REPLACE_EXISTING); }
             BotTactics.setDefaultDifficulty(value);

@@ -181,9 +181,11 @@ public class OlympiadChaseTest {
         b=bot();e=enemy();update(b,e,150,true);OlympiadChase.forget(b.id);
         check(stateCount()==0,"despawn cleanup clears state");
 
-        b=bot();e=enemy();e.x=400;update(b,e,500,false);e.x=530;update(b,e,500,false);
-        check(b.ai.moves==0,"range hysteresis prevents edge shuffling");
-        e.x=570;update(b,e,500,false);check(b.ai.moves==1,"range opens beyond hysteresis: pursue again");
+        b=bot();e=enemy();e.x=400;update(b,e,500,true);e.x=530;update(b,e,500,true);
+        check(b.ai.moves==0,"basic-attack range hysteresis prevents edge shuffling");
+        e.x=570;update(b,e,500,true);check(b.ai.moves==1,"range opens beyond hysteresis: pursue again");
+        b=bot();e=enemy();e.x=40;update(b,e,50,false);e.x=70;update(b,e,50,false);
+        check(b.ai.moves==1,"skill-only pursuit never stops outside its real cast radius");
         b=bot();e=enemy();e.x=400;update(b,e,500,false);e.id=3;e.x=530;update(b,e,500,false);
         check(b.ai.moves==1,"engagement hysteresis never leaks into another opponent");
         b=bot();e=enemy();e.x=400;GeoEngine.visible=false;update(b,e,500,false);
@@ -288,6 +290,7 @@ public class Compile { public static void main(String[] args) {
         for name, body in STUBS.items():
             full = PACKAGE + name
             sources.append(write_java(tmp / "src", full, "package " + full.rsplit(".", 1)[0] + ";\n" + body))
+        sources.append(write_java(tmp / "src", "custom.fakeplayersai.OlympiadCombatGate", "package custom.fakeplayersai; import org.l2jmobius.gameserver.entity.actor.Player; public class OlympiadCombatGate { public static boolean ready(Player p){return true;} public static void hold(Player p){} }"))
         sources.append(write_java(tmp / "src", "custom.fakeplayersai.BotTactics", "package custom.fakeplayersai; public class BotTactics { public static boolean owned; public static boolean isOwned(int id){return owned;} }"))
         sources.append(write_java(tmp / "src", "custom.fakeplayersai.OlympiadChaseTest", TEST))
         sources.append(ROOT / "tests/fakeplayersai/PursuitOwnershipRegression.java")

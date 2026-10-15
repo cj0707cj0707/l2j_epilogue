@@ -243,7 +243,7 @@ public class BotPresets
 		addPreset(95, "Soultaker", BotClassPreset.GearKind.ROBE, BotClassPreset.WeaponKind.MAGIC, false, false, true,
 			new int[]
 			{
-				1343, 1263, 1064, 1170, 1069, 1222, 1337
+				1234, 1343, 1263, 1064, 1170, 1069, 1222, 1337
 			},
 			new int[]
 			{
@@ -260,7 +260,7 @@ public class BotPresets
 			new int[]
 			{
 				// Dodge (446) is opener-burst-only (see the Adventurer preset comment):
-				// applied 3 seconds after the gates open together with Wind Riding (769).
+				// applied shortly before the gates open together with Wind Riding (769).
 				769, 355, 356, 410, 111, 312, 230
 			});
 		addPreset(102, "Moonlight Sentinel", BotClassPreset.GearKind.LIGHT, BotClassPreset.WeaponKind.BOW, true, true, false,
@@ -275,7 +275,7 @@ public class BotPresets
 		addPreset(103, "Mystic Muse", BotClassPreset.GearKind.ROBE, BotClassPreset.WeaponKind.MAGIC, true, false, true,
 			new int[]
 			{
-				1235, 1340, 1453, 1239, 1071, 1338, 1056, 1069
+				1235, 1340, 1453, 1071, 1338, 1056, 1069
 			},
 			new int[]
 			{
@@ -301,7 +301,7 @@ public class BotPresets
 			new int[]
 			{
 				// Ghost Walking (770) is opener-burst-only (see the Adventurer preset comment):
-				// applied 3 seconds after the gates open.
+				// applied shortly before the gates open.
 				355, 357, 410, 111, 447, 312
 			});
 		addPreset(109, "Ghost Sentinel", BotClassPreset.GearKind.LIGHT, BotClassPreset.WeaponKind.BOW, true, true, false,

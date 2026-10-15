@@ -9,7 +9,7 @@ public final class giranServicesTest
         boolean failed=false; try { Preparation.parse(text); } catch (IllegalArgumentException e) { failed=true; }
         check(failed);
     }
-    public static void main(String[] args)
+    public static void main(String[] args) throws Exception
     {
         check(Preparation.parse(null).isEmpty()); check(Preparation.parse("").isEmpty());
         check(Preparation.parse("1,42,2147483647").size()==3);
@@ -26,6 +26,14 @@ public final class giranServicesTest
         check(GiranServices.npcEvent("GiranService start").equals("start"));
         check(GiranServices.npcEvent("GiranService class 131").equals("class 131"));
         check(GiranServices.npcEvent("GiranService   main  ").equals("main"));
+        java.lang.reflect.Field helpField = GiranServices.class.getDeclaredField("HELP"); helpField.setAccessible(true);
+        java.util.Map<?,?> help = (java.util.Map<?,?>)helpField.get(null);
+        String trainingHelp = (String)help.get("training");
+        check(trainingHelp.contains("10–60 сек.") && trainingHelp.contains("по умолчанию 10"));
+        check(trainingHelp.contains("85 уровня") && trainingHelp.contains("настройками снаряжения и заточки умений"));
+        check(trainingHelp.contains("после подтверждённого входа") && trainingHelp.contains("не после боя"));
+        check(trainingHelp.contains("до остатка общего лимита 120 сек.") && trainingHelp.contains("победа боту автоматически не присуждается"));
+        check(!trainingHelp.contains("30–60") && !trainingHelp.contains("Сброса откатов игрока нет"));
         System.out.println("PASS: "+checks+" production preparation parser/HTML checks (no live NPC)");
     }
 }

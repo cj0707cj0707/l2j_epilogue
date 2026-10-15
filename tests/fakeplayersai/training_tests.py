@@ -9,13 +9,13 @@ ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / 'game/data/scripts/custom/fakeplayersai'
 t = (SRC / 'TrainingArena.java').read_text()
 a = (SRC / 'CombatAnalytics.java').read_text()
-for forbidden in ('setInOlympiadMode(', 'setOlympiadGameId(', 'setNoblePoints(', 'registerNoble(', 'resetDisabledSkills(', 'fullRestore(', 'BotSpawner.createBot('):
+for forbidden in ('setInOlympiadMode(', 'setOlympiadGameId(', 'setNoblePoints(', 'registerNoble(', 'fullRestore(', 'BotSpawner.createBot('):
     assert forbidden not in t, forbidden
 for forbidden in ('p.addItem(', 'p.addExpAndSp(', 'p.giveAvailableSkills(', 'p.setCurrentHp(', 'p.setCurrentMp(', 'p.setCurrentCp(', 'p.getInventory().destroy'):
     assert forbidden not in t, forbidden
 assert t.index('save(p.getObjectId(), j); // MUST') < t.index('s.bot = createBot(') < t.index('p.teleToLocation(')
 assert 'DuelManager.getInstance().addDuel(p, b, 0)' in t
-assert 'DuelManager.getInstance().doSurrender(p)' in t
+assert 'doSurrender(' not in t, 'cleanup must never reverse a pending natural winner or fabricate a quit loss'
 assert 'BotTactics.forget(s.bot.getObjectId())' in t
 assert 'if (!BotTactics.tick(b, p, preset, false))' in t and 'OlympiadChase.updateTraining(' in t
 assert 'b.getAI().setIntentionAttack(p)' in t
@@ -28,7 +28,7 @@ assert 'e.getSkill().hasNegativeEffect()' in t and 'e.getSkill().isDebuff()' in 
 assert 'e.getSkill().isSuicideAttack()' in t and 'e.getSkill().nextActionIsAttack()' in t
 assert 'target != e.getCaster()' in t and 'e.getCaster() == s.player' in t, 'self-only human casts, no bot/pet offense'
 assert 's.preparationStarted = true' in t and 'preparationSeconds(TacticalSettings.getTrainingPreparationSeconds())' in t
-assert 'Math.max(30, Math.min(60, configured))' in t
+assert 'Math.max(10, Math.min(60, configured))' in t
 assert 'applyTrainingOlympiadBuffs(p,' in t and 'applyTrainingOlympiadBuffs(b,' in t
 assert 'maintainFullBuffs(' not in t, 'training must not select world buff branch'
 assert 'stopSkillEffects(' not in t and 'stopAllEffects(' not in t and 'savePlayerConditions(' not in t
@@ -45,7 +45,33 @@ assert 'return;' in casting_wait and 'stop(b)' in casting_wait, 'finish human ca
 assert 'p.abortAttack(); p.stopMove(null)' in transition
 for forbidden in ('stop(p)', 'p.abortCast(', 'p.setTarget(', 'p.getAI()'):
     assert forbidden not in transition, 'deadline transition must not interrupt a racing selfbuff: ' + forbidden
-assert t.index('if (s.stopping)\n        {\n            Player winner') < t.index('// A selfbuff begun near the deadline'), 'core timeout/leave precede cast extension'
+assert t.index('if (s.stopping)\n        {\n            captureOfficialResult(s);') < t.index('// A selfbuff begun near the deadline'), 'core timeout/leave precede cast extension'
+
+assert 'BotTactics.allowsBasicAttack(b, preset)' in t and 'if (basicAttack &&' in t
+assert 'OlympiadChase.updateTraining(b, p, range, basicAttack,' in t, 'dagger/disarm fallback cannot autoattack'
+assert t.count('BotSpawner.applyPreCombatOpeners(') == 1, 'exactly one explicit training opener call site'
+assert t.index('s.openersApplied = true;') < t.index('BotSpawner.applyPreCombatOpeners(') < t.index('s.active = true')
+assert 'Math.max(s.preparationUntil, System.nanoTime() + 3_000_000_000L)' in t
+assert 's.pendingWinnerId = naturalWinnerId(' in t and 's.pendingWinnerId == 0' in t
+assert 'if (!s.preparationStarted && !s.stopping && s.pendingWinnerId == 0 && !s.duel.getFinished())' in t, 'no baseline buffs or skill unlock after terminal defeat'
+assert 'if (s.officialResultCaptured || !s.duel.getFinished()) return;' in t
+assert 's.duel.checkEndDuelCondition()' in t and 's.duel.getWinner()' in t
+assert 's.officialResultCaptured = true;' in t, 'capture before restore only once'
+assert 'officialWinnerId(true, result,' in t and 's.officialReason' in t
+assert 'Unknown: core result was not observed before restore' in t
+assert 'до остатка общего лимита 120 сек.' in t, 'quit explains potentially full core timeout wait'
+assert 'resultLabel(b.training, own.id, winnerId, reason)' in a
+
+assert t.count('resetEntryCooldowns(p);') == 1, 'one entry reset call site only'
+entry = t[t.index('if (!s.duelRequested)'):t.index('if (s.duel == null && p.isInDuel())')]
+assert entry.index('if (s.stopping)') < entry.index('if (p.isTeleporting() || b.isTeleporting()) return;') < entry.index('resetEntryCooldowns(p);') < entry.index('addDuel(p, b, 0)')
+assert entry.index('s.entryCooldownReset = true;') < entry.index('resetEntryCooldowns(p);')
+assert t.index('p.getInstanceId() != s.instance.getId()') < t.index('resetEntryCooldowns(p);'), 'verify actual instance before reset'
+assert 'p.resetDisabledSkills();' in t and 'p.resetTimeStamps();' in t and 'p.sendPacket(new SkillCoolTime(p));' in t
+assert 'getItemReuseTimeStamps' not in t and 'resetEntryCooldowns' not in t[t.index('private static void finish(Session s)'):], 'no end/recovery cooldown reset'
+assert 'f = trainingProfile(profile);' in t and 'int level = 85;' in t
+assert 'human.getLevel()' not in t and 'getEnchantLevel()' not in t and 'setEnchantLevel(' not in t, 'no human gear or enchant mirroring'
+assert t.index('b.giveAvailableSkills(true, true, true)') < t.index('BotSpawner.applySkillEnchants(b)') < t.index('BotSpawner.equipGear(b, preset)')
 
 assert 'participantSession' in t and '((Summon)actor).getOwner()' in t, 'pet offense follows participant gate'
 assert 'до 50%' in t and 'GM: выключите invul' in t and 'Уже идёт подготовка другой дуэли' in t

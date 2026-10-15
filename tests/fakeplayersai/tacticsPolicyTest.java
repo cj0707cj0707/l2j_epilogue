@@ -95,6 +95,43 @@ public final class tacticsPolicyTest
         check(!rangedStepAllowed(true,true,145,.4,false,false,3), "caster range boundary");
         check(!rangedStepAllowed(false,true,110,.4,false,false,3), "bow range boundary");
         check(rangedStepAllowed(true,true,140,.9,false,false,0), "cooldown permits positioning without sacrificing ready offense");
+		for (boolean dagger : new boolean[] {false, true}) for (boolean caster : new boolean[] {false, true}) for (boolean disarmed : new boolean[] {false, true})
+			check(basicAttackAllowed(dagger, caster, disarmed) == (!dagger && !caster && !disarmed), "exhaustive basic-attack gate");
+		check(effectiveRange(false,40,0,80,8)==48, "targeted melee includes actual bot collision radius");
+		check(effectiveRange(false,-1,0,80,8)==88, "negative physical cast range uses weapon reach");
+		check(effectiveRange(true,-1,150,80,8)==158, "negative aura cast range uses affect radius");
+		check(effectiveRange(true,-1,0,80,8)==0, "missing aura radius never grants collision-only attack");
+		check(defenseScore(.95,.2,true)>score(Kind.DAMAGE,healthy), "CP collapse under threat triggers defense before HP damage");
+		check(defenseScore(.95,.2,false)<0, "no CP panic without observable threat");
+		check(defenseScore(.2,1,false)>=150, "HP emergency independent of CP");
+		for (int id : new int[] {110,368,350,439,527,112,82,86,760,913,351,72,916,111,139,447,761,788,499})
+			check(defenseSkill(id), "explicit physical/magic and non-tank defense ID " + id);
+		for (int id : new int[] {30,344,36,917,769,1532}) check(!defenseSkill(id), "attack/opener never mistaken for defense " + id);
+		check(recoveryStepAllowed(true,true,false,200,false), "disarmed melee retreats at real speed");
+		check(recoveryStepAllowed(false,false,false,200,false), "no usable offensive skill retreats");
+		check(!recoveryStepAllowed(false,true,false,200,false), "out-of-range ready offense pursues rather than perpetual kite");
+		check(!recoveryStepAllowed(false,true,true,80,false), "ready melee offense precedes kite");
+		check(!recoveryStepAllowed(true,false,false,350,false), "bounded recovery distance");
+		check(!recoveryStepAllowed(true,false,false,80,true), "no retreat from controlled threat");
+		for (boolean dominator : new boolean[] {false,true}) for (boolean sleeping : new boolean[] {false,true})
+			for (long elapsed : new long[] {0,4999,5000,10000,60000}) for (boolean direct : new boolean[] {false,true}) for (boolean sleepSkill : new boolean[] {false,true})
+			{
+				boolean expected = !sleeping || dominator && !sleepSkill && (elapsed<5000 ? !direct : direct);
+				check(sleepOffenseAllowed(dominator,sleeping,elapsed,direct,sleepSkill)==expected,"bounded class-specific sleep phase matrix");
+			}
+		check(observeSleep(-1,false,100)==-1,"awake keeps sleep phase reset");
+		check(observeSleep(-1,true,100)==100,"sleep observation starts phase once");
+		check(observeSleep(100,true,5000)==100,"continuous sleep never refreshes five-second phase");
+		check(observeSleep(100,false,5100)==-1,"sleep end resets bounded phase");
+		check(observeSleep(-1,true,5200)==5200,"next sleep cycle gets a fresh curse phase");
+		check(defensePriority(110)>defensePriority(82),"UD emergency precedes low value Majesty");
+		check(defensePriority(760)>defensePriority(72),"anti magic armor precedes Iron Will");
+		check(!recoveryEnemyControlled(true,true,true,false),"Dominator may kite when sleeping foe leaves no legal curses/damage");
+		check(recoveryEnemyControlled(false,true,true,false),"other classes retain sleep positioning hold");
+		check(recoveryEnemyControlled(true,false,true,false),"rooted non-sleeping enemy remains controlled");
+		check(boundedApproachRange(48.8)==48,"pursuit rounds down within legal blow collision radius");
+		check(boundedApproachRange(-1)==20,"minimum pursuit range bounded");
+		check(boundedApproachRange(5000)==1000,"maximum pursuit range bounded");
         System.out.println("PASS: " + checks + " tactical policy assertions");
 	}
 }

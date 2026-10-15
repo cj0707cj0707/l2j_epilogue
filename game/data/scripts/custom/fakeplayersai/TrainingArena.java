@@ -18,13 +18,14 @@ import org.l2jmobius.gameserver.data.xml.PlayerTemplateData;
 import org.l2jmobius.gameserver.entity.Location;
 import org.l2jmobius.gameserver.entity.World;
 import org.l2jmobius.gameserver.entity.actor.Player;
+import org.l2jmobius.gameserver.entity.actor.enums.player.DuelResult;
 import org.l2jmobius.gameserver.entity.actor.Creature;
 import org.l2jmobius.gameserver.entity.actor.Summon;
 import org.l2jmobius.gameserver.entity.actor.appearance.PlayerAppearance;
 import org.l2jmobius.gameserver.entity.actor.holders.player.Duel;
 import org.l2jmobius.gameserver.entity.instancezone.Instance;
 import org.l2jmobius.gameserver.entity.item.enums.ItemProcessType;
-import org.l2jmobius.gameserver.entity.item.instance.Item;
+import org.l2jmobius.gameserver.network.serverpackets.SkillCoolTime;
 import org.l2jmobius.gameserver.managers.DuelManager;
 import org.l2jmobius.gameserver.managers.InstanceManager;
 import org.l2jmobius.gameserver.mechanics.events.*;
@@ -45,7 +46,7 @@ import org.l2jmobius.gameserver.geoengine.GeoEngine;
  * start must be exposed only through a nearby trainer; leave may be exposed remotely.
  * Uses the REAL DuelManager lifecycle (~6s startup, 120s INCLUDING training prep),
  * nonlethal defeat, never Olympiad mode/points/queues/rewards. After core start:
- * 30..60s protected selfbuff preparation, shared 13 buffs and Olympiad class profile.
+ * 10..60s protected selfbuff preparation, shared 13 buffs and Olympiad class profile.
  * Existing human effects are NOT stripped/snapshotted/restored: core snapshots only
  * HP/MP/CP and tracks duel debuffs, NOT a complete effect list. Supplied buffs have
  * ordinary durations/stacking; no invented restoration or blanket effect removal.
@@ -78,6 +79,11 @@ public final class TrainingArena
         return null;
     }
     static boolean inside(int x, int y) { return Math.hypot((double)x - CX, (double)y - CY) <= RADIUS; }
+    static String trainingProfile(String value)
+    {
+        String profile = option(value, "custom", "equal");
+        return profile == null ? null : "custom"; // legacy equal links/repeat use ranked baseline
+    }
     private record Choice(int classId, String difficulty, String profile) { }
     private static final class Session
     {
@@ -88,11 +94,11 @@ public final class TrainingArena
         Player bot;
         Instance instance;
         Duel duel;
-        boolean duelRequested, closed, botDisposed;
+        boolean duelRequested, closed, botDisposed, openersApplied, officialResultCaptured, entryCooldownReset;
         volatile boolean active, stopping, preparationStarted;
-        String reason = "Training finished";
-        long nextAction, finishAt, preparationUntil;
-        int countdown = -1, winnerId;
+        String reason = "Training finished", officialReason;
+        long nextAction, preparationUntil;
+        int countdown = -1, winnerId, pendingWinnerId;
         Session(Player p, Choice c, Properties j) { player = p; choice = c; journal = j; }
     }
     public static synchronized void init()
@@ -116,11 +122,35 @@ public final class TrainingArena
         ThreadPool.scheduleAtFixedRate(TrainingArena::reap, 2000, 30000);
         initialized = true;
     }
-    static int preparationSeconds(int configured) { return Math.max(30, Math.min(60, configured)); }
+    static int preparationSeconds(int configured) { return Math.max(10, Math.min(60, configured)); }
     static int remainingSeconds(long deadline, long now)
     { return (int)Math.max(0, (deadline - now + 999_999_999L) / 1_000_000_000L); }
     static boolean prepSkillAllowed(boolean human, boolean preparing, boolean stopping, boolean negative, boolean onlySelf)
     { return human && preparing && !stopping && !negative && onlySelf; }
+    /** Finished is published before the core's 5s restore; never guess from HP/death. */
+    static int officialWinnerId(boolean finished, DuelResult result, int winnerId, int humanId, int botId)
+    {
+        if (!finished || result == null) return 0;
+        // addDuel(human, bot, 0) fixes the actual core team order.
+        int expected = switch (result)
+        {
+            case TEAM_1_WIN, TEAM_2_SURRENDER -> humanId;
+            case TEAM_2_WIN, TEAM_1_SURRENDER -> botId;
+            default -> 0;
+        };
+        return expected != 0 && winnerId == expected ? expected : 0;
+    }
+    static int naturalWinnerId(int humanState, int botState, int humanId, int botId)
+    {
+        if (humanState == Duel.DUELSTATE_WINNER && botState == Duel.DUELSTATE_DEAD) return humanId;
+        if (humanState == Duel.DUELSTATE_DEAD && botState == Duel.DUELSTATE_WINNER) return botId;
+        return 0;
+    }
+    static int approachWithMargin(int tacticalRange)
+    { return Math.max(10, tacticalRange - 10); } // inside effective learned offense, not an autoattack envelope
+    static boolean openerWindow(boolean applied, boolean stopping, boolean active, int remaining, boolean humanCasting)
+    { return !applied && !stopping && !active && remaining <= 3 && !humanCasting; }
+
     private static Session participantSession(Creature actor)
     {
         Player owner = actor instanceof Player ? (Player)actor : actor instanceof Summon ? ((Summon)actor).getOwner() : null;
@@ -159,14 +189,14 @@ public final class TrainingArena
     {
         if (p == null) return "Персонаж недоступен. Перезайдите в игру.";
         Session s = SESSIONS.get(p.getObjectId());
-        if (s == null) return "Личная нерейтинговая тренировка: " + preparationSeconds(TacticalSettings.getTrainingPreparationSeconds()) + " сек. на селфбаф после запуска дуэли. Оба участника получают 13 базовых бафов и олимпийский профиль класса; имеющиеся эффекты не очищаются. Общий лимит дуэли 120 сек., включая подготовку. Наград и очков нет. Equal меняет только уровень и заточку бота, не ваше снаряжение.";
+        if (s == null) return "Личная нерейтинговая тренировка: " + preparationSeconds(TacticalSettings.getTrainingPreparationSeconds()) + " сек. на селфбаф после запуска дуэли. Оба участника получают 13 базовых бафов и олимпийский профиль класса; имеющиеся эффекты не очищаются. Общий лимит дуэли 120 сек., включая подготовку. Наград и очков нет. Бот 85 уровня использует те же настройки снаряжения и заточки умений, что и рейтинговые боты. Ваше снаряжение не меняется; откаты ваших умений сбрасываются только при входе.";
         return (s.stopping ? "Выход: " : s.active ? "Бой: " : "Подготовка: ") + BotPresets.getPresetByClassId(s.choice.classId).getClassName() + ", " + s.choice.difficulty + ", " + s.choice.profile + ". Личная арена " + (s.instance == null ? "создаётся" : s.instance.getId()) + ". Без рейтинга и наград.";
     }
     public static String leave(Player p)
     {
         if (!isParticipant(p)) { recover(p); return "Активной тренировки нет. Проверен незавершённый возврат с арены."; }
         requestStop(p, "Left training");
-        return "Выход с тренировки: дождитесь окончания отсчёта/завершения дуэли и возврата (несколько секунд).";
+        return "Выход с тренировки: бой остановлен. Дождитесь штатного завершения дуэли и возврата (до остатка общего лимита 120 сек.). Победа сопернику автоматически не присуждается.";
     }
     private static void requestStop(Player p, String why)
     {
@@ -233,8 +263,8 @@ public final class TrainingArena
             if (isParticipant(p)) return "Тренировка уже запущена. Нажмите Выход перед новым стартом.";
             if (Files.exists(path(p.getObjectId()))) { recover(p); return "Не завершён возврат с прошлой тренировки. Подождите несколько секунд и повторите; если не помогло, обратитесь к администратору."; }
             BotClassPreset preset = BotPresets.getPresetByClassId(classId);
-            String d = option(difficulty, "normal", "experienced", "strong"), f = option(profile, "custom", "equal");
-            if (preset == null || d == null || f == null) return "Выберите класс, сложность normal/experienced/strong и профиль custom/equal, затем нажмите Старт.";
+            String d = option(difficulty, "normal", "experienced", "strong"), f = trainingProfile(profile);
+            if (preset == null || d == null || f == null) return "Выберите класс, сложность normal/experienced/strong и нажмите Старт. Бот использует рейтинговые настройки снаряжения и заточки умений.";
             String refusal = admissionRefusal(p);
             if (refusal != null) return refusal;
             Choice c = new Choice(classId, d, f);
@@ -342,18 +372,13 @@ public final class TrainingArena
         // Assign immediately so all later exceptions can stop the newly constructed actor.
         Session session = SESSIONS.get(human.getObjectId());
         session.bot = b; BOTS.add(b.getObjectId());
-        int level = c.profile.equals("equal") ? human.getLevel() : 85;
+        int level = 85; // same server baseline for every training class/profile
         long exp = ExperienceData.getInstance().getExpForLevel(level);
         b.addExpAndSp(Math.max(0, exp - b.getExp()), 0);
         b.giveAvailableSkills(true, true, true);
+        BotSpawner.applySkillEnchants(b);
         b.setNoble(false); b.setTitle("Unranked Training"); b.setTradeRefusal(true);
         BotSpawner.equipGear(b, preset);
-        if (c.profile.equals("equal"))
-        {
-            int weapon = human.getActiveWeaponInstance() == null ? 0 : human.getActiveWeaponInstance().getEnchantLevel();
-            Item chest = human.getChestArmorInstance(); int armor = chest == null ? 0 : chest.getEnchantLevel();
-            for (Item item : b.getInventory().getItems()) item.setEnchantLevel(item.isWeapon() ? weapon : armor);
-        }
         // One bounded initial shot stock. No potions or automatic MP restoration.
         b.addItem(ItemProcessType.REWARD, BotPresets.getFighterShotId(), 10000, null, false);
         b.addItem(ItemProcessType.REWARD, BotPresets.getBlessedSpiritshotId(), 10000, null, false);
@@ -382,8 +407,8 @@ public final class TrainingArena
         Player p = s.player, b = s.bot;
         long now = System.nanoTime();
         if (b == null || s.instance == null) { finish(s); return; }
-        if (!p.isOnline() || p.isDead() || b.isDead() || p.getInstanceId() != s.instance.getId() || b.getInstanceId() != s.instance.getId()
-            || !inside(p.getX(), p.getY()) || !inside(b.getX(), b.getY()) || now - s.created > 135_000_000_000L)
+        if (!s.stopping && (!p.isOnline() || p.isDead() || b.isDead() || p.getInstanceId() != s.instance.getId() || b.getInstanceId() != s.instance.getId()
+            || !inside(p.getX(), p.getY()) || !inside(b.getX(), b.getY()) || now - s.created > 135_000_000_000L))
         { s.stopping = true; s.reason = "Death, logout, escape or timeout"; }
         if (!s.duelRequested)
         {
@@ -392,6 +417,13 @@ public final class TrainingArena
             if (blockedZone(p) || blockedZone(b))
             {
                 s.stopping = true; s.reason = "Training location has a conflicting zone"; p.sendMessage("Арена пересекается с запретной зоной. Выполняется возврат; сообщите администратору."); finish(s); return;
+            }
+            // Explicitly authorized only on acknowledged entry into OUR instance.
+            // Never reset at combat start/end, on recovery, or on return teleport.
+            if (!s.entryCooldownReset)
+            {
+                s.entryCooldownReset = true;
+                resetEntryCooldowns(p);
             }
             // Constructor may schedule work before a later failure: mark pending first.
             s.duelRequested = true;
@@ -411,12 +443,16 @@ public final class TrainingArena
             }
             return;
         }
+        // Defeat is authoritative BEFORE getWinner() becomes available. Retain
+        // that observation, but do not call it an official completed victory yet.
+        if (s.pendingWinnerId == 0 && p.getDuelId() == s.duel.getId() && b.getDuelId() == s.duel.getId())
+            s.pendingWinnerId = naturalWinnerId(p.getDuelState(), b.getDuelState(), p.getObjectId(), b.getObjectId());
         // Core startDuel sets participant flags sequentially on another task.
         // A half-published start is waiting, never a finished/cancelled duel.
-        if (!s.active && !s.duel.getFinished() && (!p.isInDuel() || !b.isInDuel()
+        if (!s.preparationStarted && !s.stopping && s.pendingWinnerId == 0 && !s.duel.getFinished() && (!p.isInDuel() || !b.isInDuel()
             || p.getDuelId() != s.duel.getId() || b.getDuelId() != s.duel.getId()
             || p.getDuelState() != Duel.DUELSTATE_DUELLING || b.getDuelState() != Duel.DUELSTATE_DUELLING)) return;
-        if (!s.preparationStarted && !s.stopping && !s.duel.getFinished())
+        if (!s.preparationStarted && !s.stopping && s.pendingWinnerId == 0 && !s.duel.getFinished())
         {
             // The REAL core snapshot/start has happened; never forge duel/Olympiad flags.
             // Additive user-authorized baseline, no strip/snapshot/guessed effect restore.
@@ -437,15 +473,13 @@ public final class TrainingArena
         }
         if (s.stopping)
         {
-            Player winner = s.duel.getWinner();
-            if (winner == p || winner == b) s.winnerId = winner.getObjectId();
+            captureOfficialResult(s);
             stop(p); stop(b);
-            if (s.finishAt == 0)
-            {
-                // Surrender uses the real core match; let its delayed 5s end task drain.
-                if (p.isInDuel() && !s.duel.getFinished()) DuelManager.getInstance().doSurrender(p);
-                s.finishAt = now + 7_000_000_000L;
-            }
+            // NEVER synthesize a surrender here. A lethal duel hit leaves HP=1,
+            // sets DEAD/WINNER, and the core may not publish finished until its
+            // next 1s poll. Surrender outranks that winner and reverses the HUD.
+            // Even safety/leave stops drain the core's own timeout/cancel task.
+            p.setInvul(true); b.setInvul(true);
             // Elapsed wall time is NOT proof that a delayed core task has drained.
             // finish() centrally requires the actual manager removal after core restore.
             if (s.duel.getFinished() && !p.isInDuel() && !b.isInDuel()) finish(s);
@@ -454,6 +488,17 @@ public final class TrainingArena
         if (!s.active)
         {
             int remaining = remainingSeconds(s.preparationUntil, System.nanoTime());
+            if (openerWindow(s.openersApplied, s.stopping, s.active, remaining,
+                p.isCastingNow() || p.isCastingSimultaneouslyNow()))
+            {
+                // Mark BEFORE work: a failing helper must not reapply on the next pulse.
+                s.openersApplied = true;
+                BotSpawner.applyPreCombatOpeners(b, BotPresets.getPresetByClassId(s.choice.classId));
+                // If a human selfcast delayed this window, still give openers a
+                // few seconds before combat. The real core timeout remains binding.
+                s.preparationUntil = Math.max(s.preparationUntil, System.nanoTime() + 3_000_000_000L);
+                remaining = remainingSeconds(s.preparationUntil, System.nanoTime());
+            }
             if (remaining > 0)
             {
                 // Keep the bot completely idle; NEVER abort the human's selfbuff cast.
@@ -487,15 +532,39 @@ public final class TrainingArena
         BotClassPreset preset = BotPresets.getPresetByClassId(s.choice.classId);
         if (!BotTactics.tick(b, p, preset, false))
         {
-            boolean ranged = preset.isCaster() || preset.getWeaponKind() == BotClassPreset.WeaponKind.BOW || preset.getWeaponKind() == BotClassPreset.WeaponKind.CROSSBOW;
-            int range = ranged ? 600 : 60;
+            int range = approachWithMargin(BotTactics.tacticalApproachRange(b, p, preset));
             b.setTarget(p);
-            OlympiadChase.updateTraining(b, p, range, !preset.isCaster(), CX, CY, RADIUS);
-            if (!preset.isCaster() && !b.isAttackingOrCastingNow() && !b.isMovementDisabled() && !p.isSleeping()
-                && p.isAutoAttackable(b) && b.calculateDistance2D(p) <= range + 20 && GeoEngine.getInstance().canSeeTarget(b, p))
+            boolean basicAttack = BotTactics.allowsBasicAttack(b, preset);
+            OlympiadChase.updateTraining(b, p, range, basicAttack, CX, CY, RADIUS);
+            if (basicAttack && !b.isAttackingOrCastingNow() && !b.isMovementDisabled() && !p.isSleeping()
+                && p.isAutoAttackable(b) && b.calculateDistance2D(p) <= range && GeoEngine.getInstance().canSeeTarget(b, p))
                 b.getAI().setIntentionAttack(p);
         }
     }
+    private static void captureOfficialResult(Session s)
+    {
+        if (s.officialResultCaptured || !s.duel.getFinished()) return;
+        Player p = s.player, b = s.bot;
+        // After restore, duel states reset and getWinner() becomes null. Missing
+        // that observation is UNKNOWN, never a fabricated result from damage/HP.
+        if (!p.isInDuel() || !b.isInDuel() || p.getDuelId() != s.duel.getId() || b.getDuelId() != s.duel.getId()) return;
+        DuelResult result = s.duel.checkEndDuelCondition();
+        if (result == DuelResult.CONTINUE) return;
+        Player winner = s.duel.getWinner();
+        s.winnerId = officialWinnerId(true, result, winner == null ? 0 : winner.getObjectId(), p.getObjectId(), b.getObjectId());
+        s.officialReason = "Official duel result: " + result.name();
+        s.officialResultCaptured = true;
+    }
+
+    static void resetEntryCooldowns(Player p)
+    {
+        // Actual core APIs clear separate skill disabled/reuse maps. Item reuse,
+        // active effects, skill levels and resources are intentionally untouched.
+        p.resetDisabledSkills();
+        p.resetTimeStamps();
+        p.sendPacket(new SkillCoolTime(p));
+    }
+
     private static boolean blockedZone(Player p)
     {
         return p.isInsideZone(org.l2jmobius.gameserver.entity.zone.ZoneId.PEACE)
@@ -514,6 +583,12 @@ public final class TrainingArena
         return !requested || hasDuel && finished && !playerInDuel && !botInDuel && !managerHasDuel;
     }
 
+    static String trainingEndReason(String officialReason, String stopReason)
+    {
+        String official = officialReason == null ? "Unknown: core result was not observed before restore" : officialReason;
+        return "Training finished".equals(stopReason) || "Duel completed".equals(stopReason) ? official : official + "; stop: " + stopReason;
+    }
+
     private static void finish(Session s)
     {
         if (s.closed) return;
@@ -527,7 +602,10 @@ public final class TrainingArena
         }
         try
         {
-            CombatAnalytics.endTraining(p, s.reason, s.winnerId);
+            String officialReason = s.officialReason;
+            if (officialReason == null && s.pendingWinnerId != 0)
+                officialReason = "Core DEAD/WINNER observed (winner ID " + s.pendingWinnerId + "); official completion not observed";
+            CombatAnalytics.endTraining(p, trainingEndReason(officialReason, s.reason), s.winnerId);
             stop(p);
             if (s.bot != null && !s.botDisposed)
             {

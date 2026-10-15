@@ -5,7 +5,7 @@ import os, subprocess, sys, tempfile
 from lxml import etree
 ROOT=Path(__file__).resolve().parents[2]
 DATA=ROOT/'game/data'
-for script in ('run_bot_combat_tests.py','tactics_tests.py','training_tests.py'):
+for script in ('run_bot_combat_tests.py','tactics_tests.py','training_tests.py','run_olympiad_gate_tests.py'):
     subprocess.run([sys.executable,str(Path(__file__).with_name(script))],cwd=ROOT,check=True)
 for name,xsd in [('GiranServices.xml','spawns.xsd')]+[(f'GiranService{i}.xml','npcs.xsd') for i in (1008000,1009000,1010000,1011000)]:
     file=DATA/('spawns/Others' if xsd=='spawns.xsd' else 'stats/npcs/custom')/name
@@ -55,8 +55,16 @@ spawner=(DATA/'scripts/custom/fakeplayersai/BotSpawner.java').read_text()
 training_buff=spawner.split('public static void applyTrainingOlympiadBuffs(')[1].split('public static void maintainFullBuffs(')[0]
 assert 'applyOlympiadBuffs(player);' in training_buff and 'getOlympiadBuffs(caster)' in training_buff
 assert 'setInOlympiadMode' not in training_buff and 'FULL_BUFFS_MAGE' not in training_buff
+assert '"profile equal"' not in npc and 'Сравнительный профиль выравнивает' not in npc
+assert '"profile","custom"); // legacy equal' in npc and 'return "custom";' in npc
+assert '10–60 сек.' in npc and '30–60' not in npc and 'Сброса откатов игрока нет' not in npc
+assert 'те же настройки снаряжения и заточки умений' in npc and 'Бот 85 уровня' in npc
+assert 'после подтверждённого входа на арену' in npc and 'не в конце боя' in npc
+assert 'до остатка общего лимита 120 сек.' in npc and 'победа боту автоматически не присуждается' in npc
+assert 'approachWithMargin(BotTactics.tacticalApproachRange(b, p, preset))' in t
+assert 'BotTactics.allowsBasicAttack(b, preset)' in t and 'b.calculateDistance2D(p) <= range &&' in t
 assert 'DefaultDifficulty = strong' in (ROOT/'game/config/Custom/OlympiadTactics.ini').read_text()
-assert 'TrainingPreparationSeconds = 30' in (ROOT/'game/config/Custom/OlympiadTactics.ini').read_text()
+assert 'TrainingPreparationSeconds = 10' in (ROOT/'game/config/Custom/OlympiadTactics.ini').read_text()
 print('PASS: 4 NPC definitions + spawn XSD, unique IDs, training zone bounds and integration guards',flush=True)
 with tempfile.TemporaryDirectory(prefix='giran-tests-') as d:
     tmp=Path(d); launcher=tmp/'Compile.java'
@@ -66,3 +74,13 @@ with tempfile.TemporaryDirectory(prefix='giran-tests-') as d:
     subprocess.run(['java',str(launcher),'-cp',cp,'-d',str(tmp/'classes'),*map(str,sources),str(Path(__file__).with_name('giranServicesTest.java'))],cwd=ROOT,check=True)
     subprocess.run(['java','-cp',str(tmp/'classes')+os.pathsep+cp,'custom.GiranServices.giranServicesTest'],cwd=tmp,check=True)
 print('PASS: complete offline suite; live GameServer/DB/client acceptance still REQUIRED')
+
+# Shared ranked/training defenses must not depend on permanent-roster membership.
+spawner=(DATA/'scripts/custom/fakeplayersai/BotSpawner.java').read_text()
+defenses=spawner.split('public static int[] getTacticalDefenses(',1)[1].split('public static boolean tacticalSkillAllowed(',1)[0]
+assert 'isTacticalTank(player)' in defenses and 'BotManager.isTankBot' not in defenses
+training_profile=spawner.split('public static void applyTrainingOlympiadBuffs(',1)[1].split('public static void maintainFullBuffs(',1)[0]
+assert 'isOpenerOnlySkill(buff[0]) || isTankDefenseSkill(buff[0])' in training_profile
+assert 'aus.getAutoSkills().removeIf(BotSpawner::isOpenerOnlySkill)' in spawner
+assert 'aus.getAutoBuffs().removeIf(BotSpawner::isOpenerOnlySkill)' in spawner
+print('PASS: shared defense/preparation/opener integration guards')

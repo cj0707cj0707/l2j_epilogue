@@ -302,8 +302,8 @@ public class BotSpawner
 	private static final int ENLIGHTENMENT_ID = 1532;
 
 	/**
-	 * Opening self-enhancements of an olympiad match (bots), applied exactly 3 seconds AFTER
-	 * the gates open (admin rule of 16.09.2026 - the very beginning of the skill rotation):
+	 * Opening self-enhancements of an olympiad match (bots), applied ONCE shortly BEFORE
+	 * the gates open by the protected preparation phase:
 	 * Final Secret (917) for every class that knows it (Duelist, Titan, Grand Khavatari,
 	 * Doombringer), the dagger class evasion opener and the dagger adventure self-enhancement.
 	 * The evasion opener is the class's own evasion skill from its skill tree: Adventurer (93)
@@ -332,8 +332,8 @@ public class BotSpawner
 	/**
 	 * Dagger evasion openers (Mirage 445 / Dodge 446 / Ghost Walking 770): the auto-buff
 	 * engine must never cast them inside an olympiad match (countdown included) - they are
-	 * applied ONLY by the opening self-enhancement burst, exactly 3 seconds after the gates
-	 * open (admin rule of 16.09.2026). In the world (Coliseum PvP) the daggers keep using
+	 * applied ONLY by the protected pre-combat preparation phase shortly BEFORE the gates
+	 * open. In the world (Coliseum PvP) the daggers keep using
 	 * them as regular auto-buffs.
 	 */
 	private static final int[] OPENER_ONLY_SKILLS =
@@ -341,6 +341,7 @@ public class BotSpawner
 		MIRAGE_ID,
 		DODGE_ID,
 		GHOST_WALKING_ID,
+        FINAL_SECRET_ID, EXCITING_ADVENTURE_ID, WIND_RIDING_ID, ENLIGHTENMENT_ID, 1533, ARCANE_POWER_ID,
 	};
 
 	// ------------------------------------------------------------------
@@ -400,7 +401,7 @@ public class BotSpawner
 	 *         Aegis stances) are NOT part of the pool (admin decision) and keep working
 	 *         as regular auto-buffs.
 	 */
-	private static boolean isTankDefenseSkill(int skillId)
+	public static boolean isTankDefenseSkill(int skillId)
 	{
 		return containsId(TANK_DEFENSE_ALL, skillId);
 	}
@@ -420,6 +421,7 @@ public class BotSpawner
 		1230, // Prominence
 		1339, // Fire Vortex
 		1451, // Fire Vortex Buster
+		1234, // Vampiric Claw (learned Necromancer nuke)
 		1343, // Dark Vortex
 		1239, // Hurricane
 		1456, // Wind Vortex Slug
@@ -1200,6 +1202,11 @@ public class BotSpawner
 	 */
 	public static void applyAutoCombat(Player player, BotClassPreset preset)
 	{
+        if (player.isInOlympiadMode() && !OlympiadCombatGate.ready(player))
+        {
+            OlympiadCombatGate.hold(player);
+            return;
+        }
 		final BotSettings settings = BotManager.getSettings();
 		
 		// Bots are clientless players, so Player.isInOfflineMode() (client == null) is always
@@ -1263,7 +1270,7 @@ public class BotSpawner
 		
 		// Auto attack action: without it the auto play engine treats the player as a caster
 		// (keeps 900 distance, never sets attack intention). Fighters/archers must auto-attack.
-		if (!preset.isCaster())
+		if (!preset.isCaster() && (!player.isInOlympiadMode() || BotTactics.allowsBasicAttack(player, preset)))
 		{
 			aus.getAutoActions().add(AUTO_ATTACK_ACTION);
 		}
@@ -1278,7 +1285,15 @@ public class BotSpawner
 		player.addAutoSoulShot(BotPresets.getFighterShotId());
 		player.addAutoSoulShot(BLESSED_SPIRITSHOT_S);
 		
-		// Legacy pursuit leaves items available; tactical ownership stops BOTH engines.
+		if (player.isInOlympiadMode()) trimOlympiadBannedSkillsFromAutoLists(player);
+        // Do not briefly start legacy engines before the first tactical tick claims them.
+        if (player.isInOlympiadMode() && TacticalSettings.isEnabled() && preset.getClassId() != 131)
+        {
+            AutoPlayTaskManager.getInstance().stopAutoPlay(player);
+            AutoUseTaskManager.getInstance().stopAutoUseTask(player);
+            return;
+        }
+        // Legacy pursuit leaves items available; tactical ownership stops BOTH engines.
 		if (!BotTactics.isOwned(player.getObjectId()))
 		{
 			OlympiadChase.startAutoPlayUnlessPursuing(player);
@@ -1533,7 +1548,7 @@ public class BotSpawner
 	 *         by the opening self-enhancement burst inside an olympiad match (see
 	 *         OPENER_ONLY_SKILLS).
 	 */
-	private static boolean isOpenerOnlySkill(int skillId)
+	public static boolean isOpenerOnlySkill(int skillId)
 	{
 		for (int id : OPENER_ONLY_SKILLS)
 		{
@@ -1694,14 +1709,42 @@ public class BotSpawner
 
 	/** Shared tactical gate: the new decision engine must not bypass admin rules
 	 * merely because it reads preset lists rather than the filtered auto lists. */
+    /** Effective preset getters already include persisted //bot overrides. */
+    public static int[] getTacticalRotation(Player player, Player enemy)
+    {
+        BotClassPreset preset = BotPresets.getPresetByClassId(BotManager.getBotClassId(player));
+        return preset == null ? new int[0] : preset.getRotation().clone();
+    }
+    /** Same priority/mutual-exclusion pool as the legacy defense driver. Do not
+     * invent skills or bypass an explicit admin buff-list override. */
+    private static boolean isTacticalTank(Player player)
+    {
+        if (player == null) return false;
+        final int id = BotManager.getBotClassId(player);
+        return id == 90 || id == 91 || id == 106;
+    }
+
+    public static int[] getTacticalDefenses(Player player, Player enemy)
+    {
+        if (!isTacticalTank(player)) return new int[0];
+        BotClassPreset preset = BotPresets.getPresetByClassId(BotManager.getBotClassId(player));
+        if (preset == null) return new int[0];
+        int[] pool = enemy != null && enemy.isMageClass() ? TANK_DEFENSE_MAGIC : TANK_DEFENSE_PHYSICAL;
+        java.util.List<Integer> result = new java.util.ArrayList<>();
+        for (int id : pool)
+            if (player.getKnownSkill(id) != null && (id == VENGEANCE_ID || (!preset.hasBuffsOverride() && !preset.hasRotationOverride()) || containsId(preset.getBuffs(), id) || containsId(preset.getRotation(), id))) result.add(id);
+        return result.stream().mapToInt(Integer::intValue).toArray();
+    }
+
 	public static boolean tacticalSkillAllowed(Player player, Player enemy, Skill skill, boolean self)
 	{
+        if (isOpenerOnlySkill(skill.getId())) return false; // opening enhancements never belong to a live tactical rotation
 		if (player.isInOlympiadMode())
 		{
 			if (!player.isOlympiadStart() || isChantOfVictoryFamily(skill.getId()) || skill.isDance()
-				|| isOpenerOnlySkill(skill.getId()) || (self && isLongSelfBuff(player, skill.getId()))) return false;
+				|| (self && isLongSelfBuff(player, skill.getId()))) return false;
 		}
-		if (BotManager.isTankBot(player) && isTankDefenseSkill(skill.getId()))
+		if (isTacticalTank(player) && isTankDefenseSkill(skill.getId()))
 		{
 			final int[] pool = enemy != null && enemy.isMageClass() ? TANK_DEFENSE_MAGIC : TANK_DEFENSE_PHYSICAL;
 			if (!containsId(pool, skill.getId())) return false;
@@ -1739,6 +1782,8 @@ public class BotSpawner
 		final AutoUseSettingsHolder aus = player.getAutoUseSettings();
 		aus.getAutoBuffs().removeIf(BotSpawner::isChantOfVictoryFamily);
 		aus.getAutoSkills().removeIf(BotSpawner::isChantOfVictoryFamily);
+        aus.getAutoBuffs().removeIf(BotSpawner::isOpenerOnlySkill);
+        aus.getAutoSkills().removeIf(BotSpawner::isOpenerOnlySkill);
 		aus.getAutoBuffs().removeIf(id -> isDanceOrSong(player, id));
 		aus.getAutoSkills().removeIf(id -> isDanceOrSong(player, id));
 	}
@@ -1816,6 +1861,7 @@ public class BotSpawner
         applyOlympiadBuffs(player);
         for (int[] buff : getOlympiadBuffs(caster))
         {
+            if (isOpenerOnlySkill(buff[0]) || isTankDefenseSkill(buff[0])) continue;
             if (player.getEffectList().isAffectedBySkill(buff[0])) continue;
             Skill skill = SkillData.getInstance().getSkill(buff[0],buff[1]);
             if (skill == null) { LOGGER.warning("Training Olympiad buff unavailable: " + buff[0] + "/" + buff[1]); continue; }
@@ -1865,6 +1911,7 @@ public class BotSpawner
 		int applied = 0;
 		for (int[] buff : profile)
 		{
+            if (olympiad && (isOpenerOnlySkill(buff[0]) || isTankDefenseSkill(buff[0]))) continue;
 			if (player.getEffectList().isAffectedBySkill(buff[0]))
 			{
 				continue;
@@ -2005,21 +2052,8 @@ public class BotSpawner
 	}
 
 	/**
-	 * Applies the mage aura to a caster (Dominator counts as a mage) exactly 3 seconds AFTER
-	 * an olympiad battle starts - Arcane Power. Called by the BotManager opening self-enhancement
-	 * burst (admin rule of 16.09.2026: the self-enhancements fire 3 seconds after the gates open,
-	 * at the very beginning of the skill rotation); application is instant (no cast time), like
-	 * the olympiad buff set. ENLIGHTENMENT is no longer part of this set: per the admin rule of
-	 * 03.10.2026 every caster bot (mage and support presets alike, Dominator included) applies it
-	 * 1 second after the gates open - see {@link #applyEnlightenmentOpener} (fired by
-	 * BotManager.applyEnlightenmentOpener, two seconds before this burst). The aura is applied to
-	 * BOTS ONLY (admin rule of 12.09.2026): real caster participants do not receive it
-	 * automatically - a real mage can cast Arcane Power/Enlightenment himself. The rest of the
-	 * buff parity for real participants (the olympiad buff set and the olympiad buff profile) is
-	 * untouched. The method itself stays generic (still usable for any caster participant, e.g.
-	 * by future hooks).
-	 * @param player the match participant
-	 * @param caster whether the participant is a magic caster (mage profile)
+	 * Pre-combat Arcane Power aura for caster bots; called by the owning preparation phase.
+	 * Engine-neutral instant effects, not a combat cast. Real humans cast their own auras.
 	 */
 	public static void applyMageOpeningAuras(Player player, boolean caster)
 	{
@@ -2054,18 +2088,9 @@ public class BotSpawner
 	}
 
 	/**
-	 * Applies ENLIGHTENMENT (the wizard variant 1532 - every caster class of the pack learns it,
-	 * the Dominator included since the datapack change of 03.10.2026) to a caster bot exactly
-	 * 1 second AFTER the gates open (admin rule of 03.10.2026: Enlightenment must be used by all
-	 * mage bots AND support bots at the very beginning of the battle). The audience is the caster
-	 * presets (isCaster): the nuker mages Archmage (94), Soultaker (95), Mystic Muse (103), Storm
-	 * Screamer (110) and the support Dominator (115). Application is instant (no cast time, no
-	 * reuse consumption - the same style as the olympiad buff set); a bot that already has the
-	 * effect up (e.g. the combat-tick safety net fired first after a delayed gate opening) is
-	 * skipped. Fired by BotManager.applyEnlightenmentOpener: the exact T+1 task scheduled by the
-	 * pre-start hook, with the combat tick as the safety net for a delayed gate opening. BOTS
-	 * ONLY (admin rule of 12.09.2026 - real casters cast it themselves).
-	 * @param player the bot (must be a caster preset)
+	 * Pre-combat Enlightenment (1532) for the existing caster presets, including Dominator.
+	 * Called once by the owning preparation phase, never scheduled after the gates.
+	 * Existing effect is not refreshed; no engine is rearmed.
 	 */
 	public static void applyEnlightenmentOpener(Player player)
 	{
@@ -2093,7 +2118,7 @@ public class BotSpawner
 		}
 
 		skill.applyEffects(player, player);
-		LOGGER.info("FakePlayersAI: oly-openers " + player.getName() + ": " + skill.getName() + " (skill " + skill.getId() + ") applied 1 second after the gates.");
+		LOGGER.info("FakePlayersAI: oly-openers " + player.getName() + ": " + skill.getName() + " (skill " + skill.getId() + ") applied in the protected pre-combat window.");
 	}
 
 	/**
@@ -2112,9 +2137,8 @@ public class BotSpawner
 	}
 
 	/**
-	 * Opening self-enhancements of a bot, applied instantly exactly 3 seconds AFTER the gates
-	 * open (admin rule of 16.09.2026 - at the very beginning of the skill rotation; the burst
-	 * is fired by BotManager.applyOpeningSelfBuffs and the rotation stays paused until then):
+	 * Opening self-enhancements applied by the protected preparation phase only, shortly
+	 * BEFORE combat. They never belong to automatic combat lists:
 	 * <ul>
 	 * <li><b>Final Secret (917)</b> for every class that knows it (Duelist, Titan, Grand
 	 * Khavatari, Doombringer);</li>
@@ -2129,6 +2153,19 @@ public class BotSpawner
 	 * @param player the bot
 	 * @param preset the bot's class preset
 	 */
+    /** Called ONCE by the owning ranked/training preparation phase, never by a
+     * combat rotation or an end-of-match repair. Does not start either engine. */
+    public static void applyPreCombatOpeners(Player player, BotClassPreset preset)
+    {
+        if (player == null || preset == null || player.isAlikeDead() || !player.isOnline()) return;
+        applyOpeningSelfBuffs(player,preset);
+        if (preset.isCaster())
+        {
+            applyMageOpeningAuras(player,preset);
+            applyEnlightenmentOpener(player);
+        }
+    }
+
 	public static void applyOpeningSelfBuffs(Player player, BotClassPreset preset)
 	{
 		if ((player == null) || (preset == null) || !player.isOnline() || player.isAlikeDead())

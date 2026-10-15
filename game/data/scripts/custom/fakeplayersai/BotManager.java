@@ -185,31 +185,8 @@ public class BotManager
 	/** objectId -> arena spawn point {x, y, z, gameId} of an olympiad participant (bots and real players; recorded by the pre-start hook). */
 	private static final Map<Integer, int[]> OLY_SPAWN_POINTS = new ConcurrentHashMap<>();
 
-	/**
-	 * objectId(bot) -> gameId of the olympiad match whose OPENING self-enhancement burst is
-	 * still pending (admin rule of 16.09.2026: the class self-enhancements - Final Secret,
-	 * the dagger evasion openers, Wind Riding / Exciting Adventure - and the mage auras
-	 * (Arcane Power + Enlightenment) are applied 3 seconds AFTER the stadium gates open, at
-	 * the very beginning of the skill rotation; see applyOpeningSelfBuffs). While a burst is
-	 * pending, the combat tick keeps the bot's skill ROTATION off, so the openers are
-	 * literally the first skills the rotation fires. The mark is set by the pre-start hook
-	 * (which also schedules the exact T+3 task) and removed by the burst itself.
-	 */
-	private static final Map<Integer, Integer> OLY_PENDING_OPENERS = new ConcurrentHashMap<>();
-	/** objectId(bot) -> moment (ms) the pending-opener match was first seen active (safety-net window, see combatTick). */
-	private static final Map<Integer, Long> OLY_OPENER_GATE_TIME = new ConcurrentHashMap<>();
-
-	/**
-	 * objectId(bot) -> gameId of the olympiad match whose ENLIGHTENMENT opener is still pending
-	 * (admin rule of 03.10.2026: every caster bot - mage and support presets alike, Dominator
-	 * included - applies Enlightenment exactly 1 second AFTER the stadium gates open, two
-	 * seconds before the rest of the opening burst which stays at T+3; see
-	 * BotSpawner.applyEnlightenmentOpener). The mark is set by the pre-start hook for caster
-	 * presets only (which also schedules the exact T+1 task), removed by the opener itself; the
-	 * combat tick is the safety net for a delayed gate opening (fires it on the first tick past
-	 * gateTime + 1 s).
-	 */
-	private static final Map<Integer, Integer> OLY_PENDING_ENLIGHTENMENT = new ConcurrentHashMap<>();
+	/** Actual Olympiad stays, including countdown/end; claims survive until true leave. */
+	private static final Set<Integer> OLY_GATE_STAYS = ConcurrentHashMap.newKeySet();
 
 	/** objectId(bot) -> timestamp of the last applied class opening curse (anti-spam interval, see combatTick). */
 	private static final Map<Integer, Long> CURSE_LAST_USE = new ConcurrentHashMap<>();
@@ -483,12 +460,12 @@ public class BotManager
 		// right here, before the first registration cycle of the new session.
 		resetOlympiadPoints();
 
-		// Olympiad pre-start hook: the core fires it for BOTH match participants exactly
-		// 2 seconds before the battle starts. Everyone gets the spawn point record, the
+		// Olympiad pre-start hook: the core fires it for BOTH match participants at
+		// countdown 2 (nominally two seconds before battle). Everyone gets the spawn point record, the
 		// Chant of Victory strip and the olympiad buff set/profile; bots additionally get
-		// the summon support and the scheduled OPENING self-enhancement burst (Final
+		// the summon support and the immediate one-shot self-enhancement burst (Final
 		// Secret, the dagger evasions, Wind Riding / Exciting Adventure, the caster auras
-		// - BOTS ONLY, admin rules of 12.09.2026 and 16.09.2026) at T+3 after the gates.
+		// - BOTS ONLY) synchronously at the core countdown-2 hook, before combat is armed.
 		Olympiad.PRE_START_HOOKS.add(BotManager::olympiadPreStart);
 
 		// Olympiad points on every game entry (admin rule of 04.10.2026): every
@@ -513,7 +490,7 @@ public class BotManager
 		// of this session has finished yet - see olympiadPointsCatchUp().
 		ThreadPool.schedule(BotManager::olympiadPointsCatchUp, (SETTINGS.getSpawnDelaySeconds() + 70) * 1000L);
 
-		LOGGER.info("FakePlayersAI: initialized, " + SETTINGS.getBotCount() + " bots scheduled; predictive-chase v2; Olympiad tactical suite v2 (strong tempo/training prep).");
+		LOGGER.info("FakePlayersAI: initialized, " + SETTINGS.getBotCount() + " bots scheduled; predictive-chase v2; Olympiad tactical suite v3 (class skills/precombat gate/training results).");
 	}
 
 	// ------------------------------------------------------------------
@@ -557,25 +534,9 @@ public class BotManager
 		}
 	}
 
-	/**
-	 * Pre-start hook (Olympiad.PRE_START_HOOKS): fired by the core for every match participant
-	 * (bots AND real players) exactly 2 seconds before the battle starts.
-	 * <ul>
-	 * <li><b>Bots</b>: the opening self-enhancement burst is SCHEDULED here (it fires exactly
-	 * 3 seconds after the gates open - Final Secret for the classes that know it, the dagger
-	 * evasion openers, Wind Riding / Exciting Adventure, and for casters the auras Arcane Power
-	 * + Enlightenment; admin rule of 16.09.2026, the skill rotation stays off until the burst
-	 * fires), plus the summoner support (summon + Transfer Pain + beast soulshots) and the full
-	 * buff treatment below.</li>
-	 * <li><b>Real players (buff parity)</b>: the same buff treatment as the bot of the same
-	 * class - the basic olympiad buff set and the olympiad buff profile. The caster auras
-	 * (Arcane Power + Enlightenment) are NOT applied to real players (bots only, admin rule of
-	 * 12.09.2026): a real mage casts those himself if he wants them. Afterwards the participant
-	 * is tracked by the combat tick, which keeps the profile maintained while the match lasts
-	 * (a buff wiped mid-fight by e.g. Cancellation is re-applied, exactly like for bots).</li>
-	 * </ul>
-	 * @param player the match participant
-	 */
+	/** Core PRE_START_HOOKS fires at countdown 2 (nominal T-2, not a wall-clock promise).
+	 * Apply base/profile first, then one-shot bot boosts without re-arming either engine.
+	 * Human participants retain existing base/profile parity, not bot-only boosts. */
 	private static void olympiadPreStart(Player player)
 	{
 		try
@@ -602,41 +563,8 @@ public class BotManager
 
 			if (bot && (preset != null))
 			{
-				// Opening self-enhancements (admin rule of 16.09.2026): NOT applied here any
-				// more. Final Secret, the dagger evasion openers, Wind Riding / Exciting
-				// Adventure and the caster auras (Arcane Power + Enlightenment) are applied
-				// exactly 3 seconds AFTER the stadium gates open - at the very beginning of
-				// the skill rotation (see applyOpeningSelfBuffs). The burst task is scheduled
-				// from this pre-start moment (T-2 + 5 s = T+3); the rotation stop task keeps
-				// the skill engine from firing attack skills in the T+0 gap, and the combat
-				// tick holds the rotation until the burst fires (OLY_PENDING_OPENERS).
-				final int gameId = player.getOlympiadGameId();
-				OLY_PENDING_OPENERS.put(player.getObjectId(), gameId);
-				OLY_OPENER_GATE_TIME.remove(player.getObjectId());
-				if (preset.getClassId() != CLASS_DOOMBRINGER)
-				{
-					// T+0: the gates are opening - kill the skill rotation immediately (the
-					// combat-tick pause alone would leave a <= 2 s window for attack casts).
-					ThreadPool.schedule(() ->
-					{
-						if (player.isOnline() && player.isInOlympiadMode() && player.isOlympiadStart()
-							&& (player.getOlympiadGameId() == gameId) && !player.isAlikeDead())
-						{
-							AutoUseTaskManager.getInstance().stopAutoUseTask(player);
-						}
-					}, 2000L);
-				}
-				ThreadPool.schedule(() -> applyOpeningSelfBuffs(player, gameId), 5000L);
-
-				// Enlightenment opener (admin rule of 03.10.2026): every CASTER bot (the mage
-				// presets and the support Dominator) applies Enlightenment exactly 1 second
-				// after the gates open - two seconds before the rest of the opening burst
-				// (T+3 above). A delayed gate opening is covered by the combat tick safety net.
-				if (preset.isCaster())
-				{
-					OLY_PENDING_ENLIGHTENMENT.put(player.getObjectId(), gameId);
-					ThreadPool.schedule(() -> applyEnlightenmentOpener(player, gameId), 3000L);
-				}
+				OlympiadCombatGate.hold(player);
+				OLY_GATE_STAYS.add(player.getObjectId());
 
 				// Summoner classes (Soultaker / Hell Knight / Phoenix Knight): the summon (and
 				// the Transfer Pain toggle / beast soulshot stock) is prepared 2 seconds before
@@ -671,11 +599,14 @@ public class BotManager
 			// self-cast during the countdown is still possible - strip it right before the
 			// pre-start buffs (the olympiad profile applied below contains no family buffs).
 			BotSpawner.stripChantBuffs(player);
-			// The caster auras (Arcane Power + Enlightenment, BOTS ONLY - admin rule of
-			// 12.09.2026) are applied by the opening burst 3 seconds after the gates open
-			// now, together with the rest of the self-enhancements (admin rule of 16.09.2026).
 			BotSpawner.applyOlympiadBuffs(player);
 			BotSpawner.maintainFullBuffs(player, caster);
+			if (bot && preset != null && OlympiadCombatGate.claimPreStart(player))
+			{
+				BotSpawner.applyPreCombatOpeners(player, preset);
+			}
+
+			if (bot) OlympiadCombatGate.hold(player); // Also hold a newly prepared servitor.
 
 			if (!bot)
 			{
@@ -686,145 +617,6 @@ public class BotManager
 		{
 			LOGGER.warning("FakePlayersAI: olympiad pre-start hook failed: " + e);
 		}
-	}
-
-	/**
-	 * Fires the OPENING self-enhancement burst of a bot (admin rule of 16.09.2026): the class
-	 * self-enhancements - Final Secret for every class that knows it, the dagger evasion opener
-	 * (Mirage / Dodge / Ghost Walking), Wind Riding / Exciting Adventure - and, for caster bots,
-	 * the auras (Arcane Power + Enlightenment) are applied exactly 3 seconds AFTER the stadium
-	 * gates open, at the very beginning of the skill rotation (the combat tick keeps the
-	 * rotation paused while the burst is pending, so the openers are literally its first
-	 * skills). Called from the task scheduled by the pre-start hook (T-2 + 5 s = T+3); the
-	 * combat tick works as the safety net for a burst that outlived its window.
-	 * @param bot the bot
-	 * @param gameId the olympiad game the burst was scheduled for
-	 */
-	private static void applyOpeningSelfBuffs(Player bot, int gameId)
-	{
-		if (bot == null)
-		{
-			return;
-		}
-		try
-		{
-			// Stale or already fired elsewhere -> nothing to do (the mark is the only permit).
-			final Integer pending = OLY_PENDING_OPENERS.get(bot.getObjectId());
-			if ((pending == null) || (pending.intValue() != gameId))
-			{
-				return;
-			}
-			// The gates must actually be open. A delayed start leaves the burst pending - the
-			// combat tick fires it from the safety net once the window is clearly overdue.
-			if (!bot.isOnline() || !bot.isInOlympiadMode() || !bot.isOlympiadStart() || (bot.getOlympiadGameId() != gameId))
-			{
-				return;
-			}
-			fireOpeningSelfBuffs(bot, gameId);
-		}
-		catch (Throwable e)
-		{
-			LOGGER.warning("FakePlayersAI: olympiad opener burst failed for " + bot.getName() + ": " + e);
-		}
-	}
-
-	/**
-	 * Applies the opening self-enhancements (see applyOpeningSelfBuffs), clears the pending
-	 * mark (exactly once - the conditional map removal is the race guard between the
-	 * scheduled task and the combat tick safety net) and re-arms the combat engines, so the
-	 * skill rotation starts right after the burst. The berserker driver keeps the ownership
-	 * of its own engines - for the Doombringer the burst is engine-neutral.
-	 * @param bot the bot
-	 * @param gameId the olympiad game the burst belongs to
-	 */
-	private static void fireOpeningSelfBuffs(Player bot, int gameId)
-	{
-		if (!OLY_PENDING_OPENERS.remove(bot.getObjectId(), gameId))
-		{
-			return; // another path already fired this burst
-		}
-		OLY_OPENER_GATE_TIME.remove(bot.getObjectId());
-
-		final BotClassPreset preset = BotPresets.getPresetByClassId(BOT_CLASSES.getOrDefault(bot.getObjectId(), bot.getPlayerClass().getId()));
-		try
-		{
-			if (!bot.isAlikeDead())
-			{
-				BotSpawner.applyOpeningSelfBuffs(bot, preset);
-				if ((preset != null) && preset.isCaster())
-				{
-					BotSpawner.applyMageOpeningAuras(bot, preset);
-				}
-				// The rotation was paused for the opener window - re-arm the engines so the
-				// skill rotation starts immediately after the burst (the openers were its
-				// first skills). The berserker's engines belong to its duel driver.
-				if ((preset != null) && (preset.getClassId() != CLASS_DOOMBRINGER))
-				{
-					BotSpawner.applyAutoCombat(bot, preset);
-				}
-			}
-			LOGGER.info("FakePlayersAI: oly-openers " + bot.getName() + ": opening self-enhancements applied 3 seconds after the gates (game " + gameId + ").");
-		}
-		catch (Throwable e)
-		{
-			LOGGER.warning("FakePlayersAI: olympiad opener burst failed for " + bot.getName() + ": " + e);
-		}
-	}
-
-	/**
-	 * Fires the ENLIGHTENMENT opener of a caster bot (admin rule of 03.10.2026): Enlightenment
-	 * is applied exactly 1 second after the gates open - see BotSpawner.applyEnlightenmentOpener.
-	 * The T+1 task scheduled by the pre-start hook lands here; the match must actually have
-	 * started (a delayed gate opening leaves the mark pending - the combat tick fires it from
-	 * the safety net once the gates are clearly open).
-	 * @param bot the bot
-	 * @param gameId the olympiad game the opener was scheduled for
-	 */
-	private static void applyEnlightenmentOpener(Player bot, int gameId)
-	{
-		if (bot == null)
-		{
-			return;
-		}
-		try
-		{
-			final Integer pending = OLY_PENDING_ENLIGHTENMENT.get(bot.getObjectId());
-			if ((pending == null) || (pending.intValue() != gameId))
-			{
-				return;
-			}
-			if (!bot.isOnline() || !bot.isInOlympiadMode() || !bot.isOlympiadStart() || (bot.getOlympiadGameId() != gameId))
-			{
-				return;
-			}
-			fireEnlightenmentOpener(bot, gameId);
-		}
-		catch (Throwable e)
-		{
-			LOGGER.warning("FakePlayersAI: olympiad enlightenment opener failed for " + bot.getName() + ": " + e);
-		}
-	}
-
-	/**
-	 * Applies the Enlightenment opener (see applyEnlightenmentOpener), clearing the pending mark
-	 * exactly once (the conditional removal is the race guard between the scheduled task and the
-	 * combat tick safety net).
-	 * @param bot the bot
-	 * @param gameId the olympiad game the opener belongs to
-	 */
-	private static void fireEnlightenmentOpener(Player bot, int gameId)
-	{
-		if (!OLY_PENDING_ENLIGHTENMENT.remove(bot.getObjectId(), gameId))
-		{
-			return; // another path already fired this opener
-		}
-
-		final BotClassPreset preset = BotPresets.getPresetByClassId(BOT_CLASSES.getOrDefault(bot.getObjectId(), bot.getPlayerClass().getId()));
-		if ((preset == null) || !preset.isCaster() || bot.isAlikeDead())
-		{
-			return;
-		}
-		BotSpawner.applyEnlightenmentOpener(bot);
 	}
 
 	/**
@@ -1426,6 +1218,14 @@ public class BotManager
 
 			for (Player bot : BOTS.values())
 			{
+				// Clientless teleports need this completion before readiness can become true.
+				// onTeleported stops engines; no combat decision happens before the gate.
+				if (bot.isTeleporting() && bot.getClient() == null) bot.onTeleported();
+				if (holdOlympiadIfNotReady(bot))
+				{
+					watchOlympiadMatch(bot, true);
+					continue;
+				}
 				if (bot.isAlikeDead())
 				{
 					continue;
@@ -1470,53 +1270,7 @@ public class BotManager
 					}
 				}
 
-				// Dead match escape (bug reports of 04.10.2026): the core olympiad game
-				// task threads die silently (uncaught exceptions go to the console only -
-				// the java log shows nothing), and their cleanup (points, olympiad flags,
-				// port back) never runs. The bot stays flagged into a match that will
-				// never end: frozen in the arena with a dead/gone opponent, or fighting
-				// forever. A LIVE match always resolves a dead opponent within seconds
-				// (OlympiadGame.haveWinner) and ends at the battle period
-				// (OlympiadBattle = 360 s) - anything longer is a dead task. The escape
-				// releases the bot from the dead match (flags off, teleport home); the
-				// next combat tick re-arms its combat engines as a world bot.
-				if (inOlympiad && bot.isOlympiadStart())
-				{
-					final long now = System.currentTimeMillis();
-					final Player opponent = getOlympiadOpponent(bot);
-					final boolean opponentGone = (opponent == null) || opponent.isAlikeDead();
-					final long[] watch = OLY_MATCH_WATCH.computeIfAbsent(bot.getObjectId(), id -> new long[]
-					{
-						now, 0
-					});
-					if (opponentGone)
-					{
-						if (watch[1] == 0)
-						{
-							watch[1] = now;
-						}
-					}
-					else
-					{
-						watch[1] = 0;
-					}
-
-					final boolean deadByOpponent = opponentGone && ((now - watch[1]) >= OLYMPIAD_DEAD_MATCH_RELEASE_MS);
-					final boolean deadByTime = (now - watch[0]) >= OLYMPIAD_MAX_ACTIVE_MATCH_MS;
-					if (deadByOpponent || deadByTime)
-					{
-						final String reason = deadByOpponent
-							? ("opponent missing/dead for " + ((now - watch[1]) / 1000) + " s")
-							: ("match exceeded the battle period (" + ((now - watch[0]) / 1000) + " s)");
-						OLY_MATCH_WATCH.remove(bot.getObjectId());
-						releaseBotFromDeadMatch(bot, reason);
-						continue;
-					}
-				}
-				else
-				{
-					OLY_MATCH_WATCH.remove(bot.getObjectId());
-				}
+				if (watchOlympiadMatch(bot, inOlympiad)) continue;
 
 				// Arena containment (bug report of 04.10.2026): a bot inside an olympiad
 				// match must never stand in the open world. When the core's arena port
@@ -1640,46 +1394,6 @@ public class BotManager
 					else if (!OlympiadChase.isPursuing(bot.getObjectId()) && !BotTactics.isOwned(bot.getObjectId()) && (!bot.isAutoPlaying() || bot.getAutoUseSettings().getAutoSkills().isEmpty()))
 					{
 						BotSpawner.applyAutoCombat(bot, preset);
-					}
-					
-					// Olympiad opener window (admin rule of 16.09.2026): while the opening
-					// self-enhancement burst is still pending for THIS match, the bot's skill
-					// ROTATION stays off - the openers must be the very first skills of the
-					// rotation, fired 3 seconds after the gates open (applyOpeningSelfBuffs,
-					// scheduled by the pre-start hook). The AutoPlay engine (auto-attack and
-					// movement) keeps working; the berserker is skipped - its engines belong
-					// to the duel driver. Safety net: if the scheduled burst did not fire
-					// within 10 s past the gate opening, the tick fires it itself.
-					if (!berserkerFight && inOlympiad && bot.isOlympiadStart())
-					{
-						final Integer pendingGame = OLY_PENDING_OPENERS.get(bot.getObjectId());
-						if ((pendingGame != null) && (pendingGame.intValue() == bot.getOlympiadGameId()))
-						{
-							final long gateTime = OLY_OPENER_GATE_TIME.computeIfAbsent(bot.getObjectId(), key -> Long.valueOf(System.currentTimeMillis())).longValue();
-							if ((System.currentTimeMillis() - gateTime) >= 10000L)
-							{
-								fireOpeningSelfBuffs(bot, pendingGame.intValue());
-							}
-							else
-							{
-								AutoUseTaskManager.getInstance().stopAutoUseTask(bot);
-							}
-						}
-
-						// Enlightenment opener safety net (admin rule of 03.10.2026): a pending
-						// T+1 Enlightenment whose scheduled task found the gates still closed
-						// (delayed match start) fires here on the first tick past gateTime + 1 s
-						// (the gate time is recorded by the burst block above). No gate-time
-						// entry means the burst already fired and cleared it - apply at once.
-						final Integer pendingEnlightenment = OLY_PENDING_ENLIGHTENMENT.get(bot.getObjectId());
-						if ((pendingEnlightenment != null) && (pendingEnlightenment.intValue() == bot.getOlympiadGameId()))
-						{
-							final Long enlightenmentGateTime = OLY_OPENER_GATE_TIME.get(bot.getObjectId());
-							if ((enlightenmentGateTime == null) || ((System.currentTimeMillis() - enlightenmentGateTime.longValue()) >= 1000L))
-							{
-								fireEnlightenmentOpener(bot, pendingEnlightenment.intValue());
-							}
-						}
 					}
 					
 					// Keep the auto-buff list in sync with the "already applied" state:
@@ -1863,6 +1577,8 @@ public class BotManager
 					final boolean caster = (preset != null) && preset.isCaster();
 					final double distToTarget = bot.calculateDistance2D(target);
 					final boolean olympiadFight = inOlympiad && bot.isOlympiadStart();
+					final int offenseRange = olympiadFight && target.isPlayer()
+						? BotTactics.tacticalApproachRange(bot, target.asPlayer(), preset) : CHASE_RANGE;
 					// Olympiad kiting (admin request), SMOOTH variant: bow bots must not let a
 					// melee opponent pin them down. Close in only to KITE_HOLD_RANGE; when
 					// pressed below KITE_MIN_RANGE, pause the skill ROTATION (the running cast
@@ -1917,7 +1633,7 @@ public class BotManager
 							{
 								BotSpawner.applyAutoCombat(bot, preset);
 							}
-							if (distToTarget > KITE_HOLD_RANGE)
+							if (distToTarget > offenseRange)
 							{
 								// Shared with the fast tick: predicted intercept, stop at bow range.
 								moveForOlympiadChase(bot, KITE_HOLD_RANGE, false);
@@ -1932,7 +1648,7 @@ public class BotManager
 					}
 					else if (caster)
 					{
-						if (olympiadFight && (distToTarget > CASTER_HOLD_RANGE))
+						if (olympiadFight && (distToTarget > offenseRange))
 						{
 							// Shared prediction prevents the 2-second driver from overwriting
 							// the fast intercept with an obsolete direct approach.
@@ -1962,12 +1678,12 @@ public class BotManager
 							CHASE_POINTS.remove(bot.getObjectId());
 						}
 					}
-					else if (olympiadFight && (distToTarget > CHASE_RANGE))
+					else if (olympiadFight && (distToTarget > offenseRange))
 					{
 						moveForOlympiadChase(bot, CHASE_RANGE, true);
 						closingIn = true;
 					}
-					else if (distToTarget > CHASE_RANGE)
+					else if (!olympiadFight && (distToTarget > CHASE_RANGE))
 					{
 						// Melee: chase the player's actual position, regardless of the
 						// current intention (including ATTACK - closing the distance has
@@ -2003,12 +1719,13 @@ public class BotManager
 				// they only cast their magic strikes and curses. Any lingering ATTACK intention
 				// (e.g. picked up from the AI after a cast) is killed here, and the attack
 				// assert below is skipped for casters.
-				if ((preset != null) && preset.isCaster() && !bot.isCastingNow() && (bot.getAI().getIntention() == Intention.ATTACK))
+				if (!BotTactics.allowsBasicAttack(bot, preset) && !bot.isCastingNow() && (bot.getAI().getIntention() == Intention.ATTACK))
 				{
+					bot.abortAttack();
 					bot.getAI().setIntentionIdle();
 				}
 
-				if (!closingIn && !OlympiadChase.isPursuing(bot.getObjectId()) && ((preset == null) || !preset.isCaster()) && (intention != Intention.ATTACK) && (intention != Intention.CAST) && !bot.isMoving() && target.asCreature().isAutoAttackable(bot))
+				if (!closingIn && !OlympiadChase.isPursuing(bot.getObjectId()) && BotTactics.allowsBasicAttack(bot, preset) && (!inOlympiad || OlympiadCombatGate.ready(bot)) && (intention != Intention.ATTACK) && (intention != Intention.CAST) && !bot.isMoving() && target.asCreature().isAutoAttackable(bot))
 				{
 					bot.getAI().setIntentionAttack(target);
 				}
@@ -2087,6 +1804,7 @@ public class BotManager
 			final Olympiad olympiad = Olympiad.getInstance();
 			for (Player bot : BOTS.values())
 			{
+				if (holdOlympiadIfNotReady(bot)) continue;
 				if (bot.isAlikeDead() || bot.isTeleporting())
 				{
 					continue;
@@ -2129,7 +1847,7 @@ public class BotManager
 				final BotClassPreset preset = BotPresets.getPresetByClassId(getBotClassId(bot));
 				final boolean caster = (preset != null) && preset.isCaster();
 				final WorldObject currentTarget = bot.getTarget();
-				if (!caster && !OlympiadChase.isPursuing(bot.getObjectId()) && !bot.isCastingNow() && !bot.isMoving() && (currentTarget != null) && currentTarget.isCreature()
+				if (BotTactics.allowsBasicAttack(bot, preset) && (!inOlympiad || OlympiadCombatGate.ready(bot)) && !OlympiadChase.isPursuing(bot.getObjectId()) && !bot.isCastingNow() && !bot.isMoving() && (currentTarget != null) && currentTarget.isCreature()
 					&& !currentTarget.asCreature().isAlikeDead() && currentTarget.asCreature().isAutoAttackable(bot))
 				{
 					final Intention intention = bot.getAI().getIntention();
@@ -2153,6 +1871,7 @@ public class BotManager
 		{
 			try
 			{
+				if (holdOlympiadIfNotReady(bot)) continue;
 				if (!bot.isInOlympiadMode() || !bot.isOlympiadStart() || bot.isAlikeDead() || bot.isTeleporting())
 				{
 					BotTactics.forget(bot.getObjectId());
@@ -2188,17 +1907,17 @@ public class BotManager
 				}
 				final Player opponent = getOlympiadOpponent(bot);
 				if (opponent != null) CombatAnalytics.watch(bot, opponent);
-				if (TacticalSettings.isEnabled() && !OLY_PENDING_OPENERS.containsKey(bot.getObjectId()) && (opponent != null))
+				if (TacticalSettings.isEnabled() && (opponent != null))
 				{
 					if (!bot.isCastingNow()) bot.setTarget(opponent);
 					if (BotTactics.tick(bot, opponent, preset, true)) continue;
 				}
 				final boolean ranged = ((preset != null) && preset.isCaster()) || isKiterPreset(preset);
 				moveForOlympiadChase(bot, ranged ? CASTER_HOLD_RANGE : CHASE_RANGE, !ranged);
-				if (BotTactics.isOwned(bot.getObjectId()) && preset != null && !preset.isCaster() && opponent != null
+				if (OlympiadCombatGate.ready(bot) && BotTactics.isOwned(bot.getObjectId()) && BotTactics.allowsBasicAttack(bot, preset) && opponent != null
 					&& !bot.isAttackingNow() && !bot.isCastingNow() && !bot.isMovementDisabled() && !bot.isOutOfControl()
 					&& !bot.isAllSkillsDisabled() && !bot.isMoving() && !opponent.isSleeping()
-					&& bot.calculateDistance2D(opponent) <= (ranged ? CASTER_HOLD_RANGE : CHASE_RANGE)
+					&& bot.calculateDistance2D(opponent) <= BotTactics.tacticalApproachRange(bot, opponent, preset)
 					&& opponent.isAutoAttackable(bot) && GeoEngine.getInstance().canSeeTarget(bot, opponent))
 				{
 					bot.setTarget(opponent);
@@ -2215,14 +1934,88 @@ public class BotManager
 
 	private static void moveForOlympiadChase(Player bot, int holdRange, boolean attackInRange)
 	{
+		if (!OlympiadCombatGate.ready(bot))
+		{
+			OlympiadCombatGate.hold(bot);
+			return;
+		}
 		final int gameId = bot.getOlympiadGameId();
 		if ((gameId < 0) || (gameId >= OLYMPIAD_STADIUM_CENTERS.length))
 		{
 			OlympiadChase.forget(bot.getObjectId());
 			return;
 		}
+		final Player enemy = getOlympiadOpponent(bot);
+		final BotClassPreset preset = BotPresets.getPresetByClassId(getBotClassId(bot));
+		final int reach = BotTactics.tacticalApproachRange(bot, enemy, preset);
+		// Preserve explicit rush-positioning windows; ordinary approaches use real offense reach.
+		final int approach = attackInRange || preset == null || preset.getClassId() != CLASS_DOOMBRINGER
+			? Math.max(0, reach - 10) : Math.max(0, Math.min(holdRange, reach) - 10);
 		final int[] center = OLYMPIAD_STADIUM_CENTERS[gameId];
-		OlympiadChase.update(bot, getOlympiadOpponent(bot), holdRange, attackInRange, center[0], center[1], OLYMPIAD_ARENA_MAX_DISTANCE, !BERSERKER_STATES.containsKey(bot.getObjectId()));
+		OlympiadChase.update(bot, enemy, approach, attackInRange && BotTactics.allowsBasicAttack(bot, preset),
+			center[0], center[1], OLYMPIAD_ARENA_MAX_DISTANCE, !BERSERKER_STATES.containsKey(bot.getObjectId()));
+	}
+
+	/** Keep the existing dead-task watchdog alive even while the combat gate is holding.
+	 * It never arms combat and a failed readiness snapshot is not itself a timeout. */
+	private static boolean watchOlympiadMatch(Player bot, boolean inOlympiad)
+	{
+		if (inOlympiad && bot.isOlympiadStart())
+		{
+			final long now = System.currentTimeMillis();
+			final Player opponent = getOlympiadOpponent(bot);
+			final boolean opponentGone = (opponent == null) || opponent.isAlikeDead();
+			final long[] watch = OLY_MATCH_WATCH.computeIfAbsent(bot.getObjectId(), id -> new long[]
+			{
+				now, 0
+			});
+			if (opponentGone)
+			{
+				if (watch[1] == 0)
+				{
+					watch[1] = now;
+				}
+			}
+			else
+			{
+				watch[1] = 0;
+			}
+
+			final boolean deadByOpponent = opponentGone && ((now - watch[1]) >= OLYMPIAD_DEAD_MATCH_RELEASE_MS);
+			final boolean deadByTime = (now - watch[0]) >= OLYMPIAD_MAX_ACTIVE_MATCH_MS;
+			if (deadByOpponent || deadByTime)
+			{
+				final String reason = deadByOpponent
+					? ("opponent missing/dead for " + ((now - watch[1]) / 1000) + " s")
+					: ("match exceeded the battle period (" + ((now - watch[0]) / 1000) + " s)");
+				OLY_MATCH_WATCH.remove(bot.getObjectId());
+				releaseBotFromDeadMatch(bot, reason);
+				return true;
+			}
+		}
+		else
+		{
+			OLY_MATCH_WATCH.remove(bot.getObjectId());
+		}
+		return false;
+	}
+
+	/** Stop on every failed readiness snapshot, including the pre-teleport countdown.
+	 * A false start flag is NOT a leave: retain opener claim until actual departure. */
+	private static boolean holdOlympiadIfNotReady(Player bot)
+	{
+		final Olympiad olympiad = Olympiad.getInstance();
+		final boolean staying = bot.isInOlympiadMode() || bot.getOlympiadGameId() >= 0
+			|| (olympiad != null && olympiad.playerInStadia(bot));
+		if (!staying)
+		{
+			if (OLY_GATE_STAYS.remove(bot.getObjectId())) OlympiadCombatGate.forget(bot.getObjectId());
+			return false;
+		}
+		OLY_GATE_STAYS.add(bot.getObjectId());
+		if (OlympiadCombatGate.ready(bot)) return false;
+		OlympiadCombatGate.hold(bot);
+		return true;
 	}
 
 	/**
@@ -2448,6 +2241,11 @@ public class BotManager
 	/** Serialized phase driver. A requested rush is not a landed rush. */
 	private static boolean driveBerserker(Player bot, BotClassPreset preset, BerserkerState state, Creature enemy)
 	{
+		if (!OlympiadCombatGate.ready(bot))
+		{
+			OlympiadCombatGate.hold(bot);
+			return true;
+		}
 		synchronized (state)
 		{
 			final long now = System.currentTimeMillis();
@@ -2507,6 +2305,11 @@ public class BotManager
 		{
 			return true; // Never abort a real filler for a rush.
 		}
+        if (TacticalSettings.isEnabled() && enemy.isPlayer() && BotTactics.recoveryOnly(bot, enemy.asPlayer(), preset))
+        {
+            stopBerserkerEngines(bot, state);
+            return true;
+        }
 		if ((bot.getAI().getIntention() == Intention.CAST) && (dist > CHASE_RANGE))
 		{
 			// Filler useMagic can leave CAST while merely following an out-of-range foe.
@@ -2623,7 +2426,7 @@ public class BotManager
 			return true;
 		}
 		AutoUseTaskManager.getInstance().startAutoUseTask(bot);
-		if (bot.getAI().getIntention() != Intention.ATTACK)
+		if (OlympiadCombatGate.ready(bot) && BotTactics.allowsBasicAttack(bot, preset) && bot.getAI().getIntention() != Intention.ATTACK)
 		{
 			bot.getAI().setIntentionAttack(enemy);
 		}
@@ -2737,6 +2540,11 @@ public class BotManager
 	 */
 	private static void armBerserkerCombat(Player bot, BotClassPreset preset, BerserkerState state)
 	{
+		if (!OlympiadCombatGate.ready(bot))
+		{
+			OlympiadCombatGate.hold(bot);
+			return;
+		}
 		if (state.enginesStopped || !bot.isAutoPlaying() || rotationHasManagedSkill(bot))
 		{
 			BotSpawner.applyAutoCombat(bot, preset);
@@ -2955,6 +2763,8 @@ public class BotManager
 			LOGGER.warning("FakePlayersAI: despawn of " + bot.getName() + " failed: " + e);
 		}
 		BOTS.remove(bot.getObjectId());
+		OLY_GATE_STAYS.remove(bot.getObjectId());
+		OlympiadCombatGate.forget(bot.getObjectId());
 		OlympiadChase.forget(bot.getObjectId());
 		CHASE_POINTS.remove(bot.getObjectId());
 		OPEN_CURSE_TARGETS.remove(bot.getObjectId());
@@ -2963,9 +2773,9 @@ public class BotManager
 		BERSERKER_STATES.remove(bot.getObjectId());
 		OLYMPIAD_PARTICIPANTS.remove(bot.getObjectId());
 		OLY_SPAWN_POINTS.remove(bot.getObjectId());
-		OLY_PENDING_OPENERS.remove(bot.getObjectId());
-		OLY_PENDING_ENLIGHTENMENT.remove(bot.getObjectId());
-		OLY_OPENER_GATE_TIME.remove(bot.getObjectId());
+
+
+
 		BOT_TITLES.remove(bot.getObjectId());
 		// Tank-bot fixed debuff chance: drop the registration (no leak into reuse of
 		// the objectId by another character).

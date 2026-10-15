@@ -15,13 +15,14 @@ import org.l2jmobius.gameserver.mechanics.effects.EffectType;
 import org.l2jmobius.gameserver.mechanics.skill.AbnormalType;
 import org.l2jmobius.gameserver.mechanics.skill.BuffInfo;
 import org.l2jmobius.gameserver.mechanics.skill.Skill;
+import org.l2jmobius.gameserver.mechanics.skill.EffectScope;
 import org.l2jmobius.gameserver.mechanics.skill.enums.FlyType;
 import org.l2jmobius.gameserver.mechanics.skill.targets.TargetType;
 import org.l2jmobius.gameserver.taskmanagers.AutoPlayTaskManager;
 import org.l2jmobius.gameserver.taskmanagers.AutoUseTaskManager;
 
 /**
- * Call on the parent's serialized 250ms arena pass AFTER the T+3 opener.
+ * Call on the parent's serialized arena pass after the pre-start opener.
  * true means no generic move/attack this tick (including sleep/reaction/CC holds).
  * false permits generic pursuit/attack, NOT restarting auto engines while isOwned.
  * All state is IDs/scalars, bounded to 2048 bots and 64 skill failures per bot.
@@ -42,12 +43,12 @@ public final class BotTactics
 	private static final class State
 	{
 		TacticsPolicy.Difficulty difficulty; // null follows the global default; training overrides are explicit.
-		long seen, nextDecision, observed, hpObserved, castObserved = -1, nextStep, moveUntil;
+		long seen, nextDecision, observed, hpObserved, castObserved = -1, nextStep, moveUntil, sleepObserved = -1;
 		int hpBand = -1;
 		int trainingEnemy, trainingInstance, enemy, game = -1, instance, anchorX, anchorY, moveX, moveY;
 		boolean owned, enemyCasting;
 		int fleeingSamples, offensiveActionsSinceStep = 2;
-        boolean sawAttack;
+
 		long nextHabitSample;
 		double previousDistance = -1;
 		int pendingId;
@@ -99,6 +100,87 @@ public final class BotTactics
 		final State s = STATES.get(botId);
 		return s != null && s.owned;
 	}
+	/** Mandatory gate for every parent fallback, including training and phase drivers. */
+	public static boolean allowsBasicAttack(Player bot, BotClassPreset preset)
+	{
+		return bot != null && preset != null && TacticsPolicy.basicAttackAllowed(
+			preset.getWeaponKind() == BotClassPreset.WeaponKind.DAGGER, preset.isCaster(), weaponUnavailable(bot));
+	}
+
+    private static boolean weaponUnavailable(Player bot)
+    {
+        return bot.isDisarmed() || bot.getActiveWeaponItem() == null;
+    }
+
+    /** Phase driver lends ONLY a recovery movement tick; no tactical cast/ownership.
+     * A real rush/cast must be drained by the caller before entering this hook. */
+    public static synchronized boolean recoveryOnly(Player bot, Player enemy, BotClassPreset preset)
+    {
+        if (bot == null || preset == null || !valid(bot, enemy, true, STATES.get(bot.getObjectId()))
+            || bot.isCastingNow() || bot.isMovementDisabled() || bot.isOutOfControl() || bot.isAllSkillsDisabled()) return false;
+        boolean available = false;
+        if (!weaponUnavailable(bot))
+        {
+            for (int id : BotSpawner.getTacticalRotation(bot, enemy))
+            {
+                Skill skill = bot.getKnownSkill(id);
+                if (skill == null || BotSpawner.isOpenerOnlySkill(id) || skill.isPassive() || skill.isToggle() || skill.isSuicideAttack()) continue;
+                TacticsPolicy.Kind type = kind(skill);
+                if (type == null || self(type) || !supportedTarget(skill, false) || !BotSpawner.tacticalSkillAllowed(bot, enemy, skill, false)) continue;
+                if (!bot.isSkillDisabled(skill) && !skill.isBlockedInOlympiad() && resources(bot, skill)
+                    && skill.checkCondition(bot, enemy, false)) { available = true; break; }
+            }
+        }
+        if (available) return false; // ready-but-distant offense belongs to the phase driver
+        final long time = now();
+        final State s = state(bot.getObjectId(), time);
+        prepare(bot, enemy, s, time);
+        AutoPlayTaskManager.getInstance().stopAutoPlay(bot);
+        AutoUseTaskManager.getInstance().stopAutoUseTask(bot);
+        stopBasicAttack(bot);
+        if (time >= s.nextStep) step(bot, enemy, preset, s, time, bot.calculateDistance2D(enemy),
+            GeoEngine.getInstance().canSeeTarget(bot, enemy), bot.getCurrentHp() / Math.max(1, bot.getMaxHp()), false, false);
+        return true;
+    }
+
+	/** Center-to-center pursuit stop distance, not permission to attack. Uses the
+	 * same effective learned offense and legality as selection. In particular a
+	 * dagger must reach its 40+collision blow radius, not an 80/110 auto envelope. */
+	public static synchronized int tacticalApproachRange(Player bot, Player enemy, BotClassPreset preset)
+	{
+		if (bot == null || enemy == null || preset == null) { return 40; }
+		final boolean ranged = preset.isCaster() || preset.getWeaponKind() == BotClassPreset.WeaponKind.BOW
+			|| preset.getWeaponKind() == BotClassPreset.WeaponKind.CROSSBOW;
+		final State s = STATES.get(bot.getObjectId());
+		final long time = now();
+		double reach = -1, directReach = -1;
+		for (int id : preset.getRotation())
+		{
+			final Skill skill = bot.getKnownSkill(id);
+			if (skill == null || BotSpawner.isOpenerOnlySkill(id) || skill.isPassive() || skill.isToggle() || skill.isSuicideAttack()
+				|| skill.hasEffectType(EffectType.TELEPORT, EffectType.TELEPORT_TO_TARGET)) { continue; }
+			final TacticsPolicy.Kind kind = kind(skill);
+			if (kind == null || self(kind) || !supportedTarget(skill, false) || !BotSpawner.tacticalSkillAllowed(bot, enemy, skill, false)) { continue; }
+			final Failure failure = s == null ? null : s.failures.get(id);
+			if (bot.isSkillDisabled(skill) || failure != null && time < failure.until
+				|| bot.isInOlympiadMode() && skill.isBlockedInOlympiad() || weaponUnavailable(bot) && skill.isPhysical()
+				|| !resources(bot, skill) || !skill.checkCondition(bot, enemy, false)) { continue; }
+			if (!TacticsPolicy.sleepOffenseAllowed(preset.getClassId() == 115, enemy.isSleeping(),
+				s == null || s.sleepObserved < 0 ? 0 : time - s.sleepObserved, directDamage(skill), id == 1097 || id == 1069)) { continue; }
+			if (!directDamage(skill) && active(enemy, skill)) { continue; }
+			if (skill.getFlyType() == FlyType.CHARGE && (bot.isMovementDisabled() || !GeoEngine.getInstance().canMoveToTarget(
+				bot.getX(), bot.getY(), bot.getZ(), enemy.getX(), enemy.getY(), enemy.getZ(), bot.getInstanceId()))) { continue; }
+			final boolean aura = skill.getTargetType() == TargetType.AURA || skill.getTargetType() == TargetType.FRONT_AURA || skill.getTargetType() == TargetType.BEHIND_AURA;
+			final double range = TacticsPolicy.effectiveRange(aura, skill.getCastRange(), skill.getAffectRange(), bot.getPhysicalAttackRange(), bot.getTemplate().getCollisionRadius());
+			if (range <= 0) { continue; }
+			reach = reach < 0 ? range : ranged ? Math.max(reach, range) : Math.min(reach, range);
+			if (directDamage(skill)) { directReach = Math.max(directReach, range); }
+		}
+		if (ranged && directReach > 0) { reach = directReach; }
+		if (reach < 0) { reach = bot.getPhysicalAttackRange() + bot.getTemplate().getCollisionRadius(); }
+		return TacticsPolicy.boundedApproachRange(reach);
+	}
+
 	/** Explicit teardown; parent restores world auto-engines only after this call. */
 	public static synchronized void forget(int botId) { STATES.remove(botId); }
 	public static synchronized String describe(int botId)
@@ -162,7 +244,7 @@ public final class BotTactics
 		final long time = now();
 		final State s = state(bot.getObjectId(), time);
 		prepare(bot, enemy, s, time);
-		if (bot.getCurrentHpPercent() >= 65 || bot.isCastingNow() || bot.isAttackingNow() || bot.isOutOfControl() || bot.isAllSkillsDisabled()) { return false; }
+		if ((!defenseThreat(bot, enemy) && bot.getCurrentHpPercent() >= 65) || bot.isCastingNow() || bot.isOutOfControl() || bot.isAllSkillsDisabled()) { return false; }
 		return act(bot, enemy, preset, s, time, true);
 	}
 
@@ -184,10 +266,11 @@ public final class BotTactics
 		{
 			s.enemy = enemy.getObjectId(); s.game = game; s.instance = bot.getInstanceId();
 			s.anchorX = bot.getX(); s.anchorY = bot.getY(); s.observed = time;
-			s.nextDecision = time; s.nextStep = time; s.pendingId = 0; s.failures.clear(); s.enemyCasting = false; s.moveUntil = 0;
-			s.fleeingSamples = 0; s.offensiveActionsSinceStep = 2; s.sawAttack = false; s.previousDistance = -1; s.nextHabitSample = time;
+			s.sleepObserved = -1; s.nextDecision = time; s.nextStep = time; s.pendingId = 0; s.failures.clear(); s.enemyCasting = false; s.moveUntil = 0;
+			s.fleeingSamples = 0; s.offensiveActionsSinceStep = 2; s.previousDistance = -1; s.nextHabitSample = time;
 		}
-		final int hpBand = bot.getCurrentHpPercent() < 35 ? 0 : bot.getCurrentHpPercent() < 65 ? 1 : 2;
+		final double hp = bot.getCurrentHp() / Math.max(1, bot.getMaxHp());
+		final int hpBand = hp < .35 ? 0 : hp < .65 || defenseThreat(bot, enemy) && cpRatio(bot) < .35 ? 1 : 2;
 		if (hpBand != s.hpBand) { s.hpBand = hpBand; s.hpObserved = time; }
 		final boolean casting = GeoEngine.getInstance().canSeeTarget(bot, enemy) && enemy.isCastingNow();
 		if (casting && !s.enemyCasting) { s.castObserved = time; }
@@ -197,24 +280,23 @@ public final class BotTactics
 
 	private static boolean act(Player bot, Player enemy, BotClassPreset preset, State s, long time, boolean defenseOnly)
 	{
+		if (!defenseOnly && !allowsBasicAttack(bot, preset)) { stopBasicAttack(bot); }
 		pollAttempt(bot, enemy, s, time);
+		s.sleepObserved = TacticsPolicy.observeSleep(s.sleepObserved, enemy.isSleeping(), time);
 		// Real casts and CC are never aborted or replaced, including by urgent heals.
 		if (bot.isCastingNow() || bot.isOutOfControl() || bot.isAllSkillsDisabled()) { return !defenseOnly; }
 		if (s.pendingId != 0) { return !defenseOnly; }
 		final boolean sleeping = enemy.isSleeping();
+		final boolean dominator = preset.getClassId() == 115;
+		final long sleepElapsed = s.sleepObserved < 0 ? 0 : time - s.sleepObserved;
 		if (sleeping && !defenseOnly)
 		{
 			// Cancel only future autoattacks, never an already airborne hit or own cast.
 			if (bot.getAI().getIntention() == Intention.ATTACK) { bot.getAI().setIntentionIdle(); }
 			if (bot.isAttackingNow()) { bot.abortAttack(); }
 		}
-		if (bot.isAttackingNow())
-        {
-            if (!s.sawAttack) s.offensiveActionsSinceStep = Math.min(4,s.offensiveActionsSinceStep+1);
-            s.sawAttack = true;
-            return !defenseOnly;
-        }
-        s.sawAttack = false;
+		// Never let a perpetually re-queued basic swing starve skills/defenses.
+		// Forbidden basic attacks are cancelled immediately; real casts are untouched.
 		final double hp = bot.getCurrentHp() / Math.max(1, bot.getMaxHp());
 		if (time < s.nextDecision || !TacticsPolicy.reactionReady(difficulty(s), time, s.observed, hp < .35)) { return !defenseOnly; }
 		final boolean visible = GeoEngine.getInstance().canSeeTarget(bot, enemy);
@@ -230,9 +312,10 @@ public final class BotTactics
 		}
 		final boolean window = damageWindow(bot, preset);
 		final Map<Integer, Skill> skills = new LinkedHashMap<>();
-		// EXACT effective lists: no learned-skill scan, no skills outside author overrides.
-		for (int id : preset.getRotation()) { final Skill skill = bot.getKnownSkill(id); if (skill != null) { skills.put(id, skill); } }
+		// Effective lists preserve overrides; the shared defense pool includes learned tank defenses.
+		for (int id : BotSpawner.getTacticalRotation(bot, enemy)) { final Skill skill = bot.getKnownSkill(id); if (skill != null) { skills.put(id, skill); } }
 		for (int id : preset.getBuffs()) { final Skill skill = bot.getKnownSkill(id); if (skill != null) { skills.put(id, skill); } }
+		for (int id : BotSpawner.getTacticalDefenses(bot, enemy)) { final Skill skill = bot.getKnownSkill(id); if (skill != null) { skills.put(id, skill); } }
 		int chargeDemand = 4;
 		for (Skill skill : skills.values())
 		{
@@ -242,11 +325,17 @@ public final class BotTactics
 		final TacticsPolicy.Context context = new TacticsPolicy.Context(hp, visible ? enemy.getCurrentHp() / Math.max(1, enemy.getMaxHp()) : 1,
 			distance, sleeping, s.enemyCasting, interruptReady, visible && enemy.isMoving(), window, bot.getCharges() < chargeDemand);
 		final List<TacticsPolicy.Option> options = new ArrayList<>();
+		boolean offenseAvailable = false;
 		for (Skill skill : skills.values())
 		{
-			final TacticsPolicy.Kind kind = kind(skill);
+			if (BotSpawner.isOpenerOnlySkill(skill.getId())) { continue; } // training as well as ranked
+			final TacticsPolicy.Kind detected = kind(skill);
+			final boolean direct = directDamage(skill);
+			final TacticsPolicy.Kind kind = dominator && sleeping && sleepElapsed >= 5000 && direct ? TacticsPolicy.Kind.DAMAGE : detected;
 			if (kind == null || (defenseOnly && kind != TacticsPolicy.Kind.HEAL && kind != TacticsPolicy.Kind.DEFENSE)) { continue; }
 			final boolean self = self(kind);
+			if (!self && !TacticsPolicy.sleepOffenseAllowed(dominator, sleeping, sleepElapsed, direct, skill.getId() == 1097 || skill.getId() == 1069)) { continue; }
+			final boolean protectedSleep = sleeping && !dominator;
 			if (!BotSpawner.tacticalSkillAllowed(bot, enemy, skill, self)) { continue; }
 			if ((kind == TacticsPolicy.Kind.HEAL || kind == TacticsPolicy.Kind.DEFENSE)
 				&& !TacticsPolicy.reactionReady(difficulty(s), time, s.hpObserved, hp < .35)) { continue; }
@@ -255,14 +344,22 @@ public final class BotTactics
 			final Failure f = s.failures.get(skill.getId());
 			final boolean ready = !bot.isSkillDisabled(skill) && (f == null || time >= f.until) && (!bot.isInOlympiadMode() || !skill.isBlockedInOlympiad());
 			final boolean inRange = self || inRange(bot, enemy, skill, distance);
-			final boolean active = (skill.isDebuff() || kind != TacticsPolicy.Kind.DAMAGE && kind != TacticsPolicy.Kind.HEAL && kind != TacticsPolicy.Kind.CHARGE)
+			final boolean active = (self || !directDamage(skill)) && (skill.isDebuff() || kind != TacticsPolicy.Kind.DAMAGE && kind != TacticsPolicy.Kind.HEAL && kind != TacticsPolicy.Kind.CHARGE)
 				&& active(self ? bot : enemy, skill);
 			final boolean interrupt = !s.enemyCasting || interruptReady;
-			if (!TacticsPolicy.allowed(kind, ready, inRange, visible, active, sleeping || enemy.isInvul(), resources(bot, skill), interrupt)) { continue; }
+			final boolean resource = resources(bot, skill) && (self || !weaponUnavailable(bot) || !skill.isPhysical());
+			final boolean conditions = resource && skill.checkCondition(bot, self ? bot : enemy, false);
 			if (skill.getFlyType() == FlyType.CHARGE && (bot.isMovementDisabled() || !GeoEngine.getInstance().canMoveToTarget(bot.getX(), bot.getY(), bot.getZ(), enemy.getX(), enemy.getY(), enemy.getZ(), bot.getInstanceId()))) { continue; }
-			// Backstab needs a naturally reached rear angle, not a server heading edit.
-			if (skill.getId() == 344 && !TacticsPolicy.behind(enemy.getX(), enemy.getY(), enemy.getHeading(), bot.getX(), bot.getY())) { continue; }
-			final double score = TacticsPolicy.adapt(TacticsPolicy.score(kind, context), kind, s.fleeingSamples >= 3, skill.getFlyType() == FlyType.CHARGE);
+			if (!self && TacticsPolicy.allowed(kind, ready, true, visible, active, protectedSleep || enemy.isInvul(), conditions, interrupt)) { offenseAvailable = true; }
+			if (!TacticsPolicy.allowed(kind, ready, inRange, visible, active, protectedSleep || enemy.isInvul(), conditions, interrupt)) { continue; }
+			// Actual Backstab/FatalBlow handlers own positional rules and the admin bot success roll.
+			final double base = dominator && sleeping && sleepElapsed >= 5000 && direct ? 135 : kind == TacticsPolicy.Kind.DEFENSE
+				? TacticsPolicy.defenseScore(hp, cpRatio(bot), visible && defenseThreat(bot, enemy))
+				: kind == TacticsPolicy.Kind.HEAL && skill.hasEffectType(EffectType.CPHEAL) && !skill.hasEffectType(EffectType.HEAL)
+					? TacticsPolicy.score(kind, new TacticsPolicy.Context(cpRatio(bot), context.enemyHp(), distance, sleeping, s.enemyCasting, interruptReady, context.enemyMoving(), window, context.needsCharges()))
+					: TacticsPolicy.score(kind, context);
+			final double prioritized = base > 0 && kind == TacticsPolicy.Kind.DEFENSE ? base + TacticsPolicy.defensePriority(skill.getId()) : base;
+			final double score = TacticsPolicy.adapt(prioritized, kind, s.fleeingSamples >= 3, skill.getFlyType() == FlyType.CHARGE);
 			if (score > 0) { options.add(new TacticsPolicy.Option(skill.getId(), kind, score)); }
 		}
 		final ThreadLocalRandom random = ThreadLocalRandom.current();
@@ -273,13 +370,14 @@ public final class BotTactics
 			|| (chosen == TacticsPolicy.Kind.CONTROL && interruptReady && s.enemyCasting);
 		if (!defenseOnly && !urgent && time < s.moveUntil && bot.isMoving() && Math.hypot(bot.getXdestination() - s.moveX, bot.getYdestination() - s.moveY) < 40) { return true; }
 		final boolean offenseReady = options.stream().anyMatch(o -> o.kind() == TacticsPolicy.Kind.DAMAGE || o.kind() == TacticsPolicy.Kind.CONTROL || o.kind() == TacticsPolicy.Kind.SLOW);
-        if (!defenseOnly && !sleeping && !urgent && time >= s.nextStep && !window && step(bot, enemy, preset, s, time, distance, visible, hp, offenseReady)) { return true; }
+        if (!defenseOnly && (!sleeping || dominator) && !urgent && time >= s.nextStep && step(bot, enemy, preset, s, time, distance, visible, hp, offenseReady, offenseAvailable)) { return true; }
 		if (selected >= 0)
 		{
 			final Skill skill = skills.get(selected);
 			// Caller deliberately lends the phase to this single genuine defensive cast.
 			if (defenseOnly) { AutoUseTaskManager.getInstance().stopAutoUseTask(bot); AutoPlayTaskManager.getInstance().stopAutoPlay(bot); }
 			final boolean self = self(chosen);
+			stopBasicAttack(bot); // end auto loop before requesting an ordinary cast
 			bot.setTarget(self ? bot : enemy);
 			s.pendingMp = bot.getCurrentMp(); s.pendingHp = bot.getCurrentHp(); s.pendingCharges = bot.getCharges();
 			final boolean accepted = bot.useMagic(skill, true, true); // shiftPressed: NEVER walk into range.
@@ -289,15 +387,29 @@ public final class BotTactics
 				CombatAnalytics.tacticalRequest(bot.getObjectId(), chosen.name());
                 if (chosen == TacticsPolicy.Kind.DAMAGE || chosen == TacticsPolicy.Kind.CONTROL || chosen == TacticsPolicy.Kind.SLOW)
                     s.offensiveActionsSinceStep = Math.min(4,s.offensiveActionsSinceStep+1);
-				s.pendingId = selected; s.pendingAt = time; s.pendingSelf = self; s.pendingDebuff = skill.isDebuff(); s.sawCast = bot.isCastingNow();
+				s.pendingId = selected; s.pendingAt = time; s.pendingSelf = self; s.pendingDebuff = skill.isDebuff() && !directDamage(skill); s.sawCast = bot.isCastingNow();
 			}
 			else { failure(s, selected, time); bot.setTarget(enemy); }
 			// Self targeting remains until cast resolves; next offensive action restores enemy.
 			return true;
 		}
-		if (sleeping && !defenseOnly) { return true; }
+		if (sleeping && !defenseOnly && (!dominator || !offenseAvailable)) { return true; }
 		if (!defenseOnly && time < s.moveUntil && bot.isMoving() && Math.hypot(bot.getXdestination() - s.moveX, bot.getYdestination() - s.moveY) < 40) { return true; }
+		// Parent may pursue when merely out of range, but may never autoattack a dagger.
+		if (!defenseOnly && !offenseAvailable) { stopBasicAttack(bot); return true; }
 		return false;
+	}
+
+	private static void stopBasicAttack(Player bot)
+	{
+		if (bot.getAI().getIntention() == Intention.ATTACK) { bot.getAI().setIntentionIdle(); }
+		if (bot.isAttackingNow()) { bot.abortAttack(); }
+	}
+	private static double cpRatio(Player bot) { return bot.getMaxCp() <= 0 ? 1 : bot.getCurrentCp() / bot.getMaxCp(); }
+	private static boolean defenseThreat(Player bot, Player enemy)
+	{
+		return enemy.getTarget() == bot && (enemy.isAttackingNow() || enemy.isCastingNow()
+			|| !enemy.isMageClass() && bot.calculateDistance2D(enemy) <= 220);
 	}
 
 	private static void pollAttempt(Player bot, Player enemy, State s, long time)
@@ -345,7 +457,9 @@ public final class BotTactics
 	}
 	private static boolean supportedTarget(Skill skill, boolean self)
 	{
-		if (self) { return skill.getTargetType() == TargetType.SELF || skill.getTargetType() == TargetType.ONE; }
+		if (self) { return skill.getId() == 368 && skill.getTargetType() == TargetType.AURA || skill.getTargetType() == TargetType.SELF || skill.getTargetType() == TargetType.ONE
+			|| skill.getTargetType() == TargetType.PARTY || skill.getTargetType() == TargetType.CLAN
+			|| skill.getTargetType() == TargetType.PARTY_MEMBER; }
 		return skill.getTargetType() == TargetType.ONE || skill.getTargetType() == TargetType.AREA
 			|| skill.getTargetType() == TargetType.AURA || skill.getTargetType() == TargetType.FRONT_AURA
 			|| skill.getTargetType() == TargetType.FRONT_AREA || skill.getTargetType() == TargetType.BEHIND_AREA || skill.getTargetType() == TargetType.BEHIND_AURA;
@@ -353,21 +467,47 @@ public final class BotTactics
 	private static boolean inRange(Player bot, Player enemy, Skill skill, double distance)
 	{
 		final boolean aura = skill.getTargetType() == TargetType.AURA || skill.getTargetType() == TargetType.FRONT_AURA || skill.getTargetType() == TargetType.BEHIND_AURA;
-		final int range = aura ? skill.getAffectRange() : skill.getCastRange();
+		// AURA defaults to castRange=-1; this is not an invalid skill. Physical
+		// targeted -1 uses ordinary weapon reach, NEVER an unlimited cast range.
+		final double range = TacticsPolicy.effectiveRange(aura, skill.getCastRange(), skill.getAffectRange(),
+			bot.getPhysicalAttackRange(), bot.getTemplate().getCollisionRadius());
 		return Math.abs(bot.getZ() - enemy.getZ()) < 150 && range > 0 && distance <= range;
+	}
+	/** Most direct attacks (including blows/energy attacks) report PHYSICAL_ATTACK.
+	 * Named-effect fallback also covers CP damage and compound/custom handlers. */
+	private static boolean effectNamed(Skill skill, String... names)
+	{
+		for (EffectScope scope : new EffectScope[] { EffectScope.GENERAL, EffectScope.PVP })
+		{
+			final var effects = skill.getEffects(scope);
+			if (effects == null) { continue; }
+			for (var effect : effects) for (String name : names) if (name.equals(effect.getName())) { return true; }
+		}
+		return false;
+	}
+	private static boolean directDamage(Skill skill)
+	{
+		return skill.isDamage() || effectNamed(skill, "Backstab", "FatalBlow", "EnergyDamage", "PhysicalSoulDamage", "CpDamPercent", "DeathLink");
 	}
 	private static TacticsPolicy.Kind kind(Skill skill)
 	{
-		if (skill.hasEffectType(EffectType.HEAL, EffectType.CPHEAL)) { return TacticsPolicy.Kind.HEAL; }
-		if (skill.hasEffectType(EffectType.STUN, EffectType.SLEEP, EffectType.PARALYZE, EffectType.FEAR, EffectType.MUTE)) { return TacticsPolicy.Kind.CONTROL; }
-		if (skill.getAbnormalType() == AbnormalType.SPEED_DOWN || skill.getAbnormalType() == AbnormalType.ALL_SPEED_DOWN || skill.hasEffectType(EffectType.ROOT)) { return TacticsPolicy.Kind.SLOW; }
-		if (skill.isDamage() || skill.hasEffectType(EffectType.PHYSICAL_ATTACK, EffectType.MAGICAL_ATTACK, EffectType.HP_DRAIN, EffectType.DMG_OVER_TIME, EffectType.DMG_OVER_TIME_PERCENT, EffectType.DEATH_LINK, EffectType.PHYSICAL_ATTACK_HP_LINK)) { return TacticsPolicy.Kind.DAMAGE; }
-		if (skill.isDebuff()) { return TacticsPolicy.Kind.SLOW; }
+		// Explicit IDs, never translated skill-name substring guesses. Defense wins
+		// over Vengeance's taunt; SELF CpDamPercent costs remain support, not attacks.
+		if (TacticsPolicy.defenseSkill(skill.getId())) { return TacticsPolicy.Kind.DEFENSE; }
 		if (skill.getId() == 50 || skill.getId() == 8) { return TacticsPolicy.Kind.CHARGE; }
-		final String name = skill.getName().toLowerCase(java.util.Locale.ROOT);
-		if (name.contains("defen") || name.contains("barrier") || name.contains("celestial") || name.contains("evasion") || name.contains("guts") || name.contains("vengeance")) { return TacticsPolicy.Kind.DEFENSE; }
-		if (skill.isContinuous() && skill.getAbnormalType() != AbnormalType.NONE) { return TacticsPolicy.Kind.BUFF; }
-		return null;
+		final boolean support = skill.getTargetType() == TargetType.SELF || !skill.hasNegativeEffect() && !directDamage(skill) && !skill.isDebuff();
+		if (support)
+		{
+			if (skill.hasEffectType(EffectType.HEAL, EffectType.CPHEAL) || effectNamed(skill, "HealPercent", "HealOverTime")) { return TacticsPolicy.Kind.HEAL; }
+			if (skill.isContinuous() && skill.getAbnormalType() != AbnormalType.NONE) { return TacticsPolicy.Kind.BUFF; }
+		}
+		if (skill.hasEffectType(EffectType.STUN, EffectType.SLEEP, EffectType.PARALYZE, EffectType.FEAR, EffectType.MUTE)
+			|| effectNamed(skill, "PhysicalMute", "Disarm")) { return TacticsPolicy.Kind.CONTROL; }
+		if (directDamage(skill)) { return TacticsPolicy.Kind.DAMAGE; }
+		if (skill.getAbnormalType() == AbnormalType.SPEED_DOWN || skill.getAbnormalType() == AbnormalType.ALL_SPEED_DOWN || skill.hasEffectType(EffectType.ROOT)) { return TacticsPolicy.Kind.SLOW; }
+		if (skill.isDebuff() || skill.hasEffectType(EffectType.DMG_OVER_TIME, EffectType.DMG_OVER_TIME_PERCENT, EffectType.DISPEL, EffectType.DISPEL_BY_SLOT)
+			|| effectNamed(skill, "DispelByCategory", "CallSkill")) { return TacticsPolicy.Kind.SLOW; }
+		return null; // target-cancel/hate manipulation, crafting, restoration and soul farming are not arena offense.
 	}
 	private static boolean damageWindow(Player bot, BotClassPreset preset)
 	{
@@ -377,11 +517,18 @@ public final class BotTactics
 	}
 
 	/** Short ordinary geodata-checked steps. No future positions, facing writes or teleports. */
-	private static boolean step(Player bot, Player enemy, BotClassPreset preset, State s, long time, double distance, boolean visible, double hp, boolean offenseReady)
+	private static boolean step(Player bot, Player enemy, BotClassPreset preset, State s, long time, double distance, boolean visible, double hp, boolean offenseReady, boolean offenseAvailable)
 	{
-		if (!visible || bot.isMovementDisabled() || bot.isAttackingNow() || Math.abs(bot.getZ() - enemy.getZ()) > 100 || distance < 1) { return false; }
+		if (!visible || bot.isMovementDisabled() || Math.abs(bot.getZ() - enemy.getZ()) > 100 || distance < 1) { return false; }
 		double x, y;
-		if (preset.getWeaponKind() == BotClassPreset.WeaponKind.DAGGER && distance < 170
+		final boolean recovery = TacticsPolicy.recoveryStepAllowed(weaponUnavailable(bot), offenseAvailable, offenseReady,
+			distance, TacticsPolicy.recoveryEnemyControlled(preset.getClassId() == 115, enemy.isSleeping(), enemy.isMovementDisabled(), enemy.isOutOfControl()));
+		if (recovery)
+		{
+			x = bot.getX() + 120 * (bot.getX() - enemy.getX()) / distance;
+			y = bot.getY() + 120 * (bot.getY() - enemy.getY()) / distance;
+		}
+		else if (!offenseReady && preset.getWeaponKind() == BotClassPreset.WeaponKind.DAGGER && distance < 170
 			&& !TacticsPolicy.behind(enemy.getX(), enemy.getY(), enemy.getHeading(), bot.getX(), bot.getY()))
 		{
 			final double angle = enemy.getHeading() * (2 * Math.PI / 65536.0);
@@ -401,11 +548,12 @@ public final class BotTactics
 		if (length > 160) { x = bot.getX() + dx * 160 / length; y = bot.getY() + dy * 160 / length; }
 		final int px = (int) Math.round(x), py = (int) Math.round(y);
 		if (Math.hypot(px - s.anchorX, py - s.anchorY) > 1400 || !GeoEngine.getInstance().canMoveToTarget(bot.getX(), bot.getY(), bot.getZ(), px, py, bot.getZ(), bot.getInstanceId())) { s.nextStep = time + 1500; return false; }
+		stopBasicAttack(bot);
 		bot.getAI().setIntentionMoveTo(new Location(px, py, bot.getZ()));
-		s.nextStep = time + (preset.getWeaponKind() == BotClassPreset.WeaponKind.DAGGER ? 2500 : 4500);
+		s.nextStep = time + (recovery ? 600 : preset.getWeaponKind() == BotClassPreset.WeaponKind.DAGGER ? 2500 : 4500);
 		if (bot.getAI().getIntention() != Intention.MOVE_TO || !bot.isMoving()
 			|| Math.hypot(bot.getXdestination() - px, bot.getYdestination() - py) >= 40) { return false; }
-		s.moveX = px; s.moveY = py; s.moveUntil = time + 200;
+		s.moveX = px; s.moveY = py; s.moveUntil = time + (recovery ? 450 : 200);
         s.offensiveActionsSinceStep = 0;
 		return true;
 	}

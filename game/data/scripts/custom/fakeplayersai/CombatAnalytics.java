@@ -232,12 +232,19 @@ public final class CombatAnalytics
     {
         // No ephemeral training-bot history; no Player references are retained.
         if (b.training && TrainingArena.isTrainingBot(World.getPlayer(own.id))) return;
-        String result = winnerId == 0 ? reason : winnerId == own.id ? (b.training ? "Duel win" : "Official win") : (b.training ? "Duel loss" : "Official loss");
+        String result = resultLabel(b.training, own.id, winnerId, reason);
         Deque<Summary> rows = HISTORY.computeIfAbsent(own.id, k -> new ArrayDeque<>());
         rows.addFirst(new Summary(b.training, opponent.name, opponent.classId, b.profile, result, duration, own.damage, opponent.damage,
             own.casts, own.selfCasts, own.deaths, own.movingMs, own.idleMs, own.noGainMs, own.healRequests, own.defenseRequests, own.controlRequests, own.controlEffects, skillSummary(own.skills)));
         while (rows.size() > 10) rows.removeLast();
     }
+    static String resultLabel(boolean training, int ownId, int winnerId, String reason)
+    {
+        if (winnerId == 0) return reason;
+        String result = winnerId == ownId ? (training ? "Duel win" : "Official win") : (training ? "Duel loss" : "Official loss");
+        return training ? result + " — " + reason : result;
+    }
+
     private static String skillSummary(Map<Integer, Long> skills)
     {
         StringBuilder text = new StringBuilder();
