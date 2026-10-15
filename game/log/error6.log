@@ -1,0 +1,45 @@
+окт. 04, 2026 12:03:46 PM org.l2jmobius.gameserver.mechanics.sevensigns.SevenSigns <init>
+SEVERE: SevenSigns: Failed to load configuration: Cannot invoke "com.zaxxer.hikari.HikariDataSource.getConnection()" because "org.l2jmobius.commons.database.DatabaseFactory.DATABASE_POOL" is null
+java.lang.NullPointerException: Cannot invoke "com.zaxxer.hikari.HikariDataSource.getConnection()" because "org.l2jmobius.commons.database.DatabaseFactory.DATABASE_POOL" is null
+	at org.l2jmobius.commons.database.DatabaseFactory.getConnection(DatabaseFactory.java:263)
+	at org.l2jmobius.gameserver.mechanics.sevensigns.SevenSigns.restoreSevenSignsData(SevenSigns.java:848)
+	at org.l2jmobius.gameserver.mechanics.sevensigns.SevenSigns.<init>(SevenSigns.java:149)
+	at org.l2jmobius.gameserver.mechanics.sevensigns.SevenSigns$SingletonHolder.<clinit>(SevenSigns.java:1742)
+	at org.l2jmobius.gameserver.mechanics.sevensigns.SevenSigns.getInstance(SevenSigns.java:402)
+	at org.l2jmobius.gameserver.Shutdown.saveData(Shutdown.java:472)
+	at org.l2jmobius.gameserver.Shutdown.startShutdownActions(Shutdown.java:422)
+	at org.l2jmobius.gameserver.Shutdown.run(Shutdown.java:152)
+
+окт. 04, 2026 12:03:46 PM org.l2jmobius.gameserver.mechanics.sevensigns.SevenSignsFestival restoreFestivalData
+SEVERE: SevenSignsFestival: Failed to load configuration: Cannot invoke "com.zaxxer.hikari.HikariDataSource.getConnection()" because "org.l2jmobius.commons.database.DatabaseFactory.DATABASE_POOL" is null
+java.lang.NullPointerException: Cannot invoke "com.zaxxer.hikari.HikariDataSource.getConnection()" because "org.l2jmobius.commons.database.DatabaseFactory.DATABASE_POOL" is null
+	at org.l2jmobius.commons.database.DatabaseFactory.getConnection(DatabaseFactory.java:263)
+	at org.l2jmobius.gameserver.mechanics.sevensigns.SevenSignsFestival.restoreFestivalData(SevenSignsFestival.java:943)
+	at org.l2jmobius.gameserver.mechanics.sevensigns.SevenSignsFestival.<init>(SevenSignsFestival.java:790)
+	at org.l2jmobius.gameserver.mechanics.sevensigns.SevenSignsFestival$SingletonHolder.<clinit>(SevenSignsFestival.java:2408)
+	at org.l2jmobius.gameserver.mechanics.sevensigns.SevenSignsFestival.getInstance(SevenSignsFestival.java:804)
+	at org.l2jmobius.gameserver.Shutdown.saveData(Shutdown.java:474)
+	at org.l2jmobius.gameserver.Shutdown.startShutdownActions(Shutdown.java:422)
+	at org.l2jmobius.gameserver.Shutdown.run(Shutdown.java:152)
+
+окт. 04, 2026 12:03:46 PM org.l2jmobius.gameserver.mechanics.sevensigns.SevenSignsFestival restoreFestivalData
+SEVERE: SevenSignsFestival: Failed to load configuration: Cannot invoke "com.zaxxer.hikari.HikariDataSource.getConnection()" because "org.l2jmobius.commons.database.DatabaseFactory.DATABASE_POOL" is null
+java.lang.NullPointerException: Cannot invoke "com.zaxxer.hikari.HikariDataSource.getConnection()" because "org.l2jmobius.commons.database.DatabaseFactory.DATABASE_POOL" is null
+	at org.l2jmobius.commons.database.DatabaseFactory.getConnection(DatabaseFactory.java:263)
+	at org.l2jmobius.gameserver.mechanics.sevensigns.SevenSignsFestival.restoreFestivalData(SevenSignsFestival.java:987)
+	at org.l2jmobius.gameserver.mechanics.sevensigns.SevenSignsFestival.<init>(SevenSignsFestival.java:790)
+	at org.l2jmobius.gameserver.mechanics.sevensigns.SevenSignsFestival$SingletonHolder.<clinit>(SevenSignsFestival.java:2408)
+	at org.l2jmobius.gameserver.mechanics.sevensigns.SevenSignsFestival.getInstance(SevenSignsFestival.java:804)
+	at org.l2jmobius.gameserver.Shutdown.saveData(Shutdown.java:474)
+	at org.l2jmobius.gameserver.Shutdown.startShutdownActions(Shutdown.java:422)
+	at org.l2jmobius.gameserver.Shutdown.run(Shutdown.java:152)
+
+окт. 04, 2026 12:03:46 PM org.l2jmobius.gameserver.mechanics.sevensigns.SevenSignsFestival saveFestivalData
+SEVERE: SevenSignsFestival: Failed to save configuration: Cannot invoke "com.zaxxer.hikari.HikariDataSource.getConnection()" because "org.l2jmobius.commons.database.DatabaseFactory.DATABASE_POOL" is null
+java.lang.NullPointerException: Cannot invoke "com.zaxxer.hikari.HikariDataSource.getConnection()" because "org.l2jmobius.commons.database.DatabaseFactory.DATABASE_POOL" is null
+	at org.l2jmobius.commons.database.DatabaseFactory.getConnection(DatabaseFactory.java:263)
+	at org.l2jmobius.gameserver.mechanics.sevensigns.SevenSignsFestival.saveFestivalData(SevenSignsFestival.java:1012)
+	at org.l2jmobius.gameserver.Shutdown.saveData(Shutdown.java:474)
+	at org.l2jmobius.gameserver.Shutdown.startShutdownActions(Shutdown.java:422)
+	at org.l2jmobius.gameserver.Shutdown.run(Shutdown.java:152)
+

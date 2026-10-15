@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list enabled="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/spawns.xsd">
+	<spawn name="Giran Blacksmith Aug">
+		<npc id="1006000" x="82993" y="148613" z="-3455" heading="16384" respawnDelay="60" /> <!-- Blacksmith Aug, next to Enchanter (1004000) and Skill Enchanter (1005000) -->
+	</spawn>
+</list>

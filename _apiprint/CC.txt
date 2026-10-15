@@ -1,0 +1,667 @@
+Compiled from "CharacterCreate.java"
+public class org.l2jmobius.gameserver.network.clientpackets.CharacterCreate extends org.l2jmobius.gameserver.network.clientpackets.ClientPacket {
+  protected static final java.util.logging.Logger LOGGER_ACCOUNTING;
+
+  private java.lang.String _name;
+
+  private boolean _isFemale;
+
+  private int _classId;
+
+  private byte _hairStyle;
+
+  private byte _hairColor;
+
+  private byte _face;
+
+  public org.l2jmobius.gameserver.network.clientpackets.CharacterCreate();
+    Code:
+         0: aload_0
+         1: invokespecial #1                  // Method org/l2jmobius/gameserver/network/clientpackets/ClientPacket."<init>":()V
+         4: return
+
+  protected void readImpl();
+    Code:
+         0: aload_0
+         1: aload_0
+         2: invokevirtual #7                  // Method readString:()Ljava/lang/String;
+         5: putfield      #13                 // Field _name:Ljava/lang/String;
+         8: aload_0
+         9: invokevirtual #17                 // Method readInt:()I
+        12: pop
+        13: aload_0
+        14: aload_0
+        15: invokevirtual #17                 // Method readInt:()I
+        18: ifeq          25
+        21: iconst_1
+        22: goto          26
+        25: iconst_0
+        26: putfield      #21                 // Field _isFemale:Z
+        29: aload_0
+        30: aload_0
+        31: invokevirtual #17                 // Method readInt:()I
+        34: putfield      #25                 // Field _classId:I
+        37: aload_0
+        38: invokevirtual #17                 // Method readInt:()I
+        41: pop
+        42: aload_0
+        43: invokevirtual #17                 // Method readInt:()I
+        46: pop
+        47: aload_0
+        48: invokevirtual #17                 // Method readInt:()I
+        51: pop
+        52: aload_0
+        53: invokevirtual #17                 // Method readInt:()I
+        56: pop
+        57: aload_0
+        58: invokevirtual #17                 // Method readInt:()I
+        61: pop
+        62: aload_0
+        63: invokevirtual #17                 // Method readInt:()I
+        66: pop
+        67: aload_0
+        68: aload_0
+        69: invokevirtual #17                 // Method readInt:()I
+        72: i2b
+        73: putfield      #29                 // Field _hairStyle:B
+        76: aload_0
+        77: aload_0
+        78: invokevirtual #17                 // Method readInt:()I
+        81: i2b
+        82: putfield      #33                 // Field _hairColor:B
+        85: aload_0
+        86: aload_0
+        87: invokevirtual #17                 // Method readInt:()I
+        90: i2b
+        91: putfield      #36                 // Field _face:B
+        94: return
+
+  protected void runImpl();
+    Code:
+         0: aload_0
+         1: invokevirtual #39                 // Method getClient:()Lorg/l2jmobius/commons/network/Client;
+         4: checkcast     #43                 // class org/l2jmobius/gameserver/network/GameClient
+         7: astore_1
+         8: aload_0
+         9: getfield      #13                 // Field _name:Ljava/lang/String;
+        12: invokevirtual #45                 // Method java/lang/String.isEmpty:()Z
+        15: ifne          30
+        18: aload_0
+        19: getfield      #13                 // Field _name:Ljava/lang/String;
+        22: invokevirtual #51                 // Method java/lang/String.length:()I
+        25: bipush        16
+        27: if_icmple     43
+        30: aload_1
+        31: new           #54                 // class org/l2jmobius/gameserver/network/serverpackets/CharCreateFail
+        34: dup
+        35: iconst_3
+        36: invokespecial #56                 // Method org/l2jmobius/gameserver/network/serverpackets/CharCreateFail."<init>":(I)V
+        39: invokevirtual #59                 // Method org/l2jmobius/gameserver/network/GameClient.sendPacket:(Lorg/l2jmobius/gameserver/network/serverpackets/ServerPacket;)V
+        42: return
+        43: getstatic     #63                 // Field org/l2jmobius/gameserver/config/PlayerConfig.FORBIDDEN_NAMES:[Ljava/lang/String;
+        46: arraylength
+        47: ifle          109
+        50: getstatic     #63                 // Field org/l2jmobius/gameserver/config/PlayerConfig.FORBIDDEN_NAMES:[Ljava/lang/String;
+        53: astore_2
+        54: aload_2
+        55: arraylength
+        56: istore_3
+        57: iconst_0
+        58: istore        4
+        60: iload         4
+        62: iload_3
+        63: if_icmpge     109
+        66: aload_2
+        67: iload         4
+        69: aaload
+        70: astore        5
+        72: aload_0
+        73: getfield      #13                 // Field _name:Ljava/lang/String;
+        76: invokevirtual #69                 // Method java/lang/String.toLowerCase:()Ljava/lang/String;
+        79: aload         5
+        81: invokevirtual #69                 // Method java/lang/String.toLowerCase:()Ljava/lang/String;
+        84: invokevirtual #72                 // Method java/lang/String.contains:(Ljava/lang/CharSequence;)Z
+        87: ifeq          103
+        90: aload_1
+        91: new           #54                 // class org/l2jmobius/gameserver/network/serverpackets/CharCreateFail
+        94: dup
+        95: iconst_4
+        96: invokespecial #56                 // Method org/l2jmobius/gameserver/network/serverpackets/CharCreateFail."<init>":(I)V
+        99: invokevirtual #59                 // Method org/l2jmobius/gameserver/network/GameClient.sendPacket:(Lorg/l2jmobius/gameserver/network/serverpackets/ServerPacket;)V
+       102: return
+       103: iinc          4, 1
+       106: goto          60
+       109: invokestatic  #76                 // Method org/l2jmobius/gameserver/data/xml/FakePlayerData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/FakePlayerData;
+       112: aload_0
+       113: getfield      #13                 // Field _name:Ljava/lang/String;
+       116: invokevirtual #82                 // Method org/l2jmobius/gameserver/data/xml/FakePlayerData.getProperName:(Ljava/lang/String;)Ljava/lang/String;
+       119: ifnull        135
+       122: aload_1
+       123: new           #54                 // class org/l2jmobius/gameserver/network/serverpackets/CharCreateFail
+       126: dup
+       127: iconst_4
+       128: invokespecial #56                 // Method org/l2jmobius/gameserver/network/serverpackets/CharCreateFail."<init>":(I)V
+       131: invokevirtual #59                 // Method org/l2jmobius/gameserver/network/GameClient.sendPacket:(Lorg/l2jmobius/gameserver/network/serverpackets/ServerPacket;)V
+       134: return
+       135: aload_0
+       136: getfield      #13                 // Field _name:Ljava/lang/String;
+       139: invokestatic  #86                 // Method org/l2jmobius/commons/util/StringUtil.isAlphaNumeric:(Ljava/lang/String;)Z
+       142: ifeq          156
+       145: aload_0
+       146: aload_0
+       147: getfield      #13                 // Field _name:Ljava/lang/String;
+       150: invokevirtual #92                 // Method isValidName:(Ljava/lang/String;)Z
+       153: ifne          169
+       156: aload_1
+       157: new           #54                 // class org/l2jmobius/gameserver/network/serverpackets/CharCreateFail
+       160: dup
+       161: iconst_4
+       162: invokespecial #56                 // Method org/l2jmobius/gameserver/network/serverpackets/CharCreateFail."<init>":(I)V
+       165: invokevirtual #59                 // Method org/l2jmobius/gameserver/network/GameClient.sendPacket:(Lorg/l2jmobius/gameserver/network/serverpackets/ServerPacket;)V
+       168: return
+       169: aload_0
+       170: getfield      #36                 // Field _face:B
+       173: iconst_2
+       174: if_icmpgt     184
+       177: aload_0
+       178: getfield      #36                 // Field _face:B
+       181: ifge          213
+       184: aload_0
+       185: getfield      #36                 // Field _face:B
+       188: aload_1
+       189: invokestatic  #95                 // Method java/lang/String.valueOf:(Ljava/lang/Object;)Ljava/lang/String;
+       192: invokedynamic #99,  0             // InvokeDynamic #0:makeConcatWithConstants:(BLjava/lang/String;)Ljava/lang/String;
+       197: invokestatic  #103                // Method org/l2jmobius/gameserver/network/PacketLogger.warning:(Ljava/lang/String;)V
+       200: aload_1
+       201: new           #54                 // class org/l2jmobius/gameserver/network/serverpackets/CharCreateFail
+       204: dup
+       205: iconst_0
+       206: invokespecial #56                 // Method org/l2jmobius/gameserver/network/serverpackets/CharCreateFail."<init>":(I)V
+       209: invokevirtual #59                 // Method org/l2jmobius/gameserver/network/GameClient.sendPacket:(Lorg/l2jmobius/gameserver/network/serverpackets/ServerPacket;)V
+       212: return
+       213: aload_0
+       214: getfield      #29                 // Field _hairStyle:B
+       217: iflt          251
+       220: aload_0
+       221: getfield      #21                 // Field _isFemale:Z
+       224: ifne          235
+       227: aload_0
+       228: getfield      #29                 // Field _hairStyle:B
+       231: iconst_4
+       232: if_icmpgt     251
+       235: aload_0
+       236: getfield      #21                 // Field _isFemale:Z
+       239: ifeq          280
+       242: aload_0
+       243: getfield      #29                 // Field _hairStyle:B
+       246: bipush        6
+       248: if_icmple     280
+       251: aload_0
+       252: getfield      #29                 // Field _hairStyle:B
+       255: aload_1
+       256: invokestatic  #95                 // Method java/lang/String.valueOf:(Ljava/lang/Object;)Ljava/lang/String;
+       259: invokedynamic #109,  0            // InvokeDynamic #1:makeConcatWithConstants:(BLjava/lang/String;)Ljava/lang/String;
+       264: invokestatic  #103                // Method org/l2jmobius/gameserver/network/PacketLogger.warning:(Ljava/lang/String;)V
+       267: aload_1
+       268: new           #54                 // class org/l2jmobius/gameserver/network/serverpackets/CharCreateFail
+       271: dup
+       272: iconst_0
+       273: invokespecial #56                 // Method org/l2jmobius/gameserver/network/serverpackets/CharCreateFail."<init>":(I)V
+       276: invokevirtual #59                 // Method org/l2jmobius/gameserver/network/GameClient.sendPacket:(Lorg/l2jmobius/gameserver/network/serverpackets/ServerPacket;)V
+       279: return
+       280: aload_0
+       281: getfield      #33                 // Field _hairColor:B
+       284: iconst_3
+       285: if_icmpgt     295
+       288: aload_0
+       289: getfield      #33                 // Field _hairColor:B
+       292: ifge          324
+       295: aload_0
+       296: getfield      #33                 // Field _hairColor:B
+       299: aload_1
+       300: invokestatic  #95                 // Method java/lang/String.valueOf:(Ljava/lang/Object;)Ljava/lang/String;
+       303: invokedynamic #110,  0            // InvokeDynamic #2:makeConcatWithConstants:(BLjava/lang/String;)Ljava/lang/String;
+       308: invokestatic  #103                // Method org/l2jmobius/gameserver/network/PacketLogger.warning:(Ljava/lang/String;)V
+       311: aload_1
+       312: new           #54                 // class org/l2jmobius/gameserver/network/serverpackets/CharCreateFail
+       315: dup
+       316: iconst_0
+       317: invokespecial #56                 // Method org/l2jmobius/gameserver/network/serverpackets/CharCreateFail."<init>":(I)V
+       320: invokevirtual #59                 // Method org/l2jmobius/gameserver/network/GameClient.sendPacket:(Lorg/l2jmobius/gameserver/network/serverpackets/ServerPacket;)V
+       323: return
+       324: aconst_null
+       325: astore_2
+       326: aconst_null
+       327: astore_3
+       328: invokestatic  #111                // Method org/l2jmobius/gameserver/data/sql/CharInfoTable.getInstance:()Lorg/l2jmobius/gameserver/data/sql/CharInfoTable;
+       331: dup
+       332: astore        4
+       334: monitorenter
+       335: invokestatic  #111                // Method org/l2jmobius/gameserver/data/sql/CharInfoTable.getInstance:()Lorg/l2jmobius/gameserver/data/sql/CharInfoTable;
+       338: aload_1
+       339: invokevirtual #116                // Method org/l2jmobius/gameserver/network/GameClient.getAccountName:()Ljava/lang/String;
+       342: invokevirtual #119                // Method org/l2jmobius/gameserver/data/sql/CharInfoTable.getAccountCharacterCount:(Ljava/lang/String;)I
+       345: getstatic     #123                // Field org/l2jmobius/gameserver/config/ServerConfig.MAX_CHARACTERS_NUMBER_PER_ACCOUNT:I
+       348: if_icmplt     373
+       351: getstatic     #123                // Field org/l2jmobius/gameserver/config/ServerConfig.MAX_CHARACTERS_NUMBER_PER_ACCOUNT:I
+       354: ifeq          373
+       357: aload_1
+       358: new           #54                 // class org/l2jmobius/gameserver/network/serverpackets/CharCreateFail
+       361: dup
+       362: iconst_1
+       363: invokespecial #56                 // Method org/l2jmobius/gameserver/network/serverpackets/CharCreateFail."<init>":(I)V
+       366: invokevirtual #59                 // Method org/l2jmobius/gameserver/network/GameClient.sendPacket:(Lorg/l2jmobius/gameserver/network/serverpackets/ServerPacket;)V
+       369: aload         4
+       371: monitorexit
+       372: return
+       373: invokestatic  #111                // Method org/l2jmobius/gameserver/data/sql/CharInfoTable.getInstance:()Lorg/l2jmobius/gameserver/data/sql/CharInfoTable;
+       376: aload_0
+       377: getfield      #13                 // Field _name:Ljava/lang/String;
+       380: invokevirtual #128                // Method org/l2jmobius/gameserver/data/sql/CharInfoTable.doesCharNameExist:(Ljava/lang/String;)Z
+       383: ifeq          402
+       386: aload_1
+       387: new           #54                 // class org/l2jmobius/gameserver/network/serverpackets/CharCreateFail
+       390: dup
+       391: iconst_2
+       392: invokespecial #56                 // Method org/l2jmobius/gameserver/network/serverpackets/CharCreateFail."<init>":(I)V
+       395: invokevirtual #59                 // Method org/l2jmobius/gameserver/network/GameClient.sendPacket:(Lorg/l2jmobius/gameserver/network/serverpackets/ServerPacket;)V
+       398: aload         4
+       400: monitorexit
+       401: return
+       402: invokestatic  #131                // Method org/l2jmobius/gameserver/data/xml/PlayerTemplateData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/PlayerTemplateData;
+       405: aload_0
+       406: getfield      #25                 // Field _classId:I
+       409: invokevirtual #136                // Method org/l2jmobius/gameserver/data/xml/PlayerTemplateData.getTemplate:(I)Lorg/l2jmobius/gameserver/entity/actor/templates/PlayerTemplate;
+       412: astore_3
+       413: aload_3
+       414: ifnull        430
+       417: aload_0
+       418: getfield      #25                 // Field _classId:I
+       421: invokestatic  #140                // Method org/l2jmobius/gameserver/entity/actor/enums/player/PlayerClass.getPlayerClass:(I)Lorg/l2jmobius/gameserver/entity/actor/enums/player/PlayerClass;
+       424: invokevirtual #146                // Method org/l2jmobius/gameserver/entity/actor/enums/player/PlayerClass.level:()I
+       427: ifle          446
+       430: aload_1
+       431: new           #54                 // class org/l2jmobius/gameserver/network/serverpackets/CharCreateFail
+       434: dup
+       435: iconst_0
+       436: invokespecial #56                 // Method org/l2jmobius/gameserver/network/serverpackets/CharCreateFail."<init>":(I)V
+       439: invokevirtual #59                 // Method org/l2jmobius/gameserver/network/GameClient.sendPacket:(Lorg/l2jmobius/gameserver/network/serverpackets/ServerPacket;)V
+       442: aload         4
+       444: monitorexit
+       445: return
+       446: getstatic     #149                // Field org/l2jmobius/gameserver/network/clientpackets/CharacterCreate$1.$SwitchMap$org$l2jmobius$gameserver$entity$actor$enums$creature$Race:[I
+       449: aload_3
+       450: invokevirtual #155                // Method org/l2jmobius/gameserver/entity/actor/templates/PlayerTemplate.getRace:()Lorg/l2jmobius/gameserver/entity/actor/enums/creature/Race;
+       453: invokevirtual #161                // Method org/l2jmobius/gameserver/entity/actor/enums/creature/Race.ordinal:()I
+       456: iaload
+       457: tableswitch   { // 1 to 6
+
+                       1: 496
+
+                       2: 518
+
+                       3: 540
+
+                       4: 562
+
+                       5: 584
+
+                       6: 606
+                 default: 628
+            }
+       496: getstatic     #166                // Field org/l2jmobius/gameserver/config/custom/AllowedPlayerRacesConfig.ALLOW_HUMAN:Z
+       499: ifne          628
+       502: aload_1
+       503: new           #54                 // class org/l2jmobius/gameserver/network/serverpackets/CharCreateFail
+       506: dup
+       507: iconst_0
+       508: invokespecial #56                 // Method org/l2jmobius/gameserver/network/serverpackets/CharCreateFail."<init>":(I)V
+       511: invokevirtual #59                 // Method org/l2jmobius/gameserver/network/GameClient.sendPacket:(Lorg/l2jmobius/gameserver/network/serverpackets/ServerPacket;)V
+       514: aload         4
+       516: monitorexit
+       517: return
+       518: getstatic     #171                // Field org/l2jmobius/gameserver/config/custom/AllowedPlayerRacesConfig.ALLOW_ELF:Z
+       521: ifne          628
+       524: aload_1
+       525: new           #54                 // class org/l2jmobius/gameserver/network/serverpackets/CharCreateFail
+       528: dup
+       529: iconst_0
+       530: invokespecial #56                 // Method org/l2jmobius/gameserver/network/serverpackets/CharCreateFail."<init>":(I)V
+       533: invokevirtual #59                 // Method org/l2jmobius/gameserver/network/GameClient.sendPacket:(Lorg/l2jmobius/gameserver/network/serverpackets/ServerPacket;)V
+       536: aload         4
+       538: monitorexit
+       539: return
+       540: getstatic     #174                // Field org/l2jmobius/gameserver/config/custom/AllowedPlayerRacesConfig.ALLOW_DARKELF:Z
+       543: ifne          628
+       546: aload_1
+       547: new           #54                 // class org/l2jmobius/gameserver/network/serverpackets/CharCreateFail
+       550: dup
+       551: iconst_0
+       552: invokespecial #56                 // Method org/l2jmobius/gameserver/network/serverpackets/CharCreateFail."<init>":(I)V
+       555: invokevirtual #59                 // Method org/l2jmobius/gameserver/network/GameClient.sendPacket:(Lorg/l2jmobius/gameserver/network/serverpackets/ServerPacket;)V
+       558: aload         4
+       560: monitorexit
+       561: return
+       562: getstatic     #177                // Field org/l2jmobius/gameserver/config/custom/AllowedPlayerRacesConfig.ALLOW_ORC:Z
+       565: ifne          628
+       568: aload_1
+       569: new           #54                 // class org/l2jmobius/gameserver/network/serverpackets/CharCreateFail
+       572: dup
+       573: iconst_0
+       574: invokespecial #56                 // Method org/l2jmobius/gameserver/network/serverpackets/CharCreateFail."<init>":(I)V
+       577: invokevirtual #59                 // Method org/l2jmobius/gameserver/network/GameClient.sendPacket:(Lorg/l2jmobius/gameserver/network/serverpackets/ServerPacket;)V
+       580: aload         4
+       582: monitorexit
+       583: return
+       584: getstatic     #180                // Field org/l2jmobius/gameserver/config/custom/AllowedPlayerRacesConfig.ALLOW_DWARF:Z
+       587: ifne          628
+       590: aload_1
+       591: new           #54                 // class org/l2jmobius/gameserver/network/serverpackets/CharCreateFail
+       594: dup
+       595: iconst_0
+       596: invokespecial #56                 // Method org/l2jmobius/gameserver/network/serverpackets/CharCreateFail."<init>":(I)V
+       599: invokevirtual #59                 // Method org/l2jmobius/gameserver/network/GameClient.sendPacket:(Lorg/l2jmobius/gameserver/network/serverpackets/ServerPacket;)V
+       602: aload         4
+       604: monitorexit
+       605: return
+       606: getstatic     #183                // Field org/l2jmobius/gameserver/config/custom/AllowedPlayerRacesConfig.ALLOW_KAMAEL:Z
+       609: ifne          628
+       612: aload_1
+       613: new           #54                 // class org/l2jmobius/gameserver/network/serverpackets/CharCreateFail
+       616: dup
+       617: iconst_0
+       618: invokespecial #56                 // Method org/l2jmobius/gameserver/network/serverpackets/CharCreateFail."<init>":(I)V
+       621: invokevirtual #59                 // Method org/l2jmobius/gameserver/network/GameClient.sendPacket:(Lorg/l2jmobius/gameserver/network/serverpackets/ServerPacket;)V
+       624: aload         4
+       626: monitorexit
+       627: return
+       628: aload_3
+       629: aload_1
+       630: invokevirtual #116                // Method org/l2jmobius/gameserver/network/GameClient.getAccountName:()Ljava/lang/String;
+       633: aload_0
+       634: getfield      #13                 // Field _name:Ljava/lang/String;
+       637: new           #186                // class org/l2jmobius/gameserver/entity/actor/appearance/PlayerAppearance
+       640: dup
+       641: aload_0
+       642: getfield      #36                 // Field _face:B
+       645: aload_0
+       646: getfield      #33                 // Field _hairColor:B
+       649: aload_0
+       650: getfield      #29                 // Field _hairStyle:B
+       653: aload_0
+       654: getfield      #21                 // Field _isFemale:Z
+       657: invokespecial #188                // Method org/l2jmobius/gameserver/entity/actor/appearance/PlayerAppearance."<init>":(BBBZ)V
+       660: invokestatic  #191                // Method org/l2jmobius/gameserver/entity/actor/Player.create:(Lorg/l2jmobius/gameserver/entity/actor/templates/PlayerTemplate;Ljava/lang/String;Ljava/lang/String;Lorg/l2jmobius/gameserver/entity/actor/appearance/PlayerAppearance;)Lorg/l2jmobius/gameserver/entity/actor/Player;
+       663: astore_2
+       664: aload         4
+       666: monitorexit
+       667: goto          678
+       670: astore        6
+       672: aload         4
+       674: monitorexit
+       675: aload         6
+       677: athrow
+       678: aload_2
+       679: aload_2
+       680: invokevirtual #197                // Method org/l2jmobius/gameserver/entity/actor/Player.getMaxHp:()I
+       683: i2d
+       684: invokevirtual #200                // Method org/l2jmobius/gameserver/entity/actor/Player.setCurrentHp:(D)V
+       687: aload_2
+       688: aload_2
+       689: invokevirtual #204                // Method org/l2jmobius/gameserver/entity/actor/Player.getMaxMp:()I
+       692: i2d
+       693: invokevirtual #207                // Method org/l2jmobius/gameserver/entity/actor/Player.setCurrentMp:(D)V
+       696: aload_0
+       697: aload_1
+       698: aload_2
+       699: invokevirtual #210                // Method initNewChar:(Lorg/l2jmobius/gameserver/network/GameClient;Lorg/l2jmobius/gameserver/entity/actor/Player;)V
+       702: aload_1
+       703: getstatic     #214                // Field org/l2jmobius/gameserver/network/serverpackets/CharCreateOk.STATIC_PACKET:Lorg/l2jmobius/gameserver/network/serverpackets/CharCreateOk;
+       706: invokevirtual #59                 // Method org/l2jmobius/gameserver/network/GameClient.sendPacket:(Lorg/l2jmobius/gameserver/network/serverpackets/ServerPacket;)V
+       709: getstatic     #220                // Field LOGGER_ACCOUNTING:Ljava/util/logging/Logger;
+       712: aload_2
+       713: invokestatic  #95                 // Method java/lang/String.valueOf:(Ljava/lang/Object;)Ljava/lang/String;
+       716: aload_1
+       717: invokestatic  #95                 // Method java/lang/String.valueOf:(Ljava/lang/Object;)Ljava/lang/String;
+       720: invokedynamic #224,  0            // InvokeDynamic #3:makeConcatWithConstants:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+       725: invokevirtual #227                // Method java/util/logging/Logger.info:(Ljava/lang/String;)V
+       728: return
+      Exception table:
+         from    to  target type
+           335   372   670   any
+           373   401   670   any
+           402   445   670   any
+           446   517   670   any
+           518   539   670   any
+           540   561   670   any
+           562   583   670   any
+           584   605   670   any
+           606   627   670   any
+           628   667   670   any
+           670   675   670   any
+
+  private boolean isValidName(java.lang.String);
+    Code:
+         0: getstatic     #232                // Field org/l2jmobius/gameserver/config/ServerConfig.CHARNAME_TEMPLATE_PATTERN:Ljava/util/regex/Pattern;
+         3: aload_1
+         4: invokevirtual #236                // Method java/util/regex/Pattern.matcher:(Ljava/lang/CharSequence;)Ljava/util/regex/Matcher;
+         7: invokevirtual #242                // Method java/util/regex/Matcher.matches:()Z
+        10: ireturn
+
+  private void initNewChar(org.l2jmobius.gameserver.network.GameClient, org.l2jmobius.gameserver.entity.actor.Player);
+    Code:
+         0: aload_2
+         1: invokestatic  #247                // Method org/l2jmobius/gameserver/entity/World.addObject:(Lorg/l2jmobius/gameserver/entity/WorldObject;)V
+         4: getstatic     #253                // Field org/l2jmobius/gameserver/config/PlayerConfig.STARTING_ADENA:J
+         7: lconst_0
+         8: lcmp
+         9: ifle          24
+        12: aload_2
+        13: getstatic     #257                // Field org/l2jmobius/gameserver/entity/item/enums/ItemProcessType.REWARD:Lorg/l2jmobius/gameserver/entity/item/enums/ItemProcessType;
+        16: getstatic     #253                // Field org/l2jmobius/gameserver/config/PlayerConfig.STARTING_ADENA:J
+        19: aconst_null
+        20: iconst_0
+        21: invokevirtual #263                // Method org/l2jmobius/gameserver/entity/actor/Player.addAdena:(Lorg/l2jmobius/gameserver/entity/item/enums/ItemProcessType;JLorg/l2jmobius/gameserver/entity/WorldObject;Z)V
+        24: aload_2
+        25: invokevirtual #267                // Method org/l2jmobius/gameserver/entity/actor/Player.getTemplate:()Lorg/l2jmobius/gameserver/entity/actor/templates/PlayerTemplate;
+        28: astore_3
+        29: getstatic     #270                // Field org/l2jmobius/gameserver/config/custom/StartingLocationConfig.CUSTOM_STARTING_LOC:Z
+        32: ifeq          75
+        35: new           #275                // class org/l2jmobius/gameserver/entity/Location
+        38: dup
+        39: getstatic     #277                // Field org/l2jmobius/gameserver/config/custom/StartingLocationConfig.CUSTOM_STARTING_LOC_X:I
+        42: getstatic     #280                // Field org/l2jmobius/gameserver/config/custom/StartingLocationConfig.CUSTOM_STARTING_LOC_Y:I
+        45: getstatic     #283                // Field org/l2jmobius/gameserver/config/custom/StartingLocationConfig.CUSTOM_STARTING_LOC_Z:I
+        48: invokespecial #286                // Method org/l2jmobius/gameserver/entity/Location."<init>":(III)V
+        51: astore        4
+        53: aload_2
+        54: aload         4
+        56: invokevirtual #289                // Method org/l2jmobius/gameserver/entity/Location.getX:()I
+        59: aload         4
+        61: invokevirtual #292                // Method org/l2jmobius/gameserver/entity/Location.getY:()I
+        64: aload         4
+        66: invokevirtual #295                // Method org/l2jmobius/gameserver/entity/Location.getZ:()I
+        69: invokevirtual #298                // Method org/l2jmobius/gameserver/entity/actor/Player.setXYZInvisible:(III)V
+        72: goto          131
+        75: getstatic     #301                // Field org/l2jmobius/gameserver/config/custom/FactionSystemConfig.FACTION_SYSTEM_ENABLED:Z
+        78: ifeq          106
+        81: aload_2
+        82: getstatic     #306                // Field org/l2jmobius/gameserver/config/custom/FactionSystemConfig.FACTION_STARTING_LOCATION:Lorg/l2jmobius/gameserver/entity/Location;
+        85: invokevirtual #289                // Method org/l2jmobius/gameserver/entity/Location.getX:()I
+        88: getstatic     #306                // Field org/l2jmobius/gameserver/config/custom/FactionSystemConfig.FACTION_STARTING_LOCATION:Lorg/l2jmobius/gameserver/entity/Location;
+        91: invokevirtual #292                // Method org/l2jmobius/gameserver/entity/Location.getY:()I
+        94: getstatic     #306                // Field org/l2jmobius/gameserver/config/custom/FactionSystemConfig.FACTION_STARTING_LOCATION:Lorg/l2jmobius/gameserver/entity/Location;
+        97: invokevirtual #295                // Method org/l2jmobius/gameserver/entity/Location.getZ:()I
+       100: invokevirtual #298                // Method org/l2jmobius/gameserver/entity/actor/Player.setXYZInvisible:(III)V
+       103: goto          131
+       106: aload_3
+       107: invokevirtual #310                // Method org/l2jmobius/gameserver/entity/actor/templates/PlayerTemplate.getCreationPoint:()Lorg/l2jmobius/gameserver/entity/Location;
+       110: astore        4
+       112: aload_2
+       113: aload         4
+       115: invokevirtual #289                // Method org/l2jmobius/gameserver/entity/Location.getX:()I
+       118: aload         4
+       120: invokevirtual #292                // Method org/l2jmobius/gameserver/entity/Location.getY:()I
+       123: aload         4
+       125: invokevirtual #295                // Method org/l2jmobius/gameserver/entity/Location.getZ:()I
+       128: invokevirtual #298                // Method org/l2jmobius/gameserver/entity/actor/Player.setXYZInvisible:(III)V
+       131: aload_2
+       132: getstatic     #314                // Field org/l2jmobius/gameserver/config/custom/StartingTitleConfig.ENABLE_CUSTOM_STARTING_TITLE:Z
+       135: ifeq          144
+       138: getstatic     #319                // Field org/l2jmobius/gameserver/config/custom/StartingTitleConfig.CUSTOM_STARTING_TITLE:Ljava/lang/String;
+       141: goto          147
+       144: ldc_w         #322                // String
+       147: invokevirtual #324                // Method org/l2jmobius/gameserver/entity/actor/Player.setTitle:(Ljava/lang/String;)V
+       150: getstatic     #327                // Field org/l2jmobius/gameserver/config/PlayerConfig.ENABLE_VITALITY:Z
+       153: ifeq          170
+       156: aload_2
+       157: getstatic     #330                // Field org/l2jmobius/gameserver/config/PlayerConfig.STARTING_VITALITY_POINTS:I
+       160: getstatic     #333                // Field org/l2jmobius/gameserver/entity/actor/stat/PlayerStat.MAX_VITALITY_POINTS:I
+       163: invokestatic  #338                // Method java/lang/Math.min:(II)I
+       166: iconst_1
+       167: invokevirtual #344                // Method org/l2jmobius/gameserver/entity/actor/Player.setVitalityPoints:(IZ)V
+       170: getstatic     #348                // Field org/l2jmobius/gameserver/config/PlayerConfig.STARTING_LEVEL:B
+       173: iconst_1
+       174: if_icmple     191
+       177: aload_2
+       178: invokevirtual #351                // Method org/l2jmobius/gameserver/entity/actor/Player.getStat:()Lorg/l2jmobius/gameserver/entity/actor/stat/PlayerStat;
+       181: getstatic     #348                // Field org/l2jmobius/gameserver/config/PlayerConfig.STARTING_LEVEL:B
+       184: iconst_1
+       185: isub
+       186: i2b
+       187: invokevirtual #355                // Method org/l2jmobius/gameserver/entity/actor/stat/PlayerStat.addLevel:(B)Z
+       190: pop
+       191: getstatic     #359                // Field org/l2jmobius/gameserver/config/PlayerConfig.STARTING_SP:I
+       194: ifle          209
+       197: aload_2
+       198: invokevirtual #351                // Method org/l2jmobius/gameserver/entity/actor/Player.getStat:()Lorg/l2jmobius/gameserver/entity/actor/stat/PlayerStat;
+       201: getstatic     #359                // Field org/l2jmobius/gameserver/config/PlayerConfig.STARTING_SP:I
+       204: i2l
+       205: invokevirtual #362                // Method org/l2jmobius/gameserver/entity/actor/stat/PlayerStat.addSp:(J)Z
+       208: pop
+       209: invokestatic  #366                // Method org/l2jmobius/gameserver/data/xml/InitialEquipmentData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/InitialEquipmentData;
+       212: aload_2
+       213: invokevirtual #371                // Method org/l2jmobius/gameserver/entity/actor/Player.getPlayerClass:()Lorg/l2jmobius/gameserver/entity/actor/enums/player/PlayerClass;
+       216: invokevirtual #374                // Method org/l2jmobius/gameserver/data/xml/InitialEquipmentData.getClassEquipment:(Lorg/l2jmobius/gameserver/entity/actor/enums/player/PlayerClass;)Ljava/util/Collection;
+       219: astore        4
+       221: aload         4
+       223: ifnull        335
+       226: aload         4
+       228: invokeinterface #378,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+       233: astore        5
+       235: aload         5
+       237: invokeinterface #384,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+       242: ifeq          335
+       245: aload         5
+       247: invokeinterface #389,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+       252: checkcast     #393                // class org/l2jmobius/gameserver/entity/item/holders/InitialEquipment
+       255: astore        6
+       257: aload_2
+       258: invokevirtual #395                // Method org/l2jmobius/gameserver/entity/actor/Player.getInventory:()Lorg/l2jmobius/gameserver/entity/itemcontainer/PlayerInventory;
+       261: getstatic     #257                // Field org/l2jmobius/gameserver/entity/item/enums/ItemProcessType.REWARD:Lorg/l2jmobius/gameserver/entity/item/enums/ItemProcessType;
+       264: aload         6
+       266: invokevirtual #399                // Method org/l2jmobius/gameserver/entity/item/holders/InitialEquipment.getId:()I
+       269: aload         6
+       271: invokevirtual #402                // Method org/l2jmobius/gameserver/entity/item/holders/InitialEquipment.getCount:()J
+       274: aload_2
+       275: aconst_null
+       276: invokevirtual #406                // Method org/l2jmobius/gameserver/entity/itemcontainer/PlayerInventory.addItem:(Lorg/l2jmobius/gameserver/entity/item/enums/ItemProcessType;IJLorg/l2jmobius/gameserver/entity/actor/Player;Ljava/lang/Object;)Lorg/l2jmobius/gameserver/entity/item/instance/Item;
+       279: astore        7
+       281: aload         7
+       283: ifnonnull     307
+       286: aload         6
+       288: invokevirtual #399                // Method org/l2jmobius/gameserver/entity/item/holders/InitialEquipment.getId:()I
+       291: aload         6
+       293: invokevirtual #402                // Method org/l2jmobius/gameserver/entity/item/holders/InitialEquipment.getCount:()J
+       296: invokedynamic #412,  0            // InvokeDynamic #4:makeConcatWithConstants:(IJ)Ljava/lang/String;
+       301: invokestatic  #103                // Method org/l2jmobius/gameserver/network/PacketLogger.warning:(Ljava/lang/String;)V
+       304: goto          235
+       307: aload         7
+       309: invokevirtual #415                // Method org/l2jmobius/gameserver/entity/item/instance/Item.isEquipable:()Z
+       312: ifeq          332
+       315: aload         6
+       317: invokevirtual #420                // Method org/l2jmobius/gameserver/entity/item/holders/InitialEquipment.isEquipped:()Z
+       320: ifeq          332
+       323: aload_2
+       324: invokevirtual #395                // Method org/l2jmobius/gameserver/entity/actor/Player.getInventory:()Lorg/l2jmobius/gameserver/entity/itemcontainer/PlayerInventory;
+       327: aload         7
+       329: invokevirtual #423                // Method org/l2jmobius/gameserver/entity/itemcontainer/PlayerInventory.equipItem:(Lorg/l2jmobius/gameserver/entity/item/instance/Item;)V
+       332: goto          235
+       335: invokestatic  #427                // Method org/l2jmobius/gameserver/data/xml/SkillTreeData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/SkillTreeData;
+       338: aload_2
+       339: aload_2
+       340: invokevirtual #371                // Method org/l2jmobius/gameserver/entity/actor/Player.getPlayerClass:()Lorg/l2jmobius/gameserver/entity/actor/enums/player/PlayerClass;
+       343: iconst_0
+       344: iconst_1
+       345: invokevirtual #432                // Method org/l2jmobius/gameserver/data/xml/SkillTreeData.getAvailableSkills:(Lorg/l2jmobius/gameserver/entity/actor/Player;Lorg/l2jmobius/gameserver/entity/actor/enums/player/PlayerClass;ZZ)Ljava/util/Collection;
+       348: invokeinterface #378,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+       353: astore        5
+       355: aload         5
+       357: invokeinterface #384,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+       362: ifeq          402
+       365: aload         5
+       367: invokeinterface #389,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+       372: checkcast     #436                // class org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn
+       375: astore        6
+       377: aload_2
+       378: invokestatic  #438                // Method org/l2jmobius/gameserver/data/xml/SkillData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/SkillData;
+       381: aload         6
+       383: invokevirtual #443                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillId:()I
+       386: aload         6
+       388: invokevirtual #446                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillLevel:()I
+       391: invokevirtual #449                // Method org/l2jmobius/gameserver/data/xml/SkillData.getSkill:(II)Lorg/l2jmobius/gameserver/mechanics/skill/Skill;
+       394: iconst_1
+       395: invokevirtual #453                // Method org/l2jmobius/gameserver/entity/actor/Player.addSkill:(Lorg/l2jmobius/gameserver/mechanics/skill/Skill;Z)Lorg/l2jmobius/gameserver/mechanics/skill/Skill;
+       398: pop
+       399: goto          355
+       402: invokestatic  #457                // Method org/l2jmobius/gameserver/data/xml/InitialShortcutData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/InitialShortcutData;
+       405: aload_2
+       406: invokevirtual #462                // Method org/l2jmobius/gameserver/data/xml/InitialShortcutData.registerAllShortcuts:(Lorg/l2jmobius/gameserver/entity/actor/Player;)V
+       409: invokestatic  #466                // Method org/l2jmobius/gameserver/mechanics/events/EventDispatcher.getInstance:()Lorg/l2jmobius/gameserver/mechanics/events/EventDispatcher;
+       412: getstatic     #471                // Field org/l2jmobius/gameserver/mechanics/events/EventType.ON_PLAYER_CREATE:Lorg/l2jmobius/gameserver/mechanics/events/EventType;
+       415: invokestatic  #477                // Method org/l2jmobius/gameserver/mechanics/events/Containers.Players:()Lorg/l2jmobius/gameserver/mechanics/events/ListenersContainer;
+       418: invokevirtual #483                // Method org/l2jmobius/gameserver/mechanics/events/EventDispatcher.hasListener:(Lorg/l2jmobius/gameserver/mechanics/events/EventType;Lorg/l2jmobius/gameserver/mechanics/events/ListenersContainer;)Z
+       421: ifeq          451
+       424: invokestatic  #466                // Method org/l2jmobius/gameserver/mechanics/events/EventDispatcher.getInstance:()Lorg/l2jmobius/gameserver/mechanics/events/EventDispatcher;
+       427: new           #487                // class org/l2jmobius/gameserver/mechanics/events/holders/actor/player/OnPlayerCreate
+       430: dup
+       431: aload_2
+       432: aload_2
+       433: invokevirtual #489                // Method org/l2jmobius/gameserver/entity/actor/Player.getObjectId:()I
+       436: aload_2
+       437: invokevirtual #492                // Method org/l2jmobius/gameserver/entity/actor/Player.getName:()Ljava/lang/String;
+       440: aload_1
+       441: invokespecial #495                // Method org/l2jmobius/gameserver/mechanics/events/holders/actor/player/OnPlayerCreate."<init>":(Lorg/l2jmobius/gameserver/entity/actor/Player;ILjava/lang/String;Lorg/l2jmobius/gameserver/network/GameClient;)V
+       444: invokestatic  #477                // Method org/l2jmobius/gameserver/mechanics/events/Containers.Players:()Lorg/l2jmobius/gameserver/mechanics/events/ListenersContainer;
+       447: invokevirtual #498                // Method org/l2jmobius/gameserver/mechanics/events/EventDispatcher.notifyEvent:(Lorg/l2jmobius/gameserver/mechanics/events/holders/IBaseEvent;Lorg/l2jmobius/gameserver/mechanics/events/ListenersContainer;)Lorg/l2jmobius/gameserver/mechanics/events/returns/AbstractEventReturn;
+       450: pop
+       451: aload_2
+       452: iconst_1
+       453: iconst_0
+       454: invokevirtual #502                // Method org/l2jmobius/gameserver/entity/actor/Player.setOnlineStatus:(ZZ)V
+       457: aload_1
+       458: aload_2
+       459: invokestatic  #506                // Method org/l2jmobius/gameserver/network/Disconnection.of:(Lorg/l2jmobius/gameserver/network/GameClient;Lorg/l2jmobius/gameserver/entity/actor/Player;)Lorg/l2jmobius/gameserver/network/Disconnection;
+       462: invokevirtual #512                // Method org/l2jmobius/gameserver/network/Disconnection.storeAndDelete:()V
+       465: new           #515                // class org/l2jmobius/gameserver/network/serverpackets/CharSelectionInfo
+       468: dup
+       469: aload_1
+       470: invokevirtual #116                // Method org/l2jmobius/gameserver/network/GameClient.getAccountName:()Ljava/lang/String;
+       473: aload_1
+       474: invokevirtual #517                // Method org/l2jmobius/gameserver/network/GameClient.getSessionId:()Lorg/l2jmobius/gameserver/LoginServerThread$SessionKey;
+       477: getfield      #521                // Field org/l2jmobius/gameserver/LoginServerThread$SessionKey.playOkID1:I
+       480: invokespecial #526                // Method org/l2jmobius/gameserver/network/serverpackets/CharSelectionInfo."<init>":(Ljava/lang/String;I)V
+       483: astore        5
+       485: aload_1
+       486: aload         5
+       488: invokevirtual #529                // Method org/l2jmobius/gameserver/network/serverpackets/CharSelectionInfo.getCharInfo:()Ljava/util/List;
+       491: invokevirtual #533                // Method org/l2jmobius/gameserver/network/GameClient.setCharSelection:(Ljava/util/List;)V
+       494: return
+
+  static {};
+    Code:
+         0: ldc_w         #537                // String accounting
+         3: invokestatic  #539                // Method java/util/logging/Logger.getLogger:(Ljava/lang/String;)Ljava/util/logging/Logger;
+         6: putstatic     #220                // Field LOGGER_ACCOUNTING:Ljava/util/logging/Logger;
+         9: return
+}

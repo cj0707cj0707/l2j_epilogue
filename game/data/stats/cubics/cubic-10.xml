@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/cubics.xsd">
+	<!--
+	
+		Smart Cubic variant 10.
+		Combines Icy Air, Cubic Weakness and priority Cubic Cure using BY_SKILL targeting.
+	
+		Attribute guide:
+		duration: Cubic lifetime in seconds after summon.
+		delay: Action interval in seconds between Cubic checks.
+		maxCount: Maximum number of successful Cubic actions before the limit is reached.
+		useUp: 1 consumes/removes the Cubic after maxCount; 0 keeps it until duration expires.
+		power: Base magical power or effect power used by Cubic runtime formulas.
+		selectionMode: Skill selection policy when the Cubic has multiple non-priority skills.
+		targetType: Default target routing used by the Cubic runtime.
+		BY_SKILL: Each skill entry defines its own target with the target attribute.
+		priority: Priority skills are checked before regular Cubic skills.
+		targetDebuff: Used by cure/support skills to select owner-side debuff cleanup logic.
+		Epilogue note: Levels 8-12 are enchant/template levels used by high-level summon skills.
+	
+	-->
+	<cubic id="10" level="1" slot="10" duration="900" delay="10" maxCount="50" useUp="0" power="2106.0" selectionMode="RANDOM" targetType="BY_SKILL">
+		<skills>
+			<skill id="4165" level="9" target="TARGET" /> <!-- Icy Air -->
+			<skill id="4053" level="8" target="TARGET" /> <!-- Cubic Weakness -->
+			<skill id="5579" level="1" target="MASTER" targetDebuff="true" priority="true" /> <!-- Cubic Cure -->
+		</skills>
+	</cubic>
+</list>

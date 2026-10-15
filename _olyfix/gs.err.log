@@ -1,0 +1,798 @@
+[07/09 00:22:48] Network Config: ipconfig.xml does not exist, using automatic configuration...
+[07/09 00:22:48] Network Config: Adding new subnet: 192.168.0.0/24 address: 192.168.0.54
+[07/09 00:22:48] Network Config: Adding new subnet: 127.0.0.0/8 address: 127.0.0.1
+[07/09 00:22:48] Network Config: Adding new subnet: 0.0.0.0/0 address: 205.237.104.28
+[07/09 00:22:48] Loaded 6 Filter Words.
+[07/09 00:22:48] ------------------------------------------------=[ Database ]
+[07/09 00:22:48] Database: HikariCP pool initialized successfully.
+[07/09 00:22:49] Database: Initialized with a valid connection.
+[07/09 00:22:49] ----------------------------------------------=[ ThreadPool ]
+[07/09 00:22:49] ThreadPool: Initializing.
+[07/09 00:22:49] ...scheduled pool executor with 12 high priority threads.
+[07/09 00:22:49] ...scheduled pool executor with 48 total threads.
+[07/09 00:22:49] ...instant pool executor with 24 total threads.
+[07/09 00:22:49] -----------------------------------------------=[ IdManager ]
+[07/09 00:22:49] DatabaseIdManager: Cleaned 0 elements in 0 seconds.
+[07/09 00:22:49] DatabaseIdManager: Updated character online status.
+[07/09 00:22:49] DatabaseIdManager: Cleaned 0 expired timestamps.
+[07/09 00:22:49] IdManager: 102912 ids available.
+[07/09 00:22:49] ----------------------------------------=[ Scripting Engine ]
+[07/09 00:22:49] Loaded 419 files to exclude.
+[07/09 00:22:49] ---------------------------------------------------=[ World ]
+[07/09 00:22:49] InstanceManager: Multiverse Instance created.
+[07/09 00:22:49] InstanceManager: Universe Instance created.
+[07/09 00:22:49] InstanceManager: Loaded 160 instance names.
+[07/09 00:22:49] InstanceManager: Loaded 125 instance templates.
+[07/09 00:22:50] World: (256 by 272) World Region Grid set up.
+[07/09 00:22:50] MapRegionData: Loaded 55 map regions.
+[07/09 00:22:50] GlobalVariablesManager: Loaded 13 variables.
+[07/09 00:22:50] ----------------------------------------------------=[ Data ]
+[07/09 00:22:50] CategoryData: Loaded 180 categories.
+[07/09 00:22:50] CubicData: Loaded 109 cubic templates.
+[07/09 00:22:50] --------------------------------------------------=[ Skills ]
+[07/09 00:22:51] EffectMasterHandler: Loaded 164 effect handlers.
+[07/09 00:22:51] EnchantSkillGroupsData: Loaded 4 groups and 90 routes.
+[07/09 00:22:51] SkillTreeData: Loaded 16570 Class Skills for 103 class skill trees.
+[07/09 00:22:51] SkillTreeData: Loaded 76 sub-class skills.
+[07/09 00:22:51] SkillTreeData: Loaded 77 transfer skills for 3 transfer skill trees.
+[07/09 00:22:51] SkillTreeData: Loaded 117 fishing skills, 8 Dwarven only fishing skills.
+[07/09 00:22:51] SkillTreeData: Loaded 3 collect skills.
+[07/09 00:22:51] SkillTreeData: Loaded 74 clan skills, 44 for clan and 30 residential.
+[07/09 00:22:51] SkillTreeData: Loaded 18 sub-pledge skills.
+[07/09 00:22:51] SkillTreeData: Loaded 32 transform skills.
+[07/09 00:22:51] SkillTreeData: Loaded 8 noble skills.
+[07/09 00:22:51] SkillTreeData: Loaded 5 hero skills.
+[07/09 00:22:51] SkillTreeData: Loaded 34 game master skills.
+[07/09 00:22:51] SkillTreeData: Loaded 1 game master aura skills.
+[07/09 00:22:54] SkillData: Loaded 60368 Skill templates from XML files.
+[07/09 00:22:54] PetSkillData: Loaded 881 skills.
+[07/09 00:22:54] ---------------------------------------------------=[ Items ]
+[07/09 00:22:54] ItemData: Highest item id used: 50000
+[07/09 00:22:54] ItemData: Loaded 10199 etc items.
+[07/09 00:22:54] ItemData: Loaded 3208 armor items.
+[07/09 00:22:54] ItemData: Loaded 3397 weapon items.
+[07/09 00:22:54] ItemData: Loaded 16804 items in total.
+[07/09 00:22:54] EnchantItemGroupsData: Loaded 4 item group templates.
+[07/09 00:22:54] EnchantItemGroupsData: Loaded 1 scroll group templates.
+[07/09 00:22:54] EnchantItemGroupsData: Max weapon enchant is set to 16.
+[07/09 00:22:54] EnchantItemGroupsData: Max armor enchant is set to 16.
+[07/09 00:22:54] EnchantItemGroupsData: Max accessory enchant is set to 16.
+[07/09 00:22:54] EnchantItemData: Loaded 60 enchant scrolls.
+[07/09 00:22:54] EnchantItemData: Loaded 20 support items.
+[07/09 00:22:55] OptionData: Loaded 24949 options.
+[07/09 00:22:55] EnchantItemOptionsData: Loaded 21 items and 1071 options.
+[07/09 00:22:55] ElementalAttributeData: Loaded 30 elemental attribute items.
+[07/09 00:22:55] EnchantItemHPBonusData: Loaded 6 enchant HP bonuses.
+[07/09 00:22:55] MerchantPriceConfigTable: Loaded 28 merchant price configs.
+[07/09 00:22:55] Directory not found: C:\EpilogueServer\game\.\data\buylists\custom
+[07/09 00:22:55] BuyListData: Loaded 749 buyLists.
+[07/09 00:22:56] MultisellData: Loaded 369 multisell lists.
+[07/09 00:22:56] RecipeData: Loaded 1000 recipes.
+[07/09 00:22:56] ArmorSetData: Loaded 180 armor sets.
+[07/09 00:22:56] FishData: Loaded 278 fishes.
+[07/09 00:22:56] FishingMonstersData: Loaded 8 fishing monsters.
+[07/09 00:22:56] FishingRodsData: Loaded 6 fishing rods.
+[07/09 00:22:56] HennaData: Loaded 180 henna data.
+[07/09 00:22:56] ----------------------------------------------=[ Characters ]
+[07/09 00:22:56] ClassListData: Loaded 103 class data.
+[07/09 00:22:56] InitialEquipmentData: Loaded 11 initial equipment data.
+[07/09 00:22:56] InitialShortcutData: Loaded 5 initial global shortcut data.
+[07/09 00:22:56] InitialShortcutData: Loaded 4 initial shortcut data.
+[07/09 00:22:56] InitialShortcutData: Loaded 0 macro presets.
+[07/09 00:22:56] ExperienceData: Loaded 86 levels.
+[07/09 00:22:56] ExperienceData: Max Player Level is 85.
+[07/09 00:22:56] ExperienceData: Max Pet Level is 85.
+[07/09 00:22:56] ExperienceLossData: Loaded 85 levels.
+[07/09 00:22:56] KarmaLossData: Loaded 85 modifiers.
+[07/09 00:22:56] HitConditionBonusData: Loaded hit condition bonuses.
+[07/09 00:22:56] PlayerTemplateData: Loaded 103 player templates.
+[07/09 00:22:56] PlayerTemplateData: Loaded 52530 level up gain records.
+[07/09 00:22:56] CharInfoTable: Loaded 29 char names.
+[07/09 00:22:56] AdminData: Loaded 10 access levels.
+[07/09 00:22:56] AdminData: Loaded 470 access commands.
+[07/09 00:22:56] RaidBossPointsManager: Loaded 0 Characters Raid Points.
+[07/09 00:22:56] PetDataTable: Loaded 49 pets.
+[07/09 00:22:56] ---------------------------------------------------=[ Clans ]
+[07/09 00:22:56] ForumsBBSManager: Loaded 4 forums. Last forum id used: 4
+[07/09 00:22:56] ClanTable: Restored 0 clans from the database.
+[07/09 00:22:56] CHSiegeManager: Loaded 6 conquerable clan halls.
+[07/09 00:22:56] ClanHallAuctionManager: Loaded 38 auction(s)
+[07/09 00:22:56] ClanHallTable: Loaded 0 clan halls
+[07/09 00:22:56] ClanHallTable: Loaded 38 free clan halls
+[07/09 00:22:56] -------------------------------------------------=[ Geodata ]
+[07/09 00:22:56] GeoEngine: Loaded 0 regions.
+[07/09 00:22:56] GeoEngine: Pathfinding is disabled.
+[07/09 00:22:56] ----------------------------------------------------=[ NPCs ]
+[07/09 00:22:56] ZoneManager 17 by 18 Zone Region Grid set up.
+[07/09 00:22:57] NpcData: Loaded 9851 NPCs.
+[07/09 00:22:57] NpcData: Loaded 24 custom NPCs.
+[07/09 00:22:57] SkillLearnData: Loaded 256 skill learn data.
+[07/09 00:22:57] GrandBossManager: Gigantic Chaos Golem(25512) status is 0.
+[07/09 00:22:57] GrandBossManager: Queen Ant(29001) status is 0.
+[07/09 00:22:57] GrandBossManager: Core(29006) status is 0.
+[07/09 00:22:57] GrandBossManager: Orfen(29014) status is 0.
+[07/09 00:22:57] GrandBossManager: Baium(29020) status is 0.
+[07/09 00:22:57] GrandBossManager: Valakas(29028) status is 0.
+[07/09 00:22:57] GrandBossManager: Frintezza(29045) status is 0.
+[07/09 00:22:57] GrandBossManager: Antharas(29068) status is 0.
+[07/09 00:22:57] GrandBossManager: Beleth(29118) status is 0.
+[07/09 00:22:57] GrandBossManager: Loaded 9 Instances
+[07/09 00:22:58] ZoneManager: Loaded 32 zone classes and 2704 zones.
+[07/09 00:22:58] ZoneManager: Last static id 200224.
+[07/09 00:22:58] DoorData: Loaded 1183 doors.
+[07/09 00:22:58] FenceData: Loaded 1 fences.
+[07/09 00:22:58] Soul crystal data : Loaded 48
+[07/09 00:22:58] Npc leveling crystal data : Loaded 227
+[07/09 00:22:58] WalkingManager: Loaded 83 walking routes.
+[07/09 00:22:58] StaticObjectData: Loaded 51 static object templates.
+[07/09 00:22:58] ItemAuctionInstance: Loaded 30 item(s) and registered 1 auction(s) for instance 32320.
+[07/09 00:22:58] ItemAuctionInstance: Schedule next auction 1 on 17:00:00 11.09.26 for instance 32320
+[07/09 00:22:58] ItemAuctionInstance: Loaded 30 item(s) and registered 1 auction(s) for instance 32321.
+[07/09 00:22:58] ItemAuctionInstance: Schedule next auction 2 on 17:00:00 07.09.26 for instance 32321
+[07/09 00:22:58] ItemAuctionInstance: Loaded 30 item(s) and registered 1 auction(s) for instance 32322.
+[07/09 00:22:58] ItemAuctionInstance: Schedule next auction 3 on 17:00:00 09.09.26 for instance 32322
+[07/09 00:22:58] ItemAuctionManager: Loaded 3 instance(s).
+[07/09 00:22:58] CastleManager: Loaded 9 castles
+[07/09 00:22:58] SchemeBufferTable: Loaded 8 categories and 142 entries.
+[07/09 00:22:58] SchemeBufferTable: Loaded 0 scheme entries from database.
+[07/09 00:22:58] SchemeBufferTable: Loaded 0 players and 92 available skills.
+[07/09 00:22:58] GrandBossManager: Initialized 10 Grand Boss Zones
+[07/09 00:22:58] ------------------------------------------------=[ Olympiad ]
+[07/09 00:22:58] Olympiad System: Loading Olympiad System....
+[07/09 00:22:58] Olympiad System: Currently in Olympiad Period
+[07/09 00:22:58] Olympiad System: 24 days, 11 hours and 37 mins until period ends.
+[07/09 00:22:58] Olympiad System: Next weekly change is in 6 days, 16 hours and 47 mins.
+[07/09 00:22:58] Olympiad System: Loaded 16 Nobles
+[07/09 00:22:58] Olympiad System: Competition Period Starts in 0 days, 0 hours and 0 mins.
+[07/09 00:22:58] Olympiad System: Event starts/started : Mon Sep 07 00:00:58 GMT+05:00 2026
+[07/09 00:22:58] Hero System: Loaded 0 Heroes.
+[07/09 00:22:58] Hero System: Loaded 0 all time Heroes.
+[07/09 00:22:58] ---------------------------------------------=[ Seven Signs ]
+[07/09 00:22:58] SevenSigns: Currently in the Competition (Quest Event) period!
+[07/09 00:22:58] SevenSigns: The Seal of Avarice remains unclaimed.
+[07/09 00:22:58] SevenSigns: The Seal of Gnosis remains unclaimed.
+[07/09 00:22:58] SevenSigns: The Seal of Strife remains unclaimed.
+[07/09 00:22:58] SevenSigns: The competition, if the current trend continues, will end in a tie this week.
+[07/09 00:22:58] SevenSigns: Next period change set to Mon Sep 07 18:00:58 GMT+05:00 2026
+[07/09 00:22:58] SevenSigns: Next period begins in 17 hours, 37 minutes, 59 seconds, 998 milliseconds
+[07/09 00:22:58] ---------------------------------------------------=[ Cache ]
+[07/09 00:22:58] Cache[HTML]: Running lazy cache.
+[07/09 00:22:58] CrestTable: Loaded 0 Crests.
+[07/09 00:22:58] TeleporterData: Loaded 187 npc teleporters.
+[07/09 00:22:58] AugmentationData: Loaded 33960 augmentations.
+[07/09 00:22:58] AugmentationData: Loaded 2754 accessory augmentations.
+[07/09 00:22:58] CursedWeaponsManager: Loaded : 2 cursed weapon(s).
+[07/09 00:22:58] Olympiad System: Olympiad Game Started
+[07/09 00:22:58] TransformData: Loaded 111 transform templates.
+[07/09 00:22:58] BotReportTable: Loaded 0 bot reports
+[07/09 00:22:58] -------------------------------------------------=[ Scripts ]
+[07/09 00:22:58] AirShipManager: Loaded 0 private airships
+[07/09 00:22:58] Seed of Destruction Manager: Loaded. Current stage is: 1
+[07/09 00:22:58] Seed of Infinity Manager: Loaded. Current stage is: 1
+[07/09 00:22:58] Loading server scripts...
+[07/09 00:23:00] Loading Handlers...
+[07/09 00:23:00] ActionClickHandler: Loaded 10 handlers.
+[07/09 00:23:00] ActionShiftHandler: Loaded 6 handlers.
+[07/09 00:23:00] AdminCommandHandler: Loaded 480 handlers.
+[07/09 00:23:00] BypassHandler: Loaded 47 handlers.
+[07/09 00:23:00] ChatHandler: Loaded 14 handlers.
+[07/09 00:23:00] CommunityBoardHandler: Loaded 24 handlers.
+[07/09 00:23:00] ItemHandler: Loaded 31 handlers.
+[07/09 00:23:00] PunishmentHandler: Loaded 3 handlers.
+[07/09 00:23:00] UserCommandHandler: Loaded 17 handlers.
+[07/09 00:23:00] VoicedCommandHandler: Loaded 9 handlers.
+[07/09 00:23:00] TargetHandler: Loaded 34 handlers.
+[07/09 00:23:00] Handlers Loaded...
+[07/09 00:23:03] Handy's Block Checker Event is enabled
+[07/09 00:23:03] Fantasy Isle: Parade starting at 2026/09/07 01:20 and is scheduled each next 1 hours.
+[07/09 00:23:03] Fantasy Isle: MC show script starting at 07/09/2026 18:35:03 and is scheduled each next 4 hours.
+[07/09 00:23:03] GraciaLoader: Loading Gracia related scripts.
+[07/09 00:23:03] HellboundLoader: Loading Hellbound related scripts:
+[07/09 00:23:03] HellboundPointData: Loaded 47 trust point reward data.
+[07/09 00:23:03] HellboundSpawns: Loaded 598 Hellbound spawns.
+[07/09 00:23:03] HellboundEngine: Level: 11
+[07/09 00:23:03] HellboundEngine: Trust: 4000000
+[07/09 00:23:03] HellboundEngine: Status: unlocked.
+[07/09 00:23:03] RaidBossSpawnManager: Loaded 191 Instances
+[07/09 00:23:03] RaidBossSpawnManager: Scheduled 0 Instances
+[07/09 00:23:03] [Four Sepulchers] Loaded 762 spawn zones data.
+[07/09 00:23:04] NpcBuffersData: Loaded 27 buffers data.
+[07/09 00:23:04] Bandit StrongHold siege scheduled for Sun Sep 20 12:00:00 GMT+05:00 2026.
+[07/09 00:23:04] Devastated Castle siege scheduled for Sun Sep 20 12:00:00 GMT+05:00 2026.
+[07/09 00:23:04] Fortress of Resistance siege scheduled for Sun Sep 20 12:00:00 GMT+05:00 2026.
+[07/09 00:23:04] Fortress of the Dead siege scheduled for Sun Sep 20 12:00:00 GMT+05:00 2026.
+[07/09 00:23:04] Rainbow Springs siege scheduled for Sun Sep 20 12:00:00 GMT+05:00 2026.
+[07/09 00:23:04] Beast Farm siege scheduled for Sun Sep 20 12:00:00 GMT+05:00 2026.
+[07/09 00:23:04] FakePlayersAI: registry loaded, 15 known bots.
+[07/09 00:23:04] FakePlayersAI: config loaded from config/Custom/FakePlayersAI.ini
+[07/09 00:23:04] FakePlayersAI: initialized, 16 bots scheduled.
+[07/09 00:23:04] Event Gift of Vitality has passed... Ignored 
+[07/09 00:23:04] Event Heavy Medal has passed... Ignored 
+[07/09 00:23:04] Event L2 Day has passed... Ignored 
+[07/09 00:23:04] Event Love Your Gatekeeper has passed... Ignored 
+[07/09 00:23:04] Event Master of Enchanting has passed... Ignored 
+[07/09 00:23:04] Event Saving Santa has passed... Ignored 
+[07/09 00:23:04] Event Valentine Event has passed... Ignored 
+[07/09 00:23:04] Event Watermelon Ninja has passed... Ignored 
+[07/09 00:23:04] TerritoryWarSuperClass: Siege date: Sun Sep 13 22:00:00 GMT+05:00 2026
+[07/09 00:23:04] SpawnData: Initializing spawns...
+[07/09 00:23:04] HellboundEngine: Spawned 424 NPCs.
+[07/09 00:23:05] SpawnData: 308 spawn groups initialized.
+[07/09 00:23:05] SpawnData: 192 spawn files parsed.
+[07/09 00:23:05] SpawnData: 39060 spawns have been initialized!
+[07/09 00:23:05] DayNightSpawnManager: Removed 0 day creatures
+[07/09 00:23:05] DayNightSpawnManager: Spawned 685 night creatures
+[07/09 00:23:05] DimensionalRiftManager: Loaded 7 room types with 56 rooms.
+[07/09 00:23:05] DimensionalRiftManager: Loaded 462 dimensional rift spawns, 0 errors.
+[07/09 00:23:05] ---------------------------------------------------=[ Siege ]
+[07/09 00:23:05] SiegeScheduleData: Loaded 9 siege schedulers.
+[07/09 00:23:05] Siege of Gludio: Sun Sep 20 16:00:00 GMT+05:00 2026
+[07/09 00:23:05] Siege of Dion: Sun Sep 20 20:00:00 GMT+05:00 2026
+[07/09 00:23:05] Siege of Giran: Sun Sep 20 16:00:00 GMT+05:00 2026
+[07/09 00:23:05] Siege of Oren: Sun Sep 20 20:00:00 GMT+05:00 2026
+[07/09 00:23:05] Siege of Aden: Sun Sep 20 16:00:00 GMT+05:00 2026
+[07/09 00:23:05] Siege of Innadril: Sun Sep 20 20:00:00 GMT+05:00 2026
+[07/09 00:23:05] Siege of Goddard: Sun Sep 20 16:00:00 GMT+05:00 2026
+[07/09 00:23:05] Siege of Rune: Sun Sep 20 20:00:00 GMT+05:00 2026
+[07/09 00:23:05] Siege of Schuttgart: Sun Sep 20 16:00:00 GMT+05:00 2026
+[07/09 00:23:05] FortManager: Loaded 21 fortress
+[07/09 00:23:05] CastleManorManager: Loaded 258 seeds.
+[07/09 00:23:05] CastleManorManager: Manor data loaded.
+[07/09 00:23:05] MercTicketManager: Loaded 0 Mercenary Tickets
+[07/09 00:23:05] ScriptManager: Loaded 485 quests.
+[07/09 00:23:05] ScriptManager: Loaded 270 scripts.
+[07/09 00:23:05] MonsterRace: loaded 2 records, currently on race #3
+[07/09 00:23:05] SevenSignsFestival: The first Festival of Darkness cycle begins in 2 minute(s).
+[07/09 00:23:05] AutoSpawnHandler: Loaded 129 handlers in total.
+[07/09 00:23:05] KrateisCubeManager: Loaded 3 arena templates.
+[07/09 00:23:05] UndergroundColiseumManager: Loaded 5 coliseum arenas.
+[07/09 00:23:05] UndergroundColiseumManager: Starts at 11/09/2026 21:00:00
+[07/09 00:23:05] DailyResetManager: Next schedule at 07/09/2026 06:30:00.
+[07/09 00:23:05] MailManager: Loaded 0 messages.
+[07/09 00:23:05] PunishmentManager: Loaded 0 active and 0 expired punishments.
+[07/09 00:23:05] IdManager: Free ObjectID's remaining: 1879002220
+[07/09 00:23:05] OfflineTraderTable: Loading offline traders...
+[07/09 00:23:05] OfflineTraderTable: Loaded 0 offline traders.
+[07/09 00:23:05] DeadlockWatcher: Thread started.
+[07/09 00:23:07] GameServer: Started, using 1608 of 4096 MB total memory.
+[07/09 00:23:07] GameServer: Maximum number of connected players is 2000.
+[07/09 00:23:07] GameServer: Server loaded in 18 seconds.
+[07/09 00:23:07] LoginServerThread: Connecting to login on 127.0.0.1:9014
+[07/09 00:23:07] LoginServerThread: Registered on login as Server 2: Sieghardt
+[07/09 00:23:09] Master access level set for character admin! Just a warning to be careful ;)
+[07/09 00:23:24] FakePlayersAI: combatTick: bots=0, withTarget=0, skippedTeleport=0.
+[07/09 00:23:29] FakePlayersAI: bot Ulric (Dreadnought) is in the world.
+[07/09 00:23:29] FakePlayersAI: bot Cedric (Phoenix Knight) is in the world.
+[07/09 00:23:29] FakePlayersAI: bot Kain (Hell Knight) is in the world.
+[07/09 00:23:29] FakePlayersAI: bot Garrik (Sagittarius) is in the world.
+[07/09 00:23:29] FakePlayersAI: bot Falken (Adventurer) is in the world.
+[07/09 00:23:29] FakePlayersAI: bot Haldor (Archmage) is in the world.
+[07/09 00:23:29] FakePlayersAI: bot Zarek (Soultaker) is in the world.
+[07/09 00:23:29] FakePlayersAI: bot Draven (Eva's Templar) is in the world.
+[07/09 00:23:29] FakePlayersAI: bot Xandor (Wind Rider) is in the world.
+[07/09 00:23:29] FakePlayersAI: bot Selene (Moonlight Sentinel) is in the world.
+[07/09 00:23:29] FakePlayersAI: bot Lena (Mystic Muse) is in the world.
+[07/09 00:23:29] FakePlayersAI: bot Theron89 (Shillien Templar) is in the world.
+[07/09 00:23:29] FakePlayersAI: bot Varen (Ghost Hunter) is in the world.
+[07/09 00:23:29] FakePlayersAI: bot Astrid (Ghost Sentinel) is in the world.
+[07/09 00:23:29] FakePlayersAI: bot Merle (Storm Screamer) is in the world.
+[07/09 00:23:29] FakePlayersAI: bot Quorin (Titan) is in the world.
+[07/09 00:23:29] FakePlayersAI: spawned 16 bots (total 16).
+[07/09 00:23:44] FakePlayersAI: olympiad: in-world=16, in-olympiad=0, attempted=16, registered=16.
+[07/09 00:23:54] FakePlayersAI: combatTick: bots=16, withTarget=15, skippedTeleport=0.
+[07/09 00:24:14] FakePlayersAI: olympiad: in-world=16, in-olympiad=0, attempted=0, registered=0.
+[07/09 00:24:14] FakePlayersAI: combat status: in-world=16, dead=4, kills=0.
+[07/09 00:24:24] FakePlayersAI: combatTick: bots=16, withTarget=10, skippedTeleport=1.
+[07/09 00:24:24] FakePlayersAI: dbg Ulric: tgt=Theron89, intent=ATTACK, autoPlay=true, pvp=true
+[07/09 00:24:24] FakePlayersAI: dbg Ulric: dist=35, mv=false, cast=false, atk=true, hp=7239
+[07/09 00:24:24] FakePlayersAI: dbg Xandor: tgt=Draven, intent=ATTACK, autoPlay=true, pvp=true
+[07/09 00:24:24] FakePlayersAI: dbg Xandor: dist=36, mv=false, cast=false, atk=false, hp=2178
+[07/09 00:24:24] FakePlayersAI: dbg Astrid: tgt=Kain, intent=ATTACK, autoPlay=true, pvp=true
+[07/09 00:24:24] FakePlayersAI: dbg Astrid: dist=35, mv=false, cast=false, atk=false, hp=1990
+[07/09 00:24:24] FakePlayersAI: dbg Kain: tgt=Astrid, intent=ATTACK, autoPlay=true, pvp=true
+[07/09 00:24:24] FakePlayersAI: dbg Kain: dist=35, mv=false, cast=false, atk=true, hp=6581
+[07/09 00:24:24] FakePlayersAI: dbg Theron89: tgt=Ulric, intent=ATTACK, autoPlay=true, pvp=true
+[07/09 00:24:24] FakePlayersAI: dbg Theron89: dist=35, mv=false, cast=false, atk=true, hp=1208
+[07/09 00:24:24] FakePlayersAI: dbg Selene: tgt=Theron89, intent=ATTACK, autoPlay=true, pvp=true
+[07/09 00:24:24] FakePlayersAI: dbg Selene: dist=217, mv=false, cast=false, atk=true, hp=4904
+[07/09 00:24:24] FakePlayersAI: dbg Quorin: tgt=Cedric, intent=ATTACK, autoPlay=true, pvp=true
+[07/09 00:24:24] FakePlayersAI: dbg Quorin: dist=71, mv=false, cast=false, atk=true, hp=7918
+[07/09 00:24:24] FakePlayersAI: dbg Merle: tgt=null, intent=IDLE, autoPlay=true, pvp=true
+[07/09 00:24:24] FakePlayersAI: dbg Merle: dist=80, mv=false, cast=false, atk=false, hp=3764
+[07/09 00:24:24] FakePlayersAI: dbg Draven: tgt=Xandor, intent=ATTACK, autoPlay=true, pvp=true
+[07/09 00:24:24] FakePlayersAI: dbg Draven: dist=36, mv=false, cast=false, atk=true, hp=3848
+[07/09 00:24:24] FakePlayersAI: dbg Cedric: tgt=Varen, intent=ATTACK, autoPlay=true, pvp=true
+[07/09 00:24:24] FakePlayersAI: dbg Cedric: dist=41, mv=false, cast=false, atk=true, hp=2337
+[07/09 00:24:24] FakePlayersAI: dbg Varen: tgt=Cedric, intent=ATTACK, autoPlay=true, pvp=true
+[07/09 00:24:24] FakePlayersAI: dbg Varen: dist=41, mv=false, cast=false, atk=true, hp=496
+[07/09 00:24:44] FakePlayersAI: olympiad: in-world=16, in-olympiad=0, attempted=0, registered=0.
+[07/09 00:24:54] FakePlayersAI: combatTick: bots=16, withTarget=5, skippedTeleport=4.
+[07/09 00:25:14] FakePlayersAI: olympiad: in-world=16, in-olympiad=0, attempted=0, registered=0.
+[07/09 00:25:14] FakePlayersAI: combat status: in-world=16, dead=3, kills=0.
+[07/09 00:25:24] FakePlayersAI: combatTick: bots=16, withTarget=4, skippedTeleport=9.
+[07/09 00:25:24] FakePlayersAI: dbg Lena: tgt=null, intent=IDLE, autoPlay=true, pvp=true
+[07/09 00:25:24] FakePlayersAI: dbg Lena: dist=221, mv=false, cast=false, atk=false, hp=3848
+[07/09 00:25:24] FakePlayersAI: dbg Ulric: tgt=Quorin, intent=ATTACK, autoPlay=true, pvp=true
+[07/09 00:25:24] FakePlayersAI: dbg Ulric: dist=35, mv=false, cast=false, atk=true, hp=5417
+[07/09 00:25:24] FakePlayersAI: dbg Zarek: tgt=null, intent=IDLE, autoPlay=true, pvp=true
+[07/09 00:25:24] FakePlayersAI: dbg Zarek: dist=88, mv=false, cast=false, atk=false, hp=3867
+[07/09 00:25:24] FakePlayersAI: dbg Kain: tgt=Selene, intent=ATTACK, autoPlay=true, pvp=true
+[07/09 00:25:24] FakePlayersAI: dbg Kain: dist=35, mv=false, cast=false, atk=true, hp=2743
+[07/09 00:25:24] FakePlayersAI: dbg Theron89: tgt=null, intent=IDLE, autoPlay=true, pvp=true
+[07/09 00:25:24] FakePlayersAI: dbg Theron89: dist=163, mv=false, cast=false, atk=false, hp=5733
+[07/09 00:25:24] FakePlayersAI: dbg Falken: tgt=null, intent=IDLE, autoPlay=true, pvp=true
+[07/09 00:25:24] FakePlayersAI: dbg Falken: dist=81, mv=false, cast=false, atk=false, hp=5127
+[07/09 00:25:24] FakePlayersAI: dbg Selene: tgt=Kain, intent=ATTACK, autoPlay=true, pvp=true
+[07/09 00:25:24] FakePlayersAI: dbg Selene: dist=35, mv=false, cast=false, atk=true, hp=3725
+[07/09 00:25:24] FakePlayersAI: dbg Quorin: tgt=Ulric, intent=ATTACK, autoPlay=true, pvp=true
+[07/09 00:25:24] FakePlayersAI: dbg Quorin: dist=35, mv=false, cast=false, atk=true, hp=8404
+[07/09 00:25:24] FakePlayersAI: dbg Merle: tgt=null, intent=IDLE, autoPlay=true, pvp=true
+[07/09 00:25:24] FakePlayersAI: dbg Merle: dist=115, mv=false, cast=false, atk=false, hp=3764
+[07/09 00:25:24] FakePlayersAI: dbg Cedric: tgt=null, intent=IDLE, autoPlay=true, pvp=true
+[07/09 00:25:24] FakePlayersAI: dbg Cedric: dist=31, mv=false, cast=false, atk=false, hp=6581
+[07/09 00:25:24] FakePlayersAI: dbg Garrik: tgt=null, intent=IDLE, autoPlay=true, pvp=true
+[07/09 00:25:24] FakePlayersAI: dbg Garrik: dist=1, mv=false, cast=false, atk=false, hp=5330
+[07/09 00:25:24] FakePlayersAI: dbg Haldor: tgt=null, intent=IDLE, autoPlay=true, pvp=true
+[07/09 00:25:24] FakePlayersAI: dbg Haldor: dist=1, mv=false, cast=false, atk=false, hp=3867
+[07/09 00:25:24] FakePlayersAI: dbg Varen: tgt=null, intent=IDLE, autoPlay=true, pvp=true
+[07/09 00:25:24] FakePlayersAI: dbg Varen: dist=19, mv=false, cast=false, atk=false, hp=4473
+[07/09 00:25:44] FakePlayersAI: olympiad: in-world=16, in-olympiad=0, attempted=0, registered=0.
+[07/09 00:25:54] FakePlayersAI: combatTick: bots=16, withTarget=4, skippedTeleport=11.
+[07/09 00:26:14] FakePlayersAI: olympiad: in-world=16, in-olympiad=16, attempted=0, registered=0.
+[07/09 00:26:14] FakePlayersAI: combat status: in-world=16, dead=0, kills=0.
+[07/09 00:26:14] FakePlayersAI: oly-dbg Lena: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=6, pos=-78400,-249762
+[07/09 00:26:14] FakePlayersAI: oly-dbg Ulric: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=7, pos=-74448,-249762
+[07/09 00:26:14] FakePlayersAI: oly-dbg Xandor: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=0, pos=-89200,-252637
+[07/09 00:26:14] FakePlayersAI: oly-dbg Zarek: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=2, pos=-80800,-252637
+[07/09 00:26:14] FakePlayersAI: oly-dbg Astrid: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=1, pos=-84960,-252637
+[07/09 00:26:14] FakePlayersAI: oly-dbg Kain: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=4, pos=-89200,-249762
+[07/09 00:26:14] FakePlayersAI: oly-dbg Theron89: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=3, pos=-74448,-252637
+[07/09 00:26:14] FakePlayersAI: oly-dbg Falken: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=2, pos=-78400,-252637
+[07/09 00:26:14] FakePlayersAI: oly-dbg Selene: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=0, pos=-86800,-252637
+[07/09 00:26:14] FakePlayersAI: oly-dbg Quorin: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=7, pos=-76848,-249762
+[07/09 00:26:14] FakePlayersAI: oly-dbg Merle: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=1, pos=-82560,-252637
+[07/09 00:26:14] FakePlayersAI: oly-dbg Draven: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=6, pos=-80800,-249762
+[07/09 00:26:14] FakePlayersAI: oly-dbg Cedric: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=5, pos=-84960,-249762
+[07/09 00:26:14] FakePlayersAI: oly-dbg Garrik: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=3, pos=-76848,-252637
+[07/09 00:26:14] FakePlayersAI: oly-dbg Haldor: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=5, pos=-82560,-249762
+[07/09 00:26:14] FakePlayersAI: oly-dbg Varen: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=4, pos=-86800,-249762
+[07/09 00:26:24] FakePlayersAI: combatTick: bots=16, withTarget=0, skippedTeleport=16.
+[07/09 00:26:44] FakePlayersAI: olympiad: in-world=16, in-olympiad=16, attempted=0, registered=0.
+[07/09 00:26:44] FakePlayersAI: oly-dbg Lena: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=6, pos=-78400,-249762
+[07/09 00:26:44] FakePlayersAI: oly-dbg Ulric: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=7, pos=-74448,-249762
+[07/09 00:26:44] FakePlayersAI: oly-dbg Xandor: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=0, pos=-89200,-252637
+[07/09 00:26:44] FakePlayersAI: oly-dbg Zarek: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=2, pos=-80800,-252637
+[07/09 00:26:44] FakePlayersAI: oly-dbg Astrid: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=1, pos=-84960,-252637
+[07/09 00:26:44] FakePlayersAI: oly-dbg Kain: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=4, pos=-89200,-249762
+[07/09 00:26:44] FakePlayersAI: oly-dbg Theron89: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=3, pos=-74448,-252637
+[07/09 00:26:44] FakePlayersAI: oly-dbg Falken: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=2, pos=-78400,-252637
+[07/09 00:26:44] FakePlayersAI: oly-dbg Selene: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=0, pos=-86800,-252637
+[07/09 00:26:44] FakePlayersAI: oly-dbg Quorin: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=7, pos=-76848,-249762
+[07/09 00:26:44] FakePlayersAI: oly-dbg Merle: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=1, pos=-82560,-252637
+[07/09 00:26:44] FakePlayersAI: oly-dbg Draven: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=6, pos=-80800,-249762
+[07/09 00:26:44] FakePlayersAI: oly-dbg Cedric: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=5, pos=-84960,-249762
+[07/09 00:26:44] FakePlayersAI: oly-dbg Garrik: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=3, pos=-76848,-252637
+[07/09 00:26:44] FakePlayersAI: oly-dbg Haldor: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=5, pos=-82560,-249762
+[07/09 00:26:44] FakePlayersAI: oly-dbg Varen: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=4, pos=-86800,-249762
+[07/09 00:26:54] FakePlayersAI: combatTick: bots=16, withTarget=0, skippedTeleport=16.
+[07/09 00:27:14] FakePlayersAI: olympiad: in-world=16, in-olympiad=16, attempted=0, registered=0.
+[07/09 00:27:14] FakePlayersAI: combat status: in-world=16, dead=0, kills=0.
+[07/09 00:27:14] FakePlayersAI: oly-dbg Lena: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=6, pos=-78400,-249762
+[07/09 00:27:14] FakePlayersAI: oly-dbg Ulric: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=7, pos=-74448,-249762
+[07/09 00:27:14] FakePlayersAI: oly-dbg Xandor: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=0, pos=-89200,-252637
+[07/09 00:27:14] FakePlayersAI: oly-dbg Zarek: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=2, pos=-80800,-252637
+[07/09 00:27:14] FakePlayersAI: oly-dbg Astrid: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=1, pos=-84960,-252637
+[07/09 00:27:14] FakePlayersAI: oly-dbg Kain: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=4, pos=-89200,-249762
+[07/09 00:27:14] FakePlayersAI: oly-dbg Theron89: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=3, pos=-74448,-252637
+[07/09 00:27:14] FakePlayersAI: oly-dbg Falken: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=2, pos=-78400,-252637
+[07/09 00:27:14] FakePlayersAI: oly-dbg Selene: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=0, pos=-86800,-252637
+[07/09 00:27:14] FakePlayersAI: oly-dbg Quorin: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=7, pos=-76848,-249762
+[07/09 00:27:14] FakePlayersAI: oly-dbg Merle: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=1, pos=-82560,-252637
+[07/09 00:27:14] FakePlayersAI: oly-dbg Draven: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=6, pos=-80800,-249762
+[07/09 00:27:14] FakePlayersAI: oly-dbg Cedric: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=5, pos=-84960,-249762
+[07/09 00:27:14] FakePlayersAI: oly-dbg Garrik: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=3, pos=-76848,-252637
+[07/09 00:27:14] FakePlayersAI: oly-dbg Haldor: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=5, pos=-82560,-249762
+[07/09 00:27:14] FakePlayersAI: oly-dbg Varen: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=4, pos=-86800,-249762
+[07/09 00:27:24] FakePlayersAI: combatTick: bots=16, withTarget=0, skippedTeleport=16.
+[07/09 00:27:44] FakePlayersAI: olympiad: in-world=16, in-olympiad=16, attempted=0, registered=0.
+[07/09 00:27:44] FakePlayersAI: oly-dbg Lena: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=6, pos=-78400,-249762
+[07/09 00:27:44] FakePlayersAI: oly-dbg Ulric: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=7, pos=-74448,-249762
+[07/09 00:27:44] FakePlayersAI: oly-dbg Xandor: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=0, pos=-89200,-252637
+[07/09 00:27:44] FakePlayersAI: oly-dbg Zarek: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=2, pos=-80800,-252637
+[07/09 00:27:44] FakePlayersAI: oly-dbg Astrid: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=1, pos=-84960,-252637
+[07/09 00:27:44] FakePlayersAI: oly-dbg Kain: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=4, pos=-89200,-249762
+[07/09 00:27:44] FakePlayersAI: oly-dbg Theron89: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=3, pos=-74448,-252637
+[07/09 00:27:44] FakePlayersAI: oly-dbg Falken: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=2, pos=-78400,-252637
+[07/09 00:27:44] FakePlayersAI: oly-dbg Selene: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=0, pos=-86800,-252637
+[07/09 00:27:44] FakePlayersAI: oly-dbg Quorin: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=7, pos=-76848,-249762
+[07/09 00:27:44] FakePlayersAI: oly-dbg Merle: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=1, pos=-82560,-252637
+[07/09 00:27:44] FakePlayersAI: oly-dbg Draven: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=6, pos=-80800,-249762
+[07/09 00:27:44] FakePlayersAI: oly-dbg Cedric: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=5, pos=-84960,-249762
+[07/09 00:27:44] FakePlayersAI: oly-dbg Garrik: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=3, pos=-76848,-252637
+[07/09 00:27:44] FakePlayersAI: oly-dbg Haldor: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=5, pos=-82560,-249762
+[07/09 00:27:44] FakePlayersAI: oly-dbg Varen: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=4, pos=-86800,-249762
+[07/09 00:27:54] FakePlayersAI: combatTick: bots=16, withTarget=0, skippedTeleport=16.
+[07/09 00:28:14] FakePlayersAI: olympiad: in-world=16, in-olympiad=16, attempted=0, registered=0.
+[07/09 00:28:14] FakePlayersAI: combat status: in-world=16, dead=0, kills=0.
+[07/09 00:28:14] FakePlayersAI: oly-dbg Lena: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=6, pos=-78400,-249762
+[07/09 00:28:14] FakePlayersAI: oly-dbg Ulric: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=7, pos=-74448,-249762
+[07/09 00:28:14] FakePlayersAI: oly-dbg Xandor: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=0, pos=-89200,-252637
+[07/09 00:28:14] FakePlayersAI: oly-dbg Zarek: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=2, pos=-80800,-252637
+[07/09 00:28:14] FakePlayersAI: oly-dbg Astrid: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=1, pos=-84960,-252637
+[07/09 00:28:14] FakePlayersAI: oly-dbg Kain: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=4, pos=-89200,-249762
+[07/09 00:28:14] FakePlayersAI: oly-dbg Theron89: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=3, pos=-74448,-252637
+[07/09 00:28:14] FakePlayersAI: oly-dbg Falken: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=2, pos=-78400,-252637
+[07/09 00:28:14] FakePlayersAI: oly-dbg Selene: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=0, pos=-86800,-252637
+[07/09 00:28:14] FakePlayersAI: oly-dbg Quorin: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=7, pos=-76848,-249762
+[07/09 00:28:14] FakePlayersAI: oly-dbg Merle: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=1, pos=-82560,-252637
+[07/09 00:28:14] FakePlayersAI: oly-dbg Draven: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=6, pos=-80800,-249762
+[07/09 00:28:14] FakePlayersAI: oly-dbg Cedric: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=5, pos=-84960,-249762
+[07/09 00:28:14] FakePlayersAI: oly-dbg Garrik: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=3, pos=-76848,-252637
+[07/09 00:28:14] FakePlayersAI: oly-dbg Haldor: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=5, pos=-82560,-249762
+[07/09 00:28:14] FakePlayersAI: oly-dbg Varen: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=4, pos=-86800,-249762
+[07/09 00:28:24] FakePlayersAI: combatTick: bots=16, withTarget=0, skippedTeleport=16.
+[07/09 00:28:44] FakePlayersAI: olympiad: in-world=16, in-olympiad=16, attempted=0, registered=0.
+[07/09 00:28:44] FakePlayersAI: oly-dbg Lena: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=6, pos=-78400,-249762
+[07/09 00:28:44] FakePlayersAI: oly-dbg Ulric: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=7, pos=-74448,-249762
+[07/09 00:28:44] FakePlayersAI: oly-dbg Xandor: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=0, pos=-89200,-252637
+[07/09 00:28:44] FakePlayersAI: oly-dbg Zarek: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=2, pos=-80800,-252637
+[07/09 00:28:44] FakePlayersAI: oly-dbg Astrid: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=1, pos=-84960,-252637
+[07/09 00:28:44] FakePlayersAI: oly-dbg Kain: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=4, pos=-89200,-249762
+[07/09 00:28:44] FakePlayersAI: oly-dbg Theron89: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=3, pos=-74448,-252637
+[07/09 00:28:44] FakePlayersAI: oly-dbg Falken: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=2, pos=-78400,-252637
+[07/09 00:28:44] FakePlayersAI: oly-dbg Selene: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=0, pos=-86800,-252637
+[07/09 00:28:44] FakePlayersAI: oly-dbg Quorin: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=7, pos=-76848,-249762
+[07/09 00:28:44] FakePlayersAI: oly-dbg Merle: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=1, pos=-82560,-252637
+[07/09 00:28:44] FakePlayersAI: oly-dbg Draven: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=6, pos=-80800,-249762
+[07/09 00:28:44] FakePlayersAI: oly-dbg Cedric: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=5, pos=-84960,-249762
+[07/09 00:28:44] FakePlayersAI: oly-dbg Garrik: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=3, pos=-76848,-252637
+[07/09 00:28:44] FakePlayersAI: oly-dbg Haldor: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=5, pos=-82560,-249762
+[07/09 00:28:44] FakePlayersAI: oly-dbg Varen: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=4, pos=-86800,-249762
+[07/09 00:28:54] FakePlayersAI: combatTick: bots=16, withTarget=0, skippedTeleport=16.
+[07/09 00:29:14] FakePlayersAI: olympiad: in-world=16, in-olympiad=16, attempted=0, registered=0.
+[07/09 00:29:14] FakePlayersAI: combat status: in-world=16, dead=0, kills=0.
+[07/09 00:29:14] FakePlayersAI: oly-dbg Lena: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=6, pos=-78400,-249762
+[07/09 00:29:14] FakePlayersAI: oly-dbg Ulric: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=7, pos=-74448,-249762
+[07/09 00:29:14] FakePlayersAI: oly-dbg Xandor: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=0, pos=-89200,-252637
+[07/09 00:29:14] FakePlayersAI: oly-dbg Zarek: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=2, pos=-80800,-252637
+[07/09 00:29:14] FakePlayersAI: oly-dbg Astrid: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=1, pos=-84960,-252637
+[07/09 00:29:14] FakePlayersAI: oly-dbg Kain: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=4, pos=-89200,-249762
+[07/09 00:29:14] FakePlayersAI: oly-dbg Theron89: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=3, pos=-74448,-252637
+[07/09 00:29:14] FakePlayersAI: oly-dbg Falken: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=2, pos=-78400,-252637
+[07/09 00:29:14] FakePlayersAI: oly-dbg Selene: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=0, pos=-86800,-252637
+[07/09 00:29:14] FakePlayersAI: oly-dbg Quorin: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=7, pos=-76848,-249762
+[07/09 00:29:14] FakePlayersAI: oly-dbg Merle: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=1, pos=-82560,-252637
+[07/09 00:29:14] FakePlayersAI: oly-dbg Draven: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=6, pos=-80800,-249762
+[07/09 00:29:14] FakePlayersAI: oly-dbg Cedric: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=5, pos=-84960,-249762
+[07/09 00:29:14] FakePlayersAI: oly-dbg Garrik: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=3, pos=-76848,-252637
+[07/09 00:29:14] FakePlayersAI: oly-dbg Haldor: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=5, pos=-82560,-249762
+[07/09 00:29:14] FakePlayersAI: oly-dbg Varen: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=4, pos=-86800,-249762
+[07/09 00:29:24] FakePlayersAI: combatTick: bots=16, withTarget=0, skippedTeleport=16.
+[07/09 00:29:44] FakePlayersAI: olympiad: in-world=16, in-olympiad=16, attempted=0, registered=0.
+[07/09 00:29:44] FakePlayersAI: oly-dbg Lena: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=6, pos=-78400,-249762
+[07/09 00:29:44] FakePlayersAI: oly-dbg Ulric: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=7, pos=-74448,-249762
+[07/09 00:29:44] FakePlayersAI: oly-dbg Xandor: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=0, pos=-89200,-252637
+[07/09 00:29:44] FakePlayersAI: oly-dbg Zarek: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=2, pos=-80800,-252637
+[07/09 00:29:44] FakePlayersAI: oly-dbg Astrid: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=1, pos=-84960,-252637
+[07/09 00:29:44] FakePlayersAI: oly-dbg Kain: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=4, pos=-89200,-249762
+[07/09 00:29:44] FakePlayersAI: oly-dbg Theron89: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=3, pos=-74448,-252637
+[07/09 00:29:44] FakePlayersAI: oly-dbg Falken: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=2, pos=-78400,-252637
+[07/09 00:29:44] FakePlayersAI: oly-dbg Selene: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=0, pos=-86800,-252637
+[07/09 00:29:44] FakePlayersAI: oly-dbg Quorin: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=7, pos=-76848,-249762
+[07/09 00:29:44] FakePlayersAI: oly-dbg Merle: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=1, pos=-82560,-252637
+[07/09 00:29:44] FakePlayersAI: oly-dbg Draven: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=6, pos=-80800,-249762
+[07/09 00:29:44] FakePlayersAI: oly-dbg Cedric: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=5, pos=-84960,-249762
+[07/09 00:29:44] FakePlayersAI: oly-dbg Garrik: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=3, pos=-76848,-252637
+[07/09 00:29:44] FakePlayersAI: oly-dbg Haldor: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=5, pos=-82560,-249762
+[07/09 00:29:44] FakePlayersAI: oly-dbg Varen: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=4, pos=-86800,-249762
+[07/09 00:29:54] FakePlayersAI: combatTick: bots=16, withTarget=0, skippedTeleport=16.
+[07/09 00:30:14] FakePlayersAI: olympiad: in-world=16, in-olympiad=16, attempted=0, registered=0.
+[07/09 00:30:14] FakePlayersAI: combat status: in-world=16, dead=0, kills=0.
+[07/09 00:30:14] FakePlayersAI: oly-dbg Lena: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=6, pos=-78400,-249762
+[07/09 00:30:14] FakePlayersAI: oly-dbg Ulric: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=7, pos=-74448,-249762
+[07/09 00:30:14] FakePlayersAI: oly-dbg Xandor: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=0, pos=-89200,-252637
+[07/09 00:30:14] FakePlayersAI: oly-dbg Zarek: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=2, pos=-80800,-252637
+[07/09 00:30:14] FakePlayersAI: oly-dbg Astrid: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=1, pos=-84960,-252637
+[07/09 00:30:14] FakePlayersAI: oly-dbg Kain: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=4, pos=-89200,-249762
+[07/09 00:30:14] FakePlayersAI: oly-dbg Theron89: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=3, pos=-74448,-252637
+[07/09 00:30:14] FakePlayersAI: oly-dbg Falken: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=2, pos=-78400,-252637
+[07/09 00:30:14] FakePlayersAI: oly-dbg Selene: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=0, pos=-86800,-252637
+[07/09 00:30:14] FakePlayersAI: oly-dbg Quorin: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=7, pos=-76848,-249762
+[07/09 00:30:14] FakePlayersAI: oly-dbg Merle: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=1, pos=-82560,-252637
+[07/09 00:30:14] FakePlayersAI: oly-dbg Draven: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=6, pos=-80800,-249762
+[07/09 00:30:14] FakePlayersAI: oly-dbg Cedric: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=5, pos=-84960,-249762
+[07/09 00:30:14] FakePlayersAI: oly-dbg Garrik: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=3, pos=-76848,-252637
+[07/09 00:30:14] FakePlayersAI: oly-dbg Haldor: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=5, pos=-82560,-249762
+[07/09 00:30:14] FakePlayersAI: oly-dbg Varen: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=4, pos=-86800,-249762
+[07/09 00:30:24] FakePlayersAI: combatTick: bots=16, withTarget=0, skippedTeleport=16.
+[07/09 00:30:44] FakePlayersAI: olympiad: in-world=16, in-olympiad=16, attempted=0, registered=0.
+[07/09 00:30:44] FakePlayersAI: oly-dbg Lena: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=6, pos=-78400,-249762
+[07/09 00:30:44] FakePlayersAI: oly-dbg Ulric: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=7, pos=-74448,-249762
+[07/09 00:30:44] FakePlayersAI: oly-dbg Xandor: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=0, pos=-89200,-252637
+[07/09 00:30:44] FakePlayersAI: oly-dbg Zarek: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=2, pos=-80800,-252637
+[07/09 00:30:44] FakePlayersAI: oly-dbg Astrid: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=1, pos=-84960,-252637
+[07/09 00:30:44] FakePlayersAI: oly-dbg Kain: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=4, pos=-89200,-249762
+[07/09 00:30:44] FakePlayersAI: oly-dbg Theron89: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=3, pos=-74448,-252637
+[07/09 00:30:44] FakePlayersAI: oly-dbg Falken: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=2, pos=-78400,-252637
+[07/09 00:30:44] FakePlayersAI: oly-dbg Selene: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=0, pos=-86800,-252637
+[07/09 00:30:44] FakePlayersAI: oly-dbg Quorin: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=7, pos=-76848,-249762
+[07/09 00:30:44] FakePlayersAI: oly-dbg Merle: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=1, pos=-82560,-252637
+[07/09 00:30:44] FakePlayersAI: oly-dbg Draven: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=6, pos=-80800,-249762
+[07/09 00:30:44] FakePlayersAI: oly-dbg Cedric: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=5, pos=-84960,-249762
+[07/09 00:30:44] FakePlayersAI: oly-dbg Garrik: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=3, pos=-76848,-252637
+[07/09 00:30:44] FakePlayersAI: oly-dbg Haldor: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=5, pos=-82560,-249762
+[07/09 00:30:44] FakePlayersAI: oly-dbg Varen: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=4, pos=-86800,-249762
+[07/09 00:30:54] FakePlayersAI: combatTick: bots=16, withTarget=0, skippedTeleport=16.
+[07/09 00:31:14] FakePlayersAI: olympiad: in-world=16, in-olympiad=16, attempted=0, registered=0.
+[07/09 00:31:14] FakePlayersAI: combat status: in-world=16, dead=0, kills=0.
+[07/09 00:31:14] FakePlayersAI: oly-dbg Lena: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=6, pos=-78400,-249762
+[07/09 00:31:14] FakePlayersAI: oly-dbg Ulric: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=7, pos=-74448,-249762
+[07/09 00:31:14] FakePlayersAI: oly-dbg Xandor: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=0, pos=-89200,-252637
+[07/09 00:31:14] FakePlayersAI: oly-dbg Zarek: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=2, pos=-80800,-252637
+[07/09 00:31:14] FakePlayersAI: oly-dbg Astrid: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=1, pos=-84960,-252637
+[07/09 00:31:14] FakePlayersAI: oly-dbg Kain: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=4, pos=-89200,-249762
+[07/09 00:31:14] FakePlayersAI: oly-dbg Theron89: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=3, pos=-74448,-252637
+[07/09 00:31:14] FakePlayersAI: oly-dbg Falken: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=2, pos=-78400,-252637
+[07/09 00:31:14] FakePlayersAI: oly-dbg Selene: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=0, pos=-86800,-252637
+[07/09 00:31:14] FakePlayersAI: oly-dbg Quorin: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=7, pos=-76848,-249762
+[07/09 00:31:14] FakePlayersAI: oly-dbg Merle: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=1, pos=-82560,-252637
+[07/09 00:31:14] FakePlayersAI: oly-dbg Draven: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=6, pos=-80800,-249762
+[07/09 00:31:14] FakePlayersAI: oly-dbg Cedric: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=5, pos=-84960,-249762
+[07/09 00:31:14] FakePlayersAI: oly-dbg Garrik: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=3, pos=-76848,-252637
+[07/09 00:31:14] FakePlayersAI: oly-dbg Haldor: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=5, pos=-82560,-249762
+[07/09 00:31:14] FakePlayersAI: oly-dbg Varen: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=4, pos=-86800,-249762
+[07/09 00:31:24] FakePlayersAI: combatTick: bots=16, withTarget=0, skippedTeleport=16.
+[07/09 00:31:44] FakePlayersAI: olympiad: in-world=16, in-olympiad=16, attempted=0, registered=0.
+[07/09 00:31:44] FakePlayersAI: oly-dbg Lena: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=6, pos=-78400,-249762
+[07/09 00:31:44] FakePlayersAI: oly-dbg Ulric: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=7, pos=-74448,-249762
+[07/09 00:31:44] FakePlayersAI: oly-dbg Xandor: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=0, pos=-89200,-252637
+[07/09 00:31:44] FakePlayersAI: oly-dbg Zarek: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=2, pos=-80800,-252637
+[07/09 00:31:44] FakePlayersAI: oly-dbg Astrid: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=1, pos=-84960,-252637
+[07/09 00:31:44] FakePlayersAI: oly-dbg Kain: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=4, pos=-89200,-249762
+[07/09 00:31:44] FakePlayersAI: oly-dbg Theron89: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=3, pos=-74448,-252637
+[07/09 00:31:44] FakePlayersAI: oly-dbg Falken: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=2, pos=-78400,-252637
+[07/09 00:31:44] FakePlayersAI: oly-dbg Selene: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=0, pos=-86800,-252637
+[07/09 00:31:44] FakePlayersAI: oly-dbg Quorin: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=7, pos=-76848,-249762
+[07/09 00:31:44] FakePlayersAI: oly-dbg Merle: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=1, pos=-82560,-252637
+[07/09 00:31:44] FakePlayersAI: oly-dbg Draven: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=6, pos=-80800,-249762
+[07/09 00:31:44] FakePlayersAI: oly-dbg Cedric: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=5, pos=-84960,-249762
+[07/09 00:31:44] FakePlayersAI: oly-dbg Garrik: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=3, pos=-76848,-252637
+[07/09 00:31:44] FakePlayersAI: oly-dbg Haldor: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=5, pos=-82560,-249762
+[07/09 00:31:44] FakePlayersAI: oly-dbg Varen: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=4, pos=-86800,-249762
+[07/09 00:31:54] FakePlayersAI: combatTick: bots=16, withTarget=0, skippedTeleport=16.
+[07/09 00:32:14] FakePlayersAI: olympiad: in-world=16, in-olympiad=16, attempted=0, registered=0.
+[07/09 00:32:14] FakePlayersAI: combat status: in-world=16, dead=0, kills=0.
+[07/09 00:32:14] FakePlayersAI: oly-dbg Lena: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=6, pos=-78400,-249762
+[07/09 00:32:14] FakePlayersAI: oly-dbg Ulric: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=7, pos=-74448,-249762
+[07/09 00:32:14] FakePlayersAI: oly-dbg Xandor: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=0, pos=-89200,-252637
+[07/09 00:32:14] FakePlayersAI: oly-dbg Zarek: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=2, pos=-80800,-252637
+[07/09 00:32:14] FakePlayersAI: oly-dbg Astrid: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=1, pos=-84960,-252637
+[07/09 00:32:14] FakePlayersAI: oly-dbg Kain: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=4, pos=-89200,-249762
+[07/09 00:32:14] FakePlayersAI: oly-dbg Theron89: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=3, pos=-74448,-252637
+[07/09 00:32:14] FakePlayersAI: oly-dbg Falken: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=2, pos=-78400,-252637
+[07/09 00:32:14] FakePlayersAI: oly-dbg Selene: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=0, pos=-86800,-252637
+[07/09 00:32:14] FakePlayersAI: oly-dbg Quorin: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=7, pos=-76848,-249762
+[07/09 00:32:14] FakePlayersAI: oly-dbg Merle: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=1, pos=-82560,-252637
+[07/09 00:32:14] FakePlayersAI: oly-dbg Draven: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=6, pos=-80800,-249762
+[07/09 00:32:14] FakePlayersAI: oly-dbg Cedric: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=5, pos=-84960,-249762
+[07/09 00:32:14] FakePlayersAI: oly-dbg Garrik: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=3, pos=-76848,-252637
+[07/09 00:32:14] FakePlayersAI: oly-dbg Haldor: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=5, pos=-82560,-249762
+[07/09 00:32:14] FakePlayersAI: oly-dbg Varen: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=4, pos=-86800,-249762
+[07/09 00:32:24] FakePlayersAI: combatTick: bots=16, withTarget=0, skippedTeleport=16.
+[07/09 00:32:44] FakePlayersAI: olympiad: in-world=16, in-olympiad=16, attempted=0, registered=0.
+[07/09 00:32:44] FakePlayersAI: oly-dbg Lena: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=6, pos=-78400,-249762
+[07/09 00:32:44] FakePlayersAI: oly-dbg Ulric: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=7, pos=-74448,-249762
+[07/09 00:32:44] FakePlayersAI: oly-dbg Xandor: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=0, pos=-89200,-252637
+[07/09 00:32:44] FakePlayersAI: oly-dbg Zarek: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=2, pos=-80800,-252637
+[07/09 00:32:44] FakePlayersAI: oly-dbg Astrid: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=1, pos=-84960,-252637
+[07/09 00:32:44] FakePlayersAI: oly-dbg Kain: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=4, pos=-89200,-249762
+[07/09 00:32:44] FakePlayersAI: oly-dbg Theron89: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=3, pos=-74448,-252637
+[07/09 00:32:44] FakePlayersAI: oly-dbg Falken: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=2, pos=-78400,-252637
+[07/09 00:32:44] FakePlayersAI: oly-dbg Selene: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=0, pos=-86800,-252637
+[07/09 00:32:44] FakePlayersAI: oly-dbg Quorin: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=7, pos=-76848,-249762
+[07/09 00:32:44] FakePlayersAI: oly-dbg Merle: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=1, pos=-82560,-252637
+[07/09 00:32:44] FakePlayersAI: oly-dbg Draven: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=6, pos=-80800,-249762
+[07/09 00:32:44] FakePlayersAI: oly-dbg Cedric: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=5, pos=-84960,-249762
+[07/09 00:32:44] FakePlayersAI: oly-dbg Garrik: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=3, pos=-76848,-252637
+[07/09 00:32:44] FakePlayersAI: oly-dbg Haldor: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=5, pos=-82560,-249762
+[07/09 00:32:44] FakePlayersAI: oly-dbg Varen: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=4, pos=-86800,-249762
+[07/09 00:32:54] FakePlayersAI: combatTick: bots=16, withTarget=0, skippedTeleport=16.
+[07/09 00:33:14] FakePlayersAI: olympiad: in-world=16, in-olympiad=16, attempted=0, registered=0.
+[07/09 00:33:14] FakePlayersAI: combat status: in-world=16, dead=0, kills=0.
+[07/09 00:33:14] FakePlayersAI: oly-dbg Lena: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=6, pos=-78400,-249762
+[07/09 00:33:14] FakePlayersAI: oly-dbg Ulric: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=7, pos=-74448,-249762
+[07/09 00:33:14] FakePlayersAI: oly-dbg Xandor: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=0, pos=-89200,-252637
+[07/09 00:33:14] FakePlayersAI: oly-dbg Zarek: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=2, pos=-80800,-252637
+[07/09 00:33:14] FakePlayersAI: oly-dbg Astrid: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=1, pos=-84960,-252637
+[07/09 00:33:14] FakePlayersAI: oly-dbg Kain: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=4, pos=-89200,-249762
+[07/09 00:33:14] FakePlayersAI: oly-dbg Theron89: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=3, pos=-74448,-252637
+[07/09 00:33:14] FakePlayersAI: oly-dbg Falken: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=2, pos=-78400,-252637
+[07/09 00:33:14] FakePlayersAI: oly-dbg Selene: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=0, pos=-86800,-252637
+[07/09 00:33:14] FakePlayersAI: oly-dbg Quorin: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=7, pos=-76848,-249762
+[07/09 00:33:14] FakePlayersAI: oly-dbg Merle: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=1, pos=-82560,-252637
+[07/09 00:33:14] FakePlayersAI: oly-dbg Draven: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=6, pos=-80800,-249762
+[07/09 00:33:14] FakePlayersAI: oly-dbg Cedric: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=5, pos=-84960,-249762
+[07/09 00:33:14] FakePlayersAI: oly-dbg Garrik: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=3, pos=-76848,-252637
+[07/09 00:33:14] FakePlayersAI: oly-dbg Haldor: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=5, pos=-82560,-249762
+[07/09 00:33:14] FakePlayersAI: oly-dbg Varen: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=4, pos=-86800,-249762
+[07/09 00:33:24] FakePlayersAI: combatTick: bots=16, withTarget=0, skippedTeleport=16.
+[07/09 00:33:44] FakePlayersAI: olympiad: in-world=16, in-olympiad=14, attempted=2, registered=2.
+[07/09 00:33:44] FakePlayersAI: oly-dbg Lena: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=6, pos=-78400,-249762
+[07/09 00:33:44] FakePlayersAI: oly-dbg Ulric: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=7, pos=-74448,-249762
+[07/09 00:33:44] FakePlayersAI: oly-dbg Zarek: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=2, pos=-80800,-252637
+[07/09 00:33:44] FakePlayersAI: oly-dbg Astrid: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=1, pos=-84960,-252637
+[07/09 00:33:44] FakePlayersAI: oly-dbg Kain: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=4, pos=-89200,-249762
+[07/09 00:33:44] FakePlayersAI: oly-dbg Theron89: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=3, pos=-74448,-252637
+[07/09 00:33:44] FakePlayersAI: oly-dbg Falken: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=2, pos=-78400,-252637
+[07/09 00:33:44] FakePlayersAI: oly-dbg Quorin: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=7, pos=-76848,-249762
+[07/09 00:33:44] FakePlayersAI: oly-dbg Merle: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=1, pos=-82560,-252637
+[07/09 00:33:44] FakePlayersAI: oly-dbg Draven: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=6, pos=-80800,-249762
+[07/09 00:33:44] FakePlayersAI: oly-dbg Cedric: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=5, pos=-84960,-249762
+[07/09 00:33:44] FakePlayersAI: oly-dbg Garrik: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=3, pos=-76848,-252637
+[07/09 00:33:44] FakePlayersAI: oly-dbg Haldor: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=5, pos=-82560,-249762
+[07/09 00:33:44] FakePlayersAI: oly-dbg Varen: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=4, pos=-86800,-249762
+[07/09 00:33:54] FakePlayersAI: combatTick: bots=16, withTarget=0, skippedTeleport=16.
+[07/09 00:34:14] FakePlayersAI: olympiad: in-world=16, in-olympiad=0, attempted=14, registered=14.
+[07/09 00:34:14] FakePlayersAI: combat status: in-world=16, dead=0, kills=0.
+[07/09 00:34:24] FakePlayersAI: combatTick: bots=16, withTarget=0, skippedTeleport=16.
+[07/09 00:34:24] FakePlayersAI: dbg Lena: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:34:24] FakePlayersAI: dbg Lena: dist=235, mv=false, cast=false, atk=false, hp=3848
+[07/09 00:34:24] FakePlayersAI: dbg Ulric: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:34:24] FakePlayersAI: dbg Ulric: dist=55, mv=false, cast=false, atk=false, hp=7239
+[07/09 00:34:24] FakePlayersAI: dbg Xandor: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:34:24] FakePlayersAI: dbg Xandor: dist=35, mv=false, cast=false, atk=false, hp=4738
+[07/09 00:34:24] FakePlayersAI: dbg Zarek: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:34:24] FakePlayersAI: dbg Zarek: dist=35, mv=false, cast=false, atk=false, hp=3867
+[07/09 00:34:24] FakePlayersAI: dbg Astrid: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:34:24] FakePlayersAI: dbg Astrid: dist=181, mv=false, cast=false, atk=false, hp=4620
+[07/09 00:34:24] FakePlayersAI: dbg Kain: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:34:24] FakePlayersAI: dbg Kain: dist=56, mv=false, cast=false, atk=false, hp=6581
+[07/09 00:34:24] FakePlayersAI: dbg Theron89: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:34:24] FakePlayersAI: dbg Theron89: dist=181, mv=false, cast=false, atk=false, hp=5733
+[07/09 00:34:24] FakePlayersAI: dbg Falken: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:34:24] FakePlayersAI: dbg Falken: dist=69, mv=false, cast=false, atk=false, hp=5127
+[07/09 00:34:24] FakePlayersAI: dbg Selene: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:34:24] FakePlayersAI: dbg Selene: dist=149, mv=false, cast=false, atk=false, hp=4904
+[07/09 00:34:24] FakePlayersAI: dbg Quorin: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:34:24] FakePlayersAI: dbg Quorin: dist=55, mv=false, cast=false, atk=false, hp=8404
+[07/09 00:34:24] FakePlayersAI: dbg Merle: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:34:24] FakePlayersAI: dbg Merle: dist=65, mv=false, cast=false, atk=false, hp=3764
+[07/09 00:34:24] FakePlayersAI: dbg Draven: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:34:24] FakePlayersAI: dbg Draven: dist=191, mv=false, cast=false, atk=false, hp=6029
+[07/09 00:34:24] FakePlayersAI: dbg Cedric: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:34:24] FakePlayersAI: dbg Cedric: dist=36, mv=false, cast=false, atk=false, hp=6581
+[07/09 00:34:24] FakePlayersAI: dbg Garrik: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:34:24] FakePlayersAI: dbg Garrik: dist=46, mv=false, cast=false, atk=false, hp=5330
+[07/09 00:34:24] FakePlayersAI: dbg Haldor: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:34:24] FakePlayersAI: dbg Haldor: dist=36, mv=false, cast=false, atk=false, hp=3867
+[07/09 00:34:24] FakePlayersAI: dbg Varen: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:34:24] FakePlayersAI: dbg Varen: dist=55, mv=false, cast=false, atk=false, hp=4473
+[07/09 00:34:44] FakePlayersAI: olympiad: in-world=16, in-olympiad=0, attempted=0, registered=0.
+[07/09 00:34:54] FakePlayersAI: combatTick: bots=16, withTarget=0, skippedTeleport=16.
+[07/09 00:35:14] FakePlayersAI: olympiad: in-world=16, in-olympiad=0, attempted=0, registered=0.
+[07/09 00:35:14] FakePlayersAI: combat status: in-world=16, dead=0, kills=0.
+[07/09 00:35:24] FakePlayersAI: combatTick: bots=16, withTarget=0, skippedTeleport=16.
+[07/09 00:35:24] FakePlayersAI: dbg Lena: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:35:24] FakePlayersAI: dbg Lena: dist=235, mv=false, cast=false, atk=false, hp=3848
+[07/09 00:35:24] FakePlayersAI: dbg Ulric: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:35:24] FakePlayersAI: dbg Ulric: dist=55, mv=false, cast=false, atk=false, hp=7239
+[07/09 00:35:24] FakePlayersAI: dbg Xandor: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:35:24] FakePlayersAI: dbg Xandor: dist=35, mv=false, cast=false, atk=false, hp=4738
+[07/09 00:35:24] FakePlayersAI: dbg Zarek: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:35:24] FakePlayersAI: dbg Zarek: dist=35, mv=false, cast=false, atk=false, hp=3867
+[07/09 00:35:24] FakePlayersAI: dbg Astrid: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:35:24] FakePlayersAI: dbg Astrid: dist=181, mv=false, cast=false, atk=false, hp=4620
+[07/09 00:35:24] FakePlayersAI: dbg Kain: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:35:24] FakePlayersAI: dbg Kain: dist=56, mv=false, cast=false, atk=false, hp=6581
+[07/09 00:35:24] FakePlayersAI: dbg Theron89: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:35:24] FakePlayersAI: dbg Theron89: dist=181, mv=false, cast=false, atk=false, hp=5733
+[07/09 00:35:24] FakePlayersAI: dbg Falken: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:35:24] FakePlayersAI: dbg Falken: dist=69, mv=false, cast=false, atk=false, hp=5127
+[07/09 00:35:24] FakePlayersAI: dbg Selene: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:35:24] FakePlayersAI: dbg Selene: dist=149, mv=false, cast=false, atk=false, hp=4904
+[07/09 00:35:24] FakePlayersAI: dbg Quorin: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:35:24] FakePlayersAI: dbg Quorin: dist=55, mv=false, cast=false, atk=false, hp=8404
+[07/09 00:35:24] FakePlayersAI: dbg Merle: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:35:24] FakePlayersAI: dbg Merle: dist=65, mv=false, cast=false, atk=false, hp=3764
+[07/09 00:35:24] FakePlayersAI: dbg Draven: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:35:24] FakePlayersAI: dbg Draven: dist=191, mv=false, cast=false, atk=false, hp=6029
+[07/09 00:35:24] FakePlayersAI: dbg Cedric: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:35:24] FakePlayersAI: dbg Cedric: dist=36, mv=false, cast=false, atk=false, hp=6581
+[07/09 00:35:24] FakePlayersAI: dbg Garrik: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:35:24] FakePlayersAI: dbg Garrik: dist=46, mv=false, cast=false, atk=false, hp=5330
+[07/09 00:35:24] FakePlayersAI: dbg Haldor: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:35:24] FakePlayersAI: dbg Haldor: dist=36, mv=false, cast=false, atk=false, hp=3867
+[07/09 00:35:24] FakePlayersAI: dbg Varen: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:35:24] FakePlayersAI: dbg Varen: dist=55, mv=false, cast=false, atk=false, hp=4473
+[07/09 00:35:44] FakePlayersAI: olympiad: in-world=16, in-olympiad=0, attempted=0, registered=0.
+[07/09 00:35:54] FakePlayersAI: combatTick: bots=16, withTarget=0, skippedTeleport=16.
+[07/09 00:36:14] FakePlayersAI: olympiad: in-world=16, in-olympiad=0, attempted=0, registered=0.
+[07/09 00:36:14] FakePlayersAI: combat status: in-world=16, dead=0, kills=0.
+[07/09 00:36:24] FakePlayersAI: combatTick: bots=16, withTarget=0, skippedTeleport=16.
+[07/09 00:36:24] FakePlayersAI: dbg Lena: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:36:24] FakePlayersAI: dbg Lena: dist=235, mv=false, cast=false, atk=false, hp=3848
+[07/09 00:36:24] FakePlayersAI: dbg Ulric: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:36:24] FakePlayersAI: dbg Ulric: dist=55, mv=false, cast=false, atk=false, hp=7239
+[07/09 00:36:24] FakePlayersAI: dbg Xandor: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:36:24] FakePlayersAI: dbg Xandor: dist=35, mv=false, cast=false, atk=false, hp=4738
+[07/09 00:36:24] FakePlayersAI: dbg Zarek: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:36:24] FakePlayersAI: dbg Zarek: dist=35, mv=false, cast=false, atk=false, hp=3867
+[07/09 00:36:24] FakePlayersAI: dbg Astrid: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:36:24] FakePlayersAI: dbg Astrid: dist=181, mv=false, cast=false, atk=false, hp=4620
+[07/09 00:36:24] FakePlayersAI: dbg Kain: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:36:24] FakePlayersAI: dbg Kain: dist=56, mv=false, cast=false, atk=false, hp=6581
+[07/09 00:36:24] FakePlayersAI: dbg Theron89: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:36:24] FakePlayersAI: dbg Theron89: dist=181, mv=false, cast=false, atk=false, hp=5733
+[07/09 00:36:24] FakePlayersAI: dbg Falken: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:36:24] FakePlayersAI: dbg Falken: dist=69, mv=false, cast=false, atk=false, hp=5127
+[07/09 00:36:24] FakePlayersAI: dbg Selene: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:36:24] FakePlayersAI: dbg Selene: dist=149, mv=false, cast=false, atk=false, hp=4904
+[07/09 00:36:24] FakePlayersAI: dbg Quorin: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:36:24] FakePlayersAI: dbg Quorin: dist=55, mv=false, cast=false, atk=false, hp=8404
+[07/09 00:36:24] FakePlayersAI: dbg Merle: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:36:24] FakePlayersAI: dbg Merle: dist=65, mv=false, cast=false, atk=false, hp=3764
+[07/09 00:36:24] FakePlayersAI: dbg Draven: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:36:24] FakePlayersAI: dbg Draven: dist=191, mv=false, cast=false, atk=false, hp=6029
+[07/09 00:36:24] FakePlayersAI: dbg Cedric: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:36:24] FakePlayersAI: dbg Cedric: dist=36, mv=false, cast=false, atk=false, hp=6581
+[07/09 00:36:24] FakePlayersAI: dbg Garrik: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:36:24] FakePlayersAI: dbg Garrik: dist=46, mv=false, cast=false, atk=false, hp=5330
+[07/09 00:36:24] FakePlayersAI: dbg Haldor: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:36:24] FakePlayersAI: dbg Haldor: dist=36, mv=false, cast=false, atk=false, hp=3867
+[07/09 00:36:24] FakePlayersAI: dbg Varen: tgt=null, intent=IDLE, autoPlay=true, pvp=false
+[07/09 00:36:24] FakePlayersAI: dbg Varen: dist=55, mv=false, cast=false, atk=false, hp=4473
+[07/09 00:36:44] FakePlayersAI: olympiad: in-world=16, in-olympiad=16, attempted=0, registered=0.
+[07/09 00:36:44] FakePlayersAI: oly-dbg Lena: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=2, pos=-80800,-252637
+[07/09 00:36:44] FakePlayersAI: oly-dbg Ulric: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=6, pos=-80800,-249762
+[07/09 00:36:44] FakePlayersAI: oly-dbg Xandor: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=5, pos=-82560,-249762
+[07/09 00:36:44] FakePlayersAI: oly-dbg Zarek: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=6, pos=-78400,-249762
+[07/09 00:36:44] FakePlayersAI: oly-dbg Astrid: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=1, pos=-84960,-252637
+[07/09 00:36:44] FakePlayersAI: oly-dbg Kain: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=4, pos=-89200,-249762
+[07/09 00:36:44] FakePlayersAI: oly-dbg Theron89: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=0, pos=-89200,-252637
+[07/09 00:36:44] FakePlayersAI: oly-dbg Falken: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=7, pos=-74448,-249762
+[07/09 00:36:44] FakePlayersAI: oly-dbg Selene: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=3, pos=-76848,-252637
+[07/09 00:36:44] FakePlayersAI: oly-dbg Quorin: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=4, pos=-86800,-249762
+[07/09 00:36:44] FakePlayersAI: oly-dbg Merle: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=0, pos=-86800,-252637
+[07/09 00:36:44] FakePlayersAI: oly-dbg Draven: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=1, pos=-82560,-252637
+[07/09 00:36:44] FakePlayersAI: oly-dbg Cedric: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=5, pos=-84960,-249762
+[07/09 00:36:44] FakePlayersAI: oly-dbg Garrik: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=3, pos=-74448,-252637
+[07/09 00:36:44] FakePlayersAI: oly-dbg Haldor: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=7, pos=-76848,-249762
+[07/09 00:36:44] FakePlayersAI: oly-dbg Varen: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=2, pos=-78400,-252637
+[07/09 00:36:54] FakePlayersAI: combatTick: bots=16, withTarget=0, skippedTeleport=16.
+[07/09 00:37:14] FakePlayersAI: olympiad: in-world=16, in-olympiad=16, attempted=0, registered=0.
+[07/09 00:37:14] FakePlayersAI: combat status: in-world=16, dead=0, kills=0.
+[07/09 00:37:14] FakePlayersAI: oly-dbg Lena: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=2, pos=-80800,-252637
+[07/09 00:37:14] FakePlayersAI: oly-dbg Ulric: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=6, pos=-80800,-249762
+[07/09 00:37:14] FakePlayersAI: oly-dbg Xandor: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=5, pos=-82560,-249762
+[07/09 00:37:14] FakePlayersAI: oly-dbg Zarek: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=6, pos=-78400,-249762
+[07/09 00:37:14] FakePlayersAI: oly-dbg Astrid: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=1, pos=-84960,-252637
+[07/09 00:37:14] FakePlayersAI: oly-dbg Kain: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=4, pos=-89200,-249762
+[07/09 00:37:14] FakePlayersAI: oly-dbg Theron89: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=0, pos=-89200,-252637
+[07/09 00:37:14] FakePlayersAI: oly-dbg Falken: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=7, pos=-74448,-249762
+[07/09 00:37:14] FakePlayersAI: oly-dbg Selene: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=3, pos=-76848,-252637
+[07/09 00:37:14] FakePlayersAI: oly-dbg Quorin: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=4, pos=-86800,-249762
+[07/09 00:37:14] FakePlayersAI: oly-dbg Merle: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=0, pos=-86800,-252637
+[07/09 00:37:14] FakePlayersAI: oly-dbg Draven: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=1, pos=-82560,-252637
+[07/09 00:37:14] FakePlayersAI: oly-dbg Cedric: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=5, pos=-84960,-249762
+[07/09 00:37:14] FakePlayersAI: oly-dbg Garrik: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=3, pos=-74448,-252637
+[07/09 00:37:14] FakePlayersAI: oly-dbg Haldor: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=7, pos=-76848,-249762
+[07/09 00:37:14] FakePlayersAI: oly-dbg Varen: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=2, pos=-78400,-252637
+[07/09 00:37:24] FakePlayersAI: combatTick: bots=16, withTarget=0, skippedTeleport=16.
+[07/09 00:37:44] FakePlayersAI: olympiad: in-world=16, in-olympiad=16, attempted=0, registered=0.
+[07/09 00:37:44] FakePlayersAI: oly-dbg Lena: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=2, pos=-80800,-252637
+[07/09 00:37:44] FakePlayersAI: oly-dbg Ulric: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=6, pos=-80800,-249762
+[07/09 00:37:44] FakePlayersAI: oly-dbg Xandor: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=5, pos=-82560,-249762
+[07/09 00:37:44] FakePlayersAI: oly-dbg Zarek: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=6, pos=-78400,-249762
+[07/09 00:37:44] FakePlayersAI: oly-dbg Astrid: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=1, pos=-84960,-252637
+[07/09 00:37:44] FakePlayersAI: oly-dbg Kain: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=4, pos=-89200,-249762
+[07/09 00:37:44] FakePlayersAI: oly-dbg Theron89: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=0, pos=-89200,-252637
+[07/09 00:37:44] FakePlayersAI: oly-dbg Falken: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=7, pos=-74448,-249762
+[07/09 00:37:44] FakePlayersAI: oly-dbg Selene: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=3, pos=-76848,-252637
+[07/09 00:37:44] FakePlayersAI: oly-dbg Quorin: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=4, pos=-86800,-249762
+[07/09 00:37:44] FakePlayersAI: oly-dbg Merle: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=0, pos=-86800,-252637
+[07/09 00:37:44] FakePlayersAI: oly-dbg Draven: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=1, pos=-82560,-252637
+[07/09 00:37:44] FakePlayersAI: oly-dbg Cedric: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=5, pos=-84960,-249762
+[07/09 00:37:44] FakePlayersAI: oly-dbg Garrik: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=3, pos=-74448,-252637
+[07/09 00:37:44] FakePlayersAI: oly-dbg Haldor: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=false, gameId=7, pos=-76848,-249762
+[07/09 00:37:44] FakePlayersAI: oly-dbg Varen: tgt=null, distToTgt=-1, intent=IDLE, mv=false, start=true, gameId=2, pos=-78400,-252637
+[07/09 00:37:54] FakePlayersAI: combatTick: bots=16, withTarget=0, skippedTeleport=16.

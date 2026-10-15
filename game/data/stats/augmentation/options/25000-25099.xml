@@ -1,0 +1,313 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!-- Custom augmentation options for the Blacksmith Aug NPC (Giran, npcId 1006000).
+	Each option augments one of the retail augmentation skills (all skills named
+"Item Skill:*") into a weapon. Encoding follows the retail option data:
+	active_skill = castable active augment, passive_skill = passive augment,
+	attack_skill / magic_skill / critical_skill = chance-triggered augment (retail chance).
+	Levels are the maximum base levels of the skills. Option ids 25000+ are unused
+	by retail augmentation/enchant options (retail ends at 24949).
+	Keep these ids in sync with the OFFERED_SKILLS list in custom\BlacksmithAug\BlacksmithAug.java:
+	option id = 25000 + index in that list (index 0 = option 25000). -->
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../xsd/optionsData.xsd">
+	<option id="25000" name="o_aug_3080">
+		<attack_skill id="3080" level="10" chance="1.0" /> <!-- Item Skill: Aggression - chance-triggered, lv 10, chance 1% -->
+	</option>
+	<option id="25001" name="o_aug_3081">
+		<attack_skill id="3081" level="10" chance="1.0" /> <!-- Item Skill: Charm - chance-triggered, lv 10, chance 1% -->
+	</option>
+	<option id="25002" name="o_aug_3082">
+		<attack_skill id="3082" level="10" chance="1.0" /> <!-- Item Skill: Mana Burn - chance-triggered, lv 10, chance 1% -->
+	</option>
+	<option id="25003" name="o_aug_3083">
+		<attack_skill id="3083" level="10" chance="1.0" /> <!-- Item Skill: Slow - chance-triggered, lv 10, chance 1% -->
+	</option>
+	<option id="25004" name="o_aug_3084">
+		<attack_skill id="3084" level="10" chance="1.0" /> <!-- Item Skill: Winter - chance-triggered, lv 10, chance 1% -->
+	</option>
+	<option id="25005" name="o_aug_3085">
+		<attack_skill id="3085" level="10" chance="1.0" /> <!-- Item Skill: Stun - chance-triggered, lv 10, chance 1% -->
+	</option>
+	<option id="25006" name="o_aug_3086">
+		<attack_skill id="3086" level="10" chance="1.0" /> <!-- Item Skill: Hold - chance-triggered, lv 10, chance 1% -->
+	</option>
+	<option id="25007" name="o_aug_3087">
+		<attack_skill id="3087" level="10" chance="1.0" /> <!-- Item Skill: Sleep - chance-triggered, lv 10, chance 1% -->
+	</option>
+	<option id="25008" name="o_aug_3088">
+		<attack_skill id="3088" level="10" chance="1.0" /> <!-- Item Skill: Paralyze - chance-triggered, lv 10, chance 1% -->
+	</option>
+	<option id="25009" name="o_aug_3089">
+		<attack_skill id="3089" level="10" chance="1.0" /> <!-- Item Skill: Medusa - chance-triggered, lv 10, chance 1% -->
+	</option>
+	<option id="25010" name="o_aug_3090">
+		<attack_skill id="3090" level="10" chance="1.0" /> <!-- Item Skill: Fear - chance-triggered, lv 10, chance 1% -->
+	</option>
+	<option id="25011" name="o_aug_3091">
+		<attack_skill id="3091" level="10" chance="1.0" /> <!-- Item Skill: Poison - chance-triggered, lv 10, chance 1% -->
+	</option>
+	<option id="25012" name="o_aug_3092">
+		<attack_skill id="3092" level="10" chance="1.0" /> <!-- Item Skill: Bleed - chance-triggered, lv 10, chance 1% -->
+	</option>
+	<option id="25013" name="o_aug_3093">
+		<attack_skill id="3093" level="10" chance="1.0" /> <!-- Item Skill: Silence - chance-triggered, lv 10, chance 1% -->
+	</option>
+	<option id="25014" name="o_aug_3094">
+		<attack_skill id="3094" level="10" chance="1.0" /> <!-- Item Skill: Doom - chance-triggered, lv 10, chance 1% -->
+	</option>
+	<option id="25015" name="o_aug_3095">
+		<magic_skill id="3095" level="10" chance="2.0" /> <!-- Item Skill: Mana Burn - chance-triggered, lv 10, chance 2% -->
+	</option>
+	<option id="25016" name="o_aug_3096">
+		<magic_skill id="3096" level="10" chance="2.0" /> <!-- Item Skill: Slow - chance-triggered, lv 10, chance 2% -->
+	</option>
+	<option id="25017" name="o_aug_3097">
+		<magic_skill id="3097" level="10" chance="2.0" /> <!-- Item Skill: Winter - chance-triggered, lv 10, chance 2% -->
+	</option>
+	<option id="25018" name="o_aug_3098">
+		<magic_skill id="3098" level="10" chance="2.0" /> <!-- Item Skill: Stun - chance-triggered, lv 10, chance 2% -->
+	</option>
+	<option id="25019" name="o_aug_3099">
+		<magic_skill id="3099" level="10" chance="2.0" /> <!-- Item Skill: Hold - chance-triggered, lv 10, chance 2% -->
+	</option>
+	<option id="25020" name="o_aug_3100">
+		<magic_skill id="3100" level="10" chance="2.0" /> <!-- Item Skill: Sleep - chance-triggered, lv 10, chance 2% -->
+	</option>
+	<option id="25021" name="o_aug_3101">
+		<magic_skill id="3101" level="10" chance="2.0" /> <!-- Item Skill: Paralyze - chance-triggered, lv 10, chance 2% -->
+	</option>
+	<option id="25022" name="o_aug_3102">
+		<magic_skill id="3102" level="10" chance="2.0" /> <!-- Item Skill: Medusa - chance-triggered, lv 10, chance 2% -->
+	</option>
+	<option id="25023" name="o_aug_3103">
+		<magic_skill id="3103" level="10" chance="2.0" /> <!-- Item Skill: Fear - chance-triggered, lv 10, chance 2% -->
+	</option>
+	<option id="25024" name="o_aug_3104">
+		<magic_skill id="3104" level="10" chance="2.0" /> <!-- Item Skill: Poison - chance-triggered, lv 10, chance 2% -->
+	</option>
+	<option id="25025" name="o_aug_3105">
+		<magic_skill id="3105" level="10" chance="2.0" /> <!-- Item Skill: Bleed - chance-triggered, lv 10, chance 2% -->
+	</option>
+	<option id="25026" name="o_aug_3106">
+		<magic_skill id="3106" level="10" chance="2.0" /> <!-- Item Skill: Silence - chance-triggered, lv 10, chance 2% -->
+	</option>
+	<option id="25027" name="o_aug_3107">
+		<magic_skill id="3107" level="10" chance="2.0" /> <!-- Item Skill: Doom - chance-triggered, lv 10, chance 2% -->
+	</option>
+	<option id="25028" name="o_aug_3108">
+		<critical_skill id="3108" level="10" chance="5.0" /> <!-- Item Skill: Aggression Up - chance-triggered, lv 10, chance 5% -->
+	</option>
+	<option id="25029" name="o_aug_3109">
+		<critical_skill id="3109" level="10" chance="5.0" /> <!-- Item Skill: Aggression Down - chance-triggered, lv 10, chance 5% -->
+	</option>
+	<option id="25030" name="o_aug_3110">
+		<critical_skill id="3110" level="10" chance="5.0" /> <!-- Item Skill: Mana Burn - chance-triggered, lv 10, chance 5% -->
+	</option>
+	<option id="25031" name="o_aug_3111">
+		<critical_skill id="3111" level="10" chance="5.0" /> <!-- Item Skill: Slow - chance-triggered, lv 10, chance 5% -->
+	</option>
+	<option id="25032" name="o_aug_3112">
+		<critical_skill id="3112" level="10" chance="5.0" /> <!-- Item Skill: Winter - chance-triggered, lv 10, chance 5% -->
+	</option>
+	<option id="25033" name="o_aug_3113">
+		<critical_skill id="3113" level="10" chance="5.0" /> <!-- Item Skill: Stun - chance-triggered, lv 10, chance 5% -->
+	</option>
+	<option id="25034" name="o_aug_3114">
+		<critical_skill id="3114" level="10" chance="5.0" /> <!-- Item Skill: Hold - chance-triggered, lv 10, chance 5% -->
+	</option>
+	<option id="25035" name="o_aug_3115">
+		<critical_skill id="3115" level="10" chance="5.0" /> <!-- Item Skill: Sleep - chance-triggered, lv 10, chance 5% -->
+	</option>
+	<option id="25036" name="o_aug_3116">
+		<critical_skill id="3116" level="10" chance="5.0" /> <!-- Item Skill: Paralyze - chance-triggered, lv 10, chance 5% -->
+	</option>
+	<option id="25037" name="o_aug_3117">
+		<critical_skill id="3117" level="10" chance="5.0" /> <!-- Item Skill: Medusa - chance-triggered, lv 10, chance 5% -->
+	</option>
+	<option id="25038" name="o_aug_3118">
+		<critical_skill id="3118" level="10" chance="5.0" /> <!-- Item Skill: Fear - chance-triggered, lv 10, chance 5% -->
+	</option>
+	<option id="25039" name="o_aug_3119">
+		<critical_skill id="3119" level="10" chance="5.0" /> <!-- Item Skill: Poison - chance-triggered, lv 10, chance 5% -->
+	</option>
+	<option id="25040" name="o_aug_3120">
+		<critical_skill id="3120" level="10" chance="5.0" /> <!-- Item Skill: Bleed - chance-triggered, lv 10, chance 5% -->
+	</option>
+	<option id="25041" name="o_aug_3121">
+		<critical_skill id="3121" level="10" chance="5.0" /> <!-- Item Skill: Silence - chance-triggered, lv 10, chance 5% -->
+	</option>
+	<option id="25042" name="o_aug_3122">
+		<critical_skill id="3122" level="10" chance="5.0" /> <!-- Item Skill: Doom - chance-triggered, lv 10, chance 5% -->
+	</option>
+	<option id="25043" name="o_aug_3123">
+		<active_skill id="3123" level="10" /> <!-- Item Skill: Heal - active, lv 10 -->
+	</option>
+	<option id="25044" name="o_aug_3124">
+		<active_skill id="3124" level="10" /> <!-- Item Skill: Blessed Body - active, lv 10 -->
+	</option>
+	<option id="25045" name="o_aug_3125">
+		<active_skill id="3125" level="10" /> <!-- Item Skill: Battle Roar - active, lv 10 -->
+	</option>
+	<option id="25046" name="o_aug_3126">
+		<active_skill id="3126" level="10" /> <!-- Item Skill: Prayer - active, lv 10 -->
+	</option>
+	<option id="25047" name="o_aug_3127">
+		<active_skill id="3127" level="10" /> <!-- Item Skill: Recharge - active, lv 10 -->
+	</option>
+	<option id="25048" name="o_aug_3128">
+		<active_skill id="3128" level="10" /> <!-- Item Skill: Blessed Soul - active, lv 10 -->
+	</option>
+	<option id="25049" name="o_aug_3129">
+		<active_skill id="3129" level="10" /> <!-- Item Skill: Mana Gain - active, lv 10 -->
+	</option>
+	<option id="25050" name="o_aug_3130">
+		<active_skill id="3130" level="10" /> <!-- Item Skill: Ritual - active, lv 10 -->
+	</option>
+	<option id="25051" name="o_aug_3131">
+		<active_skill id="3131" level="10" /> <!-- Item Skill: Cheer - active, lv 10 -->
+	</option>
+	<option id="25052" name="o_aug_3132">
+		<active_skill id="3132" level="10" /> <!-- Item Skill: Might - active, lv 10 -->
+	</option>
+	<option id="25053" name="o_aug_3133">
+		<active_skill id="3133" level="10" /> <!-- Item Skill: Empower - active, lv 10 -->
+	</option>
+	<option id="25054" name="o_aug_3134">
+		<active_skill id="3134" level="10" /> <!-- Item Skill: Duel Might - active, lv 10 -->
+	</option>
+	<option id="25055" name="o_aug_3135">
+		<active_skill id="3135" level="10" /> <!-- Item Skill: Shield - active, lv 10 -->
+	</option>
+	<option id="25056" name="o_aug_3136">
+		<active_skill id="3136" level="10" /> <!-- Item Skill: Magic Barrier - active, lv 10 -->
+	</option>
+	<option id="25057" name="o_aug_3137">
+		<active_skill id="3137" level="10" /> <!-- Item Skill: Duel Weakness - active, lv 10 -->
+	</option>
+	<option id="25058" name="o_aug_3138">
+		<active_skill id="3138" level="10" /> <!-- Item Skill: Heal Empower - active, lv 10 -->
+	</option>
+	<option id="25059" name="o_aug_3139">
+		<active_skill id="3139" level="10" /> <!-- Item Skill: Agility - active, lv 10 -->
+	</option>
+	<option id="25060" name="o_aug_3140">
+		<active_skill id="3140" level="10" /> <!-- Item Skill: Guidance - active, lv 10 -->
+	</option>
+	<option id="25061" name="o_aug_3141">
+		<active_skill id="3141" level="10" /> <!-- Item Skill: Focus - active, lv 10 -->
+	</option>
+	<option id="25062" name="o_aug_3142">
+		<active_skill id="3142" level="10" /> <!-- Item Skill: Wild Magic - active, lv 10 -->
+	</option>
+	<option id="25063" name="o_aug_3143">
+		<active_skill id="3143" level="10" /> <!-- Item Skill: Kiss of Eva - active, lv 10 -->
+	</option>
+	<option id="25064" name="o_aug_3144">
+		<active_skill id="3144" level="10" /> <!-- Item Skill: Acrobatics - active, lv 10 -->
+	</option>
+	<option id="25065" name="o_aug_3145">
+		<active_skill id="3145" level="10" /> <!-- Item Skill: Iron Body - active, lv 10 -->
+	</option>
+	<option id="25066" name="o_aug_3146">
+		<active_skill id="3146" level="1" /> <!-- Item Skill: Recall - active, lv 1 -->
+	</option>
+	<option id="25067" name="o_aug_3147">
+		<active_skill id="3147" level="1" /> <!-- Item Skill: Recall - active, lv 1 -->
+	</option>
+	<option id="25068" name="o_aug_3148">
+		<active_skill id="3148" level="10" /> <!-- Item Skill: Vampiric Rage - active, lv 10 -->
+	</option>
+	<option id="25069" name="o_aug_3149">
+		<active_skill id="3149" level="10" /> <!-- Item Skill: Aggression - active, lv 10 -->
+	</option>
+	<option id="25070" name="o_aug_3150">
+		<active_skill id="3150" level="10" /> <!-- Item Skill: Charm - active, lv 10 -->
+	</option>
+	<option id="25071" name="o_aug_3151">
+		<active_skill id="3151" level="10" /> <!-- Item Skill: Peace - active, lv 10 -->
+	</option>
+	<option id="25072" name="o_aug_3152">
+		<active_skill id="3152" level="10" /> <!-- Item Skill: Trick - active, lv 10 -->
+	</option>
+	<option id="25073" name="o_aug_3153">
+		<active_skill id="3153" level="10" /> <!-- Item Skill: Vampiric Touch - active, lv 10 -->
+	</option>
+	<option id="25074" name="o_aug_3154">
+		<active_skill id="3154" level="10" /> <!-- Item Skill: Mana Burn - active, lv 10 -->
+	</option>
+	<option id="25075" name="o_aug_3155">
+		<active_skill id="3155" level="10" /> <!-- Item Skill: Unlock - active, lv 10 -->
+	</option>
+	<option id="25076" name="o_aug_3156">
+		<active_skill id="3156" level="1" /> <!-- Item Skill: Firework - active, lv 1 -->
+	</option>
+	<option id="25077" name="o_aug_3157">
+		<active_skill id="3157" level="1" /> <!-- Item Skill: Large Firework - active, lv 1 -->
+	</option>
+	<option id="25078" name="o_aug_3158">
+		<active_skill id="3158" level="1" /> <!-- Item Skill: Lesser Celestial Shield - active, lv 1 -->
+	</option>
+	<option id="25079" name="o_aug_3159">
+		<active_skill id="3159" level="3" /> <!-- Item Skill: Stealth - active, lv 3 -->
+	</option>
+	<option id="25080" name="o_aug_3160">
+		<active_skill id="3160" level="9" /> <!-- Item Skill: Resurrection - active, lv 9 -->
+	</option>
+	<option id="25081" name="o_aug_3161">
+		<active_skill id="3161" level="3" /> <!-- Item Skill: Skill Clarity - active, lv 3 -->
+	</option>
+	<option id="25082" name="o_aug_3162">
+		<active_skill id="3162" level="3" /> <!-- Item Skill: Spell Clarity - active, lv 3 -->
+	</option>
+	<option id="25083" name="o_aug_3163">
+		<active_skill id="3163" level="3" /> <!-- Item Skill: Music Clarity - active, lv 3 -->
+	</option>
+	<option id="25084" name="o_aug_3164">
+		<active_skill id="3164" level="3" /> <!-- Item Skill: Clarity - active, lv 3 -->
+	</option>
+	<option id="25085" name="o_aug_3165">
+		<active_skill id="3165" level="10" /> <!-- Item Skill: Prominence - active, lv 10 -->
+	</option>
+	<option id="25086" name="o_aug_3167">
+		<active_skill id="3167" level="10" /> <!-- Item Skill: Hydro Blast - active, lv 10 -->
+	</option>
+	<option id="25087" name="o_aug_3168">
+		<active_skill id="3168" level="10" /> <!-- Item Skill: Tempest - active, lv 10 -->
+	</option>
+	<option id="25088" name="o_aug_3169">
+		<active_skill id="3169" level="10" /> <!-- Item Skill: Stone - active, lv 10 -->
+	</option>
+	<option id="25089" name="o_aug_3170">
+		<active_skill id="3170" level="10" /> <!-- Item Skill: Solar Flare - active, lv 10 -->
+	</option>
+	<option id="25090" name="o_aug_3171">
+		<active_skill id="3171" level="10" /> <!-- Item Skill: Shadow Flare - active, lv 10 -->
+	</option>
+	<option id="25091" name="o_aug_3172">
+		<active_skill id="3172" level="10" /> <!-- Item Skill: Aura Flare - active, lv 10 -->
+	</option>
+	<option id="25092" name="o_aug_3173">
+		<active_skill id="3173" level="10" /> <!-- Item Skill: Prominence - active, lv 10 -->
+	</option>
+	<option id="25093" name="o_aug_3174">
+		<active_skill id="3174" level="10" /> <!-- Item Skill: Hydro Blast - active, lv 10 -->
+	</option>
+	<option id="25094" name="o_aug_3175">
+		<active_skill id="3175" level="10" /> <!-- Item Skill: Hurricane - active, lv 10 -->
+	</option>
+	<option id="25095" name="o_aug_3176">
+		<active_skill id="3176" level="10" /> <!-- Item Skill: Stone - active, lv 10 -->
+	</option>
+	<option id="25096" name="o_aug_3177">
+		<active_skill id="3177" level="10" /> <!-- Item Skill: Solar Flare - active, lv 10 -->
+	</option>
+	<option id="25097" name="o_aug_3178">
+		<active_skill id="3178" level="10" /> <!-- Item Skill: Shadow Flare - active, lv 10 -->
+	</option>
+	<option id="25098" name="o_aug_3179">
+		<active_skill id="3179" level="10" /> <!-- Item Skill: Aura Flare - active, lv 10 -->
+	</option>
+	<option id="25099" name="o_aug_3180">
+		<active_skill id="3180" level="10" /> <!-- Item Skill: Prominence - active, lv 10 -->
+	</option>
+</list>
+

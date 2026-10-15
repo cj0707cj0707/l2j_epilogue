@@ -1,0 +1,22 @@
+Compiled from "AdminData.java"
+public class org.l2jmobius.gameserver.data.xml.AdminData implements org.l2jmobius.commons.util.IXmlReader {
+  protected org.l2jmobius.gameserver.data.xml.AdminData();
+  public synchronized void load();
+  public void parseDocument(org.w3c.dom.Document, java.io.File);
+  public org.l2jmobius.gameserver.data.holders.AccessLevel getAccessLevel(int);
+  public org.l2jmobius.gameserver.data.holders.AccessLevel getMasterAccessLevel();
+  public boolean hasAccessLevel(int);
+  public boolean hasAccess(java.lang.String, org.l2jmobius.gameserver.data.holders.AccessLevel);
+  public boolean requireConfirm(java.lang.String);
+  public java.util.Collection<org.l2jmobius.gameserver.entity.actor.Player> getAllGms(boolean);
+  public java.util.Collection<java.lang.String> getAllGmNames(boolean);
+  public void addGm(org.l2jmobius.gameserver.entity.actor.Player, boolean);
+  public void deleteGm(org.l2jmobius.gameserver.entity.actor.Player);
+  public boolean isGmOnline(boolean);
+  public void sendListToPlayer(org.l2jmobius.gameserver.entity.actor.Player);
+  public void broadcastToGMs(org.l2jmobius.gameserver.network.serverpackets.ServerPacket);
+  public void broadcastMessageToGMs(java.lang.String);
+  public java.util.Collection<org.l2jmobius.gameserver.data.holders.AccessRight> getAdminCommandAccessRights();
+  public static org.l2jmobius.gameserver.data.xml.AdminData getInstance();
+  static {};
+}

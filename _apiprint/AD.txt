@@ -1,0 +1,421 @@
+Compiled from "AdminData.java"
+public class org.l2jmobius.gameserver.data.xml.AdminData implements org.l2jmobius.commons.util.IXmlReader {
+  protected org.l2jmobius.gameserver.data.xml.AdminData();
+    Code:
+         0: aload_0
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: new           #7                  // class java/util/HashMap
+         8: dup
+         9: invokespecial #9                  // Method java/util/HashMap."<init>":()V
+        12: putfield      #10                 // Field _accessLevels:Ljava/util/Map;
+        15: aload_0
+        16: new           #16                 // class java/util/LinkedHashMap
+        19: dup
+        20: invokespecial #18                 // Method java/util/LinkedHashMap."<init>":()V
+        23: putfield      #19                 // Field _adminCommandAccessRights:Ljava/util/Map;
+        26: aload_0
+        27: new           #22                 // class java/util/concurrent/ConcurrentHashMap
+        30: dup
+        31: invokespecial #24                 // Method java/util/concurrent/ConcurrentHashMap."<init>":()V
+        34: putfield      #25                 // Field _gmList:Ljava/util/Map;
+        37: aload_0
+        38: iconst_0
+        39: putfield      #28                 // Field _highestLevel:I
+        42: aload_0
+        43: invokevirtual #32                 // Method load:()V
+        46: return
+
+  public synchronized void load();
+    Code:
+         0: aload_0
+         1: getfield      #10                 // Field _accessLevels:Ljava/util/Map;
+         4: invokeinterface #35,  1           // InterfaceMethod java/util/Map.clear:()V
+         9: aload_0
+        10: getfield      #19                 // Field _adminCommandAccessRights:Ljava/util/Map;
+        13: invokeinterface #35,  1           // InterfaceMethod java/util/Map.clear:()V
+        18: aload_0
+        19: ldc           #40                 // String config/AccessLevels.xml
+        21: invokevirtual #42                 // Method parseDatapackFile:(Ljava/lang/String;)V
+        24: getstatic     #46                 // Field LOGGER:Ljava/util/logging/Logger;
+        27: aload_0
+        28: invokevirtual #50                 // Method java/lang/Object.getClass:()Ljava/lang/Class;
+        31: invokevirtual #54                 // Method java/lang/Class.getSimpleName:()Ljava/lang/String;
+        34: aload_0
+        35: getfield      #10                 // Field _accessLevels:Ljava/util/Map;
+        38: invokeinterface #60,  1           // InterfaceMethod java/util/Map.size:()I
+        43: invokedynamic #64,  0             // InvokeDynamic #0:makeConcatWithConstants:(Ljava/lang/String;I)Ljava/lang/String;
+        48: invokevirtual #68                 // Method java/util/logging/Logger.info:(Ljava/lang/String;)V
+        51: aload_0
+        52: ldc           #73                 // String config/AdminCommands.xml
+        54: invokevirtual #42                 // Method parseDatapackFile:(Ljava/lang/String;)V
+        57: getstatic     #46                 // Field LOGGER:Ljava/util/logging/Logger;
+        60: aload_0
+        61: invokevirtual #50                 // Method java/lang/Object.getClass:()Ljava/lang/Class;
+        64: invokevirtual #54                 // Method java/lang/Class.getSimpleName:()Ljava/lang/String;
+        67: aload_0
+        68: getfield      #19                 // Field _adminCommandAccessRights:Ljava/util/Map;
+        71: invokeinterface #60,  1           // InterfaceMethod java/util/Map.size:()I
+        76: invokedynamic #75,  0             // InvokeDynamic #1:makeConcatWithConstants:(Ljava/lang/String;I)Ljava/lang/String;
+        81: invokevirtual #68                 // Method java/util/logging/Logger.info:(Ljava/lang/String;)V
+        84: return
+
+  public void parseDocument(org.w3c.dom.Document, java.io.File);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: aload_0
+         3: invokedynamic #76,  0             // InvokeDynamic #2:accept:(Lorg/l2jmobius/gameserver/data/xml/AdminData;)Ljava/util/function/Consumer;
+         8: invokevirtual #80                 // Method forEach:(Lorg/w3c/dom/Node;Ljava/util/function/Consumer;)V
+        11: return
+
+  public org.l2jmobius.gameserver.data.holders.AccessLevel getAccessLevel(int);
+    Code:
+         0: iload_1
+         1: ifge          21
+         4: aload_0
+         5: getfield      #10                 // Field _accessLevels:Ljava/util/Map;
+         8: iconst_m1
+         9: invokestatic  #84                 // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+        12: invokeinterface #90,  2           // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+        17: checkcast     #94                 // class org/l2jmobius/gameserver/data/holders/AccessLevel
+        20: areturn
+        21: aload_0
+        22: getfield      #10                 // Field _accessLevels:Ljava/util/Map;
+        25: iload_1
+        26: invokestatic  #84                 // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+        29: invokedynamic #96,  0             // InvokeDynamic #3:apply:()Ljava/util/function/Function;
+        34: invokeinterface #100,  3          // InterfaceMethod java/util/Map.computeIfAbsent:(Ljava/lang/Object;Ljava/util/function/Function;)Ljava/lang/Object;
+        39: checkcast     #94                 // class org/l2jmobius/gameserver/data/holders/AccessLevel
+        42: areturn
+
+  public org.l2jmobius.gameserver.data.holders.AccessLevel getMasterAccessLevel();
+    Code:
+         0: aload_0
+         1: getfield      #10                 // Field _accessLevels:Ljava/util/Map;
+         4: aload_0
+         5: getfield      #28                 // Field _highestLevel:I
+         8: invokestatic  #84                 // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+        11: invokeinterface #90,  2           // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+        16: checkcast     #94                 // class org/l2jmobius/gameserver/data/holders/AccessLevel
+        19: areturn
+
+  public boolean hasAccessLevel(int);
+    Code:
+         0: aload_0
+         1: getfield      #10                 // Field _accessLevels:Ljava/util/Map;
+         4: iload_1
+         5: invokestatic  #84                 // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+         8: invokeinterface #104,  2          // InterfaceMethod java/util/Map.containsKey:(Ljava/lang/Object;)Z
+        13: ireturn
+
+  public boolean hasAccess(java.lang.String, org.l2jmobius.gameserver.data.holders.AccessLevel);
+    Code:
+         0: aload_0
+         1: getfield      #19                 // Field _adminCommandAccessRights:Ljava/util/Map;
+         4: aload_1
+         5: invokeinterface #90,  2           // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+        10: checkcast     #108                // class org/l2jmobius/gameserver/data/holders/AccessRight
+        13: astore_3
+        14: aload_3
+        15: ifnonnull     114
+        18: aload_2
+        19: invokevirtual #110                // Method org/l2jmobius/gameserver/data/holders/AccessLevel.getLevel:()I
+        22: ifle          93
+        25: aload_2
+        26: invokevirtual #110                // Method org/l2jmobius/gameserver/data/holders/AccessLevel.getLevel:()I
+        29: aload_0
+        30: getfield      #28                 // Field _highestLevel:I
+        33: if_icmpne     93
+        36: new           #108                // class org/l2jmobius/gameserver/data/holders/AccessRight
+        39: dup
+        40: aload_1
+        41: ldc           #113                // String
+        43: iconst_1
+        44: aload_2
+        45: invokevirtual #110                // Method org/l2jmobius/gameserver/data/holders/AccessLevel.getLevel:()I
+        48: invokespecial #115                // Method org/l2jmobius/gameserver/data/holders/AccessRight."<init>":(Ljava/lang/String;Ljava/lang/String;ZI)V
+        51: astore_3
+        52: aload_0
+        53: getfield      #19                 // Field _adminCommandAccessRights:Ljava/util/Map;
+        56: aload_3
+        57: invokevirtual #118                // Method org/l2jmobius/gameserver/data/holders/AccessRight.getCommand:()Ljava/lang/String;
+        60: aload_3
+        61: invokeinterface #121,  3          // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+        66: pop
+        67: getstatic     #46                 // Field LOGGER:Ljava/util/logging/Logger;
+        70: aload_0
+        71: invokevirtual #50                 // Method java/lang/Object.getClass:()Ljava/lang/Class;
+        74: invokevirtual #54                 // Method java/lang/Class.getSimpleName:()Ljava/lang/String;
+        77: aload_1
+        78: aload_2
+        79: invokevirtual #110                // Method org/l2jmobius/gameserver/data/holders/AccessLevel.getLevel:()I
+        82: invokedynamic #125,  0            // InvokeDynamic #4:makeConcatWithConstants:(Ljava/lang/String;Ljava/lang/String;I)Ljava/lang/String;
+        87: invokevirtual #68                 // Method java/util/logging/Logger.info:(Ljava/lang/String;)V
+        90: goto          114
+        93: getstatic     #46                 // Field LOGGER:Ljava/util/logging/Logger;
+        96: aload_0
+        97: invokevirtual #50                 // Method java/lang/Object.getClass:()Ljava/lang/Class;
+       100: invokevirtual #54                 // Method java/lang/Class.getSimpleName:()Ljava/lang/String;
+       103: aload_1
+       104: invokedynamic #128,  0            // InvokeDynamic #5:makeConcatWithConstants:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+       109: invokevirtual #68                 // Method java/util/logging/Logger.info:(Ljava/lang/String;)V
+       112: iconst_0
+       113: ireturn
+       114: aload_3
+       115: aload_2
+       116: invokevirtual #131                // Method org/l2jmobius/gameserver/data/holders/AccessRight.hasAccess:(Lorg/l2jmobius/gameserver/data/holders/AccessLevel;)Z
+       119: ireturn
+
+  public boolean requireConfirm(java.lang.String);
+    Code:
+         0: aload_0
+         1: getfield      #19                 // Field _adminCommandAccessRights:Ljava/util/Map;
+         4: aload_1
+         5: invokeinterface #90,  2           // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+        10: checkcast     #108                // class org/l2jmobius/gameserver/data/holders/AccessRight
+        13: astore_2
+        14: aload_2
+        15: ifnonnull     39
+        18: getstatic     #46                 // Field LOGGER:Ljava/util/logging/Logger;
+        21: aload_0
+        22: invokevirtual #50                 // Method java/lang/Object.getClass:()Ljava/lang/Class;
+        25: invokevirtual #54                 // Method java/lang/Class.getSimpleName:()Ljava/lang/String;
+        28: aload_1
+        29: invokedynamic #135,  0            // InvokeDynamic #6:makeConcatWithConstants:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+        34: invokevirtual #68                 // Method java/util/logging/Logger.info:(Ljava/lang/String;)V
+        37: iconst_0
+        38: ireturn
+        39: aload_2
+        40: invokevirtual #136                // Method org/l2jmobius/gameserver/data/holders/AccessRight.requireConfirm:()Z
+        43: ireturn
+
+  public java.util.Collection<org.l2jmobius.gameserver.entity.actor.Player> getAllGms(boolean);
+    Code:
+         0: new           #140                // class java/util/ArrayList
+         3: dup
+         4: invokespecial #142                // Method java/util/ArrayList."<init>":()V
+         7: astore_2
+         8: aload_0
+         9: getfield      #25                 // Field _gmList:Ljava/util/Map;
+        12: invokeinterface #143,  1          // InterfaceMethod java/util/Map.entrySet:()Ljava/util/Set;
+        17: invokeinterface #147,  1          // InterfaceMethod java/util/Set.iterator:()Ljava/util/Iterator;
+        22: astore_3
+        23: aload_3
+        24: invokeinterface #153,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+        29: ifeq          83
+        32: aload_3
+        33: invokeinterface #158,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        38: checkcast     #162                // class java/util/Map$Entry
+        41: astore        4
+        43: iload_1
+        44: ifne          63
+        47: aload         4
+        49: invokeinterface #164,  1          // InterfaceMethod java/util/Map$Entry.getValue:()Ljava/lang/Object;
+        54: checkcast     #167                // class java/lang/Boolean
+        57: invokevirtual #169                // Method java/lang/Boolean.booleanValue:()Z
+        60: ifne          80
+        63: aload_2
+        64: aload         4
+        66: invokeinterface #172,  1          // InterfaceMethod java/util/Map$Entry.getKey:()Ljava/lang/Object;
+        71: checkcast     #175                // class org/l2jmobius/gameserver/entity/actor/Player
+        74: invokeinterface #177,  2          // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+        79: pop
+        80: goto          23
+        83: aload_2
+        84: areturn
+
+  public java.util.Collection<java.lang.String> getAllGmNames(boolean);
+    Code:
+         0: new           #140                // class java/util/ArrayList
+         3: dup
+         4: invokespecial #142                // Method java/util/ArrayList."<init>":()V
+         7: astore_2
+         8: aload_0
+         9: getfield      #25                 // Field _gmList:Ljava/util/Map;
+        12: invokeinterface #143,  1          // InterfaceMethod java/util/Map.entrySet:()Ljava/util/Set;
+        17: invokeinterface #147,  1          // InterfaceMethod java/util/Set.iterator:()Ljava/util/Iterator;
+        22: astore_3
+        23: aload_3
+        24: invokeinterface #153,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+        29: ifeq          114
+        32: aload_3
+        33: invokeinterface #158,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        38: checkcast     #162                // class java/util/Map$Entry
+        41: astore        4
+        43: aload         4
+        45: invokeinterface #164,  1          // InterfaceMethod java/util/Map$Entry.getValue:()Ljava/lang/Object;
+        50: checkcast     #167                // class java/lang/Boolean
+        53: invokevirtual #169                // Method java/lang/Boolean.booleanValue:()Z
+        56: ifne          82
+        59: aload_2
+        60: aload         4
+        62: invokeinterface #172,  1          // InterfaceMethod java/util/Map$Entry.getKey:()Ljava/lang/Object;
+        67: checkcast     #175                // class org/l2jmobius/gameserver/entity/actor/Player
+        70: invokevirtual #182                // Method org/l2jmobius/gameserver/entity/actor/Player.getName:()Ljava/lang/String;
+        73: invokeinterface #177,  2          // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+        78: pop
+        79: goto          111
+        82: iload_1
+        83: ifeq          111
+        86: aload_2
+        87: aload         4
+        89: invokeinterface #172,  1          // InterfaceMethod java/util/Map$Entry.getKey:()Ljava/lang/Object;
+        94: checkcast     #175                // class org/l2jmobius/gameserver/entity/actor/Player
+        97: invokevirtual #182                // Method org/l2jmobius/gameserver/entity/actor/Player.getName:()Ljava/lang/String;
+       100: invokedynamic #185,  0            // InvokeDynamic #7:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+       105: invokeinterface #177,  2          // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+       110: pop
+       111: goto          23
+       114: aload_2
+       115: areturn
+
+  public void addGm(org.l2jmobius.gameserver.entity.actor.Player, boolean);
+    Code:
+         0: aload_0
+         1: getfield      #25                 // Field _gmList:Ljava/util/Map;
+         4: aload_1
+         5: iload_2
+         6: invokestatic  #188                // Method java/lang/Boolean.valueOf:(Z)Ljava/lang/Boolean;
+         9: invokeinterface #121,  3          // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+        14: pop
+        15: return
+
+  public void deleteGm(org.l2jmobius.gameserver.entity.actor.Player);
+    Code:
+         0: aload_0
+         1: getfield      #25                 // Field _gmList:Ljava/util/Map;
+         4: aload_1
+         5: invokeinterface #191,  2          // InterfaceMethod java/util/Map.remove:(Ljava/lang/Object;)Ljava/lang/Object;
+        10: pop
+        11: return
+
+  public boolean isGmOnline(boolean);
+    Code:
+         0: aload_0
+         1: getfield      #25                 // Field _gmList:Ljava/util/Map;
+         4: invokeinterface #143,  1          // InterfaceMethod java/util/Map.entrySet:()Ljava/util/Set;
+         9: invokeinterface #147,  1          // InterfaceMethod java/util/Set.iterator:()Ljava/util/Iterator;
+        14: astore_2
+        15: aload_2
+        16: invokeinterface #153,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+        21: ifeq          58
+        24: aload_2
+        25: invokeinterface #158,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        30: checkcast     #162                // class java/util/Map$Entry
+        33: astore_3
+        34: iload_1
+        35: ifne          53
+        38: aload_3
+        39: invokeinterface #164,  1          // InterfaceMethod java/util/Map$Entry.getValue:()Ljava/lang/Object;
+        44: checkcast     #167                // class java/lang/Boolean
+        47: invokevirtual #169                // Method java/lang/Boolean.booleanValue:()Z
+        50: ifne          55
+        53: iconst_1
+        54: ireturn
+        55: goto          15
+        58: iconst_0
+        59: ireturn
+
+  public void sendListToPlayer(org.l2jmobius.gameserver.entity.actor.Player);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: invokevirtual #194                // Method org/l2jmobius/gameserver/entity/actor/Player.isGM:()Z
+         5: invokevirtual #197                // Method isGmOnline:(Z)Z
+         8: ifeq          82
+        11: aload_1
+        12: getstatic     #201                // Field org/l2jmobius/gameserver/network/SystemMessageId.GM_LIST:Lorg/l2jmobius/gameserver/network/SystemMessageId;
+        15: invokevirtual #207                // Method org/l2jmobius/gameserver/entity/actor/Player.sendPacket:(Lorg/l2jmobius/gameserver/network/SystemMessageId;)V
+        18: aload_0
+        19: aload_1
+        20: invokevirtual #194                // Method org/l2jmobius/gameserver/entity/actor/Player.isGM:()Z
+        23: invokevirtual #211                // Method getAllGmNames:(Z)Ljava/util/Collection;
+        26: invokeinterface #215,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+        31: astore_2
+        32: aload_2
+        33: invokeinterface #153,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+        38: ifeq          79
+        41: aload_2
+        42: invokeinterface #158,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        47: checkcast     #218                // class java/lang/String
+        50: astore_3
+        51: new           #220                // class org/l2jmobius/gameserver/network/serverpackets/SystemMessage
+        54: dup
+        55: getstatic     #222                // Field org/l2jmobius/gameserver/network/SystemMessageId.GM_C1:Lorg/l2jmobius/gameserver/network/SystemMessageId;
+        58: invokespecial #225                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage."<init>":(Lorg/l2jmobius/gameserver/network/SystemMessageId;)V
+        61: astore        4
+        63: aload         4
+        65: aload_3
+        66: invokevirtual #227                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage.addString:(Ljava/lang/String;)Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+        69: pop
+        70: aload_1
+        71: aload         4
+        73: invokevirtual #231                // Method org/l2jmobius/gameserver/entity/actor/Player.sendPacket:(Lorg/l2jmobius/gameserver/network/serverpackets/ServerPacket;)V
+        76: goto          32
+        79: goto          89
+        82: aload_1
+        83: getstatic     #234                // Field org/l2jmobius/gameserver/network/SystemMessageId.THERE_ARE_NO_GMS_CURRENTLY_VISIBLE_IN_THE_PUBLIC_LIST_AS_THEY_MAY_BE_PERFORMING_OTHER_FUNCTIONS_AT_THE_MOMENT:Lorg/l2jmobius/gameserver/network/SystemMessageId;
+        86: invokevirtual #207                // Method org/l2jmobius/gameserver/entity/actor/Player.sendPacket:(Lorg/l2jmobius/gameserver/network/SystemMessageId;)V
+        89: return
+
+  public void broadcastToGMs(org.l2jmobius.gameserver.network.serverpackets.ServerPacket);
+    Code:
+         0: aload_0
+         1: iconst_1
+         2: invokevirtual #237                // Method getAllGms:(Z)Ljava/util/Collection;
+         5: invokeinterface #215,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+        10: astore_2
+        11: aload_2
+        12: invokeinterface #153,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+        17: ifeq          38
+        20: aload_2
+        21: invokeinterface #158,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        26: checkcast     #175                // class org/l2jmobius/gameserver/entity/actor/Player
+        29: astore_3
+        30: aload_3
+        31: aload_1
+        32: invokevirtual #231                // Method org/l2jmobius/gameserver/entity/actor/Player.sendPacket:(Lorg/l2jmobius/gameserver/network/serverpackets/ServerPacket;)V
+        35: goto          11
+        38: return
+
+  public void broadcastMessageToGMs(java.lang.String);
+    Code:
+         0: aload_0
+         1: iconst_1
+         2: invokevirtual #237                // Method getAllGms:(Z)Ljava/util/Collection;
+         5: invokeinterface #215,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+        10: astore_2
+        11: aload_2
+        12: invokeinterface #153,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+        17: ifeq          38
+        20: aload_2
+        21: invokeinterface #158,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        26: checkcast     #175                // class org/l2jmobius/gameserver/entity/actor/Player
+        29: astore_3
+        30: aload_3
+        31: aload_1
+        32: invokevirtual #240                // Method org/l2jmobius/gameserver/entity/actor/Player.sendMessage:(Ljava/lang/String;)V
+        35: goto          11
+        38: return
+
+  public java.util.Collection<org.l2jmobius.gameserver.data.holders.AccessRight> getAdminCommandAccessRights();
+    Code:
+         0: aload_0
+         1: getfield      #19                 // Field _adminCommandAccessRights:Ljava/util/Map;
+         4: invokeinterface #243,  1          // InterfaceMethod java/util/Map.values:()Ljava/util/Collection;
+         9: areturn
+
+  public static org.l2jmobius.gameserver.data.xml.AdminData getInstance();
+    Code:
+         0: getstatic     #247                // Field org/l2jmobius/gameserver/data/xml/AdminData$SingletonHolder.INSTANCE:Lorg/l2jmobius/gameserver/data/xml/AdminData;
+         3: areturn
+
+  static {};
+    Code:
+         0: ldc           #11                 // class org/l2jmobius/gameserver/data/xml/AdminData
+         2: invokevirtual #289                // Method java/lang/Class.getName:()Ljava/lang/String;
+         5: invokestatic  #290                // Method java/util/logging/Logger.getLogger:(Ljava/lang/String;)Ljava/util/logging/Logger;
+         8: putstatic     #46                 // Field LOGGER:Ljava/util/logging/Logger;
+        11: return
+}

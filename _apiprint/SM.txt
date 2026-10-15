@@ -1,0 +1,372 @@
+Compiled from "ScriptManager.java"
+public class org.l2jmobius.gameserver.managers.ScriptManager {
+  private static final java.util.logging.Logger LOGGER;
+
+  private final java.util.Map<java.lang.String, org.l2jmobius.gameserver.mechanics.script.Quest> _quests;
+
+  private final java.util.Map<java.lang.String, org.l2jmobius.gameserver.mechanics.script.Quest> _scripts;
+
+  protected org.l2jmobius.gameserver.managers.ScriptManager();
+    Code:
+         0: aload_0
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: new           #7                  // class java/util/concurrent/ConcurrentHashMap
+         8: dup
+         9: invokespecial #9                  // Method java/util/concurrent/ConcurrentHashMap."<init>":()V
+        12: putfield      #10                 // Field _quests:Ljava/util/Map;
+        15: aload_0
+        16: new           #7                  // class java/util/concurrent/ConcurrentHashMap
+        19: dup
+        20: invokespecial #9                  // Method java/util/concurrent/ConcurrentHashMap."<init>":()V
+        23: putfield      #16                 // Field _scripts:Ljava/util/Map;
+        26: return
+
+  public void reload(java.lang.String);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: invokevirtual #19                 // Method getScript:(Ljava/lang/String;)Lorg/l2jmobius/gameserver/mechanics/script/Quest;
+         5: astore_2
+         6: aload_2
+         7: ifnull        14
+        10: aload_2
+        11: invokevirtual #23                 // Method org/l2jmobius/gameserver/mechanics/script/Quest.reload:()V
+        14: return
+
+  public void reload(int);
+    Code:
+         0: aload_0
+         1: iload_1
+         2: invokevirtual #28                 // Method getQuest:(I)Lorg/l2jmobius/gameserver/mechanics/script/Quest;
+         5: astore_2
+         6: aload_2
+         7: ifnull        14
+        10: aload_2
+        11: invokevirtual #23                 // Method org/l2jmobius/gameserver/mechanics/script/Quest.reload:()V
+        14: return
+
+  public void reloadAllScripts();
+    Code:
+         0: aload_0
+         1: invokevirtual #32                 // Method unloadAllScripts:()V
+         4: getstatic     #35                 // Field LOGGER:Ljava/util/logging/Logger;
+         7: ldc           #39                 // String Reloading all server scripts.
+         9: invokevirtual #41                 // Method java/util/logging/Logger.info:(Ljava/lang/String;)V
+        12: invokestatic  #47                 // Method org/l2jmobius/gameserver/scripting/ScriptEngine.getInstance:()Lorg/l2jmobius/gameserver/scripting/ScriptEngine;
+        15: invokevirtual #53                 // Method org/l2jmobius/gameserver/scripting/ScriptEngine.executeScriptList:()V
+        18: goto          34
+        21: astore_1
+        22: getstatic     #35                 // Field LOGGER:Ljava/util/logging/Logger;
+        25: getstatic     #58                 // Field java/util/logging/Level.SEVERE:Ljava/util/logging/Level;
+        28: ldc           #64                 // String Failed executing script list!
+        30: aload_1
+        31: invokevirtual #66                 // Method java/util/logging/Logger.log:(Ljava/util/logging/Level;Ljava/lang/String;Ljava/lang/Throwable;)V
+        34: invokestatic  #70                 // Method getInstance:()Lorg/l2jmobius/gameserver/managers/ScriptManager;
+        37: invokevirtual #73                 // Method report:()V
+        40: return
+      Exception table:
+         from    to  target type
+            12    18    21   Class java/lang/Exception
+
+  public void unloadAllScripts();
+    Code:
+         0: getstatic     #35                 // Field LOGGER:Ljava/util/logging/Logger;
+         3: ldc           #76                 // String Unloading all server scripts.
+         5: invokevirtual #41                 // Method java/util/logging/Logger.info:(Ljava/lang/String;)V
+         8: aload_0
+         9: getfield      #10                 // Field _quests:Ljava/util/Map;
+        12: invokeinterface #78,  1           // InterfaceMethod java/util/Map.values:()Ljava/util/Collection;
+        17: invokeinterface #84,  1           // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+        22: astore_1
+        23: aload_1
+        24: invokeinterface #90,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+        29: ifeq          54
+        32: aload_1
+        33: invokeinterface #96,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        38: checkcast     #24                 // class org/l2jmobius/gameserver/mechanics/script/Quest
+        41: astore_2
+        42: aload_2
+        43: ifnull        51
+        46: aload_2
+        47: iconst_0
+        48: invokevirtual #100                // Method org/l2jmobius/gameserver/mechanics/script/Quest.unload:(Z)V
+        51: goto          23
+        54: aload_0
+        55: getfield      #10                 // Field _quests:Ljava/util/Map;
+        58: invokeinterface #104,  1          // InterfaceMethod java/util/Map.clear:()V
+        63: aload_0
+        64: getfield      #16                 // Field _scripts:Ljava/util/Map;
+        67: invokeinterface #78,  1           // InterfaceMethod java/util/Map.values:()Ljava/util/Collection;
+        72: invokeinterface #84,  1           // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+        77: astore_1
+        78: aload_1
+        79: invokeinterface #90,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+        84: ifeq          109
+        87: aload_1
+        88: invokeinterface #96,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        93: checkcast     #24                 // class org/l2jmobius/gameserver/mechanics/script/Quest
+        96: astore_2
+        97: aload_2
+        98: ifnull        106
+       101: aload_2
+       102: iconst_0
+       103: invokevirtual #100                // Method org/l2jmobius/gameserver/mechanics/script/Quest.unload:(Z)V
+       106: goto          78
+       109: aload_0
+       110: getfield      #16                 // Field _scripts:Ljava/util/Map;
+       113: invokeinterface #104,  1          // InterfaceMethod java/util/Map.clear:()V
+       118: return
+
+  public void report();
+    Code:
+         0: getstatic     #35                 // Field LOGGER:Ljava/util/logging/Logger;
+         3: aload_0
+         4: invokevirtual #107                // Method java/lang/Object.getClass:()Ljava/lang/Class;
+         7: invokevirtual #111                // Method java/lang/Class.getSimpleName:()Ljava/lang/String;
+        10: aload_0
+        11: getfield      #10                 // Field _quests:Ljava/util/Map;
+        14: invokeinterface #117,  1          // InterfaceMethod java/util/Map.size:()I
+        19: invokedynamic #121,  0            // InvokeDynamic #0:makeConcatWithConstants:(Ljava/lang/String;I)Ljava/lang/String;
+        24: invokevirtual #41                 // Method java/util/logging/Logger.info:(Ljava/lang/String;)V
+        27: getstatic     #35                 // Field LOGGER:Ljava/util/logging/Logger;
+        30: aload_0
+        31: invokevirtual #107                // Method java/lang/Object.getClass:()Ljava/lang/Class;
+        34: invokevirtual #111                // Method java/lang/Class.getSimpleName:()Ljava/lang/String;
+        37: aload_0
+        38: getfield      #16                 // Field _scripts:Ljava/util/Map;
+        41: invokeinterface #117,  1          // InterfaceMethod java/util/Map.size:()I
+        46: invokedynamic #125,  0            // InvokeDynamic #1:makeConcatWithConstants:(Ljava/lang/String;I)Ljava/lang/String;
+        51: invokevirtual #41                 // Method java/util/logging/Logger.info:(Ljava/lang/String;)V
+        54: return
+
+  public void save();
+    Code:
+         0: aload_0
+         1: getfield      #10                 // Field _quests:Ljava/util/Map;
+         4: invokeinterface #78,  1           // InterfaceMethod java/util/Map.values:()Ljava/util/Collection;
+         9: invokeinterface #84,  1           // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+        14: astore_1
+        15: aload_1
+        16: invokeinterface #90,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+        21: ifeq          41
+        24: aload_1
+        25: invokeinterface #96,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        30: checkcast     #24                 // class org/l2jmobius/gameserver/mechanics/script/Quest
+        33: astore_2
+        34: aload_2
+        35: invokevirtual #126                // Method org/l2jmobius/gameserver/mechanics/script/Quest.onSave:()V
+        38: goto          15
+        41: aload_0
+        42: getfield      #16                 // Field _scripts:Ljava/util/Map;
+        45: invokeinterface #78,  1           // InterfaceMethod java/util/Map.values:()Ljava/util/Collection;
+        50: invokeinterface #84,  1           // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+        55: astore_1
+        56: aload_1
+        57: invokeinterface #90,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+        62: ifeq          82
+        65: aload_1
+        66: invokeinterface #96,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        71: checkcast     #24                 // class org/l2jmobius/gameserver/mechanics/script/Quest
+        74: astore_2
+        75: aload_2
+        76: invokevirtual #126                // Method org/l2jmobius/gameserver/mechanics/script/Quest.onSave:()V
+        79: goto          56
+        82: return
+
+  public org.l2jmobius.gameserver.mechanics.script.Quest getScript(java.lang.String);
+    Code:
+         0: aload_0
+         1: getfield      #10                 // Field _quests:Ljava/util/Map;
+         4: aload_1
+         5: invokeinterface #129,  2          // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+        10: checkcast     #24                 // class org/l2jmobius/gameserver/mechanics/script/Quest
+        13: astore_2
+        14: aload_2
+        15: ifnull        22
+        18: aload_2
+        19: goto          35
+        22: aload_0
+        23: getfield      #16                 // Field _scripts:Ljava/util/Map;
+        26: aload_1
+        27: invokeinterface #129,  2          // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+        32: checkcast     #24                 // class org/l2jmobius/gameserver/mechanics/script/Quest
+        35: areturn
+
+  public org.l2jmobius.gameserver.mechanics.script.Quest getQuest(int);
+    Code:
+         0: aload_0
+         1: getfield      #10                 // Field _quests:Ljava/util/Map;
+         4: invokeinterface #78,  1           // InterfaceMethod java/util/Map.values:()Ljava/util/Collection;
+         9: invokeinterface #84,  1           // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+        14: astore_2
+        15: aload_2
+        16: invokeinterface #90,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+        21: ifeq          47
+        24: aload_2
+        25: invokeinterface #96,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        30: checkcast     #24                 // class org/l2jmobius/gameserver/mechanics/script/Quest
+        33: astore_3
+        34: aload_3
+        35: invokevirtual #133                // Method org/l2jmobius/gameserver/mechanics/script/Quest.getId:()I
+        38: iload_1
+        39: if_icmpne     44
+        42: aload_3
+        43: areturn
+        44: goto          15
+        47: aconst_null
+        48: areturn
+
+  public void addQuest(org.l2jmobius.gameserver.mechanics.script.Quest);
+    Code:
+         0: aload_1
+         1: ifnonnull     14
+         4: new           #136                // class java/lang/IllegalArgumentException
+         7: dup
+         8: ldc           #138                // String Quest argument cannot be null
+        10: invokespecial #140                // Method java/lang/IllegalArgumentException."<init>":(Ljava/lang/String;)V
+        13: athrow
+        14: aload_0
+        15: getfield      #10                 // Field _quests:Ljava/util/Map;
+        18: aload_1
+        19: invokevirtual #142                // Method org/l2jmobius/gameserver/mechanics/script/Quest.getName:()Ljava/lang/String;
+        22: aload_1
+        23: invokeinterface #145,  3          // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+        28: checkcast     #24                 // class org/l2jmobius/gameserver/mechanics/script/Quest
+        31: astore_2
+        32: aload_2
+        33: ifnull        59
+        36: aload_2
+        37: invokevirtual #149                // Method org/l2jmobius/gameserver/mechanics/script/Quest.unload:()V
+        40: getstatic     #35                 // Field LOGGER:Ljava/util/logging/Logger;
+        43: aload_2
+        44: invokevirtual #142                // Method org/l2jmobius/gameserver/mechanics/script/Quest.getName:()Ljava/lang/String;
+        47: aload_2
+        48: invokevirtual #133                // Method org/l2jmobius/gameserver/mechanics/script/Quest.getId:()I
+        51: invokedynamic #151,  0            // InvokeDynamic #2:makeConcatWithConstants:(Ljava/lang/String;I)Ljava/lang/String;
+        56: invokevirtual #41                 // Method java/util/logging/Logger.info:(Ljava/lang/String;)V
+        59: getstatic     #152                // Field org/l2jmobius/gameserver/config/DevelopmentConfig.SHOW_QUEST_LOAD_IN_LOGS:Z
+        62: ifeq          118
+        65: aload_1
+        66: invokevirtual #142                // Method org/l2jmobius/gameserver/mechanics/script/Quest.getName:()Ljava/lang/String;
+        69: ldc           #158                // String _
+        71: invokevirtual #160                // Method java/lang/String.contains:(Ljava/lang/CharSequence;)Z
+        74: ifeq          98
+        77: aload_1
+        78: invokevirtual #142                // Method org/l2jmobius/gameserver/mechanics/script/Quest.getName:()Ljava/lang/String;
+        81: aload_1
+        82: invokevirtual #142                // Method org/l2jmobius/gameserver/mechanics/script/Quest.getName:()Ljava/lang/String;
+        85: bipush        95
+        87: invokevirtual #166                // Method java/lang/String.indexOf:(I)I
+        90: iconst_1
+        91: iadd
+        92: invokevirtual #170                // Method java/lang/String.substring:(I)Ljava/lang/String;
+        95: goto          102
+        98: aload_1
+        99: invokevirtual #142                // Method org/l2jmobius/gameserver/mechanics/script/Quest.getName:()Ljava/lang/String;
+       102: astore_3
+       103: getstatic     #35                 // Field LOGGER:Ljava/util/logging/Logger;
+       106: aload_3
+       107: invokestatic  #174                // Method org/l2jmobius/commons/util/StringUtil.separateWords:(Ljava/lang/String;)Ljava/lang/String;
+       110: invokedynamic #180,  0            // InvokeDynamic #3:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+       115: invokevirtual #41                 // Method java/util/logging/Logger.info:(Ljava/lang/String;)V
+       118: return
+
+  public boolean removeScript(org.l2jmobius.gameserver.mechanics.script.Quest);
+    Code:
+         0: aload_0
+         1: getfield      #10                 // Field _quests:Ljava/util/Map;
+         4: aload_1
+         5: invokevirtual #142                // Method org/l2jmobius/gameserver/mechanics/script/Quest.getName:()Ljava/lang/String;
+         8: invokeinterface #182,  2          // InterfaceMethod java/util/Map.containsKey:(Ljava/lang/Object;)Z
+        13: ifeq          32
+        16: aload_0
+        17: getfield      #10                 // Field _quests:Ljava/util/Map;
+        20: aload_1
+        21: invokevirtual #142                // Method org/l2jmobius/gameserver/mechanics/script/Quest.getName:()Ljava/lang/String;
+        24: invokeinterface #186,  2          // InterfaceMethod java/util/Map.remove:(Ljava/lang/Object;)Ljava/lang/Object;
+        29: pop
+        30: iconst_1
+        31: ireturn
+        32: aload_0
+        33: getfield      #16                 // Field _scripts:Ljava/util/Map;
+        36: aload_1
+        37: invokevirtual #142                // Method org/l2jmobius/gameserver/mechanics/script/Quest.getName:()Ljava/lang/String;
+        40: invokeinterface #182,  2          // InterfaceMethod java/util/Map.containsKey:(Ljava/lang/Object;)Z
+        45: ifeq          64
+        48: aload_0
+        49: getfield      #16                 // Field _scripts:Ljava/util/Map;
+        52: aload_1
+        53: invokevirtual #142                // Method org/l2jmobius/gameserver/mechanics/script/Quest.getName:()Ljava/lang/String;
+        56: invokeinterface #186,  2          // InterfaceMethod java/util/Map.remove:(Ljava/lang/Object;)Ljava/lang/Object;
+        61: pop
+        62: iconst_1
+        63: ireturn
+        64: iconst_0
+        65: ireturn
+
+  public java.util.Map<java.lang.String, org.l2jmobius.gameserver.mechanics.script.Quest> getQuests();
+    Code:
+         0: aload_0
+         1: getfield      #10                 // Field _quests:Ljava/util/Map;
+         4: areturn
+
+  public boolean unload(org.l2jmobius.gameserver.mechanics.script.Quest);
+    Code:
+         0: aload_1
+         1: invokevirtual #126                // Method org/l2jmobius/gameserver/mechanics/script/Quest.onSave:()V
+         4: aload_0
+         5: aload_1
+         6: invokevirtual #189                // Method removeScript:(Lorg/l2jmobius/gameserver/mechanics/script/Quest;)Z
+         9: ireturn
+
+  public java.util.Map<java.lang.String, org.l2jmobius.gameserver.mechanics.script.Quest> getScripts();
+    Code:
+         0: aload_0
+         1: getfield      #16                 // Field _scripts:Ljava/util/Map;
+         4: areturn
+
+  public void addScript(org.l2jmobius.gameserver.mechanics.script.Quest);
+    Code:
+         0: aload_0
+         1: getfield      #16                 // Field _scripts:Ljava/util/Map;
+         4: aload_1
+         5: invokevirtual #107                // Method java/lang/Object.getClass:()Ljava/lang/Class;
+         8: invokevirtual #111                // Method java/lang/Class.getSimpleName:()Ljava/lang/String;
+        11: aload_1
+        12: invokeinterface #145,  3          // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+        17: checkcast     #24                 // class org/l2jmobius/gameserver/mechanics/script/Quest
+        20: astore_2
+        21: aload_2
+        22: ifnull        44
+        25: aload_2
+        26: invokevirtual #149                // Method org/l2jmobius/gameserver/mechanics/script/Quest.unload:()V
+        29: getstatic     #35                 // Field LOGGER:Ljava/util/logging/Logger;
+        32: aload_2
+        33: invokevirtual #142                // Method org/l2jmobius/gameserver/mechanics/script/Quest.getName:()Ljava/lang/String;
+        36: invokedynamic #193,  0            // InvokeDynamic #4:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+        41: invokevirtual #41                 // Method java/util/logging/Logger.info:(Ljava/lang/String;)V
+        44: getstatic     #194                // Field org/l2jmobius/gameserver/config/DevelopmentConfig.SHOW_SCRIPT_LOAD_IN_LOGS:Z
+        47: ifeq          71
+        50: getstatic     #35                 // Field LOGGER:Ljava/util/logging/Logger;
+        53: aload_1
+        54: invokevirtual #107                // Method java/lang/Object.getClass:()Ljava/lang/Class;
+        57: invokevirtual #111                // Method java/lang/Class.getSimpleName:()Ljava/lang/String;
+        60: invokestatic  #174                // Method org/l2jmobius/commons/util/StringUtil.separateWords:(Ljava/lang/String;)Ljava/lang/String;
+        63: invokedynamic #197,  0            // InvokeDynamic #5:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+        68: invokevirtual #41                 // Method java/util/logging/Logger.info:(Ljava/lang/String;)V
+        71: return
+
+  public static org.l2jmobius.gameserver.managers.ScriptManager getInstance();
+    Code:
+         0: getstatic     #198                // Field org/l2jmobius/gameserver/managers/ScriptManager$SingletonHolder.INSTANCE:Lorg/l2jmobius/gameserver/managers/ScriptManager;
+         3: areturn
+
+  static {};
+    Code:
+         0: ldc           #11                 // class org/l2jmobius/gameserver/managers/ScriptManager
+         2: invokevirtual #204                // Method java/lang/Class.getName:()Ljava/lang/String;
+         5: invokestatic  #205                // Method java/util/logging/Logger.getLogger:(Ljava/lang/String;)Ljava/util/logging/Logger;
+         8: putstatic     #35                 // Field LOGGER:Ljava/util/logging/Logger;
+        11: return
+}

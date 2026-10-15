@@ -1,0 +1,1 @@
+12/09/2026 8:05:15>AW [268480810]>Drop>Ketra Elite Guard>(id: 1344 name: Mithril Arrow objId: 268482479 x: 140514 y: -79938 z: -5078)

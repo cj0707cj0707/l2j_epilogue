@@ -1,0 +1,48 @@
+Compiled from "SkillTreeData.java"
+public class org.l2jmobius.gameserver.data.xml.SkillTreeData implements org.l2jmobius.commons.util.IXmlReader {
+  protected org.l2jmobius.gameserver.data.xml.SkillTreeData();
+  public void load();
+  public void parseDocument(org.w3c.dom.Document, java.io.File);
+  public java.util.Map<java.lang.Integer, org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> getCompleteClassSkillTree(org.l2jmobius.gameserver.entity.actor.enums.player.PlayerClass);
+  public java.util.Map<java.lang.Integer, org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> getTransferSkillTree(org.l2jmobius.gameserver.entity.actor.enums.player.PlayerClass);
+  public java.util.Map<java.lang.Integer, org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> getCommonSkillTree();
+  public java.util.Map<java.lang.Integer, org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> getCollectSkillTree();
+  public java.util.Map<java.lang.Integer, org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> getFishingSkillTree();
+  public java.util.Map<java.lang.Integer, org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> getPledgeSkillTree();
+  public java.util.Map<java.lang.Integer, org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> getSubClassSkillTree();
+  public java.util.Map<java.lang.Integer, org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> getSubPledgeSkillTree();
+  public java.util.Map<java.lang.Integer, org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> getTransformSkillTree();
+  public java.util.Map<java.lang.Integer, org.l2jmobius.gameserver.mechanics.skill.Skill> getNobleSkillTree();
+  public java.util.Map<java.lang.Integer, org.l2jmobius.gameserver.mechanics.skill.Skill> getHeroSkillTree();
+  public java.util.Map<java.lang.Integer, org.l2jmobius.gameserver.mechanics.skill.Skill> getGMSkillTree();
+  public java.util.Map<java.lang.Integer, org.l2jmobius.gameserver.mechanics.skill.Skill> getGMAuraSkillTree();
+  public java.util.Collection<org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> getAvailableSkills(org.l2jmobius.gameserver.entity.actor.Player, org.l2jmobius.gameserver.entity.actor.enums.player.PlayerClass, boolean, boolean);
+  public java.util.Collection<org.l2jmobius.gameserver.mechanics.skill.Skill> getAllAvailableSkills(org.l2jmobius.gameserver.entity.actor.Player, org.l2jmobius.gameserver.entity.actor.enums.player.PlayerClass, boolean, boolean, boolean);
+  public java.util.List<org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> getAvailableAutoGetSkills(org.l2jmobius.gameserver.entity.actor.Player);
+  public java.util.List<org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> getAvailableFishingSkills(org.l2jmobius.gameserver.entity.actor.Player);
+  public java.util.List<org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> getAvailableCollectSkills(org.l2jmobius.gameserver.entity.actor.Player);
+  public java.util.List<org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> getAvailableTransferSkills(org.l2jmobius.gameserver.entity.actor.Player);
+  public java.util.List<org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> getAvailableTransformSkills(org.l2jmobius.gameserver.entity.actor.Player);
+  public java.util.List<org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> getAvailablePledgeSkills(org.l2jmobius.gameserver.entity.clan.Clan);
+  public java.util.Map<java.lang.Integer, org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> getMaxPledgeSkills(org.l2jmobius.gameserver.entity.clan.Clan, boolean);
+  public java.util.List<org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> getAvailableSubPledgeSkills(org.l2jmobius.gameserver.entity.clan.Clan);
+  public java.util.List<org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> getAvailableSubClassSkills(org.l2jmobius.gameserver.entity.actor.Player);
+  public java.util.List<org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> getAvailableResidentialSkills(int);
+  public org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn getSkillLearn(org.l2jmobius.gameserver.mechanics.skill.enums.AcquireSkillType, int, int, org.l2jmobius.gameserver.entity.actor.Player);
+  public org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn getTransformSkill(int, int);
+  public org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn getClassSkill(int, int, org.l2jmobius.gameserver.entity.actor.enums.player.PlayerClass);
+  public org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn getFishingSkill(int, int);
+  public org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn getPledgeSkill(int, int);
+  public org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn getSubPledgeSkill(int, int);
+  public org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn getTransferSkill(int, int, org.l2jmobius.gameserver.entity.actor.enums.player.PlayerClass);
+  public org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn getSubClassSkill(int, int);
+  public org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn getCommonSkill(int, int);
+  public org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn getCollectSkill(int, int);
+  public int getMinLevelForNewSkill(org.l2jmobius.gameserver.entity.actor.Player, java.util.Map<java.lang.Integer, org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn>);
+  public boolean isHeroSkill(int, int);
+  public boolean isGMSkill(int, int);
+  public boolean isClanSkill(int, int);
+  public void addSkills(org.l2jmobius.gameserver.entity.actor.Player, boolean);
+  public boolean isSkillAllowed(org.l2jmobius.gameserver.entity.actor.Player, org.l2jmobius.gameserver.mechanics.skill.Skill);
+  public static org.l2jmobius.gameserver.data.xml.SkillTreeData getInstance();
+}

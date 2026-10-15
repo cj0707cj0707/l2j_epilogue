@@ -1,0 +1,773 @@
+Compiled from "AutoPlayTaskManager.java"
+class org.l2jmobius.gameserver.taskmanagers.AutoPlayTaskManager$AutoPlay implements java.lang.Runnable {
+  private final java.util.Set<org.l2jmobius.gameserver.entity.actor.Player> _players;
+
+  final org.l2jmobius.gameserver.taskmanagers.AutoPlayTaskManager this$0;
+
+  public org.l2jmobius.gameserver.taskmanagers.AutoPlayTaskManager$AutoPlay(java.util.Set<org.l2jmobius.gameserver.entity.actor.Player>);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: dup
+         3: invokestatic  #1                  // Method java/util/Objects.requireNonNull:(Ljava/lang/Object;)Ljava/lang/Object;
+         6: pop
+         7: putfield      #7                  // Field this$0:Lorg/l2jmobius/gameserver/taskmanagers/AutoPlayTaskManager;
+        10: aload_0
+        11: invokespecial #13                 // Method java/lang/Object."<init>":()V
+        14: aload_0
+        15: aload_2
+        16: putfield      #19                 // Field _players:Ljava/util/Set;
+        19: return
+
+  public void run();
+    Code:
+         0: aload_0
+         1: getfield      #19                 // Field _players:Ljava/util/Set;
+         4: invokeinterface #23,  1           // InterfaceMethod java/util/Set.isEmpty:()Z
+         9: ifeq          13
+        12: return
+        13: aload_0
+        14: getfield      #19                 // Field _players:Ljava/util/Set;
+        17: invokeinterface #29,  1           // InterfaceMethod java/util/Set.iterator:()Ljava/util/Iterator;
+        22: astore_1
+        23: aload_1
+        24: invokeinterface #33,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+        29: ifeq          1205
+        32: aload_1
+        33: invokeinterface #38,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        38: checkcast     #42                 // class org/l2jmobius/gameserver/entity/actor/Player
+        41: astore_2
+        42: aload_2
+        43: invokevirtual #44                 // Method org/l2jmobius/gameserver/entity/actor/Player.isOnline:()Z
+        46: ifeq          69
+        49: aload_2
+        50: invokevirtual #47                 // Method org/l2jmobius/gameserver/entity/actor/Player.isInOfflineMode:()Z
+        53: ifeq          63
+        56: aload_2
+        57: invokevirtual #50                 // Method org/l2jmobius/gameserver/entity/actor/Player.isOfflinePlay:()Z
+        60: ifeq          69
+        63: getstatic     #53                 // Field org/l2jmobius/gameserver/config/custom/AutoPlayConfig.ENABLE_AUTO_PLAY:Z
+        66: ifne          80
+        69: aload_0
+        70: getfield      #7                  // Field this$0:Lorg/l2jmobius/gameserver/taskmanagers/AutoPlayTaskManager;
+        73: aload_2
+        74: invokevirtual #59                 // Method org/l2jmobius/gameserver/taskmanagers/AutoPlayTaskManager.stopAutoPlay:(Lorg/l2jmobius/gameserver/entity/actor/Player;)V
+        77: goto          23
+        80: aload_2
+        81: invokevirtual #65                 // Method org/l2jmobius/gameserver/entity/actor/Player.isSitting:()Z
+        84: ifne          23
+        87: aload_2
+        88: invokevirtual #68                 // Method org/l2jmobius/gameserver/entity/actor/Player.isCastingNow:()Z
+        91: ifne          23
+        94: aload_2
+        95: invokevirtual #71                 // Method org/l2jmobius/gameserver/entity/actor/Player.getQueuedSkill:()Lorg/l2jmobius/gameserver/mechanics/skill/holders/SkillUseHolder;
+        98: ifnull        104
+       101: goto          23
+       104: aload_2
+       105: invokevirtual #75                 // Method org/l2jmobius/gameserver/entity/actor/Player.getAutoPlaySettings:()Lorg/l2jmobius/gameserver/entity/actor/holders/player/AutoPlaySettingsHolder;
+       108: invokevirtual #79                 // Method org/l2jmobius/gameserver/entity/actor/holders/player/AutoPlaySettingsHolder.getNextTargetMode:()I
+       111: istore_3
+       112: aload_2
+       113: invokevirtual #85                 // Method org/l2jmobius/gameserver/entity/actor/Player.getTarget:()Lorg/l2jmobius/gameserver/entity/WorldObject;
+       116: astore        4
+       118: aload         4
+       120: ifnull        836
+       123: aload         4
+       125: invokevirtual #89                 // Method org/l2jmobius/gameserver/entity/WorldObject.isCreature:()Z
+       128: ifeq          836
+       131: aload         4
+       133: invokevirtual #94                 // Method org/l2jmobius/gameserver/entity/WorldObject.asCreature:()Lorg/l2jmobius/gameserver/entity/actor/Creature;
+       136: astore        5
+       138: aload         5
+       140: invokevirtual #98                 // Method org/l2jmobius/gameserver/entity/actor/Creature.isAlikeDead:()Z
+       143: ifne          157
+       146: aload_0
+       147: iload_3
+       148: aload_2
+       149: aload         5
+       151: invokevirtual #103                // Method isTargetModeValid:(ILorg/l2jmobius/gameserver/entity/actor/Player;Lorg/l2jmobius/gameserver/entity/actor/Creature;)Z
+       154: ifne          273
+       157: aload         5
+       159: invokevirtual #107                // Method org/l2jmobius/gameserver/entity/actor/Creature.isMonster:()Z
+       162: ifeq          265
+       165: aload         5
+       167: invokevirtual #110                // Method org/l2jmobius/gameserver/entity/actor/Creature.isDead:()Z
+       170: ifeq          265
+       173: aload_2
+       174: invokevirtual #113                // Method org/l2jmobius/gameserver/entity/actor/Player.getAutoUseSettings:()Lorg/l2jmobius/gameserver/entity/actor/holders/player/AutoUseSettingsHolder;
+       177: invokevirtual #117                // Method org/l2jmobius/gameserver/entity/actor/holders/player/AutoUseSettingsHolder.getAutoSkills:()Ljava/util/List;
+       180: sipush        254
+       183: invokestatic  #123                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+       186: invokeinterface #129,  2          // InterfaceMethod java/util/List.contains:(Ljava/lang/Object;)Z
+       191: ifeq          265
+       194: aload_2
+       195: bipush        42
+       197: invokevirtual #135                // Method org/l2jmobius/gameserver/entity/actor/Player.getKnownSkill:(I)Lorg/l2jmobius/gameserver/mechanics/skill/Skill;
+       200: astore        6
+       202: aload         6
+       204: ifnull        265
+       207: aload         4
+       209: invokevirtual #139                // Method org/l2jmobius/gameserver/entity/WorldObject.asMonster:()Lorg/l2jmobius/gameserver/entity/actor/instance/Monster;
+       212: astore        7
+       214: aload         7
+       216: aload_2
+       217: iconst_0
+       218: invokevirtual #143                // Method org/l2jmobius/gameserver/entity/actor/instance/Monster.checkSpoilOwner:(Lorg/l2jmobius/gameserver/entity/actor/Player;Z)Z
+       221: ifeq          265
+       224: aload_2
+       225: aload         4
+       227: invokevirtual #149                // Method org/l2jmobius/gameserver/entity/actor/Player.calculateDistance2D:(Lorg/l2jmobius/gameserver/interfaces/ILocational;)D
+       230: ldc2_w        #153                // double 40.0d
+       233: dcmpl
+       234: ifle          256
+       237: aload_2
+       238: invokevirtual #155                // Method org/l2jmobius/gameserver/entity/actor/Player.isMoving:()Z
+       241: ifne          23
+       244: aload_2
+       245: invokevirtual #158                // Method org/l2jmobius/gameserver/entity/actor/Player.getAI:()Lorg/l2jmobius/gameserver/ai/CreatureAI;
+       248: aload         4
+       250: invokevirtual #162                // Method org/l2jmobius/gameserver/ai/CreatureAI.setIntentionMoveTo:(Lorg/l2jmobius/gameserver/interfaces/ILocational;)V
+       253: goto          23
+       256: aload_2
+       257: aload         6
+       259: invokevirtual #168                // Method org/l2jmobius/gameserver/entity/actor/Player.doCast:(Lorg/l2jmobius/gameserver/mechanics/skill/Skill;)V
+       262: goto          23
+       265: aload_2
+       266: aconst_null
+       267: invokevirtual #172                // Method org/l2jmobius/gameserver/entity/actor/Player.setTarget:(Lorg/l2jmobius/gameserver/entity/WorldObject;)V
+       270: goto          836
+       273: aload         5
+       275: invokevirtual #176                // Method org/l2jmobius/gameserver/entity/actor/Creature.getTarget:()Lorg/l2jmobius/gameserver/entity/WorldObject;
+       278: aload_2
+       279: if_acmpeq     290
+       282: aload         5
+       284: invokevirtual #176                // Method org/l2jmobius/gameserver/entity/actor/Creature.getTarget:()Lorg/l2jmobius/gameserver/entity/WorldObject;
+       287: ifnonnull     836
+       290: invokestatic  #177                // Method org/l2jmobius/gameserver/geoengine/GeoEngine.getInstance:()Lorg/l2jmobius/gameserver/geoengine/GeoEngine;
+       293: aload_2
+       294: aload         5
+       296: invokevirtual #183                // Method org/l2jmobius/gameserver/geoengine/GeoEngine.canSeeTarget:(Lorg/l2jmobius/gameserver/entity/WorldObject;Lorg/l2jmobius/gameserver/entity/WorldObject;)Z
+       299: ifne          310
+       302: aload_2
+       303: aconst_null
+       304: invokevirtual #172                // Method org/l2jmobius/gameserver/entity/actor/Player.setTarget:(Lorg/l2jmobius/gameserver/entity/WorldObject;)V
+       307: goto          23
+       310: aload_2
+       311: invokevirtual #187                // Method org/l2jmobius/gameserver/entity/actor/Player.getSummon:()Lorg/l2jmobius/gameserver/entity/actor/Summon;
+       314: astore        6
+       316: aload         6
+       318: ifnull        404
+       321: aload         6
+       323: invokevirtual #191                // Method org/l2jmobius/gameserver/entity/actor/Summon.hasAI:()Z
+       326: ifeq          404
+       329: aload         6
+       331: invokevirtual #196                // Method org/l2jmobius/gameserver/entity/actor/Summon.isMoving:()Z
+       334: ifne          404
+       337: aload         6
+       339: invokevirtual #197                // Method org/l2jmobius/gameserver/entity/actor/Summon.isDisabled:()Z
+       342: ifne          404
+       345: aload         6
+       347: invokevirtual #200                // Method org/l2jmobius/gameserver/entity/actor/Summon.getAI:()Lorg/l2jmobius/gameserver/ai/CreatureAI;
+       350: invokevirtual #201                // Method org/l2jmobius/gameserver/ai/CreatureAI.getIntention:()Lorg/l2jmobius/gameserver/ai/Intention;
+       353: getstatic     #205                // Field org/l2jmobius/gameserver/ai/Intention.ATTACK:Lorg/l2jmobius/gameserver/ai/Intention;
+       356: if_acmpeq     404
+       359: aload         6
+       361: invokevirtual #200                // Method org/l2jmobius/gameserver/entity/actor/Summon.getAI:()Lorg/l2jmobius/gameserver/ai/CreatureAI;
+       364: invokevirtual #201                // Method org/l2jmobius/gameserver/ai/CreatureAI.getIntention:()Lorg/l2jmobius/gameserver/ai/Intention;
+       367: getstatic     #211                // Field org/l2jmobius/gameserver/ai/Intention.CAST:Lorg/l2jmobius/gameserver/ai/Intention;
+       370: if_acmpeq     404
+       373: aload         5
+       375: aload_2
+       376: invokevirtual #214                // Method org/l2jmobius/gameserver/entity/actor/Creature.isAutoAttackable:(Lorg/l2jmobius/gameserver/entity/actor/Creature;)Z
+       379: ifeq          404
+       382: invokestatic  #177                // Method org/l2jmobius/gameserver/geoengine/GeoEngine.getInstance:()Lorg/l2jmobius/gameserver/geoengine/GeoEngine;
+       385: aload_2
+       386: aload         5
+       388: invokevirtual #183                // Method org/l2jmobius/gameserver/geoengine/GeoEngine.canSeeTarget:(Lorg/l2jmobius/gameserver/entity/WorldObject;Lorg/l2jmobius/gameserver/entity/WorldObject;)Z
+       391: ifeq          404
+       394: aload         6
+       396: invokevirtual #200                // Method org/l2jmobius/gameserver/entity/actor/Summon.getAI:()Lorg/l2jmobius/gameserver/ai/CreatureAI;
+       399: aload         5
+       401: invokevirtual #218                // Method org/l2jmobius/gameserver/ai/CreatureAI.setIntentionAttack:(Lorg/l2jmobius/gameserver/entity/WorldObject;)V
+       404: aload_0
+       405: aload_2
+       406: invokevirtual #221                // Method isMageCaster:(Lorg/l2jmobius/gameserver/entity/actor/Player;)Z
+       409: ifeq          458
+       412: aload_2
+       413: aload         5
+       415: invokevirtual #149                // Method org/l2jmobius/gameserver/entity/actor/Player.calculateDistance2D:(Lorg/l2jmobius/gameserver/interfaces/ILocational;)D
+       418: ldc2_w        #225                // double 900.0d
+       421: dcmpl
+       422: ifle          23
+       425: aload_2
+       426: invokevirtual #155                // Method org/l2jmobius/gameserver/entity/actor/Player.isMoving:()Z
+       429: ifne          23
+       432: aload_2
+       433: invokevirtual #227                // Method org/l2jmobius/gameserver/entity/actor/Player.hasAI:()Z
+       436: ifeq          23
+       439: aload_2
+       440: invokevirtual #228                // Method org/l2jmobius/gameserver/entity/actor/Player.isDisabled:()Z
+       443: ifne          23
+       446: aload_2
+       447: invokevirtual #158                // Method org/l2jmobius/gameserver/entity/actor/Player.getAI:()Lorg/l2jmobius/gameserver/ai/CreatureAI;
+       450: aload         5
+       452: invokevirtual #162                // Method org/l2jmobius/gameserver/ai/CreatureAI.setIntentionMoveTo:(Lorg/l2jmobius/gameserver/interfaces/ILocational;)V
+       455: goto          23
+       458: aload_2
+       459: invokevirtual #227                // Method org/l2jmobius/gameserver/entity/actor/Player.hasAI:()Z
+       462: ifeq          23
+       465: aload_2
+       466: invokevirtual #229                // Method org/l2jmobius/gameserver/entity/actor/Player.isAttackingNow:()Z
+       469: ifne          23
+       472: aload_2
+       473: invokevirtual #68                 // Method org/l2jmobius/gameserver/entity/actor/Player.isCastingNow:()Z
+       476: ifne          23
+       479: aload_2
+       480: invokevirtual #155                // Method org/l2jmobius/gameserver/entity/actor/Player.isMoving:()Z
+       483: ifne          23
+       486: aload_2
+       487: invokevirtual #228                // Method org/l2jmobius/gameserver/entity/actor/Player.isDisabled:()Z
+       490: ifne          23
+       493: aload_2
+       494: invokevirtual #158                // Method org/l2jmobius/gameserver/entity/actor/Player.getAI:()Lorg/l2jmobius/gameserver/ai/CreatureAI;
+       497: invokevirtual #201                // Method org/l2jmobius/gameserver/ai/CreatureAI.getIntention:()Lorg/l2jmobius/gameserver/ai/Intention;
+       500: getstatic     #205                // Field org/l2jmobius/gameserver/ai/Intention.ATTACK:Lorg/l2jmobius/gameserver/ai/Intention;
+       503: if_acmpeq     547
+       506: aload         5
+       508: aload_2
+       509: invokevirtual #214                // Method org/l2jmobius/gameserver/entity/actor/Creature.isAutoAttackable:(Lorg/l2jmobius/gameserver/entity/actor/Creature;)Z
+       512: ifeq          23
+       515: invokestatic  #177                // Method org/l2jmobius/gameserver/geoengine/GeoEngine.getInstance:()Lorg/l2jmobius/gameserver/geoengine/GeoEngine;
+       518: aload_2
+       519: aload         5
+       521: invokevirtual #183                // Method org/l2jmobius/gameserver/geoengine/GeoEngine.canSeeTarget:(Lorg/l2jmobius/gameserver/entity/WorldObject;Lorg/l2jmobius/gameserver/entity/WorldObject;)Z
+       524: ifne          535
+       527: aload_2
+       528: aconst_null
+       529: invokevirtual #172                // Method org/l2jmobius/gameserver/entity/actor/Player.setTarget:(Lorg/l2jmobius/gameserver/entity/WorldObject;)V
+       532: goto          23
+       535: aload_2
+       536: invokevirtual #158                // Method org/l2jmobius/gameserver/entity/actor/Player.getAI:()Lorg/l2jmobius/gameserver/ai/CreatureAI;
+       539: aload         5
+       541: invokevirtual #218                // Method org/l2jmobius/gameserver/ai/CreatureAI.setIntentionAttack:(Lorg/l2jmobius/gameserver/entity/WorldObject;)V
+       544: goto          23
+       547: aload_2
+       548: invokevirtual #158                // Method org/l2jmobius/gameserver/entity/actor/Player.getAI:()Lorg/l2jmobius/gameserver/ai/CreatureAI;
+       551: aload         5
+       553: invokevirtual #218                // Method org/l2jmobius/gameserver/ai/CreatureAI.setIntentionAttack:(Lorg/l2jmobius/gameserver/entity/WorldObject;)V
+       556: aload_2
+       557: invokevirtual #229                // Method org/l2jmobius/gameserver/entity/actor/Player.isAttackingNow:()Z
+       560: ifne          577
+       563: aload_2
+       564: invokevirtual #68                 // Method org/l2jmobius/gameserver/entity/actor/Player.isCastingNow:()Z
+       567: ifne          577
+       570: aload_2
+       571: invokevirtual #155                // Method org/l2jmobius/gameserver/entity/actor/Player.isMoving:()Z
+       574: ifeq          590
+       577: getstatic     #232                // Field org/l2jmobius/gameserver/taskmanagers/AutoPlayTaskManager.IDLE_COUNT:Ljava/util/Map;
+       580: aload_2
+       581: invokeinterface #236,  2          // InterfaceMethod java/util/Map.remove:(Ljava/lang/Object;)Ljava/lang/Object;
+       586: pop
+       587: goto          23
+       590: aload_2
+       591: invokevirtual #241                // Method org/l2jmobius/gameserver/entity/actor/Player.getActiveWeaponItem:()Lorg/l2jmobius/gameserver/entity/item/Weapon;
+       594: astore        7
+       596: aload         7
+       598: ifnull        833
+       601: getstatic     #232                // Field org/l2jmobius/gameserver/taskmanagers/AutoPlayTaskManager.IDLE_COUNT:Ljava/util/Map;
+       604: aload_2
+       605: iconst_0
+       606: invokestatic  #123                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+       609: invokeinterface #245,  3          // InterfaceMethod java/util/Map.getOrDefault:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+       614: checkcast     #124                // class java/lang/Integer
+       617: invokevirtual #249                // Method java/lang/Integer.intValue:()I
+       620: istore        8
+       622: iload         8
+       624: bipush        10
+       626: if_icmple     816
+       629: aload         7
+       631: invokevirtual #252                // Method org/l2jmobius/gameserver/entity/item/Weapon.getItemType:()Lorg/l2jmobius/gameserver/entity/item/type/WeaponType;
+       634: invokevirtual #258                // Method org/l2jmobius/gameserver/entity/item/type/WeaponType.isRanged:()Z
+       637: istore        9
+       639: aload_2
+       640: aload         5
+       642: invokestatic  #263                // Method org/l2jmobius/gameserver/util/LocationUtil.calculateHeadingFrom:(Lorg/l2jmobius/gameserver/interfaces/ILocational;Lorg/l2jmobius/gameserver/interfaces/ILocational;)I
+       645: i2d
+       646: dstore        10
+       648: dload         10
+       650: invokestatic  #269                // Method java/lang/Math.toRadians:(D)D
+       653: dstore        12
+       655: ldc2_w        #275                // double 180.0d
+       658: invokestatic  #269                // Method java/lang/Math.toRadians:(D)D
+       661: dstore        14
+       663: iload         9
+       665: ifeq          675
+       668: aload_2
+       669: invokevirtual #277                // Method org/l2jmobius/gameserver/entity/actor/Player.getCollisionRadius:()F
+       672: goto          689
+       675: aload_2
+       676: invokevirtual #277                // Method org/l2jmobius/gameserver/entity/actor/Player.getCollisionRadius:()F
+       679: aload         5
+       681: invokevirtual #281                // Method org/l2jmobius/gameserver/entity/actor/Creature.getTemplate:()Lorg/l2jmobius/gameserver/entity/actor/templates/CreatureTemplate;
+       684: invokevirtual #285                // Method org/l2jmobius/gameserver/entity/actor/templates/CreatureTemplate.getCollisionRadius:()I
+       687: i2f
+       688: fadd
+       689: fconst_2
+       690: fmul
+       691: f2d
+       692: dstore        16
+       694: ldc2_w        #289                // double 3.141592653589793d
+       697: dload         12
+       699: dadd
+       700: dload         14
+       702: dadd
+       703: invokestatic  #291                // Method java/lang/Math.cos:(D)D
+       706: dload         16
+       708: dmul
+       709: d2i
+       710: istore        18
+       712: ldc2_w        #289                // double 3.141592653589793d
+       715: dload         12
+       717: dadd
+       718: dload         14
+       720: dadd
+       721: invokestatic  #294                // Method java/lang/Math.sin:(D)D
+       724: dload         16
+       726: dmul
+       727: d2i
+       728: istore        19
+       730: iload         9
+       732: ifeq          765
+       735: new           #297                // class org/l2jmobius/gameserver/entity/Location
+       738: dup
+       739: aload_2
+       740: invokevirtual #299                // Method org/l2jmobius/gameserver/entity/actor/Player.getX:()I
+       743: iload         18
+       745: iadd
+       746: aload_2
+       747: invokevirtual #302                // Method org/l2jmobius/gameserver/entity/actor/Player.getY:()I
+       750: iload         19
+       752: iadd
+       753: aload_2
+       754: invokevirtual #305                // Method org/l2jmobius/gameserver/entity/actor/Player.getZ:()I
+       757: invokespecial #308                // Method org/l2jmobius/gameserver/entity/Location."<init>":(III)V
+       760: astore        20
+       762: goto          794
+       765: new           #297                // class org/l2jmobius/gameserver/entity/Location
+       768: dup
+       769: aload         5
+       771: invokevirtual #311                // Method org/l2jmobius/gameserver/entity/actor/Creature.getX:()I
+       774: iload         18
+       776: iadd
+       777: aload         5
+       779: invokevirtual #312                // Method org/l2jmobius/gameserver/entity/actor/Creature.getY:()I
+       782: iload         19
+       784: iadd
+       785: aload_2
+       786: invokevirtual #305                // Method org/l2jmobius/gameserver/entity/actor/Player.getZ:()I
+       789: invokespecial #308                // Method org/l2jmobius/gameserver/entity/Location."<init>":(III)V
+       792: astore        20
+       794: aload_2
+       795: invokevirtual #158                // Method org/l2jmobius/gameserver/entity/actor/Player.getAI:()Lorg/l2jmobius/gameserver/ai/CreatureAI;
+       798: aload         20
+       800: invokevirtual #162                // Method org/l2jmobius/gameserver/ai/CreatureAI.setIntentionMoveTo:(Lorg/l2jmobius/gameserver/interfaces/ILocational;)V
+       803: getstatic     #232                // Field org/l2jmobius/gameserver/taskmanagers/AutoPlayTaskManager.IDLE_COUNT:Ljava/util/Map;
+       806: aload_2
+       807: invokeinterface #236,  2          // InterfaceMethod java/util/Map.remove:(Ljava/lang/Object;)Ljava/lang/Object;
+       812: pop
+       813: goto          833
+       816: getstatic     #232                // Field org/l2jmobius/gameserver/taskmanagers/AutoPlayTaskManager.IDLE_COUNT:Ljava/util/Map;
+       819: aload_2
+       820: iload         8
+       822: iconst_1
+       823: iadd
+       824: invokestatic  #123                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+       827: invokeinterface #313,  3          // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+       832: pop
+       833: goto          23
+       836: getstatic     #232                // Field org/l2jmobius/gameserver/taskmanagers/AutoPlayTaskManager.IDLE_COUNT:Ljava/util/Map;
+       839: aload_2
+       840: invokeinterface #236,  2          // InterfaceMethod java/util/Map.remove:(Ljava/lang/Object;)Ljava/lang/Object;
+       845: pop
+       846: aload_2
+       847: invokevirtual #75                 // Method org/l2jmobius/gameserver/entity/actor/Player.getAutoPlaySettings:()Lorg/l2jmobius/gameserver/entity/actor/holders/player/AutoPlaySettingsHolder;
+       850: invokevirtual #316                // Method org/l2jmobius/gameserver/entity/actor/holders/player/AutoPlaySettingsHolder.doPickup:()Z
+       853: ifeq          931
+       856: aload_2
+       857: iconst_0
+       858: invokevirtual #319                // Method org/l2jmobius/gameserver/entity/actor/Player.isInventoryUnder90:(Z)Z
+       861: ifeq          931
+       864: aload_2
+       865: ldc_w         #323                // class org/l2jmobius/gameserver/entity/item/instance/Item
+       868: sipush        200
+       871: aload_2
+       872: invokedynamic #325,  0            // InvokeDynamic #0:test:(Lorg/l2jmobius/gameserver/entity/actor/Player;)Ljava/util/function/Predicate;
+       877: invokestatic  #329                // Method org/l2jmobius/gameserver/entity/World.getFirstVisibleObjectInRange:(Lorg/l2jmobius/gameserver/entity/WorldObject;Ljava/lang/Class;ILjava/util/function/Predicate;)Lorg/l2jmobius/gameserver/entity/WorldObject;
+       880: checkcast     #323                // class org/l2jmobius/gameserver/entity/item/instance/Item
+       883: astore        5
+       885: aload         5
+       887: ifnull        931
+       890: aload_2
+       891: aload         5
+       893: invokevirtual #149                // Method org/l2jmobius/gameserver/entity/actor/Player.calculateDistance2D:(Lorg/l2jmobius/gameserver/interfaces/ILocational;)D
+       896: ldc2_w        #335                // double 70.0d
+       899: dcmpl
+       900: ifle          922
+       903: aload_2
+       904: invokevirtual #155                // Method org/l2jmobius/gameserver/entity/actor/Player.isMoving:()Z
+       907: ifne          23
+       910: aload_2
+       911: invokevirtual #158                // Method org/l2jmobius/gameserver/entity/actor/Player.getAI:()Lorg/l2jmobius/gameserver/ai/CreatureAI;
+       914: aload         5
+       916: invokevirtual #162                // Method org/l2jmobius/gameserver/ai/CreatureAI.setIntentionMoveTo:(Lorg/l2jmobius/gameserver/interfaces/ILocational;)V
+       919: goto          23
+       922: aload_2
+       923: aload         5
+       925: invokevirtual #337                // Method org/l2jmobius/gameserver/entity/actor/Player.doPickupItem:(Lorg/l2jmobius/gameserver/entity/WorldObject;)V
+       928: goto          23
+       931: aconst_null
+       932: astore        5
+       934: aload_2
+       935: invokevirtual #340                // Method org/l2jmobius/gameserver/entity/actor/Player.getParty:()Lorg/l2jmobius/gameserver/entity/groups/Party;
+       938: astore        6
+       940: aload         6
+       942: ifnonnull     949
+       945: aconst_null
+       946: goto          954
+       949: aload         6
+       951: invokevirtual #344                // Method org/l2jmobius/gameserver/entity/groups/Party.getLeader:()Lorg/l2jmobius/gameserver/entity/actor/Player;
+       954: astore        7
+       956: getstatic     #350                // Field org/l2jmobius/gameserver/config/custom/AutoPlayConfig.ENABLE_AUTO_ASSIST:Z
+       959: ifeq          1085
+       962: aload         6
+       964: ifnull        1085
+       967: aload         7
+       969: ifnull        1085
+       972: aload         7
+       974: aload_2
+       975: if_acmpeq     1085
+       978: aload         7
+       980: invokevirtual #353                // Method org/l2jmobius/gameserver/entity/actor/Player.isDead:()Z
+       983: ifne          1085
+       986: aload         7
+       988: aload_2
+       989: invokevirtual #354                // Method org/l2jmobius/gameserver/entity/actor/Player.calculateDistance3D:(Lorg/l2jmobius/gameserver/interfaces/ILocational;)D
+       992: getstatic     #357                // Field org/l2jmobius/gameserver/config/PlayerConfig.ALT_PARTY_RANGE:I
+       995: iconst_2
+       996: imul
+       997: i2d
+       998: dcmpg
+       999: ifge          1128
+      1002: aload         7
+      1004: invokevirtual #85                 // Method org/l2jmobius/gameserver/entity/actor/Player.getTarget:()Lorg/l2jmobius/gameserver/entity/WorldObject;
+      1007: astore        8
+      1009: aload         8
+      1011: ifnull        1053
+      1014: aload         8
+      1016: invokevirtual #363                // Method org/l2jmobius/gameserver/entity/WorldObject.isAttackable:()Z
+      1019: ifne          1043
+      1022: aload         8
+      1024: invokevirtual #366                // Method org/l2jmobius/gameserver/entity/WorldObject.isPlayable:()Z
+      1027: ifeq          1053
+      1030: aload         6
+      1032: aload         8
+      1034: invokevirtual #369                // Method org/l2jmobius/gameserver/entity/WorldObject.asPlayer:()Lorg/l2jmobius/gameserver/entity/actor/Player;
+      1037: invokevirtual #372                // Method org/l2jmobius/gameserver/entity/groups/Party.containsPlayer:(Lorg/l2jmobius/gameserver/entity/actor/Player;)Z
+      1040: ifne          1053
+      1043: aload         8
+      1045: invokevirtual #94                 // Method org/l2jmobius/gameserver/entity/WorldObject.asCreature:()Lorg/l2jmobius/gameserver/entity/actor/Creature;
+      1048: astore        5
+      1050: goto          1082
+      1053: aload_2
+      1054: invokevirtual #158                // Method org/l2jmobius/gameserver/entity/actor/Player.getAI:()Lorg/l2jmobius/gameserver/ai/CreatureAI;
+      1057: invokevirtual #201                // Method org/l2jmobius/gameserver/ai/CreatureAI.getIntention:()Lorg/l2jmobius/gameserver/ai/Intention;
+      1060: getstatic     #375                // Field org/l2jmobius/gameserver/ai/Intention.FOLLOW:Lorg/l2jmobius/gameserver/ai/Intention;
+      1063: if_acmpeq     1082
+      1066: aload_2
+      1067: invokevirtual #228                // Method org/l2jmobius/gameserver/entity/actor/Player.isDisabled:()Z
+      1070: ifne          1082
+      1073: aload_2
+      1074: invokevirtual #158                // Method org/l2jmobius/gameserver/entity/actor/Player.getAI:()Lorg/l2jmobius/gameserver/ai/CreatureAI;
+      1077: aload         7
+      1079: invokevirtual #378                // Method org/l2jmobius/gameserver/ai/CreatureAI.setIntentionFollow:(Lorg/l2jmobius/gameserver/entity/WorldObject;)V
+      1082: goto          1128
+      1085: aload_2
+      1086: ldc           #99                 // class org/l2jmobius/gameserver/entity/actor/Creature
+      1088: aload_2
+      1089: invokevirtual #75                 // Method org/l2jmobius/gameserver/entity/actor/Player.getAutoPlaySettings:()Lorg/l2jmobius/gameserver/entity/actor/holders/player/AutoPlaySettingsHolder;
+      1092: invokevirtual #381                // Method org/l2jmobius/gameserver/entity/actor/holders/player/AutoPlaySettingsHolder.isShortRange:()Z
+      1095: ifeq          1109
+      1098: iload_3
+      1099: iconst_2
+      1100: if_icmpeq     1109
+      1103: getstatic     #384                // Field org/l2jmobius/gameserver/config/custom/AutoPlayConfig.AUTO_PLAY_SHORT_RANGE:I
+      1106: goto          1112
+      1109: getstatic     #387                // Field org/l2jmobius/gameserver/config/custom/AutoPlayConfig.AUTO_PLAY_LONG_RANGE:I
+      1112: aload_0
+      1113: aload_2
+      1114: iload_3
+      1115: invokedynamic #390,  0            // InvokeDynamic #1:test:(Lorg/l2jmobius/gameserver/taskmanagers/AutoPlayTaskManager$AutoPlay;Lorg/l2jmobius/gameserver/entity/actor/Player;I)Ljava/util/function/Predicate;
+      1120: invokestatic  #393                // Method org/l2jmobius/gameserver/entity/World.getNearestVisibleObjectInRange:(Lorg/l2jmobius/gameserver/entity/WorldObject;Ljava/lang/Class;ILjava/util/function/Predicate;)Lorg/l2jmobius/gameserver/entity/WorldObject;
+      1123: checkcast     #99                 // class org/l2jmobius/gameserver/entity/actor/Creature
+      1126: astore        5
+      1128: aload         5
+      1130: ifnull        1202
+      1133: aload_2
+      1134: aload         5
+      1136: invokevirtual #172                // Method org/l2jmobius/gameserver/entity/actor/Player.setTarget:(Lorg/l2jmobius/gameserver/entity/WorldObject;)V
+      1139: aload_0
+      1140: aload_2
+      1141: invokevirtual #221                // Method isMageCaster:(Lorg/l2jmobius/gameserver/entity/actor/Player;)Z
+      1144: ifeq          1193
+      1147: aload_2
+      1148: aload         5
+      1150: invokevirtual #149                // Method org/l2jmobius/gameserver/entity/actor/Player.calculateDistance2D:(Lorg/l2jmobius/gameserver/interfaces/ILocational;)D
+      1153: ldc2_w        #225                // double 900.0d
+      1156: dcmpl
+      1157: ifle          23
+      1160: aload_2
+      1161: invokevirtual #155                // Method org/l2jmobius/gameserver/entity/actor/Player.isMoving:()Z
+      1164: ifne          23
+      1167: aload_2
+      1168: invokevirtual #227                // Method org/l2jmobius/gameserver/entity/actor/Player.hasAI:()Z
+      1171: ifeq          23
+      1174: aload_2
+      1175: invokevirtual #228                // Method org/l2jmobius/gameserver/entity/actor/Player.isDisabled:()Z
+      1178: ifne          23
+      1181: aload_2
+      1182: invokevirtual #158                // Method org/l2jmobius/gameserver/entity/actor/Player.getAI:()Lorg/l2jmobius/gameserver/ai/CreatureAI;
+      1185: aload         5
+      1187: invokevirtual #162                // Method org/l2jmobius/gameserver/ai/CreatureAI.setIntentionMoveTo:(Lorg/l2jmobius/gameserver/interfaces/ILocational;)V
+      1190: goto          23
+      1193: aload_2
+      1194: invokevirtual #158                // Method org/l2jmobius/gameserver/entity/actor/Player.getAI:()Lorg/l2jmobius/gameserver/ai/CreatureAI;
+      1197: aload         5
+      1199: invokevirtual #218                // Method org/l2jmobius/gameserver/ai/CreatureAI.setIntentionAttack:(Lorg/l2jmobius/gameserver/entity/WorldObject;)V
+      1202: goto          23
+      1205: return
+
+  private boolean isMageCaster(org.l2jmobius.gameserver.entity.actor.Player);
+    Code:
+         0: aload_1
+         1: invokevirtual #113                // Method org/l2jmobius/gameserver/entity/actor/Player.getAutoUseSettings:()Lorg/l2jmobius/gameserver/entity/actor/holders/player/AutoUseSettingsHolder;
+         4: invokevirtual #396                // Method org/l2jmobius/gameserver/entity/actor/holders/player/AutoUseSettingsHolder.getAutoActions:()Ljava/util/Collection;
+         7: getstatic     #400                // Field org/l2jmobius/gameserver/taskmanagers/AutoPlayTaskManager.AUTO_ATTACK_ACTION:Ljava/lang/Integer;
+        10: invokeinterface #404,  2          // InterfaceMethod java/util/Collection.contains:(Ljava/lang/Object;)Z
+        15: ifne          22
+        18: iconst_1
+        19: goto          23
+        22: iconst_0
+        23: ireturn
+
+  private boolean isTargetModeValid(int, org.l2jmobius.gameserver.entity.actor.Player, org.l2jmobius.gameserver.entity.actor.Creature);
+    Code:
+         0: aload_3
+         1: invokevirtual #407                // Method org/l2jmobius/gameserver/entity/actor/Creature.isTargetable:()Z
+         4: ifeq          31
+         7: aload_3
+         8: invokevirtual #410                // Method org/l2jmobius/gameserver/entity/actor/Creature.isNpc:()Z
+        11: ifeq          33
+        14: aload_3
+        15: invokevirtual #413                // Method org/l2jmobius/gameserver/entity/actor/Creature.isInvul:()Z
+        18: ifne          31
+        21: aload_3
+        22: invokevirtual #416                // Method org/l2jmobius/gameserver/entity/actor/Creature.asNpc:()Lorg/l2jmobius/gameserver/entity/actor/Npc;
+        25: invokevirtual #420                // Method org/l2jmobius/gameserver/entity/actor/Npc.isShowName:()Z
+        28: ifne          33
+        31: iconst_0
+        32: ireturn
+        33: iload_1
+        34: tableswitch   { // 1 to 3
+
+                       1: 60
+
+                       2: 88
+
+                       3: 109
+                 default: 139
+            }
+        60: aload_3
+        61: invokevirtual #107                // Method org/l2jmobius/gameserver/entity/actor/Creature.isMonster:()Z
+        64: ifeq          86
+        67: aload_3
+        68: invokevirtual #425                // Method org/l2jmobius/gameserver/entity/actor/Creature.isRaid:()Z
+        71: ifne          86
+        74: aload_3
+        75: aload_2
+        76: invokevirtual #214                // Method org/l2jmobius/gameserver/entity/actor/Creature.isAutoAttackable:(Lorg/l2jmobius/gameserver/entity/actor/Creature;)Z
+        79: ifeq          86
+        82: iconst_1
+        83: goto          87
+        86: iconst_0
+        87: ireturn
+        88: aload_3
+        89: invokevirtual #428                // Method org/l2jmobius/gameserver/entity/actor/Creature.isPlayable:()Z
+        92: ifeq          107
+        95: aload_3
+        96: aload_2
+        97: invokevirtual #214                // Method org/l2jmobius/gameserver/entity/actor/Creature.isAutoAttackable:(Lorg/l2jmobius/gameserver/entity/actor/Creature;)Z
+       100: ifeq          107
+       103: iconst_1
+       104: goto          108
+       107: iconst_0
+       108: ireturn
+       109: aload_3
+       110: invokevirtual #410                // Method org/l2jmobius/gameserver/entity/actor/Creature.isNpc:()Z
+       113: ifeq          137
+       116: aload_3
+       117: invokevirtual #107                // Method org/l2jmobius/gameserver/entity/actor/Creature.isMonster:()Z
+       120: ifne          137
+       123: aload_3
+       124: getstatic     #429                // Field org/l2jmobius/gameserver/entity/zone/ZoneId.PEACE:Lorg/l2jmobius/gameserver/entity/zone/ZoneId;
+       127: invokevirtual #435                // Method org/l2jmobius/gameserver/entity/actor/Creature.isInsideZone:(Lorg/l2jmobius/gameserver/entity/zone/ZoneId;)Z
+       130: ifne          137
+       133: iconst_1
+       134: goto          138
+       137: iconst_0
+       138: ireturn
+       139: aload_3
+       140: invokevirtual #410                // Method org/l2jmobius/gameserver/entity/actor/Creature.isNpc:()Z
+       143: ifeq          156
+       146: aload_3
+       147: getstatic     #429                // Field org/l2jmobius/gameserver/entity/zone/ZoneId.PEACE:Lorg/l2jmobius/gameserver/entity/zone/ZoneId;
+       150: invokevirtual #435                // Method org/l2jmobius/gameserver/entity/actor/Creature.isInsideZone:(Lorg/l2jmobius/gameserver/entity/zone/ZoneId;)Z
+       153: ifeq          171
+       156: aload_3
+       157: invokevirtual #428                // Method org/l2jmobius/gameserver/entity/actor/Creature.isPlayable:()Z
+       160: ifeq          175
+       163: aload_3
+       164: aload_2
+       165: invokevirtual #214                // Method org/l2jmobius/gameserver/entity/actor/Creature.isAutoAttackable:(Lorg/l2jmobius/gameserver/entity/actor/Creature;)Z
+       168: ifeq          175
+       171: iconst_1
+       172: goto          176
+       175: iconst_0
+       176: ireturn
+
+  private boolean lambda$run$1(org.l2jmobius.gameserver.entity.actor.Player, int, org.l2jmobius.gameserver.entity.actor.Creature);
+    Code:
+         0: aload_3
+         1: invokevirtual #98                 // Method org/l2jmobius/gameserver/entity/actor/Creature.isAlikeDead:()Z
+         4: ifeq          9
+         7: iconst_0
+         8: ireturn
+         9: aload_1
+        10: invokevirtual #75                 // Method org/l2jmobius/gameserver/entity/actor/Player.getAutoPlaySettings:()Lorg/l2jmobius/gameserver/entity/actor/holders/player/AutoPlaySettingsHolder;
+        13: invokevirtual #439                // Method org/l2jmobius/gameserver/entity/actor/holders/player/AutoPlaySettingsHolder.isRespectfulHunting:()Z
+        16: ifeq          67
+        19: aload_3
+        20: invokevirtual #428                // Method org/l2jmobius/gameserver/entity/actor/Creature.isPlayable:()Z
+        23: ifne          67
+        26: aload_3
+        27: invokevirtual #176                // Method org/l2jmobius/gameserver/entity/actor/Creature.getTarget:()Lorg/l2jmobius/gameserver/entity/WorldObject;
+        30: ifnull        67
+        33: aload_3
+        34: invokevirtual #176                // Method org/l2jmobius/gameserver/entity/actor/Creature.getTarget:()Lorg/l2jmobius/gameserver/entity/WorldObject;
+        37: aload_1
+        38: if_acmpeq     67
+        41: aload_1
+        42: invokevirtual #442                // Method org/l2jmobius/gameserver/entity/actor/Player.hasSummon:()Z
+        45: ifeq          65
+        48: aload_1
+        49: invokevirtual #187                // Method org/l2jmobius/gameserver/entity/actor/Player.getSummon:()Lorg/l2jmobius/gameserver/entity/actor/Summon;
+        52: invokevirtual #445                // Method org/l2jmobius/gameserver/entity/actor/Summon.getObjectId:()I
+        55: aload_3
+        56: invokevirtual #176                // Method org/l2jmobius/gameserver/entity/actor/Creature.getTarget:()Lorg/l2jmobius/gameserver/entity/WorldObject;
+        59: invokevirtual #448                // Method org/l2jmobius/gameserver/entity/WorldObject.getObjectId:()I
+        62: if_icmpeq     67
+        65: iconst_0
+        66: ireturn
+        67: aload_0
+        68: iload_2
+        69: aload_1
+        70: aload_3
+        71: invokevirtual #103                // Method isTargetModeValid:(ILorg/l2jmobius/gameserver/entity/actor/Player;Lorg/l2jmobius/gameserver/entity/actor/Creature;)Z
+        74: ifne          79
+        77: iconst_0
+        78: ireturn
+        79: aload_1
+        80: invokevirtual #305                // Method org/l2jmobius/gameserver/entity/actor/Player.getZ:()I
+        83: aload_3
+        84: invokevirtual #449                // Method org/l2jmobius/gameserver/entity/actor/Creature.getZ:()I
+        87: isub
+        88: invokestatic  #450                // Method java/lang/Math.abs:(I)I
+        91: sipush        800
+        94: if_icmpge     149
+        97: invokestatic  #177                // Method org/l2jmobius/gameserver/geoengine/GeoEngine.getInstance:()Lorg/l2jmobius/gameserver/geoengine/GeoEngine;
+       100: aload_1
+       101: aload_3
+       102: invokevirtual #183                // Method org/l2jmobius/gameserver/geoengine/GeoEngine.canSeeTarget:(Lorg/l2jmobius/gameserver/entity/WorldObject;Lorg/l2jmobius/gameserver/entity/WorldObject;)Z
+       105: ifeq          149
+       108: invokestatic  #177                // Method org/l2jmobius/gameserver/geoengine/GeoEngine.getInstance:()Lorg/l2jmobius/gameserver/geoengine/GeoEngine;
+       111: aload_1
+       112: invokevirtual #299                // Method org/l2jmobius/gameserver/entity/actor/Player.getX:()I
+       115: aload_1
+       116: invokevirtual #302                // Method org/l2jmobius/gameserver/entity/actor/Player.getY:()I
+       119: aload_1
+       120: invokevirtual #305                // Method org/l2jmobius/gameserver/entity/actor/Player.getZ:()I
+       123: aload_3
+       124: invokevirtual #311                // Method org/l2jmobius/gameserver/entity/actor/Creature.getX:()I
+       127: aload_3
+       128: invokevirtual #312                // Method org/l2jmobius/gameserver/entity/actor/Creature.getY:()I
+       131: aload_3
+       132: invokevirtual #449                // Method org/l2jmobius/gameserver/entity/actor/Creature.getZ:()I
+       135: aload_1
+       136: invokevirtual #454                // Method org/l2jmobius/gameserver/entity/actor/Player.getInstanceId:()I
+       139: invokevirtual #457                // Method org/l2jmobius/gameserver/geoengine/GeoEngine.canMoveToTarget:(IIIIIII)Z
+       142: ifeq          149
+       145: iconst_1
+       146: goto          150
+       149: iconst_0
+       150: ireturn
+
+  private static boolean lambda$run$0(org.l2jmobius.gameserver.entity.actor.Player, org.l2jmobius.gameserver.entity.item.instance.Item);
+    Code:
+         0: aload_1
+         1: invokevirtual #461                // Method org/l2jmobius/gameserver/entity/item/instance/Item.isSpawned:()Z
+         4: ifeq          62
+         7: getstatic     #464                // Field org/l2jmobius/gameserver/config/custom/AutoPlayConfig.IGNORED_AUTO_PICK_ITEMS:Ljava/util/Set;
+        10: aload_1
+        11: invokevirtual #467                // Method org/l2jmobius/gameserver/entity/item/instance/Item.getId:()I
+        14: invokestatic  #123                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+        17: invokeinterface #470,  2          // InterfaceMethod java/util/Set.contains:(Ljava/lang/Object;)Z
+        22: ifne          62
+        25: invokestatic  #177                // Method org/l2jmobius/gameserver/geoengine/GeoEngine.getInstance:()Lorg/l2jmobius/gameserver/geoengine/GeoEngine;
+        28: aload_0
+        29: invokevirtual #299                // Method org/l2jmobius/gameserver/entity/actor/Player.getX:()I
+        32: aload_0
+        33: invokevirtual #302                // Method org/l2jmobius/gameserver/entity/actor/Player.getY:()I
+        36: aload_0
+        37: invokevirtual #305                // Method org/l2jmobius/gameserver/entity/actor/Player.getZ:()I
+        40: aload_1
+        41: invokevirtual #471                // Method org/l2jmobius/gameserver/entity/item/instance/Item.getX:()I
+        44: aload_1
+        45: invokevirtual #472                // Method org/l2jmobius/gameserver/entity/item/instance/Item.getY:()I
+        48: aload_1
+        49: invokevirtual #473                // Method org/l2jmobius/gameserver/entity/item/instance/Item.getZ:()I
+        52: aload_0
+        53: invokevirtual #454                // Method org/l2jmobius/gameserver/entity/actor/Player.getInstanceId:()I
+        56: invokevirtual #457                // Method org/l2jmobius/gameserver/geoengine/GeoEngine.canMoveToTarget:(IIIIIII)Z
+        59: ifne          64
+        62: iconst_0
+        63: ireturn
+        64: aload_0
+        65: aload_1
+        66: invokevirtual #149                // Method org/l2jmobius/gameserver/entity/actor/Player.calculateDistance2D:(Lorg/l2jmobius/gameserver/interfaces/ILocational;)D
+        69: ldc2_w        #335                // double 70.0d
+        72: dcmpl
+        73: ifle          78
+        76: iconst_1
+        77: ireturn
+        78: aload_1
+        79: invokevirtual #474                // Method org/l2jmobius/gameserver/entity/item/instance/Item.isProtected:()Z
+        82: ifeq          96
+        85: aload_1
+        86: invokevirtual #477                // Method org/l2jmobius/gameserver/entity/item/instance/Item.getOwnerId:()I
+        89: aload_0
+        90: invokevirtual #480                // Method org/l2jmobius/gameserver/entity/actor/Player.getObjectId:()I
+        93: if_icmpne     100
+        96: iconst_1
+        97: goto          101
+       100: iconst_0
+       101: ireturn
+}

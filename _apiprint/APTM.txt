@@ -1,0 +1,139 @@
+Compiled from "AutoPlayTaskManager.java"
+public class org.l2jmobius.gameserver.taskmanagers.AutoPlayTaskManager {
+  private static final java.util.Set<java.util.Set<org.l2jmobius.gameserver.entity.actor.Player>> POOLS;
+
+  private static final java.util.Map<org.l2jmobius.gameserver.entity.actor.Player, java.lang.Integer> IDLE_COUNT;
+
+  private static final int POOL_SIZE;
+
+  private static final int TASK_DELAY;
+
+  private static final java.lang.Integer AUTO_ATTACK_ACTION;
+
+  protected org.l2jmobius.gameserver.taskmanagers.AutoPlayTaskManager();
+    Code:
+         0: aload_0
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: return
+
+  public synchronized void startAutoPlay(org.l2jmobius.gameserver.entity.actor.Player);
+    Code:
+         0: getstatic     #7                  // Field POOLS:Ljava/util/Set;
+         3: invokeinterface #13,  1           // InterfaceMethod java/util/Set.iterator:()Ljava/util/Iterator;
+         8: astore_2
+         9: aload_2
+        10: invokeinterface #19,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+        15: ifeq          42
+        18: aload_2
+        19: invokeinterface #25,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        24: checkcast     #14                 // class java/util/Set
+        27: astore_3
+        28: aload_3
+        29: aload_1
+        30: invokeinterface #29,  2           // InterfaceMethod java/util/Set.contains:(Ljava/lang/Object;)Z
+        35: ifeq          39
+        38: return
+        39: goto          9
+        42: aload_1
+        43: iconst_1
+        44: invokevirtual #33                 // Method org/l2jmobius/gameserver/entity/actor/Player.setAutoPlaying:(Z)V
+        47: getstatic     #7                  // Field POOLS:Ljava/util/Set;
+        50: invokeinterface #13,  1           // InterfaceMethod java/util/Set.iterator:()Ljava/util/Iterator;
+        55: astore_2
+        56: aload_2
+        57: invokeinterface #19,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+        62: ifeq          103
+        65: aload_2
+        66: invokeinterface #25,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        71: checkcast     #14                 // class java/util/Set
+        74: astore_3
+        75: aload_3
+        76: invokeinterface #39,  1           // InterfaceMethod java/util/Set.size:()I
+        81: sipush        200
+        84: if_icmpge     100
+        87: aload_1
+        88: invokevirtual #43                 // Method org/l2jmobius/gameserver/entity/actor/Player.onActionRequest:()V
+        91: aload_3
+        92: aload_1
+        93: invokeinterface #46,  2           // InterfaceMethod java/util/Set.add:(Ljava/lang/Object;)Z
+        98: pop
+        99: return
+       100: goto          56
+       103: sipush        200
+       106: invokestatic  #49                 // Method java/util/concurrent/ConcurrentHashMap.newKeySet:(I)Ljava/util/concurrent/ConcurrentHashMap$KeySetView;
+       109: astore_2
+       110: aload_1
+       111: invokevirtual #43                 // Method org/l2jmobius/gameserver/entity/actor/Player.onActionRequest:()V
+       114: aload_2
+       115: aload_1
+       116: invokeinterface #46,  2           // InterfaceMethod java/util/Set.add:(Ljava/lang/Object;)Z
+       121: pop
+       122: new           #55                 // class org/l2jmobius/gameserver/taskmanagers/AutoPlayTaskManager$AutoPlay
+       125: dup
+       126: aload_0
+       127: aload_2
+       128: invokespecial #57                 // Method org/l2jmobius/gameserver/taskmanagers/AutoPlayTaskManager$AutoPlay."<init>":(Lorg/l2jmobius/gameserver/taskmanagers/AutoPlayTaskManager;Ljava/util/Set;)V
+       131: ldc2_w        #60                 // long 700l
+       134: ldc2_w        #60                 // long 700l
+       137: invokestatic  #62                 // Method org/l2jmobius/commons/threads/ThreadPool.schedulePriorityTaskAtFixedRate:(Ljava/lang/Runnable;JJ)Ljava/util/concurrent/ScheduledFuture;
+       140: pop
+       141: getstatic     #7                  // Field POOLS:Ljava/util/Set;
+       144: aload_2
+       145: invokeinterface #46,  2           // InterfaceMethod java/util/Set.add:(Ljava/lang/Object;)Z
+       150: pop
+       151: return
+
+  public void stopAutoPlay(org.l2jmobius.gameserver.entity.actor.Player);
+    Code:
+         0: getstatic     #7                  // Field POOLS:Ljava/util/Set;
+         3: invokeinterface #13,  1           // InterfaceMethod java/util/Set.iterator:()Ljava/util/Iterator;
+         8: astore_2
+         9: aload_2
+        10: invokeinterface #19,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+        15: ifeq          78
+        18: aload_2
+        19: invokeinterface #25,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        24: checkcast     #14                 // class java/util/Set
+        27: astore_3
+        28: aload_3
+        29: aload_1
+        30: invokeinterface #68,  2           // InterfaceMethod java/util/Set.remove:(Ljava/lang/Object;)Z
+        35: ifeq          75
+        38: aload_1
+        39: iconst_0
+        40: invokevirtual #33                 // Method org/l2jmobius/gameserver/entity/actor/Player.setAutoPlaying:(Z)V
+        43: aload_1
+        44: invokevirtual #71                 // Method org/l2jmobius/gameserver/entity/actor/Player.hasServitor:()Z
+        47: ifne          57
+        50: aload_1
+        51: invokevirtual #74                 // Method org/l2jmobius/gameserver/entity/actor/Player.hasPet:()Z
+        54: ifeq          64
+        57: aload_1
+        58: invokevirtual #77                 // Method org/l2jmobius/gameserver/entity/actor/Player.getSummon:()Lorg/l2jmobius/gameserver/entity/actor/Summon;
+        61: invokevirtual #81                 // Method org/l2jmobius/gameserver/entity/actor/Summon.followOwner:()V
+        64: getstatic     #86                 // Field IDLE_COUNT:Ljava/util/Map;
+        67: aload_1
+        68: invokeinterface #90,  2           // InterfaceMethod java/util/Map.remove:(Ljava/lang/Object;)Ljava/lang/Object;
+        73: pop
+        74: return
+        75: goto          9
+        78: return
+
+  public static org.l2jmobius.gameserver.taskmanagers.AutoPlayTaskManager getInstance();
+    Code:
+         0: getstatic     #95                 // Field org/l2jmobius/gameserver/taskmanagers/AutoPlayTaskManager$SingletonHolder.INSTANCE:Lorg/l2jmobius/gameserver/taskmanagers/AutoPlayTaskManager;
+         3: areturn
+
+  static {};
+    Code:
+         0: invokestatic  #101                // Method java/util/concurrent/ConcurrentHashMap.newKeySet:()Ljava/util/concurrent/ConcurrentHashMap$KeySetView;
+         3: putstatic     #7                  // Field POOLS:Ljava/util/Set;
+         6: new           #50                 // class java/util/concurrent/ConcurrentHashMap
+         9: dup
+        10: invokespecial #104                // Method java/util/concurrent/ConcurrentHashMap."<init>":()V
+        13: putstatic     #86                 // Field IDLE_COUNT:Ljava/util/Map;
+        16: iconst_2
+        17: invokestatic  #105                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+        20: putstatic     #111                // Field AUTO_ATTACK_ACTION:Ljava/lang/Integer;
+        23: return
+}

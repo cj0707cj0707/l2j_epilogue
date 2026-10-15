@@ -1,0 +1,2862 @@
+Compiled from "OlympiadGame.java"
+class org.l2jmobius.gameserver.mechanics.olympiad.OlympiadGame {
+  protected static final java.util.logging.Logger LOGGER;
+
+  protected static final java.util.logging.Logger _logResults;
+
+  protected final org.l2jmobius.gameserver.mechanics.olympiad.CompetitionType _type;
+
+  protected boolean _aborted;
+
+  protected boolean _gamestarted;
+
+  protected boolean _playerOneDisconnected;
+
+  protected boolean _playerTwoDisconnected;
+
+  protected boolean _playerOneDefaulted;
+
+  protected boolean _playerTwoDefaulted;
+
+  protected java.lang.String _playerOneName;
+
+  protected java.lang.String _playerTwoName;
+
+  protected int _playerOneID;
+
+  protected int _playerTwoID;
+
+  protected int _playerOneClass;
+
+  protected int _playerTwoClass;
+
+  protected static final int OLY_BUFFER;
+
+  protected static final int OLY_MANAGER;
+
+  private static final java.lang.String POINTS;
+
+  private static final java.lang.String COMP_DONE;
+
+  private static final java.lang.String COMP_WON;
+
+  private static final java.lang.String COMP_LOST;
+
+  private static final java.lang.String COMP_DRAWN;
+
+  protected static boolean _battleStarted;
+
+  protected static boolean _gameIsStarted;
+
+  protected long _startTime;
+
+  public int _damageP1;
+
+  public int _damageP2;
+
+  public org.l2jmobius.gameserver.entity.actor.Player _playerOne;
+
+  public org.l2jmobius.gameserver.entity.actor.Player _playerTwo;
+
+  public org.l2jmobius.gameserver.entity.spawns.Spawn _spawnOne;
+
+  public org.l2jmobius.gameserver.entity.spawns.Spawn _spawnTwo;
+
+  protected java.util.List<org.l2jmobius.gameserver.entity.actor.Player> _players;
+
+  private final int[] _stadiumPort;
+
+  private int x1;
+
+  private int y1;
+
+  private int z1;
+
+  private int x2;
+
+  private int y2;
+
+  private int z2;
+
+  public final int _stadiumID;
+
+  protected org.l2jmobius.gameserver.network.serverpackets.SystemMessage _sm;
+
+  private org.l2jmobius.gameserver.network.serverpackets.SystemMessage _sm2;
+
+  private org.l2jmobius.gameserver.network.serverpackets.SystemMessage _sm3;
+
+  protected org.l2jmobius.gameserver.mechanics.olympiad.OlympiadGame(int, org.l2jmobius.gameserver.mechanics.olympiad.CompetitionType, java.util.List<org.l2jmobius.gameserver.entity.actor.Player>);
+    Code:
+         0: aload_0
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: iconst_0
+         6: putfield      #7                  // Field _playerOneID:I
+         9: aload_0
+        10: iconst_0
+        11: putfield      #13                 // Field _playerTwoID:I
+        14: aload_0
+        15: iconst_0
+        16: putfield      #16                 // Field _playerOneClass:I
+        19: aload_0
+        20: iconst_0
+        21: putfield      #19                 // Field _playerTwoClass:I
+        24: aload_0
+        25: lconst_0
+        26: putfield      #22                 // Field _startTime:J
+        29: aload_0
+        30: iconst_0
+        31: putfield      #26                 // Field _damageP1:I
+        34: aload_0
+        35: iconst_0
+        36: putfield      #29                 // Field _damageP2:I
+        39: aload_0
+        40: iconst_0
+        41: putfield      #32                 // Field _aborted:Z
+        44: aload_0
+        45: iconst_0
+        46: putfield      #36                 // Field _gamestarted:Z
+        49: aload_0
+        50: iload_1
+        51: putfield      #39                 // Field _stadiumID:I
+        54: aload_0
+        55: iconst_0
+        56: putfield      #42                 // Field _playerOneDisconnected:Z
+        59: aload_0
+        60: iconst_0
+        61: putfield      #45                 // Field _playerTwoDisconnected:Z
+        64: aload_0
+        65: aload_2
+        66: putfield      #48                 // Field _type:Lorg/l2jmobius/gameserver/mechanics/olympiad/CompetitionType;
+        69: aload_0
+        70: getstatic     #52                 // Field org/l2jmobius/gameserver/mechanics/olympiad/OlympiadManager.STADIUMS:[Lorg/l2jmobius/gameserver/mechanics/olympiad/OlympiadStadium;
+        73: iload_1
+        74: aaload
+        75: invokevirtual #58                 // Method org/l2jmobius/gameserver/mechanics/olympiad/OlympiadStadium.getCoordinates:()[I
+        78: putfield      #64                 // Field _stadiumPort:[I
+        81: aload_3
+        82: ifnull        217
+        85: aload_0
+        86: aload_3
+        87: putfield      #68                 // Field _players:Ljava/util/List;
+        90: aload_0
+        91: aload_3
+        92: iconst_0
+        93: invokeinterface #72,  2           // InterfaceMethod java/util/List.get:(I)Ljava/lang/Object;
+        98: checkcast     #78                 // class org/l2jmobius/gameserver/entity/actor/Player
+       101: putfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+       104: aload_0
+       105: aload_3
+       106: iconst_1
+       107: invokeinterface #72,  2           // InterfaceMethod java/util/List.get:(I)Ljava/lang/Object;
+       112: checkcast     #78                 // class org/l2jmobius/gameserver/entity/actor/Player
+       115: putfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+       118: aload_0
+       119: aload_0
+       120: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+       123: invokevirtual #87                 // Method org/l2jmobius/gameserver/entity/actor/Player.getName:()Ljava/lang/String;
+       126: putfield      #91                 // Field _playerOneName:Ljava/lang/String;
+       129: aload_0
+       130: aload_0
+       131: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+       134: invokevirtual #87                 // Method org/l2jmobius/gameserver/entity/actor/Player.getName:()Ljava/lang/String;
+       137: putfield      #95                 // Field _playerTwoName:Ljava/lang/String;
+       140: aload_0
+       141: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+       144: iload_1
+       145: invokevirtual #98                 // Method org/l2jmobius/gameserver/entity/actor/Player.setOlympiadGameId:(I)V
+       148: aload_0
+       149: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+       152: iload_1
+       153: invokevirtual #98                 // Method org/l2jmobius/gameserver/entity/actor/Player.setOlympiadGameId:(I)V
+       156: aload_0
+       157: aload_0
+       158: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+       161: invokevirtual #102                // Method org/l2jmobius/gameserver/entity/actor/Player.getObjectId:()I
+       164: putfield      #7                  // Field _playerOneID:I
+       167: aload_0
+       168: aload_0
+       169: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+       172: invokevirtual #102                // Method org/l2jmobius/gameserver/entity/actor/Player.getObjectId:()I
+       175: putfield      #13                 // Field _playerTwoID:I
+       178: aload_0
+       179: aload_0
+       180: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+       183: invokevirtual #106                // Method org/l2jmobius/gameserver/entity/actor/Player.getBaseClass:()I
+       186: putfield      #16                 // Field _playerOneClass:I
+       189: aload_0
+       190: aload_0
+       191: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+       194: invokevirtual #106                // Method org/l2jmobius/gameserver/entity/actor/Player.getBaseClass:()I
+       197: putfield      #19                 // Field _playerTwoClass:I
+       200: goto          226
+       203: astore        4
+       205: aload_0
+       206: iconst_1
+       207: putfield      #32                 // Field _aborted:Z
+       210: aload_0
+       211: invokevirtual #111                // Method clearPlayers:()V
+       214: goto          226
+       217: aload_0
+       218: iconst_1
+       219: putfield      #32                 // Field _aborted:Z
+       222: aload_0
+       223: invokevirtual #111                // Method clearPlayers:()V
+       226: return
+      Exception table:
+         from    to  target type
+           118   200   203   Class java/lang/Exception
+
+  public boolean isAborted();
+    Code:
+         0: aload_0
+         1: getfield      #32                 // Field _aborted:Z
+         4: ireturn
+
+  protected void clearPlayers();
+    Code:
+         0: aload_0
+         1: aconst_null
+         2: putfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+         5: aload_0
+         6: aconst_null
+         7: putfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+        10: aload_0
+        11: aconst_null
+        12: putfield      #68                 // Field _players:Ljava/util/List;
+        15: aload_0
+        16: ldc           #114                // String
+        18: putfield      #91                 // Field _playerOneName:Ljava/lang/String;
+        21: aload_0
+        22: ldc           #114                // String
+        24: putfield      #95                 // Field _playerTwoName:Ljava/lang/String;
+        27: aload_0
+        28: iconst_0
+        29: putfield      #7                  // Field _playerOneID:I
+        32: aload_0
+        33: iconst_0
+        34: putfield      #13                 // Field _playerTwoID:I
+        37: return
+
+  protected void handleDisconnect(org.l2jmobius.gameserver.entity.actor.Player);
+    Code:
+         0: aload_0
+         1: getfield      #36                 // Field _gamestarted:Z
+         4: ifeq          36
+         7: aload_1
+         8: aload_0
+         9: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+        12: if_acmpne     23
+        15: aload_0
+        16: iconst_1
+        17: putfield      #42                 // Field _playerOneDisconnected:Z
+        20: goto          36
+        23: aload_1
+        24: aload_0
+        25: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+        28: if_acmpne     36
+        31: aload_0
+        32: iconst_1
+        33: putfield      #45                 // Field _playerTwoDisconnected:Z
+        36: return
+
+  public org.l2jmobius.gameserver.entity.spawns.Spawn SpawnBuffer(int, int, int, int);
+    Code:
+         0: invokestatic  #116                // Method org/l2jmobius/gameserver/data/xml/NpcData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/NpcData;
+         3: iload         4
+         5: invokevirtual #122                // Method org/l2jmobius/gameserver/data/xml/NpcData.getTemplate:(I)Lorg/l2jmobius/gameserver/entity/actor/templates/NpcTemplate;
+         8: astore        5
+        10: new           #126                // class org/l2jmobius/gameserver/entity/spawns/Spawn
+        13: dup
+        14: aload         5
+        16: invokespecial #128                // Method org/l2jmobius/gameserver/entity/spawns/Spawn."<init>":(Lorg/l2jmobius/gameserver/entity/actor/templates/NpcTemplate;)V
+        19: astore        6
+        21: aload         6
+        23: iload_1
+        24: iload_2
+        25: iload_3
+        26: invokevirtual #131                // Method org/l2jmobius/gameserver/entity/spawns/Spawn.setXYZ:(III)V
+        29: aload         6
+        31: iconst_1
+        32: invokevirtual #135                // Method org/l2jmobius/gameserver/entity/spawns/Spawn.setAmount:(I)V
+        35: aload         6
+        37: iconst_0
+        38: invokevirtual #138                // Method org/l2jmobius/gameserver/entity/spawns/Spawn.setHeading:(I)V
+        41: aload         6
+        43: iconst_1
+        44: invokevirtual #141                // Method org/l2jmobius/gameserver/entity/spawns/Spawn.setRespawnDelay:(I)V
+        47: invokestatic  #144                // Method org/l2jmobius/gameserver/data/SpawnTable.getInstance:()Lorg/l2jmobius/gameserver/data/SpawnTable;
+        50: aload         6
+        52: invokevirtual #149                // Method org/l2jmobius/gameserver/data/SpawnTable.addSpawn:(Lorg/l2jmobius/gameserver/entity/spawns/Spawn;)V
+        55: aload         6
+        57: invokevirtual #153                // Method org/l2jmobius/gameserver/entity/spawns/Spawn.init:()I
+        60: pop
+        61: aload         6
+        63: invokevirtual #156                // Method org/l2jmobius/gameserver/entity/spawns/Spawn.stopRespawn:()V
+        66: aload         6
+        68: areturn
+        69: astore        6
+        71: getstatic     #159                // Field LOGGER:Ljava/util/logging/Logger;
+        74: getstatic     #163                // Field java/util/logging/Level.WARNING:Ljava/util/logging/Level;
+        77: ldc           #169                // String SpawnBuffer:
+        79: aload         6
+        81: invokevirtual #171                // Method java/util/logging/Logger.log:(Ljava/util/logging/Level;Ljava/lang/String;Ljava/lang/Throwable;)V
+        84: aconst_null
+        85: areturn
+      Exception table:
+         from    to  target type
+            10    68    69   Class java/lang/Exception
+
+  protected void removals();
+    Code:
+         0: aload_0
+         1: getfield      #32                 // Field _aborted:Z
+         4: ifeq          8
+         7: return
+         8: aload_0
+         9: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+        12: ifnull        22
+        15: aload_0
+        16: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+        19: ifnonnull     23
+        22: return
+        23: aload_0
+        24: getfield      #42                 // Field _playerOneDisconnected:Z
+        27: ifne          37
+        30: aload_0
+        31: getfield      #45                 // Field _playerTwoDisconnected:Z
+        34: ifeq          38
+        37: return
+        38: aload_0
+        39: getfield      #68                 // Field _players:Ljava/util/List;
+        42: invokeinterface #177,  1          // InterfaceMethod java/util/List.iterator:()Ljava/util/Iterator;
+        47: astore_1
+        48: aload_1
+        49: invokeinterface #181,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+        54: ifeq          455
+        57: aload_1
+        58: invokeinterface #187,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        63: checkcast     #78                 // class org/l2jmobius/gameserver/entity/actor/Player
+        66: astore_2
+        67: aload_2
+        68: invokevirtual #191                // Method org/l2jmobius/gameserver/entity/actor/Player.stopAllEffectsExceptThoseThatLastThroughDeath:()V
+        71: aload_2
+        72: invokevirtual #194                // Method org/l2jmobius/gameserver/entity/actor/Player.getClan:()Lorg/l2jmobius/gameserver/entity/clan/Clan;
+        75: astore_3
+        76: aload_3
+        77: ifnull        179
+        80: aload_3
+        81: invokevirtual #198                // Method org/l2jmobius/gameserver/entity/clan/Clan.getAllSkills:()Ljava/util/Collection;
+        84: invokeinterface #204,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+        89: astore        4
+        91: aload         4
+        93: invokeinterface #181,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+        98: ifeq          125
+       101: aload         4
+       103: invokeinterface #187,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+       108: checkcast     #207                // class org/l2jmobius/gameserver/mechanics/skill/Skill
+       111: astore        5
+       113: aload_2
+       114: aload         5
+       116: iconst_0
+       117: iconst_1
+       118: invokevirtual #209                // Method org/l2jmobius/gameserver/entity/actor/Player.removeSkill:(Lorg/l2jmobius/gameserver/mechanics/skill/Skill;ZZ)Lorg/l2jmobius/gameserver/mechanics/skill/Skill;
+       121: pop
+       122: goto          91
+       125: aload_3
+       126: invokevirtual #213                // Method org/l2jmobius/gameserver/entity/clan/Clan.getCastleId:()I
+       129: ifle          152
+       132: invokestatic  #216                // Method org/l2jmobius/gameserver/managers/CastleManager.getInstance:()Lorg/l2jmobius/gameserver/managers/CastleManager;
+       135: aload_3
+       136: invokevirtual #221                // Method org/l2jmobius/gameserver/managers/CastleManager.getCastleByOwner:(Lorg/l2jmobius/gameserver/entity/clan/Clan;)Lorg/l2jmobius/gameserver/mechanics/siege/Castle;
+       139: astore        4
+       141: aload         4
+       143: ifnull        152
+       146: aload         4
+       148: aload_2
+       149: invokevirtual #225                // Method org/l2jmobius/gameserver/mechanics/siege/Castle.removeResidentialSkills:(Lorg/l2jmobius/gameserver/entity/actor/Player;)V
+       152: aload_3
+       153: invokevirtual #231                // Method org/l2jmobius/gameserver/entity/clan/Clan.getFortId:()I
+       156: ifle          179
+       159: invokestatic  #234                // Method org/l2jmobius/gameserver/managers/FortManager.getInstance:()Lorg/l2jmobius/gameserver/managers/FortManager;
+       162: aload_3
+       163: invokevirtual #239                // Method org/l2jmobius/gameserver/managers/FortManager.getFortByOwner:(Lorg/l2jmobius/gameserver/entity/clan/Clan;)Lorg/l2jmobius/gameserver/mechanics/siege/Fort;
+       166: astore        4
+       168: aload         4
+       170: ifnull        179
+       173: aload         4
+       175: aload_2
+       176: invokevirtual #243                // Method org/l2jmobius/gameserver/mechanics/siege/Fort.removeResidentialSkills:(Lorg/l2jmobius/gameserver/entity/actor/Player;)V
+       179: aload_2
+       180: invokevirtual #246                // Method org/l2jmobius/gameserver/entity/actor/Player.isCastingNow:()Z
+       183: ifeq          190
+       186: aload_2
+       187: invokevirtual #249                // Method org/l2jmobius/gameserver/entity/actor/Player.abortCast:()V
+       190: aload_2
+       191: iconst_0
+       192: invokevirtual #252                // Method org/l2jmobius/gameserver/entity/actor/Player.setInvisible:(Z)V
+       195: aload_2
+       196: invokevirtual #256                // Method org/l2jmobius/gameserver/entity/actor/Player.isHero:()Z
+       199: ifeq          243
+       202: invokestatic  #259                // Method org/l2jmobius/gameserver/data/HeroSkillTable.getHeroSkills:()[Lorg/l2jmobius/gameserver/mechanics/skill/Skill;
+       205: astore        4
+       207: aload         4
+       209: arraylength
+       210: istore        5
+       212: iconst_0
+       213: istore        6
+       215: iload         6
+       217: iload         5
+       219: if_icmpge     243
+       222: aload         4
+       224: iload         6
+       226: aaload
+       227: astore        7
+       229: aload_2
+       230: aload         7
+       232: iconst_0
+       233: invokevirtual #265                // Method org/l2jmobius/gameserver/entity/actor/Player.removeSkill:(Lorg/l2jmobius/gameserver/mechanics/skill/Skill;Z)Lorg/l2jmobius/gameserver/mechanics/skill/Skill;
+       236: pop
+       237: iinc          6, 1
+       240: goto          215
+       243: aload_2
+       244: aload_2
+       245: invokevirtual #268                // Method org/l2jmobius/gameserver/entity/actor/Player.getMaxCp:()I
+       248: i2d
+       249: invokevirtual #271                // Method org/l2jmobius/gameserver/entity/actor/Player.setCurrentCp:(D)V
+       252: aload_2
+       253: aload_2
+       254: invokevirtual #275                // Method org/l2jmobius/gameserver/entity/actor/Player.getMaxHp:()I
+       257: i2d
+       258: invokevirtual #278                // Method org/l2jmobius/gameserver/entity/actor/Player.setCurrentHp:(D)V
+       261: aload_2
+       262: aload_2
+       263: invokevirtual #281                // Method org/l2jmobius/gameserver/entity/actor/Player.getMaxMp:()I
+       266: i2d
+       267: invokevirtual #284                // Method org/l2jmobius/gameserver/entity/actor/Player.setCurrentMp:(D)V
+       270: aload_2
+       271: invokevirtual #287                // Method org/l2jmobius/gameserver/entity/actor/Player.hasSummon:()Z
+       274: ifeq          302
+       277: aload_2
+       278: invokevirtual #290                // Method org/l2jmobius/gameserver/entity/actor/Player.getSummon:()Lorg/l2jmobius/gameserver/entity/actor/Summon;
+       281: astore        4
+       283: aload         4
+       285: invokevirtual #294                // Method org/l2jmobius/gameserver/entity/actor/Summon.stopAllEffects:()V
+       288: aload         4
+       290: invokevirtual #299                // Method org/l2jmobius/gameserver/entity/actor/Summon.isPet:()Z
+       293: ifeq          302
+       296: aload         4
+       298: aload_2
+       299: invokevirtual #302                // Method org/l2jmobius/gameserver/entity/actor/Summon.unSummon:(Lorg/l2jmobius/gameserver/entity/actor/Player;)V
+       302: aload_2
+       303: invokevirtual #305                // Method org/l2jmobius/gameserver/entity/actor/Player.stopCubicsByOthers:()V
+       306: aload_2
+       307: invokevirtual #308                // Method org/l2jmobius/gameserver/entity/actor/Player.getParty:()Lorg/l2jmobius/gameserver/entity/groups/Party;
+       310: ifnull        326
+       313: aload_2
+       314: invokevirtual #308                // Method org/l2jmobius/gameserver/entity/actor/Player.getParty:()Lorg/l2jmobius/gameserver/entity/groups/Party;
+       317: astore        4
+       319: aload         4
+       321: aload_2
+       322: aconst_null
+       323: invokevirtual #312                // Method org/l2jmobius/gameserver/entity/groups/Party.removePartyMember:(Lorg/l2jmobius/gameserver/entity/actor/Player;Lorg/l2jmobius/gameserver/entity/groups/PartyMessageType;)V
+       326: aload_2
+       327: invokevirtual #318                // Method org/l2jmobius/gameserver/entity/actor/Player.getAgathionId:()I
+       330: ifle          342
+       333: aload_2
+       334: iconst_0
+       335: invokevirtual #321                // Method org/l2jmobius/gameserver/entity/actor/Player.setAgathionId:(I)V
+       338: aload_2
+       339: invokevirtual #324                // Method org/l2jmobius/gameserver/entity/actor/Player.broadcastUserInfo:()V
+       342: aload_2
+       343: invokevirtual #327                // Method org/l2jmobius/gameserver/entity/actor/Player.checkItemRestriction:()V
+       346: aload_2
+       347: invokevirtual #330                // Method org/l2jmobius/gameserver/entity/actor/Player.disableAutoShotsAll:()V
+       350: aload_2
+       351: invokevirtual #333                // Method org/l2jmobius/gameserver/entity/actor/Player.getActiveWeaponInstance:()Lorg/l2jmobius/gameserver/entity/item/instance/Item;
+       354: astore        4
+       356: aload         4
+       358: ifnull        366
+       361: aload         4
+       363: invokevirtual #337                // Method org/l2jmobius/gameserver/entity/item/instance/Item.unChargeAllShots:()V
+       366: aload_2
+       367: invokevirtual #342                // Method org/l2jmobius/gameserver/entity/actor/Player.getAllSkills:()Ljava/util/Collection;
+       370: invokeinterface #204,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+       375: astore        5
+       377: aload         5
+       379: invokeinterface #181,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+       384: ifeq          419
+       387: aload         5
+       389: invokeinterface #187,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+       394: checkcast     #207                // class org/l2jmobius/gameserver/mechanics/skill/Skill
+       397: astore        6
+       399: aload         6
+       401: invokevirtual #343                // Method org/l2jmobius/gameserver/mechanics/skill/Skill.getReuseDelay:()I
+       404: ldc_w         #346                // int 900000
+       407: if_icmpgt     416
+       410: aload_2
+       411: aload         6
+       413: invokevirtual #347                // Method org/l2jmobius/gameserver/entity/actor/Player.enableSkill:(Lorg/l2jmobius/gameserver/mechanics/skill/Skill;)V
+       416: goto          377
+       419: aload_2
+       420: invokevirtual #351                // Method org/l2jmobius/gameserver/entity/actor/Player.sendSkillList:()V
+       423: aload_2
+       424: new           #354                // class org/l2jmobius/gameserver/network/serverpackets/SkillCoolTime
+       427: dup
+       428: aload_2
+       429: invokespecial #356                // Method org/l2jmobius/gameserver/network/serverpackets/SkillCoolTime."<init>":(Lorg/l2jmobius/gameserver/entity/actor/Player;)V
+       432: invokevirtual #358                // Method org/l2jmobius/gameserver/entity/actor/Player.sendPacket:(Lorg/l2jmobius/gameserver/network/serverpackets/ServerPacket;)V
+       435: goto          452
+       438: astore_3
+       439: getstatic     #159                // Field LOGGER:Ljava/util/logging/Logger;
+       442: getstatic     #163                // Field java/util/logging/Level.WARNING:Ljava/util/logging/Level;
+       445: ldc_w         #362                // String removals:
+       448: aload_3
+       449: invokevirtual #171                // Method java/util/logging/Logger.log:(Ljava/util/logging/Level;Ljava/lang/String;Ljava/lang/Throwable;)V
+       452: goto          48
+       455: return
+      Exception table:
+         from    to  target type
+            67   435   438   Class java/lang/Exception
+
+  protected boolean portPlayersToArena();
+    Code:
+         0: aload_0
+         1: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+         4: ifnull        14
+         7: aload_0
+         8: getfield      #42                 // Field _playerOneDisconnected:Z
+        11: ifeq          18
+        14: iconst_1
+        15: goto          19
+        18: iconst_0
+        19: istore_1
+        20: aload_0
+        21: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+        24: ifnull        34
+        27: aload_0
+        28: getfield      #45                 // Field _playerTwoDisconnected:Z
+        31: ifeq          38
+        34: iconst_1
+        35: goto          39
+        38: iconst_0
+        39: istore_2
+        40: iload_1
+        41: ifne          55
+        44: iload_2
+        45: ifne          55
+        48: aload_0
+        49: getfield      #32                 // Field _aborted:Z
+        52: ifeq          72
+        55: aload_0
+        56: aconst_null
+        57: putfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+        60: aload_0
+        61: aconst_null
+        62: putfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+        65: aload_0
+        66: iconst_1
+        67: putfield      #32                 // Field _aborted:Z
+        70: iconst_0
+        71: ireturn
+        72: aload_0
+        73: aload_0
+        74: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+        77: invokevirtual #364                // Method org/l2jmobius/gameserver/entity/actor/Player.getX:()I
+        80: putfield      #367                // Field x1:I
+        83: aload_0
+        84: aload_0
+        85: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+        88: invokevirtual #370                // Method org/l2jmobius/gameserver/entity/actor/Player.getY:()I
+        91: putfield      #373                // Field y1:I
+        94: aload_0
+        95: aload_0
+        96: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+        99: invokevirtual #376                // Method org/l2jmobius/gameserver/entity/actor/Player.getZ:()I
+       102: putfield      #379                // Field z1:I
+       105: aload_0
+       106: aload_0
+       107: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+       110: invokevirtual #364                // Method org/l2jmobius/gameserver/entity/actor/Player.getX:()I
+       113: putfield      #382                // Field x2:I
+       116: aload_0
+       117: aload_0
+       118: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+       121: invokevirtual #370                // Method org/l2jmobius/gameserver/entity/actor/Player.getY:()I
+       124: putfield      #385                // Field y2:I
+       127: aload_0
+       128: aload_0
+       129: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+       132: invokevirtual #376                // Method org/l2jmobius/gameserver/entity/actor/Player.getZ:()I
+       135: putfield      #388                // Field z2:I
+       138: aload_0
+       139: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+       142: invokevirtual #391                // Method org/l2jmobius/gameserver/entity/actor/Player.isSitting:()Z
+       145: ifeq          155
+       148: aload_0
+       149: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+       152: invokevirtual #394                // Method org/l2jmobius/gameserver/entity/actor/Player.standUp:()V
+       155: aload_0
+       156: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+       159: invokevirtual #391                // Method org/l2jmobius/gameserver/entity/actor/Player.isSitting:()Z
+       162: ifeq          172
+       165: aload_0
+       166: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+       169: invokevirtual #394                // Method org/l2jmobius/gameserver/entity/actor/Player.standUp:()V
+       172: aload_0
+       173: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+       176: aconst_null
+       177: invokevirtual #397                // Method org/l2jmobius/gameserver/entity/actor/Player.setTarget:(Lorg/l2jmobius/gameserver/entity/WorldObject;)V
+       180: aload_0
+       181: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+       184: aconst_null
+       185: invokevirtual #397                // Method org/l2jmobius/gameserver/entity/actor/Player.setTarget:(Lorg/l2jmobius/gameserver/entity/WorldObject;)V
+       188: aload_0
+       189: iconst_1
+       190: putfield      #36                 // Field _gamestarted:Z
+       193: aload_0
+       194: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+       197: iconst_0
+       198: invokevirtual #401                // Method org/l2jmobius/gameserver/entity/actor/Player.setInstanceId:(I)V
+       201: aload_0
+       202: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+       205: aload_0
+       206: getfield      #64                 // Field _stadiumPort:[I
+       209: iconst_0
+       210: iaload
+       211: sipush        1200
+       214: iadd
+       215: aload_0
+       216: getfield      #64                 // Field _stadiumPort:[I
+       219: iconst_1
+       220: iaload
+       221: aload_0
+       222: getfield      #64                 // Field _stadiumPort:[I
+       225: iconst_2
+       226: iaload
+       227: iconst_0
+       228: invokevirtual #404                // Method org/l2jmobius/gameserver/entity/actor/Player.teleToLocation:(IIIZ)V
+       231: aload_0
+       232: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+       235: iconst_0
+       236: invokevirtual #401                // Method org/l2jmobius/gameserver/entity/actor/Player.setInstanceId:(I)V
+       239: aload_0
+       240: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+       243: aload_0
+       244: getfield      #64                 // Field _stadiumPort:[I
+       247: iconst_0
+       248: iaload
+       249: sipush        1200
+       252: isub
+       253: aload_0
+       254: getfield      #64                 // Field _stadiumPort:[I
+       257: iconst_1
+       258: iaload
+       259: aload_0
+       260: getfield      #64                 // Field _stadiumPort:[I
+       263: iconst_2
+       264: iaload
+       265: iconst_0
+       266: invokevirtual #404                // Method org/l2jmobius/gameserver/entity/actor/Player.teleToLocation:(IIIZ)V
+       269: aload_0
+       270: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+       273: new           #408                // class org/l2jmobius/gameserver/network/serverpackets/ExOlympiadMode
+       276: dup
+       277: iconst_2
+       278: invokespecial #410                // Method org/l2jmobius/gameserver/network/serverpackets/ExOlympiadMode."<init>":(I)V
+       281: invokevirtual #358                // Method org/l2jmobius/gameserver/entity/actor/Player.sendPacket:(Lorg/l2jmobius/gameserver/network/serverpackets/ServerPacket;)V
+       284: aload_0
+       285: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+       288: new           #408                // class org/l2jmobius/gameserver/network/serverpackets/ExOlympiadMode
+       291: dup
+       292: iconst_2
+       293: invokespecial #410                // Method org/l2jmobius/gameserver/network/serverpackets/ExOlympiadMode."<init>":(I)V
+       296: invokevirtual #358                // Method org/l2jmobius/gameserver/entity/actor/Player.sendPacket:(Lorg/l2jmobius/gameserver/network/serverpackets/ServerPacket;)V
+       299: aload_0
+       300: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+       303: iconst_1
+       304: invokevirtual #412                // Method org/l2jmobius/gameserver/entity/actor/Player.setInOlympiadMode:(Z)V
+       307: aload_0
+       308: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+       311: iconst_0
+       312: invokevirtual #415                // Method org/l2jmobius/gameserver/entity/actor/Player.setOlympiadStart:(Z)V
+       315: aload_0
+       316: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+       319: iconst_1
+       320: invokevirtual #418                // Method org/l2jmobius/gameserver/entity/actor/Player.setOlympiadSide:(I)V
+       323: aload_0
+       324: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+       327: getstatic     #421                // Field org/l2jmobius/gameserver/config/OlympiadConfig.OLYMPIAD_MAX_BUFFS:I
+       330: invokevirtual #426                // Method org/l2jmobius/gameserver/entity/actor/Player.setOlympiadBuffCount:(I)V
+       333: aload_0
+       334: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+       337: iconst_1
+       338: invokevirtual #412                // Method org/l2jmobius/gameserver/entity/actor/Player.setInOlympiadMode:(Z)V
+       341: aload_0
+       342: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+       345: iconst_0
+       346: invokevirtual #415                // Method org/l2jmobius/gameserver/entity/actor/Player.setOlympiadStart:(Z)V
+       349: aload_0
+       350: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+       353: iconst_2
+       354: invokevirtual #418                // Method org/l2jmobius/gameserver/entity/actor/Player.setOlympiadSide:(I)V
+       357: aload_0
+       358: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+       361: getstatic     #421                // Field org/l2jmobius/gameserver/config/OlympiadConfig.OLYMPIAD_MAX_BUFFS:I
+       364: invokevirtual #426                // Method org/l2jmobius/gameserver/entity/actor/Player.setOlympiadBuffCount:(I)V
+       367: aload_0
+       368: aload_0
+       369: aload_0
+       370: getfield      #64                 // Field _stadiumPort:[I
+       373: iconst_0
+       374: iaload
+       375: sipush        1100
+       378: iadd
+       379: aload_0
+       380: getfield      #64                 // Field _stadiumPort:[I
+       383: iconst_1
+       384: iaload
+       385: aload_0
+       386: getfield      #64                 // Field _stadiumPort:[I
+       389: iconst_2
+       390: iaload
+       391: ldc_w         #429                // int 36402
+       394: invokevirtual #430                // Method SpawnBuffer:(IIII)Lorg/l2jmobius/gameserver/entity/spawns/Spawn;
+       397: putfield      #434                // Field _spawnOne:Lorg/l2jmobius/gameserver/entity/spawns/Spawn;
+       400: aload_0
+       401: aload_0
+       402: aload_0
+       403: getfield      #64                 // Field _stadiumPort:[I
+       406: iconst_0
+       407: iaload
+       408: sipush        1100
+       411: isub
+       412: aload_0
+       413: getfield      #64                 // Field _stadiumPort:[I
+       416: iconst_1
+       417: iaload
+       418: aload_0
+       419: getfield      #64                 // Field _stadiumPort:[I
+       422: iconst_2
+       423: iaload
+       424: ldc_w         #429                // int 36402
+       427: invokevirtual #430                // Method SpawnBuffer:(IIII)Lorg/l2jmobius/gameserver/entity/spawns/Spawn;
+       430: putfield      #438                // Field _spawnTwo:Lorg/l2jmobius/gameserver/entity/spawns/Spawn;
+       433: iconst_0
+       434: putstatic     #441                // Field _gameIsStarted:Z
+       437: goto          456
+       440: astore_3
+       441: getstatic     #159                // Field LOGGER:Ljava/util/logging/Logger;
+       444: getstatic     #163                // Field java/util/logging/Level.WARNING:Ljava/util/logging/Level;
+       447: ldc_w         #446                // String portPlayersToArena:
+       450: aload_3
+       451: invokevirtual #171                // Method java/util/logging/Logger.log:(Ljava/util/logging/Level;Ljava/lang/String;Ljava/lang/Throwable;)V
+       454: iconst_0
+       455: ireturn
+       456: iconst_1
+       457: ireturn
+      Exception table:
+         from    to  target type
+            72   437   440   Class java/lang/NullPointerException
+
+  protected void cleanEffects();
+    Code:
+         0: aload_0
+         1: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+         4: ifnull        14
+         7: aload_0
+         8: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+        11: ifnonnull     15
+        14: return
+        15: aload_0
+        16: getfield      #42                 // Field _playerOneDisconnected:Z
+        19: ifne          29
+        22: aload_0
+        23: getfield      #45                 // Field _playerTwoDisconnected:Z
+        26: ifeq          30
+        29: return
+        30: aload_0
+        31: getfield      #68                 // Field _players:Ljava/util/List;
+        34: invokeinterface #177,  1          // InterfaceMethod java/util/List.iterator:()Ljava/util/Iterator;
+        39: astore_1
+        40: aload_1
+        41: invokeinterface #181,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+        46: ifeq          119
+        49: aload_1
+        50: invokeinterface #187,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        55: checkcast     #78                 // class org/l2jmobius/gameserver/entity/actor/Player
+        58: astore_2
+        59: aload_2
+        60: invokevirtual #191                // Method org/l2jmobius/gameserver/entity/actor/Player.stopAllEffectsExceptThoseThatLastThroughDeath:()V
+        63: aload_2
+        64: invokevirtual #448                // Method org/l2jmobius/gameserver/entity/actor/Player.clearSouls:()V
+        67: aload_2
+        68: invokevirtual #451                // Method org/l2jmobius/gameserver/entity/actor/Player.clearCharges:()V
+        71: aload_2
+        72: invokevirtual #318                // Method org/l2jmobius/gameserver/entity/actor/Player.getAgathionId:()I
+        75: ifle          83
+        78: aload_2
+        79: iconst_0
+        80: invokevirtual #321                // Method org/l2jmobius/gameserver/entity/actor/Player.setAgathionId:(I)V
+        83: aload_2
+        84: invokevirtual #287                // Method org/l2jmobius/gameserver/entity/actor/Player.hasSummon:()Z
+        87: ifeq          99
+        90: aload_2
+        91: invokevirtual #290                // Method org/l2jmobius/gameserver/entity/actor/Player.getSummon:()Lorg/l2jmobius/gameserver/entity/actor/Summon;
+        94: astore_3
+        95: aload_3
+        96: invokevirtual #294                // Method org/l2jmobius/gameserver/entity/actor/Summon.stopAllEffects:()V
+        99: goto          116
+       102: astore_3
+       103: getstatic     #159                // Field LOGGER:Ljava/util/logging/Logger;
+       106: getstatic     #163                // Field java/util/logging/Level.WARNING:Ljava/util/logging/Level;
+       109: ldc_w         #454                // String cleanEffects()
+       112: aload_3
+       113: invokevirtual #171                // Method java/util/logging/Logger.log:(Ljava/util/logging/Level;Ljava/lang/String;Ljava/lang/Throwable;)V
+       116: goto          40
+       119: return
+      Exception table:
+         from    to  target type
+            59    99   102   Class java/lang/Exception
+
+  protected void portPlayersBack();
+    Code:
+         0: aload_0
+         1: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+         4: ifnull        37
+         7: aload_0
+         8: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+        11: getstatic     #456                // Field org/l2jmobius/gameserver/network/serverpackets/ExOlympiadMatchEnd.STATIC_PACKET:Lorg/l2jmobius/gameserver/network/serverpackets/ExOlympiadMatchEnd;
+        14: invokevirtual #358                // Method org/l2jmobius/gameserver/entity/actor/Player.sendPacket:(Lorg/l2jmobius/gameserver/network/serverpackets/ServerPacket;)V
+        17: aload_0
+        18: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+        21: aload_0
+        22: getfield      #367                // Field x1:I
+        25: aload_0
+        26: getfield      #373                // Field y1:I
+        29: aload_0
+        30: getfield      #379                // Field z1:I
+        33: iconst_1
+        34: invokevirtual #404                // Method org/l2jmobius/gameserver/entity/actor/Player.teleToLocation:(IIIZ)V
+        37: aload_0
+        38: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+        41: ifnull        74
+        44: aload_0
+        45: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+        48: getstatic     #456                // Field org/l2jmobius/gameserver/network/serverpackets/ExOlympiadMatchEnd.STATIC_PACKET:Lorg/l2jmobius/gameserver/network/serverpackets/ExOlympiadMatchEnd;
+        51: invokevirtual #358                // Method org/l2jmobius/gameserver/entity/actor/Player.sendPacket:(Lorg/l2jmobius/gameserver/network/serverpackets/ServerPacket;)V
+        54: aload_0
+        55: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+        58: aload_0
+        59: getfield      #382                // Field x2:I
+        62: aload_0
+        63: getfield      #385                // Field y2:I
+        66: aload_0
+        67: getfield      #388                // Field z2:I
+        70: iconst_1
+        71: invokevirtual #404                // Method org/l2jmobius/gameserver/entity/actor/Player.teleToLocation:(IIIZ)V
+        74: return
+
+  protected void PlayersStatusBack();
+    Code:
+         0: aload_0
+         1: getfield      #68                 // Field _players:Ljava/util/List;
+         4: invokeinterface #177,  1          // InterfaceMethod java/util/List.iterator:()Ljava/util/Iterator;
+         9: astore_1
+        10: aload_1
+        11: invokeinterface #181,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+        16: ifeq          341
+        19: aload_1
+        20: invokeinterface #187,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        25: checkcast     #78                 // class org/l2jmobius/gameserver/entity/actor/Player
+        28: astore_2
+        29: aload_2
+        30: ifnonnull     36
+        33: goto          10
+        36: invokestatic  #462                // Method org/l2jmobius/gameserver/mechanics/olympiad/Olympiad.getInstance:()Lorg/l2jmobius/gameserver/mechanics/olympiad/Olympiad;
+        39: aload_2
+        40: invokevirtual #467                // Method org/l2jmobius/gameserver/mechanics/olympiad/Olympiad.playerInStadia:(Lorg/l2jmobius/gameserver/entity/actor/Player;)Z
+        43: ifeq          92
+        46: aload_2
+        47: invokevirtual #471                // Method org/l2jmobius/gameserver/entity/actor/Player.isDead:()Z
+        50: ifeq          58
+        53: aload_2
+        54: iconst_0
+        55: invokevirtual #474                // Method org/l2jmobius/gameserver/entity/actor/Player.setDead:(Z)V
+        58: aload_2
+        59: invokevirtual #477                // Method org/l2jmobius/gameserver/entity/actor/Player.getStatus:()Lorg/l2jmobius/gameserver/entity/actor/status/PlayerStatus;
+        62: invokevirtual #481                // Method org/l2jmobius/gameserver/entity/actor/status/PlayerStatus.startHpMpRegeneration:()V
+        65: aload_2
+        66: aload_2
+        67: invokevirtual #268                // Method org/l2jmobius/gameserver/entity/actor/Player.getMaxCp:()I
+        70: i2d
+        71: invokevirtual #271                // Method org/l2jmobius/gameserver/entity/actor/Player.setCurrentCp:(D)V
+        74: aload_2
+        75: aload_2
+        76: invokevirtual #275                // Method org/l2jmobius/gameserver/entity/actor/Player.getMaxHp:()I
+        79: i2d
+        80: invokevirtual #278                // Method org/l2jmobius/gameserver/entity/actor/Player.setCurrentHp:(D)V
+        83: aload_2
+        84: aload_2
+        85: invokevirtual #281                // Method org/l2jmobius/gameserver/entity/actor/Player.getMaxMp:()I
+        88: i2d
+        89: invokevirtual #284                // Method org/l2jmobius/gameserver/entity/actor/Player.setCurrentMp:(D)V
+        92: aload_2
+        93: invokevirtual #486                // Method org/l2jmobius/gameserver/entity/actor/Player.isTransformed:()Z
+        96: ifeq          103
+        99: aload_2
+       100: invokevirtual #489                // Method org/l2jmobius/gameserver/entity/actor/Player.untransform:()V
+       103: aload_2
+       104: iconst_0
+       105: invokevirtual #412                // Method org/l2jmobius/gameserver/entity/actor/Player.setInOlympiadMode:(Z)V
+       108: aload_2
+       109: iconst_0
+       110: invokevirtual #415                // Method org/l2jmobius/gameserver/entity/actor/Player.setOlympiadStart:(Z)V
+       113: aload_2
+       114: iconst_m1
+       115: invokevirtual #418                // Method org/l2jmobius/gameserver/entity/actor/Player.setOlympiadSide:(I)V
+       118: aload_2
+       119: iconst_m1
+       120: invokevirtual #98                 // Method org/l2jmobius/gameserver/entity/actor/Player.setOlympiadGameId:(I)V
+       123: aload_2
+       124: new           #408                // class org/l2jmobius/gameserver/network/serverpackets/ExOlympiadMode
+       127: dup
+       128: iconst_0
+       129: invokespecial #410                // Method org/l2jmobius/gameserver/network/serverpackets/ExOlympiadMode."<init>":(I)V
+       132: invokevirtual #358                // Method org/l2jmobius/gameserver/entity/actor/Player.sendPacket:(Lorg/l2jmobius/gameserver/network/serverpackets/ServerPacket;)V
+       135: aload_2
+       136: invokevirtual #194                // Method org/l2jmobius/gameserver/entity/actor/Player.getClan:()Lorg/l2jmobius/gameserver/entity/clan/Clan;
+       139: astore_3
+       140: aload_3
+       141: ifnull        254
+       144: aload_3
+       145: invokevirtual #198                // Method org/l2jmobius/gameserver/entity/clan/Clan.getAllSkills:()Ljava/util/Collection;
+       148: invokeinterface #204,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+       153: astore        4
+       155: aload         4
+       157: invokeinterface #181,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+       162: ifeq          200
+       165: aload         4
+       167: invokeinterface #187,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+       172: checkcast     #207                // class org/l2jmobius/gameserver/mechanics/skill/Skill
+       175: astore        5
+       177: aload         5
+       179: invokevirtual #492                // Method org/l2jmobius/gameserver/mechanics/skill/Skill.getMinPledgeClass:()I
+       182: aload_2
+       183: invokevirtual #495                // Method org/l2jmobius/gameserver/entity/actor/Player.getPledgeClass:()I
+       186: if_icmpgt     197
+       189: aload_2
+       190: aload         5
+       192: iconst_0
+       193: invokevirtual #498                // Method org/l2jmobius/gameserver/entity/actor/Player.addSkill:(Lorg/l2jmobius/gameserver/mechanics/skill/Skill;Z)Lorg/l2jmobius/gameserver/mechanics/skill/Skill;
+       196: pop
+       197: goto          155
+       200: aload_3
+       201: invokevirtual #213                // Method org/l2jmobius/gameserver/entity/clan/Clan.getCastleId:()I
+       204: ifle          227
+       207: invokestatic  #216                // Method org/l2jmobius/gameserver/managers/CastleManager.getInstance:()Lorg/l2jmobius/gameserver/managers/CastleManager;
+       210: aload_3
+       211: invokevirtual #221                // Method org/l2jmobius/gameserver/managers/CastleManager.getCastleByOwner:(Lorg/l2jmobius/gameserver/entity/clan/Clan;)Lorg/l2jmobius/gameserver/mechanics/siege/Castle;
+       214: astore        4
+       216: aload         4
+       218: ifnull        227
+       221: aload         4
+       223: aload_2
+       224: invokevirtual #501                // Method org/l2jmobius/gameserver/mechanics/siege/Castle.giveResidentialSkills:(Lorg/l2jmobius/gameserver/entity/actor/Player;)V
+       227: aload_3
+       228: invokevirtual #231                // Method org/l2jmobius/gameserver/entity/clan/Clan.getFortId:()I
+       231: ifle          254
+       234: invokestatic  #234                // Method org/l2jmobius/gameserver/managers/FortManager.getInstance:()Lorg/l2jmobius/gameserver/managers/FortManager;
+       237: aload_3
+       238: invokevirtual #239                // Method org/l2jmobius/gameserver/managers/FortManager.getFortByOwner:(Lorg/l2jmobius/gameserver/entity/clan/Clan;)Lorg/l2jmobius/gameserver/mechanics/siege/Fort;
+       241: astore        4
+       243: aload         4
+       245: ifnull        254
+       248: aload         4
+       250: aload_2
+       251: invokevirtual #504                // Method org/l2jmobius/gameserver/mechanics/siege/Fort.giveResidentialSkills:(Lorg/l2jmobius/gameserver/entity/actor/Player;)V
+       254: aload_2
+       255: invokevirtual #256                // Method org/l2jmobius/gameserver/entity/actor/Player.isHero:()Z
+       258: ifeq          302
+       261: invokestatic  #259                // Method org/l2jmobius/gameserver/data/HeroSkillTable.getHeroSkills:()[Lorg/l2jmobius/gameserver/mechanics/skill/Skill;
+       264: astore        4
+       266: aload         4
+       268: arraylength
+       269: istore        5
+       271: iconst_0
+       272: istore        6
+       274: iload         6
+       276: iload         5
+       278: if_icmpge     302
+       281: aload         4
+       283: iload         6
+       285: aaload
+       286: astore        7
+       288: aload_2
+       289: aload         7
+       291: iconst_0
+       292: invokevirtual #498                // Method org/l2jmobius/gameserver/entity/actor/Player.addSkill:(Lorg/l2jmobius/gameserver/mechanics/skill/Skill;Z)Lorg/l2jmobius/gameserver/mechanics/skill/Skill;
+       295: pop
+       296: iinc          6, 1
+       299: goto          274
+       302: aload_2
+       303: invokevirtual #351                // Method org/l2jmobius/gameserver/entity/actor/Player.sendSkillList:()V
+       306: getstatic     #505                // Field org/l2jmobius/gameserver/config/custom/DualboxCheckConfig.DUALBOX_CHECK_MAX_OLYMPIAD_PARTICIPANTS_PER_IP:I
+       309: ifle          321
+       312: invokestatic  #510                // Method org/l2jmobius/gameserver/managers/AntiFeedManager.getInstance:()Lorg/l2jmobius/gameserver/managers/AntiFeedManager;
+       315: iconst_1
+       316: aload_2
+       317: invokevirtual #515                // Method org/l2jmobius/gameserver/managers/AntiFeedManager.removePlayer:(ILorg/l2jmobius/gameserver/entity/actor/Player;)Z
+       320: pop
+       321: goto          338
+       324: astore_3
+       325: getstatic     #159                // Field LOGGER:Ljava/util/logging/Logger;
+       328: getstatic     #163                // Field java/util/logging/Level.WARNING:Ljava/util/logging/Level;
+       331: ldc_w         #519                // String portPlayersToArena()
+       334: aload_3
+       335: invokevirtual #171                // Method java/util/logging/Logger.log:(Ljava/util/logging/Level;Ljava/lang/String;Ljava/lang/Throwable;)V
+       338: goto          10
+       341: return
+      Exception table:
+         from    to  target type
+            36   321   324   Class java/lang/Exception
+
+  protected boolean haveWinner();
+    Code:
+         0: aload_0
+         1: getfield      #32                 // Field _aborted:Z
+         4: ifne          35
+         7: aload_0
+         8: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+        11: ifnull        35
+        14: aload_0
+        15: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+        18: ifnull        35
+        21: aload_0
+        22: getfield      #42                 // Field _playerOneDisconnected:Z
+        25: ifne          35
+        28: aload_0
+        29: getfield      #45                 // Field _playerTwoDisconnected:Z
+        32: ifeq          37
+        35: iconst_1
+        36: ireturn
+        37: dconst_0
+        38: dstore_1
+        39: aload_0
+        40: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+        43: invokevirtual #521                // Method org/l2jmobius/gameserver/entity/actor/Player.getOlympiadGameId:()I
+        46: iconst_m1
+        47: if_icmpeq     58
+        50: aload_0
+        51: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+        54: invokevirtual #524                // Method org/l2jmobius/gameserver/entity/actor/Player.getCurrentHp:()D
+        57: dstore_1
+        58: goto          64
+        61: astore_3
+        62: dconst_0
+        63: dstore_1
+        64: dconst_0
+        65: dstore_3
+        66: aload_0
+        67: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+        70: invokevirtual #521                // Method org/l2jmobius/gameserver/entity/actor/Player.getOlympiadGameId:()I
+        73: iconst_m1
+        74: if_icmpeq     85
+        77: aload_0
+        78: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+        81: invokevirtual #524                // Method org/l2jmobius/gameserver/entity/actor/Player.getCurrentHp:()D
+        84: dstore_3
+        85: goto          92
+        88: astore        5
+        90: dconst_0
+        91: dstore_3
+        92: dload_3
+        93: dconst_0
+        94: dcmpg
+        95: ifle          104
+        98: dload_1
+        99: dconst_0
+       100: dcmpg
+       101: ifgt          108
+       104: iconst_1
+       105: goto          109
+       108: iconst_0
+       109: ireturn
+      Exception table:
+         from    to  target type
+            39    58    61   Class java/lang/Exception
+            66    85    88   Class java/lang/Exception
+
+  protected void validateWinner();
+    Code:
+         0: aload_0
+         1: getfield      #32                 // Field _aborted:Z
+         4: ifeq          8
+         7: return
+         8: aload_0
+         9: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+        12: ifnull        22
+        15: aload_0
+        16: getfield      #42                 // Field _playerOneDisconnected:Z
+        19: ifeq          26
+        22: iconst_1
+        23: goto          27
+        26: iconst_0
+        27: istore_1
+        28: aload_0
+        29: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+        32: ifnull        42
+        35: aload_0
+        36: getfield      #45                 // Field _playerTwoDisconnected:Z
+        39: ifeq          46
+        42: iconst_1
+        43: goto          47
+        46: iconst_0
+        47: istore_2
+        48: getstatic     #528                // Field org/l2jmobius/gameserver/mechanics/olympiad/OlympiadGame$1.$SwitchMap$org$l2jmobius$gameserver$mechanics$olympiad$CompetitionType:[I
+        51: aload_0
+        52: getfield      #48                 // Field _type:Lorg/l2jmobius/gameserver/mechanics/olympiad/CompetitionType;
+        55: invokevirtual #533                // Method org/l2jmobius/gameserver/mechanics/olympiad/CompetitionType.ordinal:()I
+        58: iaload
+        59: lookupswitch  { // 1
+
+                       1: 76
+                 default: 91
+            }
+        76: iconst_5
+        77: istore_3
+        78: getstatic     #538                // Field org/l2jmobius/gameserver/config/OlympiadConfig.OLYMPIAD_NONCLASSED_RITEM_C:I
+        81: istore        4
+        83: ldc_w         #541                // String no
+        86: astore        5
+        88: goto          103
+        91: iconst_3
+        92: istore_3
+        93: getstatic     #543                // Field org/l2jmobius/gameserver/config/OlympiadConfig.OLYMPIAD_CLASSED_RITEM_C:I
+        96: istore        4
+        98: ldc_w         #546                // String yes
+       101: astore        5
+       103: aload_0
+       104: getfield      #7                  // Field _playerOneID:I
+       107: invokestatic  #548                // Method org/l2jmobius/gameserver/mechanics/olympiad/Olympiad.getNobleStats:(I)Lorg/l2jmobius/gameserver/util/StatSet;
+       110: astore        6
+       112: aload_0
+       113: getfield      #13                 // Field _playerTwoID:I
+       116: invokestatic  #548                // Method org/l2jmobius/gameserver/mechanics/olympiad/Olympiad.getNobleStats:(I)Lorg/l2jmobius/gameserver/util/StatSet;
+       119: astore        7
+       121: aload         6
+       123: ldc_w         #552                // String competitions_done
+       126: invokevirtual #554                // Method org/l2jmobius/gameserver/util/StatSet.getInt:(Ljava/lang/String;)I
+       129: istore        8
+       131: aload         7
+       133: ldc_w         #552                // String competitions_done
+       136: invokevirtual #554                // Method org/l2jmobius/gameserver/util/StatSet.getInt:(Ljava/lang/String;)I
+       139: istore        9
+       141: aload         6
+       143: ldc_w         #560                // String competitions_won
+       146: invokevirtual #554                // Method org/l2jmobius/gameserver/util/StatSet.getInt:(Ljava/lang/String;)I
+       149: istore        10
+       151: aload         7
+       153: ldc_w         #560                // String competitions_won
+       156: invokevirtual #554                // Method org/l2jmobius/gameserver/util/StatSet.getInt:(Ljava/lang/String;)I
+       159: istore        11
+       161: aload         6
+       163: ldc_w         #562                // String competitions_lost
+       166: invokevirtual #554                // Method org/l2jmobius/gameserver/util/StatSet.getInt:(Ljava/lang/String;)I
+       169: istore        12
+       171: aload         7
+       173: ldc_w         #562                // String competitions_lost
+       176: invokevirtual #554                // Method org/l2jmobius/gameserver/util/StatSet.getInt:(Ljava/lang/String;)I
+       179: istore        13
+       181: aload         6
+       183: ldc_w         #564                // String competitions_drawn
+       186: invokevirtual #554                // Method org/l2jmobius/gameserver/util/StatSet.getInt:(Ljava/lang/String;)I
+       189: istore        14
+       191: aload         7
+       193: ldc_w         #564                // String competitions_drawn
+       196: invokevirtual #554                // Method org/l2jmobius/gameserver/util/StatSet.getInt:(Ljava/lang/String;)I
+       199: istore        15
+       201: aload         6
+       203: ldc_w         #566                // String olympiad_points
+       206: invokevirtual #554                // Method org/l2jmobius/gameserver/util/StatSet.getInt:(Ljava/lang/String;)I
+       209: istore        16
+       211: aload         7
+       213: ldc_w         #566                // String olympiad_points
+       216: invokevirtual #554                // Method org/l2jmobius/gameserver/util/StatSet.getInt:(Ljava/lang/String;)I
+       219: istore        17
+       221: iload         16
+       223: iload         17
+       225: invokestatic  #568                // Method java/lang/Math.min:(II)I
+       228: iload_3
+       229: idiv
+       230: getstatic     #574                // Field org/l2jmobius/gameserver/config/OlympiadConfig.OLYMPIAD_MAX_POINTS:I
+       233: invokestatic  #568                // Method java/lang/Math.min:(II)I
+       236: istore        18
+       238: aload_0
+       239: getfield      #577                // Field _playerOneDefaulted:Z
+       242: ifne          252
+       245: aload_0
+       246: getfield      #580                // Field _playerTwoDefaulted:Z
+       249: ifeq          595
+       252: aload_0
+       253: getfield      #577                // Field _playerOneDefaulted:Z
+       256: ifeq          423
+       259: iload         16
+       261: iconst_3
+       262: idiv
+       263: getstatic     #574                // Field org/l2jmobius/gameserver/config/OlympiadConfig.OLYMPIAD_MAX_POINTS:I
+       266: invokestatic  #568                // Method java/lang/Math.min:(II)I
+       269: istore        19
+       271: aload         6
+       273: ldc_w         #566                // String olympiad_points
+       276: iload         16
+       278: iload         19
+       280: isub
+       281: invokevirtual #583                // Method org/l2jmobius/gameserver/util/StatSet.set:(Ljava/lang/String;I)V
+       284: new           #587                // class org/l2jmobius/gameserver/network/serverpackets/SystemMessage
+       287: dup
+       288: getstatic     #589                // Field org/l2jmobius/gameserver/network/SystemMessageId.C1_HAS_LOST_S2_POINTS_IN_THE_GRAND_OLYMPIAD_GAMES:Lorg/l2jmobius/gameserver/network/SystemMessageId;
+       291: invokespecial #595                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage."<init>":(Lorg/l2jmobius/gameserver/network/SystemMessageId;)V
+       294: astore        20
+       296: aload         20
+       298: aload_0
+       299: getfield      #91                 // Field _playerOneName:Ljava/lang/String;
+       302: invokevirtual #598                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage.addString:(Ljava/lang/String;)Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+       305: pop
+       306: aload         20
+       308: iload         19
+       310: invokevirtual #602                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage.addInt:(I)Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+       313: pop
+       314: aload_0
+       315: aload         20
+       317: iconst_0
+       318: invokevirtual #606                // Method broadcastMessage:(Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;Z)V
+       321: getstatic     #610                // Field org/l2jmobius/gameserver/config/OlympiadConfig.OLYMPIAD_LOG_FIGHTS:Z
+       324: ifeq          423
+       327: new           #613                // class java/util/logging/LogRecord
+       330: dup
+       331: getstatic     #615                // Field java/util/logging/Level.INFO:Ljava/util/logging/Level;
+       334: aload_0
+       335: getfield      #91                 // Field _playerOneName:Ljava/lang/String;
+       338: invokedynamic #618,  0            // InvokeDynamic #0:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+       343: invokespecial #622                // Method java/util/logging/LogRecord."<init>":(Ljava/util/logging/Level;Ljava/lang/String;)V
+       346: astore        21
+       348: aload         21
+       350: bipush        8
+       352: anewarray     #2                  // class java/lang/Object
+       355: dup
+       356: iconst_0
+       357: aload_0
+       358: getfield      #91                 // Field _playerOneName:Ljava/lang/String;
+       361: aastore
+       362: dup
+       363: iconst_1
+       364: aload_0
+       365: getfield      #95                 // Field _playerTwoName:Ljava/lang/String;
+       368: aastore
+       369: dup
+       370: iconst_2
+       371: iconst_0
+       372: invokestatic  #625                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+       375: aastore
+       376: dup
+       377: iconst_3
+       378: iconst_0
+       379: invokestatic  #625                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+       382: aastore
+       383: dup
+       384: iconst_4
+       385: iconst_0
+       386: invokestatic  #625                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+       389: aastore
+       390: dup
+       391: iconst_5
+       392: iconst_0
+       393: invokestatic  #625                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+       396: aastore
+       397: dup
+       398: bipush        6
+       400: iload         19
+       402: invokestatic  #625                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+       405: aastore
+       406: dup
+       407: bipush        7
+       409: aload         5
+       411: aastore
+       412: invokevirtual #631                // Method java/util/logging/LogRecord.setParameters:([Ljava/lang/Object;)V
+       415: getstatic     #635                // Field _logResults:Ljava/util/logging/Logger;
+       418: aload         21
+       420: invokevirtual #638                // Method java/util/logging/Logger.log:(Ljava/util/logging/LogRecord;)V
+       423: aload_0
+       424: getfield      #580                // Field _playerTwoDefaulted:Z
+       427: ifeq          594
+       430: iload         17
+       432: iconst_3
+       433: idiv
+       434: getstatic     #574                // Field org/l2jmobius/gameserver/config/OlympiadConfig.OLYMPIAD_MAX_POINTS:I
+       437: invokestatic  #568                // Method java/lang/Math.min:(II)I
+       440: istore        19
+       442: aload         7
+       444: ldc_w         #566                // String olympiad_points
+       447: iload         17
+       449: iload         19
+       451: isub
+       452: invokevirtual #583                // Method org/l2jmobius/gameserver/util/StatSet.set:(Ljava/lang/String;I)V
+       455: new           #587                // class org/l2jmobius/gameserver/network/serverpackets/SystemMessage
+       458: dup
+       459: getstatic     #589                // Field org/l2jmobius/gameserver/network/SystemMessageId.C1_HAS_LOST_S2_POINTS_IN_THE_GRAND_OLYMPIAD_GAMES:Lorg/l2jmobius/gameserver/network/SystemMessageId;
+       462: invokespecial #595                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage."<init>":(Lorg/l2jmobius/gameserver/network/SystemMessageId;)V
+       465: astore        20
+       467: aload         20
+       469: aload_0
+       470: getfield      #95                 // Field _playerTwoName:Ljava/lang/String;
+       473: invokevirtual #598                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage.addString:(Ljava/lang/String;)Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+       476: pop
+       477: aload         20
+       479: iload         19
+       481: invokevirtual #602                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage.addInt:(I)Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+       484: pop
+       485: aload_0
+       486: aload         20
+       488: iconst_0
+       489: invokevirtual #606                // Method broadcastMessage:(Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;Z)V
+       492: getstatic     #610                // Field org/l2jmobius/gameserver/config/OlympiadConfig.OLYMPIAD_LOG_FIGHTS:Z
+       495: ifeq          594
+       498: new           #613                // class java/util/logging/LogRecord
+       501: dup
+       502: getstatic     #615                // Field java/util/logging/Level.INFO:Ljava/util/logging/Level;
+       505: aload_0
+       506: getfield      #95                 // Field _playerTwoName:Ljava/lang/String;
+       509: invokedynamic #618,  0            // InvokeDynamic #0:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+       514: invokespecial #622                // Method java/util/logging/LogRecord."<init>":(Ljava/util/logging/Level;Ljava/lang/String;)V
+       517: astore        21
+       519: aload         21
+       521: bipush        8
+       523: anewarray     #2                  // class java/lang/Object
+       526: dup
+       527: iconst_0
+       528: aload_0
+       529: getfield      #91                 // Field _playerOneName:Ljava/lang/String;
+       532: aastore
+       533: dup
+       534: iconst_1
+       535: aload_0
+       536: getfield      #95                 // Field _playerTwoName:Ljava/lang/String;
+       539: aastore
+       540: dup
+       541: iconst_2
+       542: iconst_0
+       543: invokestatic  #625                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+       546: aastore
+       547: dup
+       548: iconst_3
+       549: iconst_0
+       550: invokestatic  #625                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+       553: aastore
+       554: dup
+       555: iconst_4
+       556: iconst_0
+       557: invokestatic  #625                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+       560: aastore
+       561: dup
+       562: iconst_5
+       563: iconst_0
+       564: invokestatic  #625                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+       567: aastore
+       568: dup
+       569: bipush        6
+       571: iload         19
+       573: invokestatic  #625                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+       576: aastore
+       577: dup
+       578: bipush        7
+       580: aload         5
+       582: aastore
+       583: invokevirtual #631                // Method java/util/logging/LogRecord.setParameters:([Ljava/lang/Object;)V
+       586: getstatic     #635                // Field _logResults:Ljava/util/logging/Logger;
+       589: aload         21
+       591: invokevirtual #638                // Method java/util/logging/Logger.log:(Ljava/util/logging/LogRecord;)V
+       594: return
+       595: iload_1
+       596: ifne          603
+       599: iload_2
+       600: ifeq          1497
+       603: iload_1
+       604: ifeq          915
+       607: iload_2
+       608: ifne          915
+       611: aload         6
+       613: ldc_w         #566                // String olympiad_points
+       616: iload         16
+       618: iload         18
+       620: isub
+       621: invokevirtual #583                // Method org/l2jmobius/gameserver/util/StatSet.set:(Ljava/lang/String;I)V
+       624: aload         6
+       626: ldc_w         #562                // String competitions_lost
+       629: iload         12
+       631: iconst_1
+       632: iadd
+       633: invokevirtual #583                // Method org/l2jmobius/gameserver/util/StatSet.set:(Ljava/lang/String;I)V
+       636: getstatic     #610                // Field org/l2jmobius/gameserver/config/OlympiadConfig.OLYMPIAD_LOG_FIGHTS:Z
+       639: ifeq          738
+       642: new           #613                // class java/util/logging/LogRecord
+       645: dup
+       646: getstatic     #615                // Field java/util/logging/Level.INFO:Ljava/util/logging/Level;
+       649: aload_0
+       650: getfield      #91                 // Field _playerOneName:Ljava/lang/String;
+       653: invokedynamic #641,  0            // InvokeDynamic #1:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+       658: invokespecial #622                // Method java/util/logging/LogRecord."<init>":(Ljava/util/logging/Level;Ljava/lang/String;)V
+       661: astore        19
+       663: aload         19
+       665: bipush        8
+       667: anewarray     #2                  // class java/lang/Object
+       670: dup
+       671: iconst_0
+       672: aload_0
+       673: getfield      #91                 // Field _playerOneName:Ljava/lang/String;
+       676: aastore
+       677: dup
+       678: iconst_1
+       679: aload_0
+       680: getfield      #95                 // Field _playerTwoName:Ljava/lang/String;
+       683: aastore
+       684: dup
+       685: iconst_2
+       686: iconst_0
+       687: invokestatic  #625                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+       690: aastore
+       691: dup
+       692: iconst_3
+       693: iconst_0
+       694: invokestatic  #625                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+       697: aastore
+       698: dup
+       699: iconst_4
+       700: iconst_0
+       701: invokestatic  #625                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+       704: aastore
+       705: dup
+       706: iconst_5
+       707: iconst_0
+       708: invokestatic  #625                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+       711: aastore
+       712: dup
+       713: bipush        6
+       715: iload         18
+       717: invokestatic  #625                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+       720: aastore
+       721: dup
+       722: bipush        7
+       724: aload         5
+       726: aastore
+       727: invokevirtual #631                // Method java/util/logging/LogRecord.setParameters:([Ljava/lang/Object;)V
+       730: getstatic     #635                // Field _logResults:Ljava/util/logging/Logger;
+       733: aload         19
+       735: invokevirtual #638                // Method java/util/logging/Logger.log:(Ljava/util/logging/LogRecord;)V
+       738: aload         7
+       740: ldc_w         #566                // String olympiad_points
+       743: iload         17
+       745: iload         18
+       747: iadd
+       748: invokevirtual #583                // Method org/l2jmobius/gameserver/util/StatSet.set:(Ljava/lang/String;I)V
+       751: aload         7
+       753: ldc_w         #560                // String competitions_won
+       756: iload         11
+       758: iconst_1
+       759: iadd
+       760: invokevirtual #583                // Method org/l2jmobius/gameserver/util/StatSet.set:(Ljava/lang/String;I)V
+       763: aload_0
+       764: new           #587                // class org/l2jmobius/gameserver/network/serverpackets/SystemMessage
+       767: dup
+       768: getstatic     #642                // Field org/l2jmobius/gameserver/network/SystemMessageId.CONGRATULATIONS_C1_YOU_WIN_THE_MATCH:Lorg/l2jmobius/gameserver/network/SystemMessageId;
+       771: invokespecial #595                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage."<init>":(Lorg/l2jmobius/gameserver/network/SystemMessageId;)V
+       774: putfield      #645                // Field _sm:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+       777: aload_0
+       778: new           #587                // class org/l2jmobius/gameserver/network/serverpackets/SystemMessage
+       781: dup
+       782: getstatic     #649                // Field org/l2jmobius/gameserver/network/SystemMessageId.C1_HAS_EARNED_S2_POINTS_IN_THE_GRAND_OLYMPIAD_GAMES:Lorg/l2jmobius/gameserver/network/SystemMessageId;
+       785: invokespecial #595                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage."<init>":(Lorg/l2jmobius/gameserver/network/SystemMessageId;)V
+       788: putfield      #652                // Field _sm2:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+       791: aload_0
+       792: getfield      #645                // Field _sm:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+       795: aload_0
+       796: getfield      #95                 // Field _playerTwoName:Ljava/lang/String;
+       799: invokevirtual #598                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage.addString:(Ljava/lang/String;)Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+       802: pop
+       803: aload_0
+       804: aload_0
+       805: getfield      #645                // Field _sm:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+       808: iconst_1
+       809: invokevirtual #606                // Method broadcastMessage:(Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;Z)V
+       812: aload_0
+       813: getfield      #652                // Field _sm2:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+       816: aload_0
+       817: getfield      #95                 // Field _playerTwoName:Ljava/lang/String;
+       820: invokevirtual #598                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage.addString:(Ljava/lang/String;)Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+       823: pop
+       824: aload_0
+       825: getfield      #652                // Field _sm2:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+       828: iload         18
+       830: invokevirtual #602                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage.addInt:(I)Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+       833: pop
+       834: aload_0
+       835: aload_0
+       836: getfield      #652                // Field _sm2:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+       839: iconst_0
+       840: invokevirtual #606                // Method broadcastMessage:(Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;Z)V
+       843: invokestatic  #655                // Method org/l2jmobius/gameserver/mechanics/events/EventDispatcher.getInstance:()Lorg/l2jmobius/gameserver/mechanics/events/EventDispatcher;
+       846: getstatic     #660                // Field org/l2jmobius/gameserver/mechanics/events/EventType.ON_OLYMPIAD_MATCH_RESULT:Lorg/l2jmobius/gameserver/mechanics/events/EventType;
+       849: invokestatic  #462                // Method org/l2jmobius/gameserver/mechanics/olympiad/Olympiad.getInstance:()Lorg/l2jmobius/gameserver/mechanics/olympiad/Olympiad;
+       852: invokevirtual #666                // Method org/l2jmobius/gameserver/mechanics/events/EventDispatcher.hasListener:(Lorg/l2jmobius/gameserver/mechanics/events/EventType;Lorg/l2jmobius/gameserver/mechanics/events/ListenersContainer;)Z
+       855: ifeq          886
+       858: invokestatic  #655                // Method org/l2jmobius/gameserver/mechanics/events/EventDispatcher.getInstance:()Lorg/l2jmobius/gameserver/mechanics/events/EventDispatcher;
+       861: new           #670                // class org/l2jmobius/gameserver/mechanics/events/holders/olympiad/OnOlympiadMatchResult
+       864: dup
+       865: aload_0
+       866: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+       869: aload_0
+       870: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+       873: aload_0
+       874: getfield      #48                 // Field _type:Lorg/l2jmobius/gameserver/mechanics/olympiad/CompetitionType;
+       877: invokespecial #672                // Method org/l2jmobius/gameserver/mechanics/events/holders/olympiad/OnOlympiadMatchResult."<init>":(Lorg/l2jmobius/gameserver/entity/actor/Player;Lorg/l2jmobius/gameserver/entity/actor/Player;Lorg/l2jmobius/gameserver/mechanics/olympiad/CompetitionType;)V
+       880: invokestatic  #462                // Method org/l2jmobius/gameserver/mechanics/olympiad/Olympiad.getInstance:()Lorg/l2jmobius/gameserver/mechanics/olympiad/Olympiad;
+       883: invokevirtual #675                // Method org/l2jmobius/gameserver/mechanics/events/EventDispatcher.notifyEventAsync:(Lorg/l2jmobius/gameserver/mechanics/events/holders/IBaseEvent;Lorg/l2jmobius/gameserver/mechanics/events/ListenersContainer;)V
+       886: goto          1472
+       889: astore        19
+       891: getstatic     #159                // Field LOGGER:Ljava/util/logging/Logger;
+       894: getstatic     #163                // Field java/util/logging/Level.WARNING:Ljava/util/logging/Level;
+       897: aload         19
+       899: invokevirtual #679                // Method java/lang/Exception.getMessage:()Ljava/lang/String;
+       902: invokedynamic #682,  0            // InvokeDynamic #2:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+       907: aload         19
+       909: invokevirtual #171                // Method java/util/logging/Logger.log:(Ljava/util/logging/Level;Ljava/lang/String;Ljava/lang/Throwable;)V
+       912: goto          1472
+       915: iload_2
+       916: ifeq          1227
+       919: iload_1
+       920: ifne          1227
+       923: aload         7
+       925: ldc_w         #566                // String olympiad_points
+       928: iload         17
+       930: iload         18
+       932: isub
+       933: invokevirtual #583                // Method org/l2jmobius/gameserver/util/StatSet.set:(Ljava/lang/String;I)V
+       936: aload         7
+       938: ldc_w         #562                // String competitions_lost
+       941: iload         13
+       943: iconst_1
+       944: iadd
+       945: invokevirtual #583                // Method org/l2jmobius/gameserver/util/StatSet.set:(Ljava/lang/String;I)V
+       948: getstatic     #610                // Field org/l2jmobius/gameserver/config/OlympiadConfig.OLYMPIAD_LOG_FIGHTS:Z
+       951: ifeq          1050
+       954: new           #613                // class java/util/logging/LogRecord
+       957: dup
+       958: getstatic     #615                // Field java/util/logging/Level.INFO:Ljava/util/logging/Level;
+       961: aload_0
+       962: getfield      #95                 // Field _playerTwoName:Ljava/lang/String;
+       965: invokedynamic #641,  0            // InvokeDynamic #1:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+       970: invokespecial #622                // Method java/util/logging/LogRecord."<init>":(Ljava/util/logging/Level;Ljava/lang/String;)V
+       973: astore        19
+       975: aload         19
+       977: bipush        8
+       979: anewarray     #2                  // class java/lang/Object
+       982: dup
+       983: iconst_0
+       984: aload_0
+       985: getfield      #91                 // Field _playerOneName:Ljava/lang/String;
+       988: aastore
+       989: dup
+       990: iconst_1
+       991: aload_0
+       992: getfield      #95                 // Field _playerTwoName:Ljava/lang/String;
+       995: aastore
+       996: dup
+       997: iconst_2
+       998: iconst_0
+       999: invokestatic  #625                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+      1002: aastore
+      1003: dup
+      1004: iconst_3
+      1005: iconst_0
+      1006: invokestatic  #625                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+      1009: aastore
+      1010: dup
+      1011: iconst_4
+      1012: iconst_0
+      1013: invokestatic  #625                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+      1016: aastore
+      1017: dup
+      1018: iconst_5
+      1019: iconst_0
+      1020: invokestatic  #625                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+      1023: aastore
+      1024: dup
+      1025: bipush        6
+      1027: iload         18
+      1029: invokestatic  #625                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+      1032: aastore
+      1033: dup
+      1034: bipush        7
+      1036: aload         5
+      1038: aastore
+      1039: invokevirtual #631                // Method java/util/logging/LogRecord.setParameters:([Ljava/lang/Object;)V
+      1042: getstatic     #635                // Field _logResults:Ljava/util/logging/Logger;
+      1045: aload         19
+      1047: invokevirtual #638                // Method java/util/logging/Logger.log:(Ljava/util/logging/LogRecord;)V
+      1050: aload         6
+      1052: ldc_w         #566                // String olympiad_points
+      1055: iload         16
+      1057: iload         18
+      1059: iadd
+      1060: invokevirtual #583                // Method org/l2jmobius/gameserver/util/StatSet.set:(Ljava/lang/String;I)V
+      1063: aload         6
+      1065: ldc_w         #560                // String competitions_won
+      1068: iload         10
+      1070: iconst_1
+      1071: iadd
+      1072: invokevirtual #583                // Method org/l2jmobius/gameserver/util/StatSet.set:(Ljava/lang/String;I)V
+      1075: aload_0
+      1076: new           #587                // class org/l2jmobius/gameserver/network/serverpackets/SystemMessage
+      1079: dup
+      1080: getstatic     #642                // Field org/l2jmobius/gameserver/network/SystemMessageId.CONGRATULATIONS_C1_YOU_WIN_THE_MATCH:Lorg/l2jmobius/gameserver/network/SystemMessageId;
+      1083: invokespecial #595                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage."<init>":(Lorg/l2jmobius/gameserver/network/SystemMessageId;)V
+      1086: putfield      #645                // Field _sm:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      1089: aload_0
+      1090: new           #587                // class org/l2jmobius/gameserver/network/serverpackets/SystemMessage
+      1093: dup
+      1094: getstatic     #649                // Field org/l2jmobius/gameserver/network/SystemMessageId.C1_HAS_EARNED_S2_POINTS_IN_THE_GRAND_OLYMPIAD_GAMES:Lorg/l2jmobius/gameserver/network/SystemMessageId;
+      1097: invokespecial #595                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage."<init>":(Lorg/l2jmobius/gameserver/network/SystemMessageId;)V
+      1100: putfield      #652                // Field _sm2:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      1103: aload_0
+      1104: getfield      #645                // Field _sm:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      1107: aload_0
+      1108: getfield      #91                 // Field _playerOneName:Ljava/lang/String;
+      1111: invokevirtual #598                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage.addString:(Ljava/lang/String;)Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      1114: pop
+      1115: aload_0
+      1116: aload_0
+      1117: getfield      #645                // Field _sm:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      1120: iconst_1
+      1121: invokevirtual #606                // Method broadcastMessage:(Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;Z)V
+      1124: aload_0
+      1125: getfield      #652                // Field _sm2:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      1128: aload_0
+      1129: getfield      #91                 // Field _playerOneName:Ljava/lang/String;
+      1132: invokevirtual #598                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage.addString:(Ljava/lang/String;)Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      1135: pop
+      1136: aload_0
+      1137: getfield      #652                // Field _sm2:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      1140: iload         18
+      1142: invokevirtual #602                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage.addInt:(I)Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      1145: pop
+      1146: aload_0
+      1147: aload_0
+      1148: getfield      #652                // Field _sm2:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      1151: iconst_0
+      1152: invokevirtual #606                // Method broadcastMessage:(Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;Z)V
+      1155: invokestatic  #655                // Method org/l2jmobius/gameserver/mechanics/events/EventDispatcher.getInstance:()Lorg/l2jmobius/gameserver/mechanics/events/EventDispatcher;
+      1158: getstatic     #660                // Field org/l2jmobius/gameserver/mechanics/events/EventType.ON_OLYMPIAD_MATCH_RESULT:Lorg/l2jmobius/gameserver/mechanics/events/EventType;
+      1161: invokestatic  #462                // Method org/l2jmobius/gameserver/mechanics/olympiad/Olympiad.getInstance:()Lorg/l2jmobius/gameserver/mechanics/olympiad/Olympiad;
+      1164: invokevirtual #666                // Method org/l2jmobius/gameserver/mechanics/events/EventDispatcher.hasListener:(Lorg/l2jmobius/gameserver/mechanics/events/EventType;Lorg/l2jmobius/gameserver/mechanics/events/ListenersContainer;)Z
+      1167: ifeq          1198
+      1170: invokestatic  #655                // Method org/l2jmobius/gameserver/mechanics/events/EventDispatcher.getInstance:()Lorg/l2jmobius/gameserver/mechanics/events/EventDispatcher;
+      1173: new           #670                // class org/l2jmobius/gameserver/mechanics/events/holders/olympiad/OnOlympiadMatchResult
+      1176: dup
+      1177: aload_0
+      1178: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+      1181: aload_0
+      1182: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+      1185: aload_0
+      1186: getfield      #48                 // Field _type:Lorg/l2jmobius/gameserver/mechanics/olympiad/CompetitionType;
+      1189: invokespecial #672                // Method org/l2jmobius/gameserver/mechanics/events/holders/olympiad/OnOlympiadMatchResult."<init>":(Lorg/l2jmobius/gameserver/entity/actor/Player;Lorg/l2jmobius/gameserver/entity/actor/Player;Lorg/l2jmobius/gameserver/mechanics/olympiad/CompetitionType;)V
+      1192: invokestatic  #462                // Method org/l2jmobius/gameserver/mechanics/olympiad/Olympiad.getInstance:()Lorg/l2jmobius/gameserver/mechanics/olympiad/Olympiad;
+      1195: invokevirtual #675                // Method org/l2jmobius/gameserver/mechanics/events/EventDispatcher.notifyEventAsync:(Lorg/l2jmobius/gameserver/mechanics/events/holders/IBaseEvent;Lorg/l2jmobius/gameserver/mechanics/events/ListenersContainer;)V
+      1198: goto          1472
+      1201: astore        19
+      1203: getstatic     #159                // Field LOGGER:Ljava/util/logging/Logger;
+      1206: getstatic     #163                // Field java/util/logging/Level.WARNING:Ljava/util/logging/Level;
+      1209: aload         19
+      1211: invokevirtual #679                // Method java/lang/Exception.getMessage:()Ljava/lang/String;
+      1214: invokedynamic #682,  0            // InvokeDynamic #2:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+      1219: aload         19
+      1221: invokevirtual #171                // Method java/util/logging/Logger.log:(Ljava/util/logging/Level;Ljava/lang/String;Ljava/lang/Throwable;)V
+      1224: goto          1472
+      1227: iload_1
+      1228: ifeq          1472
+      1231: iload_2
+      1232: ifeq          1472
+      1235: aload         6
+      1237: ldc_w         #566                // String olympiad_points
+      1240: iload         16
+      1242: iload         18
+      1244: isub
+      1245: invokevirtual #583                // Method org/l2jmobius/gameserver/util/StatSet.set:(Ljava/lang/String;I)V
+      1248: aload         6
+      1250: ldc_w         #562                // String competitions_lost
+      1253: iload         12
+      1255: iconst_1
+      1256: iadd
+      1257: invokevirtual #583                // Method org/l2jmobius/gameserver/util/StatSet.set:(Ljava/lang/String;I)V
+      1260: aload         7
+      1262: ldc_w         #566                // String olympiad_points
+      1265: iload         17
+      1267: iload         18
+      1269: isub
+      1270: invokevirtual #583                // Method org/l2jmobius/gameserver/util/StatSet.set:(Ljava/lang/String;I)V
+      1273: aload         7
+      1275: ldc_w         #562                // String competitions_lost
+      1278: iload         13
+      1280: iconst_1
+      1281: iadd
+      1282: invokevirtual #583                // Method org/l2jmobius/gameserver/util/StatSet.set:(Ljava/lang/String;I)V
+      1285: getstatic     #610                // Field org/l2jmobius/gameserver/config/OlympiadConfig.OLYMPIAD_LOG_FIGHTS:Z
+      1288: ifeq          1381
+      1291: new           #613                // class java/util/logging/LogRecord
+      1294: dup
+      1295: getstatic     #615                // Field java/util/logging/Level.INFO:Ljava/util/logging/Level;
+      1298: ldc_w         #683                // String both crash
+      1301: invokespecial #622                // Method java/util/logging/LogRecord."<init>":(Ljava/util/logging/Level;Ljava/lang/String;)V
+      1304: astore        19
+      1306: aload         19
+      1308: bipush        8
+      1310: anewarray     #2                  // class java/lang/Object
+      1313: dup
+      1314: iconst_0
+      1315: aload_0
+      1316: getfield      #91                 // Field _playerOneName:Ljava/lang/String;
+      1319: aastore
+      1320: dup
+      1321: iconst_1
+      1322: aload_0
+      1323: getfield      #95                 // Field _playerTwoName:Ljava/lang/String;
+      1326: aastore
+      1327: dup
+      1328: iconst_2
+      1329: iconst_0
+      1330: invokestatic  #625                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+      1333: aastore
+      1334: dup
+      1335: iconst_3
+      1336: iconst_0
+      1337: invokestatic  #625                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+      1340: aastore
+      1341: dup
+      1342: iconst_4
+      1343: iconst_0
+      1344: invokestatic  #625                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+      1347: aastore
+      1348: dup
+      1349: iconst_5
+      1350: iconst_0
+      1351: invokestatic  #625                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+      1354: aastore
+      1355: dup
+      1356: bipush        6
+      1358: iload         18
+      1360: invokestatic  #625                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+      1363: aastore
+      1364: dup
+      1365: bipush        7
+      1367: aload         5
+      1369: aastore
+      1370: invokevirtual #631                // Method java/util/logging/LogRecord.setParameters:([Ljava/lang/Object;)V
+      1373: getstatic     #635                // Field _logResults:Ljava/util/logging/Logger;
+      1376: aload         19
+      1378: invokevirtual #638                // Method java/util/logging/Logger.log:(Ljava/util/logging/LogRecord;)V
+      1381: invokestatic  #655                // Method org/l2jmobius/gameserver/mechanics/events/EventDispatcher.getInstance:()Lorg/l2jmobius/gameserver/mechanics/events/EventDispatcher;
+      1384: getstatic     #660                // Field org/l2jmobius/gameserver/mechanics/events/EventType.ON_OLYMPIAD_MATCH_RESULT:Lorg/l2jmobius/gameserver/mechanics/events/EventType;
+      1387: invokestatic  #462                // Method org/l2jmobius/gameserver/mechanics/olympiad/Olympiad.getInstance:()Lorg/l2jmobius/gameserver/mechanics/olympiad/Olympiad;
+      1390: invokevirtual #666                // Method org/l2jmobius/gameserver/mechanics/events/EventDispatcher.hasListener:(Lorg/l2jmobius/gameserver/mechanics/events/EventType;Lorg/l2jmobius/gameserver/mechanics/events/ListenersContainer;)Z
+      1393: ifeq          1446
+      1396: invokestatic  #655                // Method org/l2jmobius/gameserver/mechanics/events/EventDispatcher.getInstance:()Lorg/l2jmobius/gameserver/mechanics/events/EventDispatcher;
+      1399: new           #670                // class org/l2jmobius/gameserver/mechanics/events/holders/olympiad/OnOlympiadMatchResult
+      1402: dup
+      1403: aconst_null
+      1404: aload_0
+      1405: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+      1408: aload_0
+      1409: getfield      #48                 // Field _type:Lorg/l2jmobius/gameserver/mechanics/olympiad/CompetitionType;
+      1412: invokespecial #672                // Method org/l2jmobius/gameserver/mechanics/events/holders/olympiad/OnOlympiadMatchResult."<init>":(Lorg/l2jmobius/gameserver/entity/actor/Player;Lorg/l2jmobius/gameserver/entity/actor/Player;Lorg/l2jmobius/gameserver/mechanics/olympiad/CompetitionType;)V
+      1415: invokestatic  #462                // Method org/l2jmobius/gameserver/mechanics/olympiad/Olympiad.getInstance:()Lorg/l2jmobius/gameserver/mechanics/olympiad/Olympiad;
+      1418: invokevirtual #675                // Method org/l2jmobius/gameserver/mechanics/events/EventDispatcher.notifyEventAsync:(Lorg/l2jmobius/gameserver/mechanics/events/holders/IBaseEvent;Lorg/l2jmobius/gameserver/mechanics/events/ListenersContainer;)V
+      1421: invokestatic  #655                // Method org/l2jmobius/gameserver/mechanics/events/EventDispatcher.getInstance:()Lorg/l2jmobius/gameserver/mechanics/events/EventDispatcher;
+      1424: new           #670                // class org/l2jmobius/gameserver/mechanics/events/holders/olympiad/OnOlympiadMatchResult
+      1427: dup
+      1428: aconst_null
+      1429: aload_0
+      1430: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+      1433: aload_0
+      1434: getfield      #48                 // Field _type:Lorg/l2jmobius/gameserver/mechanics/olympiad/CompetitionType;
+      1437: invokespecial #672                // Method org/l2jmobius/gameserver/mechanics/events/holders/olympiad/OnOlympiadMatchResult."<init>":(Lorg/l2jmobius/gameserver/entity/actor/Player;Lorg/l2jmobius/gameserver/entity/actor/Player;Lorg/l2jmobius/gameserver/mechanics/olympiad/CompetitionType;)V
+      1440: invokestatic  #462                // Method org/l2jmobius/gameserver/mechanics/olympiad/Olympiad.getInstance:()Lorg/l2jmobius/gameserver/mechanics/olympiad/Olympiad;
+      1443: invokevirtual #675                // Method org/l2jmobius/gameserver/mechanics/events/EventDispatcher.notifyEventAsync:(Lorg/l2jmobius/gameserver/mechanics/events/holders/IBaseEvent;Lorg/l2jmobius/gameserver/mechanics/events/ListenersContainer;)V
+      1446: goto          1472
+      1449: astore        19
+      1451: getstatic     #159                // Field LOGGER:Ljava/util/logging/Logger;
+      1454: getstatic     #163                // Field java/util/logging/Level.WARNING:Ljava/util/logging/Level;
+      1457: aload         19
+      1459: invokevirtual #679                // Method java/lang/Exception.getMessage:()Ljava/lang/String;
+      1462: invokedynamic #682,  0            // InvokeDynamic #2:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+      1467: aload         19
+      1469: invokevirtual #171                // Method java/util/logging/Logger.log:(Ljava/util/logging/Level;Ljava/lang/String;Ljava/lang/Throwable;)V
+      1472: aload         6
+      1474: ldc_w         #552                // String competitions_done
+      1477: iload         8
+      1479: iconst_1
+      1480: iadd
+      1481: invokevirtual #583                // Method org/l2jmobius/gameserver/util/StatSet.set:(Ljava/lang/String;I)V
+      1484: aload         7
+      1486: ldc_w         #552                // String competitions_done
+      1489: iload         9
+      1491: iconst_1
+      1492: iadd
+      1493: invokevirtual #583                // Method org/l2jmobius/gameserver/util/StatSet.set:(Ljava/lang/String;I)V
+      1496: return
+      1497: dconst_0
+      1498: dstore        19
+      1500: aload_0
+      1501: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+      1504: invokevirtual #471                // Method org/l2jmobius/gameserver/entity/actor/Player.isDead:()Z
+      1507: ifne          1527
+      1510: aload_0
+      1511: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+      1514: invokevirtual #524                // Method org/l2jmobius/gameserver/entity/actor/Player.getCurrentHp:()D
+      1517: aload_0
+      1518: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+      1521: invokevirtual #685                // Method org/l2jmobius/gameserver/entity/actor/Player.getCurrentCp:()D
+      1524: dadd
+      1525: dstore        19
+      1527: dconst_0
+      1528: dstore        21
+      1530: aload_0
+      1531: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+      1534: invokevirtual #471                // Method org/l2jmobius/gameserver/entity/actor/Player.isDead:()Z
+      1537: ifne          1557
+      1540: aload_0
+      1541: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+      1544: invokevirtual #524                // Method org/l2jmobius/gameserver/entity/actor/Player.getCurrentHp:()D
+      1547: aload_0
+      1548: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+      1551: invokevirtual #685                // Method org/l2jmobius/gameserver/entity/actor/Player.getCurrentCp:()D
+      1554: dadd
+      1555: dstore        21
+      1557: aload_0
+      1558: new           #587                // class org/l2jmobius/gameserver/network/serverpackets/SystemMessage
+      1561: dup
+      1562: getstatic     #642                // Field org/l2jmobius/gameserver/network/SystemMessageId.CONGRATULATIONS_C1_YOU_WIN_THE_MATCH:Lorg/l2jmobius/gameserver/network/SystemMessageId;
+      1565: invokespecial #595                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage."<init>":(Lorg/l2jmobius/gameserver/network/SystemMessageId;)V
+      1568: putfield      #645                // Field _sm:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      1571: aload_0
+      1572: new           #587                // class org/l2jmobius/gameserver/network/serverpackets/SystemMessage
+      1575: dup
+      1576: getstatic     #649                // Field org/l2jmobius/gameserver/network/SystemMessageId.C1_HAS_EARNED_S2_POINTS_IN_THE_GRAND_OLYMPIAD_GAMES:Lorg/l2jmobius/gameserver/network/SystemMessageId;
+      1579: invokespecial #595                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage."<init>":(Lorg/l2jmobius/gameserver/network/SystemMessageId;)V
+      1582: putfield      #652                // Field _sm2:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      1585: aload_0
+      1586: new           #587                // class org/l2jmobius/gameserver/network/serverpackets/SystemMessage
+      1589: dup
+      1590: getstatic     #589                // Field org/l2jmobius/gameserver/network/SystemMessageId.C1_HAS_LOST_S2_POINTS_IN_THE_GRAND_OLYMPIAD_GAMES:Lorg/l2jmobius/gameserver/network/SystemMessageId;
+      1593: invokespecial #595                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage."<init>":(Lorg/l2jmobius/gameserver/network/SystemMessageId;)V
+      1596: putfield      #688                // Field _sm3:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      1599: aload_0
+      1600: aload_0
+      1601: getfield      #7                  // Field _playerOneID:I
+      1604: invokestatic  #691                // Method org/l2jmobius/gameserver/entity/World.getPlayer:(I)Lorg/l2jmobius/gameserver/entity/actor/Player;
+      1607: putfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+      1610: aload_0
+      1611: getfield      #68                 // Field _players:Ljava/util/List;
+      1614: iconst_0
+      1615: aload_0
+      1616: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+      1619: invokeinterface #697,  3          // InterfaceMethod java/util/List.set:(ILjava/lang/Object;)Ljava/lang/Object;
+      1624: pop
+      1625: aload_0
+      1626: aload_0
+      1627: getfield      #13                 // Field _playerTwoID:I
+      1630: invokestatic  #691                // Method org/l2jmobius/gameserver/entity/World.getPlayer:(I)Lorg/l2jmobius/gameserver/entity/actor/Player;
+      1633: putfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+      1636: aload_0
+      1637: getfield      #68                 // Field _players:Ljava/util/List;
+      1640: iconst_1
+      1641: aload_0
+      1642: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+      1645: invokeinterface #697,  3          // InterfaceMethod java/util/List.set:(ILjava/lang/Object;)Ljava/lang/Object;
+      1650: pop
+      1651: ldc_w         #700                // String draw
+      1654: astore        23
+      1656: invokestatic  #702                // Method java/lang/System.currentTimeMillis:()J
+      1659: aload_0
+      1660: getfield      #22                 // Field _startTime:J
+      1663: lsub
+      1664: lstore        24
+      1666: aload_0
+      1667: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+      1670: ifnonnull     1730
+      1673: aload_0
+      1674: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+      1677: ifnonnull     1730
+      1680: aload         6
+      1682: ldc_w         #564                // String competitions_drawn
+      1685: iload         14
+      1687: iconst_1
+      1688: iadd
+      1689: invokevirtual #583                // Method org/l2jmobius/gameserver/util/StatSet.set:(Ljava/lang/String;I)V
+      1692: aload         7
+      1694: ldc_w         #564                // String competitions_drawn
+      1697: iload         15
+      1699: iconst_1
+      1700: iadd
+      1701: invokevirtual #583                // Method org/l2jmobius/gameserver/util/StatSet.set:(Ljava/lang/String;I)V
+      1704: aload_0
+      1705: new           #587                // class org/l2jmobius/gameserver/network/serverpackets/SystemMessage
+      1708: dup
+      1709: getstatic     #708                // Field org/l2jmobius/gameserver/network/SystemMessageId.THERE_IS_NO_VICTOR_THE_MATCH_ENDS_IN_A_TIE:Lorg/l2jmobius/gameserver/network/SystemMessageId;
+      1712: invokespecial #595                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage."<init>":(Lorg/l2jmobius/gameserver/network/SystemMessageId;)V
+      1715: putfield      #645                // Field _sm:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      1718: aload_0
+      1719: aload_0
+      1720: getfield      #645                // Field _sm:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      1723: iconst_1
+      1724: invokevirtual #606                // Method broadcastMessage:(Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;Z)V
+      1727: goto          2721
+      1730: aload_0
+      1731: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+      1734: ifnull        1786
+      1737: aload_0
+      1738: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+      1741: invokevirtual #711                // Method org/l2jmobius/gameserver/entity/actor/Player.isOnline:()Z
+      1744: ifeq          1786
+      1747: dload         21
+      1749: dconst_0
+      1750: dcmpl
+      1751: ifne          1761
+      1754: dload         19
+      1756: dconst_0
+      1757: dcmpl
+      1758: ifne          1786
+      1761: aload_0
+      1762: getfield      #26                 // Field _damageP1:I
+      1765: aload_0
+      1766: getfield      #29                 // Field _damageP2:I
+      1769: if_icmple     2111
+      1772: dload         21
+      1774: dconst_0
+      1775: dcmpl
+      1776: ifeq          2111
+      1779: dload         19
+      1781: dconst_0
+      1782: dcmpl
+      1783: ifeq          2111
+      1786: aload         6
+      1788: ldc_w         #566                // String olympiad_points
+      1791: iload         16
+      1793: iload         18
+      1795: iadd
+      1796: invokevirtual #583                // Method org/l2jmobius/gameserver/util/StatSet.set:(Ljava/lang/String;I)V
+      1799: aload         7
+      1801: ldc_w         #566                // String olympiad_points
+      1804: iload         17
+      1806: iload         18
+      1808: isub
+      1809: invokevirtual #583                // Method org/l2jmobius/gameserver/util/StatSet.set:(Ljava/lang/String;I)V
+      1812: aload         6
+      1814: ldc_w         #560                // String competitions_won
+      1817: iload         10
+      1819: iconst_1
+      1820: iadd
+      1821: invokevirtual #583                // Method org/l2jmobius/gameserver/util/StatSet.set:(Ljava/lang/String;I)V
+      1824: aload         7
+      1826: ldc_w         #562                // String competitions_lost
+      1829: iload         13
+      1831: iconst_1
+      1832: iadd
+      1833: invokevirtual #583                // Method org/l2jmobius/gameserver/util/StatSet.set:(Ljava/lang/String;I)V
+      1836: aload_0
+      1837: getfield      #645                // Field _sm:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      1840: aload_0
+      1841: getfield      #91                 // Field _playerOneName:Ljava/lang/String;
+      1844: invokevirtual #598                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage.addString:(Ljava/lang/String;)Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      1847: pop
+      1848: aload_0
+      1849: aload_0
+      1850: getfield      #645                // Field _sm:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      1853: iconst_1
+      1854: invokevirtual #606                // Method broadcastMessage:(Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;Z)V
+      1857: aload_0
+      1858: getfield      #652                // Field _sm2:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      1861: aload_0
+      1862: getfield      #91                 // Field _playerOneName:Ljava/lang/String;
+      1865: invokevirtual #598                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage.addString:(Ljava/lang/String;)Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      1868: pop
+      1869: aload_0
+      1870: getfield      #652                // Field _sm2:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      1873: iload         18
+      1875: invokevirtual #602                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage.addInt:(I)Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      1878: pop
+      1879: aload_0
+      1880: aload_0
+      1881: getfield      #652                // Field _sm2:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      1884: iconst_0
+      1885: invokevirtual #606                // Method broadcastMessage:(Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;Z)V
+      1888: aload_0
+      1889: getfield      #688                // Field _sm3:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      1892: aload_0
+      1893: getfield      #95                 // Field _playerTwoName:Ljava/lang/String;
+      1896: invokevirtual #598                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage.addString:(Ljava/lang/String;)Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      1899: pop
+      1900: aload_0
+      1901: getfield      #688                // Field _sm3:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      1904: iload         18
+      1906: invokevirtual #602                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage.addInt:(I)Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      1909: pop
+      1910: aload_0
+      1911: aload_0
+      1912: getfield      #688                // Field _sm3:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      1915: iconst_0
+      1916: invokevirtual #606                // Method broadcastMessage:(Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;Z)V
+      1919: aload_0
+      1920: getfield      #91                 // Field _playerOneName:Ljava/lang/String;
+      1923: invokedynamic #714,  0            // InvokeDynamic #3:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+      1928: astore        23
+      1930: aload_0
+      1931: aload_0
+      1932: getfield      #7                  // Field _playerOneID:I
+      1935: aload_0
+      1936: getfield      #13                 // Field _playerTwoID:I
+      1939: aload_0
+      1940: getfield      #16                 // Field _playerOneClass:I
+      1943: aload_0
+      1944: getfield      #19                 // Field _playerTwoClass:I
+      1947: iconst_1
+      1948: aload_0
+      1949: getfield      #22                 // Field _startTime:J
+      1952: lload         24
+      1954: aload_0
+      1955: getfield      #48                 // Field _type:Lorg/l2jmobius/gameserver/mechanics/olympiad/CompetitionType;
+      1958: getstatic     #715                // Field org/l2jmobius/gameserver/mechanics/olympiad/CompetitionType.CLASSED:Lorg/l2jmobius/gameserver/mechanics/olympiad/CompetitionType;
+      1961: if_acmpne     1968
+      1964: iconst_1
+      1965: goto          1969
+      1968: iconst_0
+      1969: invokevirtual #718                // Method saveResults:(IIIIIJJI)V
+      1972: aload_0
+      1973: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+      1976: invokevirtual #722                // Method org/l2jmobius/gameserver/entity/actor/Player.getInventory:()Lorg/l2jmobius/gameserver/entity/itemcontainer/PlayerInventory;
+      1979: getstatic     #726                // Field org/l2jmobius/gameserver/entity/item/enums/ItemProcessType.REWARD:Lorg/l2jmobius/gameserver/entity/item/enums/ItemProcessType;
+      1982: getstatic     #732                // Field org/l2jmobius/gameserver/config/OlympiadConfig.OLYMPIAD_BATTLE_REWARD_ITEM:I
+      1985: iload         4
+      1987: i2l
+      1988: aload_0
+      1989: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+      1992: aconst_null
+      1993: invokevirtual #735                // Method org/l2jmobius/gameserver/entity/itemcontainer/PlayerInventory.addItem:(Lorg/l2jmobius/gameserver/entity/item/enums/ItemProcessType;IJLorg/l2jmobius/gameserver/entity/actor/Player;Ljava/lang/Object;)Lorg/l2jmobius/gameserver/entity/item/instance/Item;
+      1996: astore        26
+      1998: new           #741                // class org/l2jmobius/gameserver/network/serverpackets/InventoryUpdate
+      2001: dup
+      2002: invokespecial #743                // Method org/l2jmobius/gameserver/network/serverpackets/InventoryUpdate."<init>":()V
+      2005: astore        27
+      2007: aload         27
+      2009: aload         26
+      2011: invokevirtual #744                // Method org/l2jmobius/gameserver/network/serverpackets/InventoryUpdate.addModifiedItem:(Lorg/l2jmobius/gameserver/entity/item/instance/Item;)V
+      2014: aload_0
+      2015: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+      2018: aload         27
+      2020: invokevirtual #748                // Method org/l2jmobius/gameserver/entity/actor/Player.sendInventoryUpdate:(Lorg/l2jmobius/gameserver/network/serverpackets/InventoryUpdate;)V
+      2023: new           #587                // class org/l2jmobius/gameserver/network/serverpackets/SystemMessage
+      2026: dup
+      2027: getstatic     #752                // Field org/l2jmobius/gameserver/network/SystemMessageId.YOU_HAVE_EARNED_S2_S1_S:Lorg/l2jmobius/gameserver/network/SystemMessageId;
+      2030: invokespecial #595                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage."<init>":(Lorg/l2jmobius/gameserver/network/SystemMessageId;)V
+      2033: astore        28
+      2035: aload         28
+      2037: aload         26
+      2039: invokevirtual #755                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage.addItemName:(Lorg/l2jmobius/gameserver/entity/item/instance/Item;)Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      2042: pop
+      2043: aload         28
+      2045: iload         4
+      2047: invokevirtual #602                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage.addInt:(I)Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      2050: pop
+      2051: aload_0
+      2052: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+      2055: aload         28
+      2057: invokevirtual #358                // Method org/l2jmobius/gameserver/entity/actor/Player.sendPacket:(Lorg/l2jmobius/gameserver/network/serverpackets/ServerPacket;)V
+      2060: invokestatic  #655                // Method org/l2jmobius/gameserver/mechanics/events/EventDispatcher.getInstance:()Lorg/l2jmobius/gameserver/mechanics/events/EventDispatcher;
+      2063: getstatic     #660                // Field org/l2jmobius/gameserver/mechanics/events/EventType.ON_OLYMPIAD_MATCH_RESULT:Lorg/l2jmobius/gameserver/mechanics/events/EventType;
+      2066: invokestatic  #462                // Method org/l2jmobius/gameserver/mechanics/olympiad/Olympiad.getInstance:()Lorg/l2jmobius/gameserver/mechanics/olympiad/Olympiad;
+      2069: invokevirtual #666                // Method org/l2jmobius/gameserver/mechanics/events/EventDispatcher.hasListener:(Lorg/l2jmobius/gameserver/mechanics/events/EventType;Lorg/l2jmobius/gameserver/mechanics/events/ListenersContainer;)Z
+      2072: ifeq          2103
+      2075: invokestatic  #655                // Method org/l2jmobius/gameserver/mechanics/events/EventDispatcher.getInstance:()Lorg/l2jmobius/gameserver/mechanics/events/EventDispatcher;
+      2078: new           #670                // class org/l2jmobius/gameserver/mechanics/events/holders/olympiad/OnOlympiadMatchResult
+      2081: dup
+      2082: aload_0
+      2083: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+      2086: aload_0
+      2087: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+      2090: aload_0
+      2091: getfield      #48                 // Field _type:Lorg/l2jmobius/gameserver/mechanics/olympiad/CompetitionType;
+      2094: invokespecial #672                // Method org/l2jmobius/gameserver/mechanics/events/holders/olympiad/OnOlympiadMatchResult."<init>":(Lorg/l2jmobius/gameserver/entity/actor/Player;Lorg/l2jmobius/gameserver/entity/actor/Player;Lorg/l2jmobius/gameserver/mechanics/olympiad/CompetitionType;)V
+      2097: invokestatic  #462                // Method org/l2jmobius/gameserver/mechanics/olympiad/Olympiad.getInstance:()Lorg/l2jmobius/gameserver/mechanics/olympiad/Olympiad;
+      2100: invokevirtual #675                // Method org/l2jmobius/gameserver/mechanics/events/EventDispatcher.notifyEventAsync:(Lorg/l2jmobius/gameserver/mechanics/events/holders/IBaseEvent;Lorg/l2jmobius/gameserver/mechanics/events/ListenersContainer;)V
+      2103: goto          2721
+      2106: astore        26
+      2108: goto          2721
+      2111: aload_0
+      2112: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+      2115: ifnull        2167
+      2118: aload_0
+      2119: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+      2122: invokevirtual #711                // Method org/l2jmobius/gameserver/entity/actor/Player.isOnline:()Z
+      2125: ifeq          2167
+      2128: dload         19
+      2130: dconst_0
+      2131: dcmpl
+      2132: ifne          2142
+      2135: dload         21
+      2137: dconst_0
+      2138: dcmpl
+      2139: ifne          2167
+      2142: aload_0
+      2143: getfield      #29                 // Field _damageP2:I
+      2146: aload_0
+      2147: getfield      #26                 // Field _damageP1:I
+      2150: if_icmple     2492
+      2153: dload         19
+      2155: dconst_0
+      2156: dcmpl
+      2157: ifeq          2492
+      2160: dload         21
+      2162: dconst_0
+      2163: dcmpl
+      2164: ifeq          2492
+      2167: aload         7
+      2169: ldc_w         #566                // String olympiad_points
+      2172: iload         17
+      2174: iload         18
+      2176: iadd
+      2177: invokevirtual #583                // Method org/l2jmobius/gameserver/util/StatSet.set:(Ljava/lang/String;I)V
+      2180: aload         6
+      2182: ldc_w         #566                // String olympiad_points
+      2185: iload         16
+      2187: iload         18
+      2189: isub
+      2190: invokevirtual #583                // Method org/l2jmobius/gameserver/util/StatSet.set:(Ljava/lang/String;I)V
+      2193: aload         7
+      2195: ldc_w         #560                // String competitions_won
+      2198: iload         11
+      2200: iconst_1
+      2201: iadd
+      2202: invokevirtual #583                // Method org/l2jmobius/gameserver/util/StatSet.set:(Ljava/lang/String;I)V
+      2205: aload         6
+      2207: ldc_w         #562                // String competitions_lost
+      2210: iload         12
+      2212: iconst_1
+      2213: iadd
+      2214: invokevirtual #583                // Method org/l2jmobius/gameserver/util/StatSet.set:(Ljava/lang/String;I)V
+      2217: aload_0
+      2218: getfield      #645                // Field _sm:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      2221: aload_0
+      2222: getfield      #95                 // Field _playerTwoName:Ljava/lang/String;
+      2225: invokevirtual #598                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage.addString:(Ljava/lang/String;)Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      2228: pop
+      2229: aload_0
+      2230: aload_0
+      2231: getfield      #645                // Field _sm:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      2234: iconst_1
+      2235: invokevirtual #606                // Method broadcastMessage:(Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;Z)V
+      2238: aload_0
+      2239: getfield      #652                // Field _sm2:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      2242: aload_0
+      2243: getfield      #95                 // Field _playerTwoName:Ljava/lang/String;
+      2246: invokevirtual #598                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage.addString:(Ljava/lang/String;)Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      2249: pop
+      2250: aload_0
+      2251: getfield      #652                // Field _sm2:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      2254: iload         18
+      2256: invokevirtual #602                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage.addInt:(I)Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      2259: pop
+      2260: aload_0
+      2261: aload_0
+      2262: getfield      #652                // Field _sm2:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      2265: iconst_0
+      2266: invokevirtual #606                // Method broadcastMessage:(Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;Z)V
+      2269: aload_0
+      2270: getfield      #688                // Field _sm3:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      2273: aload_0
+      2274: getfield      #91                 // Field _playerOneName:Ljava/lang/String;
+      2277: invokevirtual #598                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage.addString:(Ljava/lang/String;)Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      2280: pop
+      2281: aload_0
+      2282: getfield      #688                // Field _sm3:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      2285: iload         18
+      2287: invokevirtual #602                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage.addInt:(I)Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      2290: pop
+      2291: aload_0
+      2292: aload_0
+      2293: getfield      #688                // Field _sm3:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      2296: iconst_0
+      2297: invokevirtual #606                // Method broadcastMessage:(Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;Z)V
+      2300: aload_0
+      2301: getfield      #95                 // Field _playerTwoName:Ljava/lang/String;
+      2304: invokedynamic #714,  0            // InvokeDynamic #3:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+      2309: astore        23
+      2311: aload_0
+      2312: aload_0
+      2313: getfield      #7                  // Field _playerOneID:I
+      2316: aload_0
+      2317: getfield      #13                 // Field _playerTwoID:I
+      2320: aload_0
+      2321: getfield      #16                 // Field _playerOneClass:I
+      2324: aload_0
+      2325: getfield      #19                 // Field _playerTwoClass:I
+      2328: iconst_2
+      2329: aload_0
+      2330: getfield      #22                 // Field _startTime:J
+      2333: lload         24
+      2335: aload_0
+      2336: getfield      #48                 // Field _type:Lorg/l2jmobius/gameserver/mechanics/olympiad/CompetitionType;
+      2339: getstatic     #715                // Field org/l2jmobius/gameserver/mechanics/olympiad/CompetitionType.CLASSED:Lorg/l2jmobius/gameserver/mechanics/olympiad/CompetitionType;
+      2342: if_acmpne     2349
+      2345: iconst_1
+      2346: goto          2350
+      2349: iconst_0
+      2350: invokevirtual #718                // Method saveResults:(IIIIIJJI)V
+      2353: aload_0
+      2354: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+      2357: invokevirtual #722                // Method org/l2jmobius/gameserver/entity/actor/Player.getInventory:()Lorg/l2jmobius/gameserver/entity/itemcontainer/PlayerInventory;
+      2360: getstatic     #726                // Field org/l2jmobius/gameserver/entity/item/enums/ItemProcessType.REWARD:Lorg/l2jmobius/gameserver/entity/item/enums/ItemProcessType;
+      2363: getstatic     #732                // Field org/l2jmobius/gameserver/config/OlympiadConfig.OLYMPIAD_BATTLE_REWARD_ITEM:I
+      2366: iload         4
+      2368: i2l
+      2369: aload_0
+      2370: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+      2373: aconst_null
+      2374: invokevirtual #735                // Method org/l2jmobius/gameserver/entity/itemcontainer/PlayerInventory.addItem:(Lorg/l2jmobius/gameserver/entity/item/enums/ItemProcessType;IJLorg/l2jmobius/gameserver/entity/actor/Player;Ljava/lang/Object;)Lorg/l2jmobius/gameserver/entity/item/instance/Item;
+      2377: astore        26
+      2379: new           #741                // class org/l2jmobius/gameserver/network/serverpackets/InventoryUpdate
+      2382: dup
+      2383: invokespecial #743                // Method org/l2jmobius/gameserver/network/serverpackets/InventoryUpdate."<init>":()V
+      2386: astore        27
+      2388: aload         27
+      2390: aload         26
+      2392: invokevirtual #744                // Method org/l2jmobius/gameserver/network/serverpackets/InventoryUpdate.addModifiedItem:(Lorg/l2jmobius/gameserver/entity/item/instance/Item;)V
+      2395: aload_0
+      2396: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+      2399: aload         27
+      2401: invokevirtual #748                // Method org/l2jmobius/gameserver/entity/actor/Player.sendInventoryUpdate:(Lorg/l2jmobius/gameserver/network/serverpackets/InventoryUpdate;)V
+      2404: new           #587                // class org/l2jmobius/gameserver/network/serverpackets/SystemMessage
+      2407: dup
+      2408: getstatic     #752                // Field org/l2jmobius/gameserver/network/SystemMessageId.YOU_HAVE_EARNED_S2_S1_S:Lorg/l2jmobius/gameserver/network/SystemMessageId;
+      2411: invokespecial #595                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage."<init>":(Lorg/l2jmobius/gameserver/network/SystemMessageId;)V
+      2414: astore        28
+      2416: aload         28
+      2418: aload         26
+      2420: invokevirtual #755                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage.addItemName:(Lorg/l2jmobius/gameserver/entity/item/instance/Item;)Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      2423: pop
+      2424: aload         28
+      2426: iload         4
+      2428: invokevirtual #602                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage.addInt:(I)Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      2431: pop
+      2432: aload_0
+      2433: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+      2436: aload         28
+      2438: invokevirtual #358                // Method org/l2jmobius/gameserver/entity/actor/Player.sendPacket:(Lorg/l2jmobius/gameserver/network/serverpackets/ServerPacket;)V
+      2441: invokestatic  #655                // Method org/l2jmobius/gameserver/mechanics/events/EventDispatcher.getInstance:()Lorg/l2jmobius/gameserver/mechanics/events/EventDispatcher;
+      2444: getstatic     #660                // Field org/l2jmobius/gameserver/mechanics/events/EventType.ON_OLYMPIAD_MATCH_RESULT:Lorg/l2jmobius/gameserver/mechanics/events/EventType;
+      2447: invokestatic  #462                // Method org/l2jmobius/gameserver/mechanics/olympiad/Olympiad.getInstance:()Lorg/l2jmobius/gameserver/mechanics/olympiad/Olympiad;
+      2450: invokevirtual #666                // Method org/l2jmobius/gameserver/mechanics/events/EventDispatcher.hasListener:(Lorg/l2jmobius/gameserver/mechanics/events/EventType;Lorg/l2jmobius/gameserver/mechanics/events/ListenersContainer;)Z
+      2453: ifeq          2484
+      2456: invokestatic  #655                // Method org/l2jmobius/gameserver/mechanics/events/EventDispatcher.getInstance:()Lorg/l2jmobius/gameserver/mechanics/events/EventDispatcher;
+      2459: new           #670                // class org/l2jmobius/gameserver/mechanics/events/holders/olympiad/OnOlympiadMatchResult
+      2462: dup
+      2463: aload_0
+      2464: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+      2467: aload_0
+      2468: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+      2471: aload_0
+      2472: getfield      #48                 // Field _type:Lorg/l2jmobius/gameserver/mechanics/olympiad/CompetitionType;
+      2475: invokespecial #672                // Method org/l2jmobius/gameserver/mechanics/events/holders/olympiad/OnOlympiadMatchResult."<init>":(Lorg/l2jmobius/gameserver/entity/actor/Player;Lorg/l2jmobius/gameserver/entity/actor/Player;Lorg/l2jmobius/gameserver/mechanics/olympiad/CompetitionType;)V
+      2478: invokestatic  #462                // Method org/l2jmobius/gameserver/mechanics/olympiad/Olympiad.getInstance:()Lorg/l2jmobius/gameserver/mechanics/olympiad/Olympiad;
+      2481: invokevirtual #675                // Method org/l2jmobius/gameserver/mechanics/events/EventDispatcher.notifyEventAsync:(Lorg/l2jmobius/gameserver/mechanics/events/holders/IBaseEvent;Lorg/l2jmobius/gameserver/mechanics/events/ListenersContainer;)V
+      2484: goto          2721
+      2487: astore        26
+      2489: goto          2721
+      2492: aload_0
+      2493: aload_0
+      2494: getfield      #7                  // Field _playerOneID:I
+      2497: aload_0
+      2498: getfield      #13                 // Field _playerTwoID:I
+      2501: aload_0
+      2502: getfield      #16                 // Field _playerOneClass:I
+      2505: aload_0
+      2506: getfield      #19                 // Field _playerTwoClass:I
+      2509: iconst_0
+      2510: aload_0
+      2511: getfield      #22                 // Field _startTime:J
+      2514: lload         24
+      2516: aload_0
+      2517: getfield      #48                 // Field _type:Lorg/l2jmobius/gameserver/mechanics/olympiad/CompetitionType;
+      2520: getstatic     #715                // Field org/l2jmobius/gameserver/mechanics/olympiad/CompetitionType.CLASSED:Lorg/l2jmobius/gameserver/mechanics/olympiad/CompetitionType;
+      2523: if_acmpne     2530
+      2526: iconst_1
+      2527: goto          2531
+      2530: iconst_0
+      2531: invokevirtual #718                // Method saveResults:(IIIIIJJI)V
+      2534: aload_0
+      2535: new           #587                // class org/l2jmobius/gameserver/network/serverpackets/SystemMessage
+      2538: dup
+      2539: getstatic     #708                // Field org/l2jmobius/gameserver/network/SystemMessageId.THERE_IS_NO_VICTOR_THE_MATCH_ENDS_IN_A_TIE:Lorg/l2jmobius/gameserver/network/SystemMessageId;
+      2542: invokespecial #595                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage."<init>":(Lorg/l2jmobius/gameserver/network/SystemMessageId;)V
+      2545: putfield      #645                // Field _sm:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      2548: aload_0
+      2549: aload_0
+      2550: getfield      #645                // Field _sm:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      2553: iconst_1
+      2554: invokevirtual #606                // Method broadcastMessage:(Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;Z)V
+      2557: iload         16
+      2559: iconst_5
+      2560: idiv
+      2561: getstatic     #574                // Field org/l2jmobius/gameserver/config/OlympiadConfig.OLYMPIAD_MAX_POINTS:I
+      2564: invokestatic  #568                // Method java/lang/Math.min:(II)I
+      2567: istore        26
+      2569: iload         17
+      2571: iconst_5
+      2572: idiv
+      2573: getstatic     #574                // Field org/l2jmobius/gameserver/config/OlympiadConfig.OLYMPIAD_MAX_POINTS:I
+      2576: invokestatic  #568                // Method java/lang/Math.min:(II)I
+      2579: istore        27
+      2581: aload         6
+      2583: ldc_w         #566                // String olympiad_points
+      2586: iload         16
+      2588: iload         26
+      2590: isub
+      2591: invokevirtual #583                // Method org/l2jmobius/gameserver/util/StatSet.set:(Ljava/lang/String;I)V
+      2594: aload         7
+      2596: ldc_w         #566                // String olympiad_points
+      2599: iload         17
+      2601: iload         27
+      2603: isub
+      2604: invokevirtual #583                // Method org/l2jmobius/gameserver/util/StatSet.set:(Ljava/lang/String;I)V
+      2607: aload         6
+      2609: ldc_w         #564                // String competitions_drawn
+      2612: iload         14
+      2614: iconst_1
+      2615: iadd
+      2616: invokevirtual #583                // Method org/l2jmobius/gameserver/util/StatSet.set:(Ljava/lang/String;I)V
+      2619: aload         7
+      2621: ldc_w         #564                // String competitions_drawn
+      2624: iload         15
+      2626: iconst_1
+      2627: iadd
+      2628: invokevirtual #583                // Method org/l2jmobius/gameserver/util/StatSet.set:(Ljava/lang/String;I)V
+      2631: aload_0
+      2632: new           #587                // class org/l2jmobius/gameserver/network/serverpackets/SystemMessage
+      2635: dup
+      2636: getstatic     #589                // Field org/l2jmobius/gameserver/network/SystemMessageId.C1_HAS_LOST_S2_POINTS_IN_THE_GRAND_OLYMPIAD_GAMES:Lorg/l2jmobius/gameserver/network/SystemMessageId;
+      2639: invokespecial #595                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage."<init>":(Lorg/l2jmobius/gameserver/network/SystemMessageId;)V
+      2642: putfield      #652                // Field _sm2:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      2645: aload_0
+      2646: getfield      #652                // Field _sm2:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      2649: aload_0
+      2650: getfield      #91                 // Field _playerOneName:Ljava/lang/String;
+      2653: invokevirtual #598                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage.addString:(Ljava/lang/String;)Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      2656: pop
+      2657: aload_0
+      2658: getfield      #652                // Field _sm2:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      2661: iload         26
+      2663: invokevirtual #602                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage.addInt:(I)Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      2666: pop
+      2667: aload_0
+      2668: aload_0
+      2669: getfield      #652                // Field _sm2:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      2672: iconst_0
+      2673: invokevirtual #606                // Method broadcastMessage:(Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;Z)V
+      2676: aload_0
+      2677: new           #587                // class org/l2jmobius/gameserver/network/serverpackets/SystemMessage
+      2680: dup
+      2681: getstatic     #589                // Field org/l2jmobius/gameserver/network/SystemMessageId.C1_HAS_LOST_S2_POINTS_IN_THE_GRAND_OLYMPIAD_GAMES:Lorg/l2jmobius/gameserver/network/SystemMessageId;
+      2684: invokespecial #595                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage."<init>":(Lorg/l2jmobius/gameserver/network/SystemMessageId;)V
+      2687: putfield      #688                // Field _sm3:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      2690: aload_0
+      2691: getfield      #688                // Field _sm3:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      2694: aload_0
+      2695: getfield      #95                 // Field _playerTwoName:Ljava/lang/String;
+      2698: invokevirtual #598                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage.addString:(Ljava/lang/String;)Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      2701: pop
+      2702: aload_0
+      2703: getfield      #688                // Field _sm3:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      2706: iload         27
+      2708: invokevirtual #602                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage.addInt:(I)Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      2711: pop
+      2712: aload_0
+      2713: aload_0
+      2714: getfield      #688                // Field _sm3:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      2717: iconst_0
+      2718: invokevirtual #606                // Method broadcastMessage:(Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;Z)V
+      2721: aload         6
+      2723: ldc_w         #552                // String competitions_done
+      2726: iload         8
+      2728: iconst_1
+      2729: iadd
+      2730: invokevirtual #583                // Method org/l2jmobius/gameserver/util/StatSet.set:(Ljava/lang/String;I)V
+      2733: aload         7
+      2735: ldc_w         #552                // String competitions_done
+      2738: iload         9
+      2740: iconst_1
+      2741: iadd
+      2742: invokevirtual #583                // Method org/l2jmobius/gameserver/util/StatSet.set:(Ljava/lang/String;I)V
+      2745: getstatic     #610                // Field org/l2jmobius/gameserver/config/OlympiadConfig.OLYMPIAD_LOG_FIGHTS:Z
+      2748: ifeq          2848
+      2751: new           #613                // class java/util/logging/LogRecord
+      2754: dup
+      2755: getstatic     #615                // Field java/util/logging/Level.INFO:Ljava/util/logging/Level;
+      2758: aload         23
+      2760: invokespecial #622                // Method java/util/logging/LogRecord."<init>":(Ljava/util/logging/Level;Ljava/lang/String;)V
+      2763: astore        26
+      2765: aload         26
+      2767: bipush        8
+      2769: anewarray     #2                  // class java/lang/Object
+      2772: dup
+      2773: iconst_0
+      2774: aload_0
+      2775: getfield      #91                 // Field _playerOneName:Ljava/lang/String;
+      2778: aastore
+      2779: dup
+      2780: iconst_1
+      2781: aload_0
+      2782: getfield      #95                 // Field _playerTwoName:Ljava/lang/String;
+      2785: aastore
+      2786: dup
+      2787: iconst_2
+      2788: dload         19
+      2790: invokestatic  #759                // Method java/lang/Double.valueOf:(D)Ljava/lang/Double;
+      2793: aastore
+      2794: dup
+      2795: iconst_3
+      2796: dload         21
+      2798: invokestatic  #759                // Method java/lang/Double.valueOf:(D)Ljava/lang/Double;
+      2801: aastore
+      2802: dup
+      2803: iconst_4
+      2804: aload_0
+      2805: getfield      #26                 // Field _damageP1:I
+      2808: invokestatic  #625                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+      2811: aastore
+      2812: dup
+      2813: iconst_5
+      2814: aload_0
+      2815: getfield      #29                 // Field _damageP2:I
+      2818: invokestatic  #625                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+      2821: aastore
+      2822: dup
+      2823: bipush        6
+      2825: iload         18
+      2827: invokestatic  #625                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+      2830: aastore
+      2831: dup
+      2832: bipush        7
+      2834: aload         5
+      2836: aastore
+      2837: invokevirtual #631                // Method java/util/logging/LogRecord.setParameters:([Ljava/lang/Object;)V
+      2840: getstatic     #635                // Field _logResults:Ljava/util/logging/Logger;
+      2843: aload         26
+      2845: invokevirtual #638                // Method java/util/logging/Logger.log:(Ljava/util/logging/LogRecord;)V
+      2848: bipush        10
+      2850: istore        26
+      2852: bipush        40
+      2854: istore        27
+      2856: iload         27
+      2858: ifle          2959
+      2861: aload_0
+      2862: new           #587                // class org/l2jmobius/gameserver/network/serverpackets/SystemMessage
+      2865: dup
+      2866: getstatic     #764                // Field org/l2jmobius/gameserver/network/SystemMessageId.YOU_WILL_BE_MOVED_BACK_TO_TOWN_IN_S1_SECOND_S:Lorg/l2jmobius/gameserver/network/SystemMessageId;
+      2869: invokespecial #595                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage."<init>":(Lorg/l2jmobius/gameserver/network/SystemMessageId;)V
+      2872: putfield      #645                // Field _sm:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      2875: aload_0
+      2876: getfield      #645                // Field _sm:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      2879: iload         27
+      2881: invokevirtual #602                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage.addInt:(I)Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      2884: pop
+      2885: aload_0
+      2886: aload_0
+      2887: getfield      #645                // Field _sm:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+      2890: iconst_0
+      2891: invokevirtual #606                // Method broadcastMessage:(Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;Z)V
+      2894: iload         27
+      2896: lookupswitch  { // 2
+
+                       5: 2930
+
+                      10: 2924
+                 default: 2933
+            }
+      2924: iconst_5
+      2925: istore        26
+      2927: goto          2933
+      2930: iconst_1
+      2931: istore        26
+      2933: iload         26
+      2935: sipush        1000
+      2938: imul
+      2939: i2l
+      2940: invokestatic  #767                // Method java/lang/Thread.sleep:(J)V
+      2943: goto          2948
+      2946: astore        28
+      2948: iload         27
+      2950: iload         26
+      2952: isub
+      2953: i2b
+      2954: istore        27
+      2956: goto          2856
+      2959: return
+      Exception table:
+         from    to  target type
+           611   886   889   Class java/lang/Exception
+           923  1198  1201   Class java/lang/Exception
+          1235  1446  1449   Class java/lang/Exception
+          1930  2103  2106   Class java/lang/Exception
+          2311  2484  2487   Class java/lang/Exception
+          2933  2943  2946   Class java/lang/Exception
+
+  protected boolean makeCompetitionStart();
+    Code:
+         0: aload_0
+         1: invokestatic  #702                // Method java/lang/System.currentTimeMillis:()J
+         4: putfield      #22                 // Field _startTime:J
+         7: aload_0
+         8: getfield      #32                 // Field _aborted:Z
+        11: ifeq          16
+        14: iconst_0
+        15: ireturn
+        16: aload_0
+        17: new           #587                // class org/l2jmobius/gameserver/network/serverpackets/SystemMessage
+        20: dup
+        21: getstatic     #773                // Field org/l2jmobius/gameserver/network/SystemMessageId.THE_MATCH_HAS_STARTED_FIGHT:Lorg/l2jmobius/gameserver/network/SystemMessageId;
+        24: invokespecial #595                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage."<init>":(Lorg/l2jmobius/gameserver/network/SystemMessageId;)V
+        27: putfield      #645                // Field _sm:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+        30: aload_0
+        31: aload_0
+        32: getfield      #645                // Field _sm:Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+        35: iconst_1
+        36: invokevirtual #606                // Method broadcastMessage:(Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;Z)V
+        39: iconst_1
+        40: putstatic     #441                // Field _gameIsStarted:Z
+        43: aload_0
+        44: getfield      #68                 // Field _players:Ljava/util/List;
+        47: invokeinterface #177,  1          // InterfaceMethod java/util/List.iterator:()Ljava/util/Iterator;
+        52: astore_1
+        53: aload_1
+        54: invokeinterface #181,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+        59: ifeq          84
+        62: aload_1
+        63: invokeinterface #187,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        68: checkcast     #78                 // class org/l2jmobius/gameserver/entity/actor/Player
+        71: astore_2
+        72: aload_2
+        73: iconst_1
+        74: invokevirtual #415                // Method org/l2jmobius/gameserver/entity/actor/Player.setOlympiadStart:(Z)V
+        77: aload_2
+        78: invokevirtual #776                // Method org/l2jmobius/gameserver/entity/actor/Player.updateEffectIcons:()V
+        81: goto          53
+        84: goto          108
+        87: astore_1
+        88: getstatic     #159                // Field LOGGER:Ljava/util/logging/Logger;
+        91: getstatic     #163                // Field java/util/logging/Level.WARNING:Ljava/util/logging/Level;
+        94: ldc_w         #779                // String makeCompetitionStart:
+        97: aload_1
+        98: invokevirtual #171                // Method java/util/logging/Logger.log:(Ljava/util/logging/Level;Ljava/lang/String;Ljava/lang/Throwable;)V
+       101: aload_0
+       102: iconst_1
+       103: putfield      #32                 // Field _aborted:Z
+       106: iconst_0
+       107: ireturn
+       108: iconst_1
+       109: ireturn
+      Exception table:
+         from    to  target type
+            43    84    87   Class java/lang/Exception
+
+  protected void addDamage(org.l2jmobius.gameserver.entity.actor.Player, int);
+    Code:
+         0: aload_0
+         1: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+         4: ifnull        14
+         7: aload_0
+         8: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+        11: ifnonnull     15
+        14: return
+        15: aload_1
+        16: aload_0
+        17: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+        20: if_acmpne     46
+        23: aload_0
+        24: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+        27: invokevirtual #781                // Method org/l2jmobius/gameserver/entity/actor/Player.isInvul:()Z
+        30: ifne          74
+        33: aload_0
+        34: dup
+        35: getfield      #26                 // Field _damageP1:I
+        38: iload_2
+        39: iadd
+        40: putfield      #26                 // Field _damageP1:I
+        43: goto          74
+        46: aload_1
+        47: aload_0
+        48: getfield      #84                 // Field _playerTwo:Lorg/l2jmobius/gameserver/entity/actor/Player;
+        51: if_acmpne     74
+        54: aload_0
+        55: getfield      #80                 // Field _playerOne:Lorg/l2jmobius/gameserver/entity/actor/Player;
+        58: invokevirtual #781                // Method org/l2jmobius/gameserver/entity/actor/Player.isInvul:()Z
+        61: ifne          74
+        64: aload_0
+        65: dup
+        66: getfield      #29                 // Field _damageP2:I
+        69: iload_2
+        70: iadd
+        71: putfield      #29                 // Field _damageP2:I
+        74: return
+
+  protected java.lang.String getTitle();
+    Code:
+         0: aload_0
+         1: getfield      #91                 // Field _playerOneName:Ljava/lang/String;
+         4: aload_0
+         5: getfield      #95                 // Field _playerTwoName:Ljava/lang/String;
+         8: invokedynamic #784,  0            // InvokeDynamic #4:makeConcatWithConstants:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+        13: areturn
+
+  protected org.l2jmobius.gameserver.entity.actor.Player[] getPlayers();
+    Code:
+         0: aload_0
+         1: getfield      #68                 // Field _players:Ljava/util/List;
+         4: ifnull        19
+         7: aload_0
+         8: getfield      #68                 // Field _players:Ljava/util/List;
+        11: invokeinterface #787,  1          // InterfaceMethod java/util/List.isEmpty:()Z
+        16: ifeq          21
+        19: aconst_null
+        20: areturn
+        21: aload_0
+        22: getfield      #68                 // Field _players:Ljava/util/List;
+        25: invokeinterface #790,  1          // InterfaceMethod java/util/List.size:()I
+        30: anewarray     #78                 // class org/l2jmobius/gameserver/entity/actor/Player
+        33: astore_1
+        34: aload_0
+        35: getfield      #68                 // Field _players:Ljava/util/List;
+        38: aload_1
+        39: invokeinterface #793,  2          // InterfaceMethod java/util/List.toArray:([Ljava/lang/Object;)[Ljava/lang/Object;
+        44: pop
+        45: aload_1
+        46: areturn
+
+  protected void broadcastMessage(org.l2jmobius.gameserver.network.serverpackets.SystemMessage, boolean);
+    Code:
+         0: aload_0
+         1: getfield      #68                 // Field _players:Ljava/util/List;
+         4: invokeinterface #177,  1          // InterfaceMethod java/util/List.iterator:()Ljava/util/Iterator;
+         9: astore_3
+        10: aload_3
+        11: invokeinterface #181,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+        16: ifeq          44
+        19: aload_3
+        20: invokeinterface #187,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        25: checkcast     #78                 // class org/l2jmobius/gameserver/entity/actor/Player
+        28: astore        4
+        30: aload         4
+        32: ifnull        41
+        35: aload         4
+        37: aload_1
+        38: invokevirtual #358                // Method org/l2jmobius/gameserver/entity/actor/Player.sendPacket:(Lorg/l2jmobius/gameserver/network/serverpackets/ServerPacket;)V
+        41: goto          10
+        44: iload_2
+        45: ifeq          113
+        48: getstatic     #52                 // Field org/l2jmobius/gameserver/mechanics/olympiad/OlympiadManager.STADIUMS:[Lorg/l2jmobius/gameserver/mechanics/olympiad/OlympiadStadium;
+        51: aload_0
+        52: getfield      #39                 // Field _stadiumID:I
+        55: aaload
+        56: invokevirtual #797                // Method org/l2jmobius/gameserver/mechanics/olympiad/OlympiadStadium.getSpectators:()Ljava/util/List;
+        59: ifnull        113
+        62: getstatic     #52                 // Field org/l2jmobius/gameserver/mechanics/olympiad/OlympiadManager.STADIUMS:[Lorg/l2jmobius/gameserver/mechanics/olympiad/OlympiadStadium;
+        65: aload_0
+        66: getfield      #39                 // Field _stadiumID:I
+        69: aaload
+        70: invokevirtual #797                // Method org/l2jmobius/gameserver/mechanics/olympiad/OlympiadStadium.getSpectators:()Ljava/util/List;
+        73: invokeinterface #177,  1          // InterfaceMethod java/util/List.iterator:()Ljava/util/Iterator;
+        78: astore_3
+        79: aload_3
+        80: invokeinterface #181,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+        85: ifeq          113
+        88: aload_3
+        89: invokeinterface #187,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        94: checkcast     #78                 // class org/l2jmobius/gameserver/entity/actor/Player
+        97: astore        4
+        99: aload         4
+       101: ifnull        110
+       104: aload         4
+       106: aload_1
+       107: invokevirtual #358                // Method org/l2jmobius/gameserver/entity/actor/Player.sendPacket:(Lorg/l2jmobius/gameserver/network/serverpackets/ServerPacket;)V
+       110: goto          79
+       113: return
+
+  protected void announceGame();
+    Code:
+         0: aconst_null
+         1: astore_1
+         2: getstatic     #528                // Field org/l2jmobius/gameserver/mechanics/olympiad/OlympiadGame$1.$SwitchMap$org$l2jmobius$gameserver$mechanics$olympiad$CompetitionType:[I
+         5: aload_0
+         6: getfield      #48                 // Field _type:Lorg/l2jmobius/gameserver/mechanics/olympiad/CompetitionType;
+         9: invokevirtual #533                // Method org/l2jmobius/gameserver/mechanics/olympiad/CompetitionType.ordinal:()I
+        12: iaload
+        13: lookupswitch  { // 1
+
+                       1: 32
+                 default: 39
+            }
+        32: ldc_w         #801                // String class-free individual match
+        35: astore_1
+        36: goto          43
+        39: ldc_w         #803                // String class-specific individual match
+        42: astore_1
+        43: invokestatic  #144                // Method org/l2jmobius/gameserver/data/SpawnTable.getInstance:()Lorg/l2jmobius/gameserver/data/SpawnTable;
+        46: sipush        31688
+        49: invokevirtual #805                // Method org/l2jmobius/gameserver/data/SpawnTable.getSpawns:(I)Ljava/util/Set;
+        52: invokeinterface #809,  1          // InterfaceMethod java/util/Set.iterator:()Ljava/util/Iterator;
+        57: astore_2
+        58: aload_2
+        59: invokeinterface #181,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+        64: ifeq          125
+        67: aload_2
+        68: invokeinterface #187,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        73: checkcast     #126                // class org/l2jmobius/gameserver/entity/spawns/Spawn
+        76: astore_3
+        77: aload_3
+        78: invokevirtual #812                // Method org/l2jmobius/gameserver/entity/spawns/Spawn.getLastSpawn:()Lorg/l2jmobius/gameserver/entity/actor/Npc;
+        81: astore        4
+        83: aload         4
+        85: ifnull        122
+        88: aload         4
+        90: new           #816                // class org/l2jmobius/gameserver/network/serverpackets/CreatureSay
+        93: dup
+        94: aload         4
+        96: getstatic     #818                // Field org/l2jmobius/gameserver/network/enums/ChatType.NPC_SHOUT:Lorg/l2jmobius/gameserver/network/enums/ChatType;
+        99: aload         4
+       101: invokevirtual #824                // Method org/l2jmobius/gameserver/entity/actor/Npc.getName:()Ljava/lang/String;
+       104: aload_1
+       105: aload_0
+       106: getfield      #39                 // Field _stadiumID:I
+       109: iconst_1
+       110: iadd
+       111: invokedynamic #827,  0            // InvokeDynamic #5:makeConcatWithConstants:(Ljava/lang/String;I)Ljava/lang/String;
+       116: invokespecial #830                // Method org/l2jmobius/gameserver/network/serverpackets/CreatureSay."<init>":(Lorg/l2jmobius/gameserver/entity/actor/Creature;Lorg/l2jmobius/gameserver/network/enums/ChatType;Ljava/lang/String;Ljava/lang/String;)V
+       119: invokevirtual #833                // Method org/l2jmobius/gameserver/entity/actor/Npc.broadcastPacket:(Lorg/l2jmobius/gameserver/network/serverpackets/ServerPacket;)V
+       122: goto          58
+       125: return
+
+  protected void saveResults(int, int, int, int, int, long, long, int);
+    Code:
+         0: invokestatic  #836                // Method org/l2jmobius/commons/database/DatabaseFactory.getConnection:()Ljava/sql/Connection;
+         3: astore        11
+         5: aload         11
+         7: ldc_w         #842                // String INSERT INTO olympiad_fights (charOneId, charTwoId, charOneClass, charTwoClass, winner, start, time, classed) values(?,?,?,?,?,?,?,?)
+        10: invokeinterface #844,  2          // InterfaceMethod java/sql/Connection.prepareStatement:(Ljava/lang/String;)Ljava/sql/PreparedStatement;
+        15: astore        12
+        17: aload         12
+        19: iconst_1
+        20: iload_1
+        21: invokeinterface #850,  3          // InterfaceMethod java/sql/PreparedStatement.setInt:(II)V
+        26: aload         12
+        28: iconst_2
+        29: iload_2
+        30: invokeinterface #850,  3          // InterfaceMethod java/sql/PreparedStatement.setInt:(II)V
+        35: aload         12
+        37: iconst_3
+        38: iload_3
+        39: invokeinterface #850,  3          // InterfaceMethod java/sql/PreparedStatement.setInt:(II)V
+        44: aload         12
+        46: iconst_4
+        47: iload         4
+        49: invokeinterface #850,  3          // InterfaceMethod java/sql/PreparedStatement.setInt:(II)V
+        54: aload         12
+        56: iconst_5
+        57: iload         5
+        59: invokeinterface #850,  3          // InterfaceMethod java/sql/PreparedStatement.setInt:(II)V
+        64: aload         12
+        66: bipush        6
+        68: lload         6
+        70: invokeinterface #856,  4          // InterfaceMethod java/sql/PreparedStatement.setLong:(IJ)V
+        75: aload         12
+        77: bipush        7
+        79: lload         8
+        81: invokeinterface #856,  4          // InterfaceMethod java/sql/PreparedStatement.setLong:(IJ)V
+        86: aload         12
+        88: bipush        8
+        90: iload         10
+        92: invokeinterface #850,  3          // InterfaceMethod java/sql/PreparedStatement.setInt:(II)V
+        97: aload         12
+        99: invokeinterface #860,  1          // InterfaceMethod java/sql/PreparedStatement.execute:()Z
+       104: pop
+       105: aload         12
+       107: ifnull        149
+       110: aload         12
+       112: invokeinterface #863,  1          // InterfaceMethod java/sql/PreparedStatement.close:()V
+       117: goto          149
+       120: astore        13
+       122: aload         12
+       124: ifnull        146
+       127: aload         12
+       129: invokeinterface #863,  1          // InterfaceMethod java/sql/PreparedStatement.close:()V
+       134: goto          146
+       137: astore        14
+       139: aload         13
+       141: aload         14
+       143: invokevirtual #868                // Method java/lang/Throwable.addSuppressed:(Ljava/lang/Throwable;)V
+       146: aload         13
+       148: athrow
+       149: aload         11
+       151: ifnull        193
+       154: aload         11
+       156: invokeinterface #872,  1          // InterfaceMethod java/sql/Connection.close:()V
+       161: goto          193
+       164: astore        12
+       166: aload         11
+       168: ifnull        190
+       171: aload         11
+       173: invokeinterface #872,  1          // InterfaceMethod java/sql/Connection.close:()V
+       178: goto          190
+       181: astore        13
+       183: aload         12
+       185: aload         13
+       187: invokevirtual #868                // Method java/lang/Throwable.addSuppressed:(Ljava/lang/Throwable;)V
+       190: aload         12
+       192: athrow
+       193: goto          224
+       196: astore        11
+       198: getstatic     #159                // Field LOGGER:Ljava/util/logging/Logger;
+       201: getstatic     #875                // Field java/util/logging/Level.SEVERE:Ljava/util/logging/Level;
+       204: invokevirtual #878                // Method java/util/logging/Logger.isLoggable:(Ljava/util/logging/Level;)Z
+       207: ifeq          224
+       210: getstatic     #159                // Field LOGGER:Ljava/util/logging/Logger;
+       213: getstatic     #875                // Field java/util/logging/Level.SEVERE:Ljava/util/logging/Level;
+       216: ldc_w         #882                // String SQL exception while saving olympiad fight.
+       219: aload         11
+       221: invokevirtual #171                // Method java/util/logging/Logger.log:(Ljava/util/logging/Level;Ljava/lang/String;Ljava/lang/Throwable;)V
+       224: return
+      Exception table:
+         from    to  target type
+            17   105   120   Class java/lang/Throwable
+           127   134   137   Class java/lang/Throwable
+             5   149   164   Class java/lang/Throwable
+           171   178   181   Class java/lang/Throwable
+             0   193   196   Class java/sql/SQLException
+
+  static {};
+    Code:
+         0: ldc           #8                  // class org/l2jmobius/gameserver/mechanics/olympiad/OlympiadGame
+         2: invokevirtual #884                // Method java/lang/Class.getName:()Ljava/lang/String;
+         5: invokestatic  #887                // Method java/util/logging/Logger.getLogger:(Ljava/lang/String;)Ljava/util/logging/Logger;
+         8: putstatic     #159                // Field LOGGER:Ljava/util/logging/Logger;
+        11: ldc_w         #891                // String olympiad
+        14: invokestatic  #887                // Method java/util/logging/Logger.getLogger:(Ljava/lang/String;)Ljava/util/logging/Logger;
+        17: putstatic     #635                // Field _logResults:Ljava/util/logging/Logger;
+        20: return
+}

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list enabled="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/spawns.xsd">
+	<spawn name="Giran Enchanter">
+		<npc id="1004000" x="83057" y="148613" z="-3455" heading="16384" respawnDelay="60" /> <!-- Enchanter -->
+	</spawn>
+</list>

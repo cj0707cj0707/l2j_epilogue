@@ -1,0 +1,8 @@
+Compiled from "OlympiadLogHandler.java"
+public class org.l2jmobius.log.handler.OlympiadLogHandler extends org.l2jmobius.log.handler.AsyncFileHandler {
+  public org.l2jmobius.log.handler.OlympiadLogHandler() throws java.io.IOException;
+    Code:
+         0: aload_0
+         1: invokespecial #1                  // Method org/l2jmobius/log/handler/AsyncFileHandler."<init>":()V
+         4: return
+}

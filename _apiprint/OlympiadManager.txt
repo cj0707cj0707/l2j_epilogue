@@ -1,0 +1,16 @@
+Compiled from "OlympiadManager.java"
+class org.l2jmobius.gameserver.mechanics.olympiad.OlympiadManager implements java.lang.Runnable {
+  protected static final java.util.logging.Logger _log;
+  protected static final org.l2jmobius.gameserver.mechanics.olympiad.OlympiadStadium[] STADIUMS;
+  org.l2jmobius.gameserver.mechanics.olympiad.OlympiadManager();
+  public static org.l2jmobius.gameserver.mechanics.olympiad.OlympiadManager getInstance();
+  public synchronized void run();
+  protected org.l2jmobius.gameserver.mechanics.olympiad.OlympiadGame getOlympiadGame(int);
+  protected void removeGame(org.l2jmobius.gameserver.mechanics.olympiad.OlympiadGame);
+  protected java.util.Map<java.lang.Integer, org.l2jmobius.gameserver.mechanics.olympiad.OlympiadGame> getOlympiadGames();
+  protected java.util.List<org.l2jmobius.gameserver.entity.actor.Player> getRandomClassList(java.util.Map<java.lang.Integer, java.util.List<org.l2jmobius.gameserver.entity.actor.Player>>, java.util.List<java.lang.Integer>);
+  protected java.util.List<org.l2jmobius.gameserver.entity.actor.Player> nextOpponents(java.util.List<org.l2jmobius.gameserver.entity.actor.Player>);
+  protected boolean existNextOpponents(java.util.List<org.l2jmobius.gameserver.entity.actor.Player>);
+  protected java.util.Map<java.lang.Integer, java.lang.String> getAllTitles();
+  static {};
+}

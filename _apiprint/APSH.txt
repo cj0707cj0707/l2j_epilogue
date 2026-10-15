@@ -1,0 +1,22 @@
+Compiled from "AutoPlaySettingsHolder.java"
+public class org.l2jmobius.gameserver.entity.actor.holders.player.AutoPlaySettingsHolder {
+  private final java.util.concurrent.atomic.AtomicInteger _options;
+  private final java.util.concurrent.atomic.AtomicBoolean _pickup;
+  private final java.util.concurrent.atomic.AtomicInteger _nextTargetMode;
+  private final java.util.concurrent.atomic.AtomicBoolean _shortRange;
+  private final java.util.concurrent.atomic.AtomicBoolean _respectfulHunting;
+  private final java.util.concurrent.atomic.AtomicInteger _autoPotionPercent;
+  public org.l2jmobius.gameserver.entity.actor.holders.player.AutoPlaySettingsHolder();
+  public int getOptions();
+  public void setOptions(int);
+  public boolean doPickup();
+  public void setPickup(boolean);
+  public int getNextTargetMode();
+  public void setNextTargetMode(int);
+  public boolean isShortRange();
+  public void setShortRange(boolean);
+  public boolean isRespectfulHunting();
+  public void setRespectfulHunting(boolean);
+  public int getAutoPotionPercent();
+  public void setAutoPotionPercent(int);
+}

@@ -1,0 +1,113 @@
+Compiled from "PlayerAutoSaveTaskManager.java"
+public class org.l2jmobius.gameserver.taskmanagers.PlayerAutoSaveTaskManager implements java.lang.Runnable {
+  private static final java.util.Map<org.l2jmobius.gameserver.entity.actor.Player, java.lang.Long> PLAYER_TIMES;
+
+  private static boolean _working;
+
+  protected org.l2jmobius.gameserver.taskmanagers.PlayerAutoSaveTaskManager();
+    Code:
+         0: aload_0
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: ldc2_w        #7                  // long 1000l
+         8: ldc2_w        #7                  // long 1000l
+        11: invokestatic  #9                  // Method org/l2jmobius/commons/threads/ThreadPool.scheduleAtFixedRate:(Ljava/lang/Runnable;JJ)Ljava/util/concurrent/ScheduledFuture;
+        14: pop
+        15: return
+
+  public void run();
+    Code:
+         0: getstatic     #15                 // Field _working:Z
+         3: ifeq          7
+         6: return
+         7: iconst_1
+         8: putstatic     #15                 // Field _working:Z
+        11: getstatic     #21                 // Field PLAYER_TIMES:Ljava/util/Map;
+        14: invokeinterface #25,  1           // InterfaceMethod java/util/Map.isEmpty:()Z
+        19: ifne          144
+        22: invokestatic  #31                 // Method java/lang/System.currentTimeMillis:()J
+        25: lstore_1
+        26: getstatic     #21                 // Field PLAYER_TIMES:Ljava/util/Map;
+        29: invokeinterface #37,  1           // InterfaceMethod java/util/Map.entrySet:()Ljava/util/Set;
+        34: invokeinterface #41,  1           // InterfaceMethod java/util/Set.iterator:()Ljava/util/Iterator;
+        39: astore_3
+        40: aload_3
+        41: invokeinterface #47,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+        46: ifeq          144
+        49: aload_3
+        50: invokeinterface #52,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        55: checkcast     #56                 // class java/util/Map$Entry
+        58: astore        4
+        60: aload         4
+        62: invokeinterface #58,  1           // InterfaceMethod java/util/Map$Entry.getKey:()Ljava/lang/Object;
+        67: checkcast     #61                 // class org/l2jmobius/gameserver/entity/actor/Player
+        70: astore        5
+        72: aload         4
+        74: invokeinterface #63,  1           // InterfaceMethod java/util/Map$Entry.getValue:()Ljava/lang/Object;
+        79: checkcast     #66                 // class java/lang/Long
+        82: astore        6
+        84: lload_1
+        85: aload         6
+        87: invokevirtual #68                 // Method java/lang/Long.longValue:()J
+        90: lcmp
+        91: ifle          40
+        94: aload         5
+        96: ifnull        135
+        99: aload         5
+       101: invokevirtual #71                 // Method org/l2jmobius/gameserver/entity/actor/Player.isOnline:()Z
+       104: ifeq          135
+       107: aload         5
+       109: invokevirtual #74                 // Method org/l2jmobius/gameserver/entity/actor/Player.autoSave:()V
+       112: getstatic     #21                 // Field PLAYER_TIMES:Ljava/util/Map;
+       115: aload         5
+       117: lload_1
+       118: getstatic     #77                 // Field org/l2jmobius/gameserver/config/GeneralConfig.CHAR_DATA_STORE_INTERVAL:I
+       121: i2l
+       122: ladd
+       123: invokestatic  #83                 // Method java/lang/Long.valueOf:(J)Ljava/lang/Long;
+       126: invokeinterface #87,  3           // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+       131: pop
+       132: goto          144
+       135: aload_3
+       136: invokeinterface #91,  1           // InterfaceMethod java/util/Iterator.remove:()V
+       141: goto          40
+       144: iconst_0
+       145: putstatic     #15                 // Field _working:Z
+       148: return
+
+  public void add(org.l2jmobius.gameserver.entity.actor.Player);
+    Code:
+         0: getstatic     #21                 // Field PLAYER_TIMES:Ljava/util/Map;
+         3: aload_1
+         4: invokestatic  #31                 // Method java/lang/System.currentTimeMillis:()J
+         7: getstatic     #77                 // Field org/l2jmobius/gameserver/config/GeneralConfig.CHAR_DATA_STORE_INTERVAL:I
+        10: i2l
+        11: ladd
+        12: invokestatic  #83                 // Method java/lang/Long.valueOf:(J)Ljava/lang/Long;
+        15: invokeinterface #87,  3           // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+        20: pop
+        21: return
+
+  public void remove(org.l2jmobius.gameserver.entity.actor.Player);
+    Code:
+         0: getstatic     #21                 // Field PLAYER_TIMES:Ljava/util/Map;
+         3: aload_1
+         4: invokeinterface #94,  2           // InterfaceMethod java/util/Map.remove:(Ljava/lang/Object;)Ljava/lang/Object;
+         9: pop
+        10: return
+
+  public static org.l2jmobius.gameserver.taskmanagers.PlayerAutoSaveTaskManager getInstance();
+    Code:
+         0: getstatic     #97                 // Field org/l2jmobius/gameserver/taskmanagers/PlayerAutoSaveTaskManager$SingletonHolder.INSTANCE:Lorg/l2jmobius/gameserver/taskmanagers/PlayerAutoSaveTaskManager;
+         3: areturn
+
+  static {};
+    Code:
+         0: new           #103                // class java/util/concurrent/ConcurrentHashMap
+         3: dup
+         4: invokespecial #105                // Method java/util/concurrent/ConcurrentHashMap."<init>":()V
+         7: putstatic     #21                 // Field PLAYER_TIMES:Ljava/util/Map;
+        10: iconst_0
+        11: putstatic     #15                 // Field _working:Z
+        14: return
+}

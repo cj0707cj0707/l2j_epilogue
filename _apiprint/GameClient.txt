@@ -1,0 +1,45 @@
+Compiled from "GameClient.java"
+public class org.l2jmobius.gameserver.network.GameClient extends org.l2jmobius.commons.network.Client<org.l2jmobius.commons.network.Connection<org.l2jmobius.gameserver.network.GameClient>> {
+  public org.l2jmobius.gameserver.network.GameClient(org.l2jmobius.commons.network.Connection<org.l2jmobius.gameserver.network.GameClient>);
+  public void onConnected();
+  public void onDisconnection();
+  public boolean encrypt(org.l2jmobius.commons.network.buffer.WriteBuffer, int, int);
+  public boolean decrypt(org.l2jmobius.commons.network.buffer.ReadBuffer, int, int);
+  public void closeNow();
+  public void close(org.l2jmobius.gameserver.network.serverpackets.ServerPacket);
+  public byte[] enableCrypt();
+  public org.l2jmobius.gameserver.entity.actor.Player getPlayer();
+  public void setPlayer(org.l2jmobius.gameserver.entity.actor.Player);
+  public java.util.concurrent.locks.ReentrantLock getPlayerLock();
+  public org.l2jmobius.gameserver.util.FloodProtectors getFloodProtectors();
+  public void setGameGuardOk(boolean);
+  public boolean isAuthedGG();
+  public java.lang.String getIp();
+  public void setAccountName(java.lang.String);
+  public java.lang.String getAccountName();
+  public void setSessionId(org.l2jmobius.gameserver.LoginServerThread$SessionKey);
+  public org.l2jmobius.gameserver.LoginServerThread$SessionKey getSessionId();
+  public void sendPacket(org.l2jmobius.gameserver.network.serverpackets.ServerPacket);
+  public void sendPacket(org.l2jmobius.gameserver.network.SystemMessageId);
+  public boolean isDetached();
+  public void setDetached(boolean);
+  public byte markToDeleteChar(int);
+  public void restore(int);
+  public static void deleteCharByObjId(int);
+  public org.l2jmobius.gameserver.entity.actor.Player load(int);
+  public void setCharSelection(java.util.List<org.l2jmobius.gameserver.network.holders.CharacterInfoHolder>);
+  public org.l2jmobius.gameserver.network.holders.CharacterInfoHolder getCharSelection(int);
+  public void setConnectionState(org.l2jmobius.gameserver.network.ConnectionState);
+  public org.l2jmobius.gameserver.network.ConnectionState getConnectionState();
+  public void setProtocolVersion(int);
+  public int getProtocolVersion();
+  public boolean isProtocolOk();
+  public void setProtocolOk(boolean);
+  public void setClientTracert(int[][]);
+  public int[][] getTrace();
+  public org.l2jmobius.gameserver.network.Encryption getEncryption();
+  public org.l2jmobius.gameserver.network.holders.ClientHardwareInfoHolder getHardwareInfo();
+  public void setHardwareInfo(org.l2jmobius.gameserver.network.holders.ClientHardwareInfoHolder);
+  public java.lang.String toString();
+  static {};
+}

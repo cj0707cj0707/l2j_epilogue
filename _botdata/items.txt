@@ -1,0 +1,77 @@
+# L2J-Mobius Gracia Epilogue - Fake-Player Gear Reference (S80 Dynasty / S84 Vesper)
+# Source: C:\EpilogueServer\game\data\stats\items\*.xml + C:\EpilogueServer\game\data\stats\armorsets\s80_dynasty.xml / s84_vesper.xml
+# Every ID below was verified directly against its <item> XML entry (id, type, name, crystal_type, armor_type/weapon_type, bodypart).
+# Server build: org.l2jmobius GameServer.jar (L2J Mobius, Lineage 2 Gracia Epilogue).
+
+== DYNASTY S80 ==
+HEAVY: chest=9416 (Dynasty Breast Plate), legs=9421 (Dynasty Gaiters), helm=9422 (Dynasty Helmet), gloves=9423 (Dynasty Gauntlet - Heavy Armor), boots=9424 (Dynasty Boots - Heavy Armor)
+LIGHT: chest=9425 (Dynasty Leather Armor), legs=9428 (Dynasty Leather Leggings), helm=9429 (Dynasty Leather Helmet), gloves=9430 (Dynasty Leather Gloves - Light Armor), boots=9431 (Dynasty Leather Boots - Light Armor)
+ROBE: chest=9432 (Dynasty Tunic), legs=9437 (Dynasty Stockings), helm=9438 (Dynasty Circlet), gloves=9439 (Dynasty Gloves - Robe), boots=9440 (Dynasty Shoes - Robe)
+SHIELD: 9441 (Dynasty Shield) [non-Kamael races only: HUMAN,ELF,DARK_ELF,ORC,DWARF; Kamael use sigil 10119]
+JEWELRY: ring=9457 (Dynasty Ring), earring=9455 (Dynasty Earrings), necklace=9456 (Dynasty Necklace)
+
+== VESPER S84 ==
+HEAVY: chest=13432 (Vesper Breastplate), legs=13438 (Vesper Gaiters), helm=13137 (Vesper Helmet), gloves=13439 (Vesper Gauntlet), boots=13440 (Vesper Boots)
+LIGHT: chest=13433 (Vesper Leather Breastplate), legs=13441 (Vesper Leather Leggings), helm=13138 (Vesper Leather Helmet), gloves=13442 (Vesper Leather Gloves), boots=13443 (Vesper Leather Boots)
+ROBE: chest=13434 (Vesper Tunic), legs=13444 (Vesper Stockings), helm=13139 (Vesper Circlet), gloves=13445 (Vesper Gloves), boots=13446 (Vesper Shoes)
+SHIELD: 13471 (Vesper Shield) [non-Kamael races only; Kamael use sigil 12813]
+JEWELRY: ring=14165 (Vesper Ring), earring=14163 (Vesper Earring), necklace=14164 (Vesper Necklace)
+
+== WEAPONS ==
+Format: type: vesper=<id> (name), dynasty=<id> (name)
+SWORD: vesper=13457 (Vesper Cutter), dynasty=9442 (Dynasty Sword)
+BLUNT: vesper=13463 (Vesper Avenger), dynasty=9448 (Dynasty Cudgel)
+SWORD_TWOHAND: vesper=13458 (Vesper Slasher), dynasty=9443 (Dynasty Blade)
+BLUNT_TWOHAND: vesper=13464 (Vesper Retributer), dynasty=10253 (Dynasty Crusher)
+BOW: vesper=13467 (Vesper Thrower), dynasty=9445 (Dynasty Bow) + ARROW: 1345 (Shining Arrow)
+DAGGER: vesper=13460 (Vesper Shaper), dynasty=9446 (Dynasty Knife)
+POLE: vesper=13462 (Vesper Stormer), dynasty=9447 (Dynasty Halberd)
+DUAL: vesper=52 (Vesper Dual Sword), dynasty=10004 (Dynasty Dual Sword)
+DUALDAGGER: vesper=13884 (Vesper Dual Daggers), dynasty=none (does not exist in this pack) + requires level 81+ and DAGGER_MASTER class category
+FIST: vesper=13461 (Vesper Fighter), dynasty=9450 (Dynasty Bagh-Nakh)
+RAPIER: vesper=13468 (Vesper Pincer), dynasty=9376 (Dynasty Rapier) [Kamael only] + BOLT: n/a (rapiers need no ammo)
+ANCIENTSWORD: vesper=13470 (Vesper Nagan), dynasty=9380 (Dynasty Ancient Sword) [Kamael only]
+CROSSBOW: vesper=13469 (Vesper Shooter), dynasty=9384 (Dynasty Crossbow) [Kamael only] + BOLT: 9637 (Shining Bolt)
+MAGIC_ONEHAND: vesper=13465 (Vesper Caster, BLUNT type) or 13459 (Vesper Buster, SWORD type, both is_magic_weapon=true), dynasty=9449 (Dynasty Mace, BLUNT) or 9444 (Dynasty Phantom, SWORD)
+MAGIC_TWOHAND: vesper=13466 (Vesper Singer, BLUNT lrhand, is_magic_weapon=true), dynasty=10252 (Dynasty Staff, BLUNT lrhand, is_magic_weapon=true)
+SIGIL (Kamael offhand): vesper=12813 (Vesper Sigil), dynasty=10119 (Dynasty Sigil)
+
+== CONSUMABLES ==
+SOULSHOT_S: 1467 (Soulshot (S-Grade)) — no S80/S84-specific soulshots exist in this datapack; S-Grade shots work on all S/S80/S84 weapons
+SPIRITSHOT_S: 2514 (Spiritshot (S-Grade))
+BLESSED_SPIRITSHOT_S: 3952 (Blessed Spiritshot (S-Grade))
+ARROW_S: 1345 (Shining Arrow) — crystal_type S; matches both S80 and S84 bows (see NOTES)
+BOLT_S: 9637 (Shining Bolt) — crystal_type S; matches both S80 and S84 crossbows
+POTION_HEAL: 1539 (Greater Healing Potion, skill 2037 "Greater Healing Potion", 10s reuse). Alternatives: 1540 Quick Healing Potion (skill 2038, 0.5s reuse), 14700 Greater Healing Potion (skill 2863 "Highest Power Healing Potion"), 14701 Greater Quick Healing Potion (skill 2864), 1061 Greater Healing Potion (skill 2032), 1060 Lesser Healing Potion (skill 2031)
+POTION_CP: 5592 (Greater CP Potion, skill 2166 level 2, CP +200, 0.5s reuse). Also 5591 CP Potion (skill 2166 level 1, CP +50)
+POTION_MP: 728 (Mana Potion, skill 10001 "Mana Potion")
+CURSED_BONE: 2508 (Cursed Bone, EtcItem/MATERIAL) — exists; referenced by dark-magic/summon reagent skills (spellbook "Summon Cursed Bones" = 8387)
+
+== NOTES ==
+1. Dynasty class-specific chest variants (armorsets s80_dynasty.xml). All share legs 9421/helm 9422/gloves 9423/boots 9424 (heavy) or the light/robe counterparts above; only the chest id differs and each variant gives a different set skill:
+   HEAVY (with 9421/9422/9423/9424, shield 9441): 9416 generic (set 82, skill 3412, STR+1 CON-1), 9417 - Shield Master (set 65, skill 3348, STR-2 CON+2), 9418 - Weapon Master (set 66, skill 3349, STR+2 CON-2), 9419 - Force Master (set 67, skill 3350, STR+1 CON-2 DEX+1), 9420 - Bard (set 68, skill 3351, STR+2 CON-2); Dynasty Platinum Plate variants: 10227 generic, 10228 Shield Master, 10229 Weapon Master, 10230 Force Master, 10231 Bard.
+   LIGHT (with 9428/9429/9430/9431): 9425 generic (set 83, skill 3413, CON-1 DEX+1), 9426 - Dagger Master (set 69, skill 3352, CON-2 DEX+2), 9427 - Bow Master (set 70, skill 3353, CON-2 DEX+2), 10126 Leather Armor - Force Master (set 85), 10127 - Weapon Master (set 86), 10168 - Enchanter (set 87), 10214 - Summoner (set 88); Dynasty Jewel Leather variants: 10232 generic, 10233 Dagger Master, 10234 Bow Master, 10487 Force Master, 10488 Weapon Master, 10489 Enchanter, 10490 Summoner.
+   ROBE (with 9437/9438/9439/9440): 9432 generic (set 84, skill 3416, INT-1 MEN+1), 9433 - Healer (set 71, skill 3354, INT-2 MEN+2), 9434 - Enchanter (set 72, skill 3355), 9435 - Summoner (set 73, skill 3356), 9436 - Wizard (set 74, skill 3357, INT+1 MEN-2 WIT+1); Dynasty Silver Satin Tunic variants: 10235 generic, 10236 Healer, 10237 Enchanter, 10238 Summoner, 10239 Wizard.
+   The generic chests (9416/9425/9432) are the safe choice for bots (no class condition on the item itself).
+2. Vesper "Noble" variants (better retail versions, same structure, from s84_vesper.xml sets 146-148):
+   NOBLE HEAVY: chest=13435 (Vesper Noble Breastplate), legs=13448 (Vesper Noble Gaiters), helm=13140 (Vesper Noble Helmet), gloves=13449 (Vesper Noble Gauntlet), boots=13450 (Vesper Noble Boots), shield=13471; set skill 8284, STR+2 DEX-2.
+   NOBLE LIGHT: chest=13436 (Vesper Noble Leather Breastplate), legs=13451 (Vesper Noble Leather Leggings), helm=13141 (Vesper Noble Leather Helmet), gloves=13452 (Vesper Noble Leather Gloves), boots=13453 (Vesper Noble Leather Boots); set skill 8286, STR+1 CON-2 DEX+1.
+   NOBLE ROBE: chest=13437 (Vesper Noble Tunic), legs=13454 (Vesper Noble Stockings), helm=13142 (Vesper Noble Circlet), gloves=13455 (Vesper Noble Gloves), boots=13456 (Vesper Noble Shoes); set skill 8288, INT+1 MEN-2 WIT+1.
+   Plain Vesper sets: HEAVY set 143 (skill 8283, STR+2 DEX-2, +shield skill 3417 with 13471), LIGHT set 144 (skill 8285, STR+1 CON-2 DEX+1), ROBE set 145 (skill 8287, INT+1 MEN-2 WIT+1).
+3. Armorset bonuses (from the XML): every set grants skill 3006 "Equip Set Items" when all pieces are worn; heavy sets additionally grant shield_skill 3417 "Equipped with Shield" when the Dynasty/Vesper shield is worn; all sets grant an enchant6skill (3623 heavy / 3624 light / 3625 robe) at +6 set enchant; plus the STR/CON/DEX/INT/MEN/WIT adjustments listed above. No jewelry set bonus is defined for Dynasty (9455-9457) or Vesper (14163-14165) jewelry anywhere in the armorsets directory — they are plain stat items (Dynasty: M.Def 60/79/106 + MP 23/35/46; Vesper: M.Def 62/94/125 + MP 25/37/50).
+4. Dynasty/Vesper jewelry stats: Dynasty Ring 9457 (M.Def 60, MP+23), Dynasty Earrings 9455 (M.Def 79, MP+35), Dynasty Necklace 9456 (M.Def 106, MP+46); Vesper Ring 14165 (M.Def 62, MP+25), Vesper Earring 14163 (M.Def 94, MP+37), Vesper Necklace 14164 (M.Def 125, MP+50). Resistance variants of Dynasty jewelry also exist (9458-9481, e.g. "- Stun Resistance"), all S80.
+5. Weapon SA variants: SA-named versions exist for most weapons (e.g. Vesper Cutter - Haste 14118, Vesper Buster - Acumen 14125, Vesper Thrower - Cheap Shot 14148; Dynasty Sword - Focus 9854, Dynasty Mace - Acumen 9877; PvP versions 10750+/14462+). All plain (non-SA) versions listed above exist and are craftable/purchasable — prefer the plain IDs; SA variants are separate item IDs, not augmentations of the plain item.
+6. Ammo consumption on this server: bows consume BOTH MP per normal attack (mp_consume 11-12 set on the bow item) AND arrows — org.l2jmobius Player/Creature code calls checkAndEquipArrows() and reduceArrowCount(); crossbows likewise call checkAndEquipBolts(). Inventory.findArrowForBow/findBoltForCrossBow require the ammo item's crystal grade to equal the weapon's getCrystalTypePlus(), and ItemTemplate.getCrystalTypePlus() maps both S80 and S84 weapons to grade S — so Shining Arrow (1345) works with Dynasty Bow AND Vesper Thrower, and Shining Bolt (9637) works with Dynasty Crossbow AND Vesper Shooter. Lower grades (Wooden 17/NONE, Bone 1341/D, Steel 1342/C, Silver 1343/B, Mithril 1344/A; bolts 9632-9636) would NOT match an S80/S84 weapon.
+7. There are no S80- or S84-grade soulshots/spiritshots in this datapack; the single S-Grade set (1467/2514/3952) covers all S/S80/S84 weapons. Compressed packages also exist (5139 Soulshot S, 5145 Spiritshot S, 5151 Blessed Spiritshot S) if bulk loading is easier.
+8. Race/class restrictions verified in XML: Dynasty Rapier 9376 / Ancient Sword 9380 / Crossbow 9384 and Vesper Pincer 13468 / Shooter 13469 / Nagan 13470 have <conditions> requiring race KAMAEL; Dynasty Shield 9441 and Vesper Shield 13471 require one of HUMAN/ELF/DARK_ELF/ORC/DWARF; Vesper Dual Daggers 13884 requires level >= 81 and class category DAGGER_MASTER. Shields (9441/13471) and sigils (10119/12813) occupy the lhand slot.
+9. Dangling armorset references: s84_vesper.xml also lists 16xxx "common" variant IDs (e.g. 16306/16312/16315/16318/16321, 16837/16843/16846/16849) which DO NOT exist in the item XML files — do not use them; the 13xxx/131xx IDs above are the real items. s80_dynasty.xml second-variant IDs 115xx (e.g. 11512 Dynasty Gaiters, 11557 Dynasty Helmet) DO exist and are duplicate-name S80 items.
+10. Item id 52 "Vesper Dual Sword" is the datapack's DUAL-type Vesper dualsword (S84, pAtk 482) — retail-like ID but valid in this pack; Dynasty counterpart is 10004. A dedicated Dynasty dual-dagger does not exist (dual daggers were introduced at S84/Vesper only).
+11. Healing potion notes: 727 "Healing Potion" has NO skill block in its XML (likely non-functional); prefer 1539/1540/14700. CP potions: 5591 (+50 CP) and 5592 (+200 CP), both skill 2166, 0.5s reuse. Mana Potion 728 uses skill 10001 and is flagged for_npc=true (usable by fake players/NPCs). All potions listed are stackable and olympiad-restricted.
+12. No pet/summon items included, as requested. PvP variants of every armor/weapon (IDs 10750-10835 Dynasty {PvP}, 14462-14525+ Vesper {PvP}) were excluded from the main lists.
+
+== ID COUNTS ==
+Dynasty armor pieces listed: 20 (heavy 5 + light 5 + robe 5 + shield, plus class-variant chests noted)
+Vesper armor pieces listed: 38 (plain 3x5 + Noble 3x5 + helms already included + shield; plus variants noted)
+Jewelry: 6 items (3 Dynasty + 3 Vesper)
+Weapons: 28 distinct weapons (14 types x Vesper/Dynasty where both exist)
+Consumables: 8 core + 6 alternates

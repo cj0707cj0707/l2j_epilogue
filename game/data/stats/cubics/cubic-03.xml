@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/cubics.xsd">
+	<!--
+	
+		Life Cubic.
+		Uses Cubic Heal with HEAL targeting to support the owner or valid party targets.
+	
+		Attribute guide:
+		duration: Cubic lifetime in seconds after summon.
+		delay: Action interval in seconds between Cubic checks.
+		maxCount: Maximum number of successful Cubic actions before the limit is reached.
+		useUp: 1 consumes/removes the Cubic after maxCount; 0 keeps it until duration expires.
+		power: Base magical power or effect power used by Cubic runtime formulas.
+		selectionMode: Skill selection policy when the Cubic has multiple non-priority skills.
+		targetType: Default target routing used by the Cubic runtime.
+		BY_SKILL: Each skill entry defines its own target with the target attribute.
+		priority: Priority skills are checked before regular Cubic skills.
+		targetDebuff: Used by cure/support skills to select owner-side debuff cleanup logic.
+		Epilogue note: Levels 8-12 are enchant/template levels used by high-level summon skills.
+	
+	-->
+	<cubic id="3" level="1" slot="3" duration="900" delay="13" maxCount="20" useUp="1" power="0.0" selectionMode="RANDOM" targetType="HEAL">
+		<skills>
+			<skill id="4051" level="1" /> <!-- Cubic Heal -->
+		</skills>
+	</cubic>
+	<cubic id="3" level="2" slot="3" duration="900" delay="13" maxCount="20" useUp="1" power="0.0" selectionMode="RANDOM" targetType="HEAL">
+		<skills>
+			<skill id="4051" level="2" /> <!-- Cubic Heal -->
+		</skills>
+	</cubic>
+	<cubic id="3" level="3" slot="3" duration="900" delay="13" maxCount="20" useUp="1" power="0.0" selectionMode="RANDOM" targetType="HEAL">
+		<skills>
+			<skill id="4051" level="3" /> <!-- Cubic Heal -->
+		</skills>
+	</cubic>
+	<cubic id="3" level="4" slot="3" duration="900" delay="13" maxCount="20" useUp="1" power="0.0" selectionMode="RANDOM" targetType="HEAL">
+		<skills>
+			<skill id="4051" level="4" /> <!-- Cubic Heal -->
+		</skills>
+	</cubic>
+	<cubic id="3" level="5" slot="3" duration="900" delay="13" maxCount="20" useUp="1" power="0.0" selectionMode="RANDOM" targetType="HEAL">
+		<skills>
+			<skill id="4051" level="5" /> <!-- Cubic Heal -->
+		</skills>
+	</cubic>
+	<cubic id="3" level="6" slot="3" duration="900" delay="13" maxCount="20" useUp="1" power="0.0" selectionMode="RANDOM" targetType="HEAL">
+		<skills>
+			<skill id="4051" level="6" /> <!-- Cubic Heal -->
+		</skills>
+	</cubic>
+	<cubic id="3" level="7" slot="3" duration="900" delay="13" maxCount="20" useUp="1" power="0.0" selectionMode="RANDOM" targetType="HEAL">
+		<skills>
+			<skill id="4051" level="7" /> <!-- Cubic Heal -->
+		</skills>
+	</cubic>
+	<cubic id="3" level="8" slot="3" duration="900" delay="13" maxCount="20" useUp="1" power="0.0" selectionMode="RANDOM" targetType="HEAL">
+		<skills>
+			<skill id="4051" level="8" /> <!-- Cubic Heal -->
+		</skills>
+	</cubic>
+	<cubic id="3" level="9" slot="3" duration="900" delay="13" maxCount="20" useUp="1" power="0.0" selectionMode="RANDOM" targetType="HEAL">
+		<skills>
+			<skill id="4051" level="9" /> <!-- Cubic Heal -->
+		</skills>
+	</cubic>
+	<cubic id="3" level="10" slot="3" duration="900" delay="13" maxCount="20" useUp="1" power="0.0" selectionMode="RANDOM" targetType="HEAL">
+		<skills>
+			<skill id="4051" level="10" /> <!-- Cubic Heal -->
+		</skills>
+	</cubic>
+	<cubic id="3" level="11" slot="3" duration="900" delay="13" maxCount="20" useUp="1" power="0.0" selectionMode="RANDOM" targetType="HEAL">
+		<skills>
+			<skill id="4051" level="11" /> <!-- Cubic Heal -->
+		</skills>
+	</cubic>
+	<cubic id="3" level="12" slot="3" duration="900" delay="13" maxCount="20" useUp="1" power="0.0" selectionMode="RANDOM" targetType="HEAL">
+		<skills>
+			<skill id="4051" level="12" /> <!-- Cubic Heal -->
+		</skills>
+	</cubic>
+</list>

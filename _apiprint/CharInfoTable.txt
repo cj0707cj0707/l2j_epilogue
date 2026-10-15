@@ -1,0 +1,13 @@
+Compiled from "CharInfoTable.java"
+public class org.l2jmobius.gameserver.data.sql.CharInfoTable {
+  protected org.l2jmobius.gameserver.data.sql.CharInfoTable();
+  public void addName(org.l2jmobius.gameserver.entity.actor.Player);
+  public void removeName(int);
+  public int getIdByName(java.lang.String);
+  public java.lang.String getNameById(int);
+  public int getAccessLevelById(int);
+  public synchronized boolean doesCharNameExist(java.lang.String);
+  public int getAccountCharacterCount(java.lang.String);
+  public static org.l2jmobius.gameserver.data.sql.CharInfoTable getInstance();
+  static {};
+}

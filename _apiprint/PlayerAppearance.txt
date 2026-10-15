@@ -1,0 +1,26 @@
+Compiled from "PlayerAppearance.java"
+public class org.l2jmobius.gameserver.entity.actor.appearance.PlayerAppearance {
+  public static final int DEFAULT_TITLE_COLOR;
+  public org.l2jmobius.gameserver.entity.actor.appearance.PlayerAppearance(byte, byte, byte, boolean);
+  public void setVisibleName(java.lang.String);
+  public java.lang.String getVisibleName();
+  public void setVisibleTitle(java.lang.String);
+  public java.lang.String getVisibleTitle();
+  public byte getFace();
+  public void setFace(int);
+  public byte getHairColor();
+  public void setHairColor(int);
+  public byte getHairStyle();
+  public void setHairStyle(int);
+  public boolean isFemale();
+  public void setFemale();
+  public void setMale();
+  public int getNameColor();
+  public void setNameColor(int);
+  public void setNameColor(int, int, int);
+  public int getTitleColor();
+  public void setTitleColor(int);
+  public void setTitleColor(int, int, int);
+  public void setOwner(org.l2jmobius.gameserver.entity.actor.Player);
+  public org.l2jmobius.gameserver.entity.actor.Player getOwner();
+}

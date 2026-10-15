@@ -1,0 +1,155 @@
+================================================================================
+L2J-MOBIUS GRACIA EPILOGUE - 3RD PROFESSION COMBAT CLASSES: PvP SKILL ROTATIONS
+Generated from server datapack (read-only research):
+  C:\EpilogueServer\game\data\stats\players\classList.xml
+  C:\EpilogueServer\game\data\stats\players\skillTrees\{StartingClass,1stClass,2ndClass,3rdClass}\*.xml
+  C:\EpilogueServer\game\data\stats\skills\*.xml  (names / operateType / targetType / castRange)
+Method: a class's complete learned skill set = union of its lineage trees
+(base -> 1st -> 2nd -> 3rd profession), max base skillLevel per skillId
+(tree rows never contain enchant levels >= 100). Every id/level/range below was
+parsed from the files; 11 random entries were re-verified one by one against the
+skill XMLs (261, 494, 420, 507, 1159, 28, 1239, 284, 176, 94, 337 - all match)
+and ALL 484 listed (skillId, level, name, castRange) tuples were machine
+cross-checked against the lineage skill trees and skill XMLs: 0 mismatches.
+SELF_BUFFS = self-cast actives + toggles (target SELF). ROTATION = enemy-target
+actives in typical PvP priority; castRange as in the skill XML, "-" = no
+castRange element (self-centered AURA / placed at feet).
+================================================================================
+
+== CLASS 88 Duelist (parent: Gladiator) ==
+TYPE: melee
+SELF_BUFFS: 8,8,Sonic Focus; 919,1,Maximum Focus Sonic; 442,1,Sonic Barrier; 451,2,Sonic Move; 340,1,Riposte Stance; 424,3,War Frenzy; 312,20,Vicious Stance; 297,2,Duelist Spirit; 78,2,War Cry; 287,3,Lionheart; 121,1,Battle Roar; 440,1,Braveheart; 917,1,Final Secret
+ROTATION: 1,37,Triple Slash,40; 261,22,Triple Sonic Slash,40; 5,31,Double Sonic Slash,40; 345,1,Sonic Rage,600; 6,37,Sonic Blaster,600; 260,37,Hammer Crush,40; 775,1,Weapon Blockade,40; 190,37,Fatal Strike,40; 7,28,Sonic Storm,500; 9,34,Sonic Buster,40
+NOTES: Dualswords required for all Sonic skills (Hammer Crush requires a blunt). Force mechanic: Sonic Focus charges 1-8; Double/Triple Sonic Slash and Sonic Barrier/Move consume charges, Sonic Rage is a 600-range force attack/charge builder. Hammer Crush = only hard stun (blunt weapon-swap). Weapon Blockade blocks enemy physical skills (Forgotten Scroll 81). Final Secret (917) = +30% PvP skill/normal damage for 30s. 458 Symbol of Energy = ground seal (consumes Battle Symbol). Key passives: 144 Dual Weapon Mastery, 430 Master of Combat, 290 Final Frenzy. Base-tree leftovers (Mortal Blow/Power Shot/Power Strike/Stun Attack/Wild Sweep/Power Smash, getLevel<=36) excluded from rotation.
+
+== CLASS 89 Dreadnought (parent: Warlord) ==
+TYPE: polearm
+SELF_BUFFS: 130,2,Thrill Fight; 421,5,Fell Swoop; 317,5,Focus Attack; 424,3,War Frenzy; 312,20,Vicious Stance; 422,3,Polearm Accuracy; 339,1,Parry Stance; 121,6,Battle Roar; 287,3,Lionheart; 440,1,Braveheart; 181,1,Revival; 917,1,Final Secret
+ROTATION: 48,37,Thunder Storm,-; 452,5,Shock Stomp,-; 347,1,Earthquake,-; 36,37,Whirlwind,-; 920,37,Power Crush,80; 921,1,Cursed Pierce,80; 361,1,Shock Blast,500; 320,10,Wrath,40; 774,1,Dread Pool,-; 116,14,Howl,-; 286,3,Provoke,-
+NOTES: Polearm required. Thunder Storm/Shock Stomp = self-centered AoE stuns (9s); Whirlwind/Earthquake = self-centered AoE damage; Dread Pool = AoE fear + slow; Howl = AoE -23% P.Atk; Provoke = AoE taunt; Wrath = front-cone CP drain; Shock Blast = rare ranged (500) polearm AoE. Power Crush/Cursed Pierce (80 range) = single-target attacks. Fell Swoop adds +1 AoE target; Focus Attack toggle = single-target mode (+acc/+crit power). Revival (181) = emergency self-recovery. 457 Symbol of Honor = ground seal. Key passives: 216 Polearm Mastery, 430 Master of Combat, 290 Final Frenzy.
+
+== CLASS 90 Phoenix Knight (parent: Paladin) ==
+TYPE: tank
+SELF_BUFFS: 810,1,Vanguard; 318,1,Aegis Stance; 322,6,Shield Fortress; 335,1,Fortitude; 196,1,Holy Blade; 110,2,Ultimate Defense; 112,4,Deflect Arrow; 916,4,Shield Deflect Magic; 913,1,Deflect Magic; 784,1,Spirit of Phoenix; 438,1,Soul of the Phoenix; 760,1,Anti Magic Armor; 406,3,Angelic Icon
+ROTATION: 92,52,Shield Stun,40; 353,1,Shield Slam,40; 400,10,Tribunal,40; 28,49,Aggression,800; 49,26,Holy Strike,400; 70,13,Drain Health,600; 403,10,Shackle,600; 404,5,Mass Shackling,-; 368,1,Vengeance,-; 18,37,Aura of Hate,-; 341,1,Touch of Life,40; 262,37,Holy Blessing,600
+NOTES: Shield mandatory for Shield Stun (main 9s single-target stun)/Shield Slam. Aggression (800) single taunt, Aura of Hate self-centered AoE taunt, Vengeance = AoE taunt + huge self PDef/MDef (immobile while active). Shackle/Mass Shackling = single/root. Tribunal = holy damage + taunt + debuff. Touch of Life = 50% self-heal + buff-cancel resist (cast on self at melee range). 405 Banish Undead and 97 Sanctuary are undead-only (PvE, excluded). 912 Summon Imperial Phoenix (lvl 83) = flying mount summon, skip. Key passives: 429 Knighthood, 291 Final Fortress, 153 Shield Mastery.
+
+== CLASS 91 Hell Knight (parent: Dark Avenger) ==
+TYPE: tank
+SELF_BUFFS: 811,1,Vanguard; 322,6,Shield Fortress; 335,1,Fortitude; 110,2,Ultimate Defense; 112,4,Deflect Arrow; 916,4,Shield Deflect Magic; 913,1,Deflect Magic; 439,1,Shield of Revenge; 761,1,Seed of Revenge; 760,1,Anti Magic Armor
+ROTATION: 92,52,Shield Stun,40; 353,1,Shield Slam,40; 342,1,Touch of Death,40; 401,10,Judgment,40; 28,49,Aggression,800; 65,13,Horror,600; 127,14,Hamstring,600; 403,10,Shackle,600; 763,1,Hell Scream,-; 762,1,Insane Crusher,-; 368,1,Vengeance,-; 18,37,Aura of Hate,-; 70,53,Drain Health,600
+NOTES: Pet tank: 283 Summon Dark Panther (needs crystals). Hell Scream = self-centered AoE fear + -30% PDef/MDef; Insane Crusher = self-centered AoE buff-cancel + CP/MP drain; Seed of Revenge = self stance that grows when attacked. Horror = single fear, Hamstring = single slow, Shackle = single root. Touch of Death = melee drain attack + debuff. 450 Banish Seraph (angel-only) and corpse skills PvE-only. Key passives: 429 Knighthood, 291 Final Fortress, 153 Shield Mastery.
+
+== CLASS 92 Sagittarius (parent: Hawkeye) ==
+TYPE: archer
+SELF_BUFFS: 99,2,Rapid Shot; 313,8,Snipe; 131,3,Hawk Eye; 111,1,Ultimate Evasion; 415,3,Spirit of Sagittarius; 416,3,Blessing of Sagittarius; 303,4,Soul of Sagittarius; 417,5,Pain of Sagittarius; 312,20,Vicious Stance; 256,1,Accuracy; 334,1,Focus Skill Mastery; 324,1,Quiver of Arrow: Grade S; 4,1,Dash
+ROTATION: 101,40,Stunning Shot,900; 354,1,Hamstring Shot,900; 19,37,Double Shot,900; 343,1,Lethal Shot,900; 924,1,Seven Arrow,900; 771,1,Flame Hawk,900; 24,31,Burst Shot,500
+NOTES: Needs bow + arrows (Quiver of Arrow A/S crafts them). Stunning Shot = 9s bow stun (opener); Hamstring Shot = slow; Seven Arrow = channelled 7-shot burst (CA1); Flame Hawk = front-cone AoE; Burst Shot = AoE. Snipe = big acc/P.Atk/crit stance but immobilizes. Pain of Sagittarius converts HP to MP. 459 Symbol of the Sniper = ground seal. Key passives: 208 Bow Mastery, 431 Archery, 113 Long Shot, 171 Esprit (arrow recovery).
+
+== CLASS 93 Adventurer (parent: Treasure Hunter) ==
+TYPE: dagger
+SELF_BUFFS: 922,1,Hide; 768,1,Exciting Adventure; 356,1,Focus Chance; 357,1,Focus Power; 111,2,Ultimate Evasion; 445,1,Mirage; 312,20,Vicious Stance; 334,1,Focus Skill Mastery; 411,3,Stealth; 4,2,Dash
+ROTATION: 358,1,Bluff,40; 30,37,Backstab,40; 263,37,Deadly Blow,40; 344,1,Lethal Blow,40; 409,10,Critical Blow,40; 531,1,Critical Wound,40; 96,6,Bleed,40; 821,1,Shadow Step,600; 12,14,Switch,600; 11,12,Trick,400; 412,10,Sand Bomb,150
+NOTES: Daggers required (no consumables needed). Bluff = turns target's back + 9s stun (opener); Shadow Step (600) = teleport behind target (also cancels target); Critical Wound = +30% crit damage taken debuff, set before finishers; Critical Blow = big finisher (Adventurer keeps it; WR/GH get 321 Blinding Blow instead). Switch/Trick = target-cancel kiting tools; Sand Bomb = -accuracy; Mirage = chance to drop attacker's target; Hide = stealth (movement only), Stealth (411) = party-safe stealth. Fake Death (60,T) and Silent Move (221,T) available. 460 Symbol of the Assassin = ground seal. Key passives: 209 Dagger Mastery, 923 Dual Dagger Mastery, 432 Assassination, 137 Critical Chance.
+
+== CLASS 94 Archmage (parent: Sorcerer) ==
+TYPE: nuker
+SELF_BUFFS: 337,1,Arcane Power; 1532,1,Enlightenment; 1492,1,Flame Armor; 1078,6,Concentration; 1040,1,Shield; 1285,1,Seed of Fire; 1157,1,Body To Mind; 1216,1,Self Heal
+ROTATION: 1083,17,Surrender To Fire,900; 1339,1,Fire Vortex,900; 1338,1,Arcane Chaos,600; 1056,12,Cancellation,600; 1230,28,Prominence,900; 1451,1,Fire Vortex Buster,900; 1220,8,Blaze,750; 1275,14,Aura Bolt,400; 1289,1,Inferno,900; 1169,14,Curse Fear,600; 1069,42,Sleep,600; 1160,15,Slow,600; 1296,9,Rain of Fire,500; 1171,19,Blazing Circle,-; 1467,1,Meteor,600; 1419,1,Volcano,900
+NOTES: Fire Vortex Buster detonates an existing Fire Vortex (cast Vortex first). Volcano = channelled ground-seal ultimate (CA1/GROUND, caster immobile, consumes Magic Symbol). Meteor = repeated AoE at target location. Blazing Circle = self-centered AoE; 1231 Aura Flare (150, close-range AoE) also available. Cancellation strips enemy buffs; Arcane Chaos = anti-buff/debuff-resist + MP drain; Curse Fear/Sleep/Slow = control. Arcane Power = toggle (+M.Atk, HP cost); Enlightenment (1532) = 20s +40% M.Atk/+50% CSPD/-90% MP cost. MP hungry: Body To Mind converts HP->MP. Key passives: 146 Anti Magic, 234 Robe Mastery, 285 Higher Mana Gain, 1297 Clear Mind, 945 Magician's Will.
+
+== CLASS 95 Soultaker (parent: Necromancer) ==
+TYPE: nuker
+SELF_BUFFS: 337,1,Arcane Power; 1532,1,Enlightenment; 1262,5,Transfer Pain; 1078,2,Concentration; 1157,5,Body To Mind; 1387,3,Summon Cursed Bones; 1495,1,Vampiric Mist
+ROTATION: 1263,13,Curse Gloom,900; 1159,22,Curse Death Link,900; 1343,1,Dark Vortex,900; 1234,28,Vampiric Claw,900; 1148,13,Death Spike,900; 1064,14,Silence,600; 1170,13,Anchor,400; 1069,42,Sleep,600; 1169,14,Curse Fear,600; 1381,5,Mass Fear,500; 1269,9,Curse Disease,600; 1222,15,Curse Chaos,600; 1337,1,Curse of Abyss,600; 1344,1,Mass Warrior Bane,-; 1345,1,Mass Mage Bane,-; 1467,1,Meteor,600; 1423,1,Gehenna,900
+NOTES: Needs Cursed Bones for Death Spike - Summon Cursed Bones (1387) crafts 25-100 from 40 Spirit Ores. Curse Death Link = signature nuke, damage scales as caster HP decreases. Curse Gloom (-23% M.Def) = opener debuff; Silence = anti-caster; Anchor = hold; Sleep/Fear/Mass Fear = control; Curse Disease = -50% healing received. Mass Warrior/Mage Bane = self-centered AoE buff-cancel; Vampiric Mist = self-centered AoE drain (HP return). Gehenna = channelled ground ultimate (consumes Magic Symbol). Transfer Pain needs an undead summon (1129 Summon Reanimated Man / 1334 Summon Cursed Man) to be useful; also has 1155 Corpse Burst / 1151 Corpse Life Drain (corpse-consuming, PvE niche). Key passives: 434 Necromancy, 146 Anti Magic, 945 Magician's Will, 213 Boost Mana.
+
+== CLASS 99 Eva's Templar (parent: Temple Knight) ==
+TYPE: tank
+SELF_BUFFS: 812,1,Vanguard; 288,4,Guard Stance; 322,6,Shield Fortress; 335,1,Fortitude; 123,3,Spirit Barrier; 110,2,Ultimate Defense; 112,4,Deflect Arrow; 916,4,Shield Deflect Magic; 913,1,Deflect Magic; 527,1,Iron Shield; 351,1,Magical Mirror; 786,1,Eva's Will; 760,1,Anti Magic Armor; 230,2,Sprint
+ROTATION: 352,1,Shield Bash,40; 400,10,Tribunal,40; 341,1,Touch of Life,40; 28,49,Aggression,800; 402,10,Arrest,150; 102,16,Entangle,600; 15,52,Charm,600; 368,1,Vengeance,-; 18,37,Aura of Hate,-; 58,55,Elemental Heal,-
+NOTES: Cubic kit (D-grade crystals): 10 Summon Storm Cubic, 67 Summon Life Cubic, 449 Summon Attractive Cubic, 779 Summon Smart Cubic (Smart Cubic debuff-cleanses the master). Shield Bash = 2s shield stun; Arrest (150) = root; Entangle = slow; Charm (600) = drops target's aggression toward caster. Touch of Life = 50% self-heal + buff-cancel resist. Eva's Will (786) = self stance that grows when attacked. 787 Touch of Eva (party 50% heal) and 528 Shield of Faith (party) excluded as party skills; 107 Holy Aura = undead-only hold (PvE). Elemental Heal (55) = strong self-heal. Key passives: 316 Aegis, 143 Cubic Mastery, 291 Final Fortress, 429 Knighthood, 153 Shield Mastery.
+
+== CLASS 101 Wind Rider (parent: Plains Walker) ==
+TYPE: dagger
+SELF_BUFFS: 922,1,Hide; 769,1,Wind Riding; 355,1,Focus Death; 356,1,Focus Chance; 410,3,Mortal Strike; 111,2,Ultimate Evasion; 446,1,Dodge; 312,20,Vicious Stance; 334,1,Focus Skill Mastery; 230,2,Sprint
+ROTATION: 358,1,Bluff,40; 30,37,Backstab,40; 321,10,Blinding Blow,40; 263,37,Deadly Blow,40; 344,1,Lethal Blow,40; 531,1,Critical Wound,40; 96,6,Bleed,40; 821,1,Shadow Step,600; 12,14,Switch,600; 15,52,Charm,600
+NOTES: Blinding Blow replaces Critical Blow for WR (backstab-type finisher + 40 self move speed). Wind Riding = 30s burst (+50 move, +20 evasion, +deadly rate). Focus Death/Focus Chance = pick per build (mutually themed crit stances); Mortal Strike = +10% crit rate buff. Charm (600) drops aggro. 460 Symbol of the Assassin = ground seal. Key passives: 209 Dagger Mastery, 923 Dual Dagger Mastery, 432 Assassination.
+
+== CLASS 102 Moonlight Sentinel (parent: Silver Ranger) ==
+TYPE: archer
+SELF_BUFFS: 413,8,Rapid Fire; 99,2,Rapid Shot; 111,1,Ultimate Evasion; 415,3,Spirit of Sagittarius; 416,3,Blessing of Sagittarius; 303,4,Soul of Sagittarius; 123,3,Spirit Barrier; 312,20,Vicious Stance; 334,1,Focus Skill Mastery; 324,1,Quiver of Arrow: Grade S; 230,2,Sprint
+ROTATION: 101,40,Stunning Shot,900; 354,1,Hamstring Shot,900; 19,37,Double Shot,900; 343,1,Lethal Shot,900; 924,1,Seven Arrow,900; 772,1,Arrow Rain,600; 24,31,Burst Shot,500; 369,1,Evade Shot,900
+NOTES: Needs bow + arrows. Rapid Fire (lvl 8) = 3rd-prof attack-speed stance (no Snipe for MS - MS trades Snipe/Flame Hawk for Rapid Fire + Arrow Rain). Arrow Rain (600) = AoE. Seven Arrow = channelled 7-shot burst. Evade Shot = attack + self-evasion. Key passives: 208 Bow Mastery, 431 Archery, 113 Long Shot, 946 Silent Mind, 533 Counter Rapid Shot / 534 Counter Dash.
+
+== CLASS 103 Mystic Muse (parent: Spellsinger) ==
+TYPE: nuker
+SELF_BUFFS: 337,1,Arcane Power; 1532,1,Enlightenment; 1493,1,Frost Armor; 1078,2,Concentration; 1047,4,Mana Regeneration; 1286,1,Seed of Water; 1238,3,Freezing Skin
+ROTATION: 1071,14,Surrender To Water,900; 1340,1,Ice Vortex,900; 1338,1,Arcane Chaos,600; 1056,12,Cancellation,600; 1235,28,Hydro Blast,900; 1265,14,Solar Flare,900; 1290,1,Blizzard,900; 1453,1,Ice Vortex Crusher,900; 1455,1,Throne of Ice,900; 1237,17,Ice Dagger,900; 1183,4,Freezing Shackle,600; 1206,5,Wind Shackle,600; 1069,42,Sleep,600; 1169,14,Curse Fear,600; 1174,22,Frost Wall,40; 1295,9,Aqua Splash,500; 1468,1,Star Fall,600; 1421,1,Raging Waves,900
+NOTES: Ice Vortex Crusher detonates an existing Ice Vortex (cast Vortex first). Throne of Ice = 10s freeze DOT. Frost Wall (40, front cone) = melee-range defense. Freezing Shackle = root; Wind Shackle = -Atk.Spd; Blizzard = -50% move. Star Fall = repeated AoE; Raging Waves = channelled ground ultimate (consumes Magic Symbol). 1342 Light Vortex, 1293 Elemental Symphony, 1264 Solar Spark, 1236 Frost Bolt available as extra nukes. Mana Regeneration = MP regen toggle. Key passives: 146 Anti Magic, 234 Robe Mastery, 285 Higher Mana Gain, 945 Magician's Will.
+
+== CLASS 106 Shillien Templar (parent: Shillien Knight) ==
+TYPE: tank
+SELF_BUFFS: 813,1,Vanguard; 288,4,Guard Stance; 322,6,Shield Fortress; 335,1,Fortitude; 110,2,Ultimate Defense; 916,4,Shield Deflect Magic; 527,1,Iron Shield; 788,1,Pain of Shilen; 760,1,Anti Magic Armor
+ROTATION: 352,1,Shield Bash,40; 342,1,Touch of Death,40; 401,10,Judgment,40; 28,49,Aggression,800; 402,10,Arrest,150; 279,5,Lightning Strike,400; 70,53,Drain Health,600; 289,15,Life Leech,600; 122,15,Hex,600; 115,17,Power Break,600; 105,24,Freezing Strike,600; 129,5,Poison,600; 2,19,Confusion,600; 368,1,Vengeance,-; 18,37,Aura of Hate,-
+NOTES: Cubic kit (crystals): 33 Summon Phantom Cubic, 22 Summon Vampiric Cubic, 278 Summon Viper Cubic, 780 Summon Smart Cubic. Pain of Shilen = self stance that grows when attacked. Hex = -23% P.Def; Power Break = -20% P.Atk; Freezing Strike = damage + slow; Lightning Strike = non-attribute shock attack; Life Leech/Drain Health = HP drain. Confusion = target-cancel. 450 Banish Seraph (angel-only) and 103 Corpse Plague (corpse) PvE-only. 789 Spirit of Shilen = party buff (excluded). Key passives: 316 Aegis, 143 Cubic Mastery, 291 Final Fortress, 429 Knighthood.
+
+== CLASS 108 Ghost Hunter (parent: Abyss Walker) ==
+TYPE: dagger
+SELF_BUFFS: 922,1,Hide; 770,1,Ghost Walking; 355,1,Focus Death; 357,1,Focus Power; 410,3,Mortal Strike; 111,2,Ultimate Evasion; 447,1,Counterattack; 312,20,Vicious Stance; 334,1,Focus Skill Mastery
+ROTATION: 358,1,Bluff,40; 30,37,Backstab,40; 321,10,Blinding Blow,40; 263,37,Deadly Blow,40; 344,1,Lethal Blow,40; 531,1,Critical Wound,40; 96,6,Bleed,40; 821,1,Shadow Step,600; 11,12,Trick,400; 2,19,Confusion,600; 122,15,Hex,600; 115,17,Power Break,600; 129,5,Poison,600; 105,24,Freezing Strike,600
+NOTES: GH adds the dark-line debuffs (Hex/Power Break/Poison/Freezing Strike/Confusion) inherited from the Shillien tree. Ghost Walking = 30s burst (+33 move, +15 evasion, +deadly rate). Counterattack = 10s damage reflect. 460 Symbol of the Assassin = ground seal. Key passives: 209 Dagger Mastery, 923 Dual Dagger Mastery, 432 Assassination, 818 Evasion Counter.
+
+== CLASS 109 Ghost Sentinel (parent: Phantom Ranger) ==
+TYPE: archer
+SELF_BUFFS: 414,8,Dead Eye; 415,3,Spirit of Sagittarius; 303,4,Soul of Sagittarius; 417,5,Pain of Sagittarius; 111,1,Ultimate Evasion; 312,20,Vicious Stance; 334,1,Focus Skill Mastery; 324,1,Quiver of Arrow: Grade S; 323,1,Quiver of Arrow: Grade A
+ROTATION: 101,40,Stunning Shot,900; 354,1,Hamstring Shot,900; 19,37,Double Shot,900; 343,1,Lethal Shot,900; 924,1,Seven Arrow,900; 314,16,Fatal Counter,900; 773,1,Ghost Piercing,900; 369,1,Evade Shot,900; 115,17,Power Break,600; 122,15,Hex,600; 105,24,Freezing Strike,600; 2,19,Confusion,600
+NOTES: Needs bow + arrows. Dead Eye (lvl 8) = GS signature bow stance (accuracy/crit). Fatal Counter (lvl 16) = high-power single shot. Ghost Piercing = front-cone AoE. No 416 Blessing of Sagittarius (HE-line only); no Snipe/Rapid Fire. Dark-line debuffs included. Key passives: 208 Bow Mastery, 431 Archery, 113 Long Shot, 532 Counter Chance, 946 Silent Mind.
+
+== CLASS 110 Storm Screamer (parent: Spellhowler) ==
+TYPE: nuker
+SELF_BUFFS: 337,1,Arcane Power; 1532,1,Enlightenment; 1494,1,Hurricane Armor; 1287,1,Seed of Wind; 1078,2,Concentration; 1040,1,Shield; 1157,5,Body To Mind; 1216,1,Self Heal
+ROTATION: 1074,14,Surrender To Wind,900; 1341,1,Wind Vortex,900; 1159,22,Curse Death Link,900; 1239,28,Hurricane,900; 1338,1,Arcane Chaos,600; 1064,14,Silence,600; 1456,1,Wind Vortex Slug,900; 1291,1,Demon Wind,900; 1294,1,Elemental Storm,900; 1148,13,Death Spike,900; 1176,15,Tempest,500; 1468,1,Star Fall,600; 1420,1,Cyclone,900; 1206,5,Wind Shackle,600; 1160,15,Slow,600; 1069,42,Sleep,600; 1169,14,Curse Fear,600
+NOTES: Needs Cursed Bones for Death Spike. Wind Vortex Slug detonates an existing Wind Vortex. Demon Wind = -50% healing received on target. Cyclone = channelled ground ultimate (consumes Magic Symbol). Also has 1343 Dark Vortex and 1234 Vampiric Claw (HP drain) for dark damage mix. 1178 Twister / 1266 Shadow Spark / 1267 Shadow Flare / 1224 Surrender To Poison available as extra nukes/debuffs. Key passives: 964 Children of Shilen, 146 Anti Magic, 234 Robe Mastery, 285 Higher Mana Gain, 945 Magician's Will.
+
+== CLASS 113 Titan (parent: Destroyer) ==
+TYPE: melee
+SELF_BUFFS: 176,3,Frenzy; 94,2,Rage; 139,3,Guts; 420,3,Zealot; 424,3,War Frenzy; 312,20,Vicious Stance; 422,3,Polearm Accuracy; 339,1,Parry Stance; 121,6,Battle Roar; 287,3,Lionheart; 536,1,Over the Body; 440,1,Braveheart; 917,1,Final Secret
+ROTATION: 260,37,Hammer Crush,40; 362,1,Armor Crush,40; 315,16,Crush of Doom,40; 190,37,Fatal Strike,40; 777,1,Demolition Impact,40; 36,37,Whirlwind,-; 347,1,Earthquake,-; 320,10,Wrath,40
+NOTES: Hammer Crush needs a blunt (9s stun); Armor Crush = stun + -30% PDef/MDef; Crush of Doom / Demolition Impact (front cone, 5750 power) need 2H sword/blunt; Whirlwind/Earthquake = self-centered AoE (polearm); Wrath = front-cone CP drain. Frenzy/Rage/Guts/Zealot = condition self-buffs (Frenzy/Rage P.Atk + low-HP Guts/Zelot effects). Over the Body = 60s big HP/P.Atk buff. 423 Dark Form and 456 Symbol of Resistance (ground seal) available. Key passives: 293 Two-handed Weapon Mastery, 257 Sword/Blunt Weapon Mastery, 295 Iron Body, 430 Master of Combat.
+
+== CLASS 114 Grand Khavatari (parent: Tyrant) ==
+TYPE: fist
+SELF_BUFFS: 50,8,Focused Force; 918,1,Maximum Focus Force; 222,1,Fury Fists; 424,3,War Frenzy; 340,1,Riposte Stance; 335,1,Fortitude; 420,3,Zealot; 423,3,Dark Form; 441,1,Force Meditation; 443,1,Force Barrier; 917,1,Final Secret; 83,1,Wolf Spirit Totem; 425,1,Hawk Spirit Totem; 292,1,Bison Spirit Totem
+ROTATION: 281,37,Soul Breaker,40; 120,15,Stunning Fist,40; 776,1,Force of Destruction,40; 284,40,Hurricane Assault,40; 81,3,Punch of Doom,40; 280,37,Burning Fist,40; 54,49,Force Blaster,600; 346,1,Raging Force,600; 17,34,Force Burst,40; 35,28,Force Storm,500; 95,20,Cripple,40
+NOTES: Fist weapons required. Force mechanic: Focused Force charges 1-8; Force of Destruction needs 2nd+ charge stage; Force Barrier (10s invuln) needs 4th stage; Hurricane Assault (40) consumes charges; Maximum Focus Force instantly fills charges. Soul Breaker/Stunning Fist = 9s stuns; Force Blaster/Raging Force (600) = ranged gap-close attacks; Force Burst (front cone) / Force Storm (500 AoE) = AoE; Cripple = slow. Totems are one-at-a-time stances (83 Wolf, 76 Bear, 282 Puma, 109 Ogre, 298 Rabbit, 292 Bison, 425 Hawk). Break Duress (461, 2 charges) escapes roots. 458 Symbol of Energy = ground seal. Key passives: 210 Fist Weapon Mastery, 430 Master of Combat, 319 Agile Movement.
+
+== CLASS 131 Doombringer (parent: Berserker) ==
+TYPE: ancient
+SELF_BUFFS: 500,2,True Berserker; 482,2,Furious Soul; 499,3,Courage; 483,2,Sword Shield; 1514,1,Soul Barrier; 948,1,Eye for Eye; 538,1,Final Form; 1432,2,Increase Power; 335,1,Fortitude; 917,1,Final Secret
+ROTATION: 494,37,Shoulder Charge,600; 793,1,Rush Impact,600; 484,1,Rush,400; 495,10,Blade Rush,600; 493,28,Storm Assault,600; 526,1,Enuma Elish,40; 497,16,Crushing Pain,40; 498,12,Contagion,40; 496,31,Slashing Blade,-; 477,37,Dark Smash,40; 485,7,Disarm,40; 501,12,Violent Temper,600; 1435,2,Death Mark,600; 1445,3,Surrender to the Unholy,900; 794,1,Mass Disarm,-
+NOTES: Ancient sword required. Soul mechanic: most attacks consume up to 5 souls for bonus power; 625 Soul Gathering (10 Spirit Ores, up to 8 at once) and 502 Life to Soul (HP->soul) fill souls; 939 Soul Rage (600) = attack that also gathers souls. DA1/DA2 operateTypes = dash/charge attacks (Rush 484, Storm Assault 493, Shoulder Charge 494 = stun, Blade Rush 495 = AoE bleed, Rush Impact 793 = front-cone stun). Enuma Elish = front-cone finisher. Disarm (40) single / 794 Mass Disarm (self-centered AoE) strip weapons. Violent Temper = -23% P.Def/-15% CSPD; Death Mark = -20% P.Def/M.Def + DOT; Surrender to the Unholy = -25 Dark resist. 1510 Soul Cleanse (600) cancels up to 3 debuffs on same-race targets (usable as self-cleanse). Final Form = transform (consumes 20 souls). 834 Blood Pact = party skill (excluded); 1473 Change Weapon converts weapons to Kamael-exclusive. Key passives: 472 Ancient Sword Mastery, 465 Light Armor Mastery, 467 Soul Mastery, 466 Magic Immunity.
+
+== CLASS 133 Female Soul Hound (parent: Female Soul Breaker) ==
+TYPE: rapier
+SELF_BUFFS: 1441,2,Soul to Empower; 1532,1,Enlightenment; 538,1,Final Form; 1515,1,Lightning Barrier; 837,1,Painkiller; 622,1,Ultimate Escape; 625,1,Soul Gathering; 502,5,Life to Soul
+ROTATION: 1436,30,Soul of Pain,700; 1516,1,Soul Strike,750; 1512,1,Soul Vortex,900; 1513,1,Soul Vortex Extinction,900; 506,4,Checkmate,40; 505,28,Shining Edge,40; 1446,11,Shadow Bind,400; 1447,9,Voice Bind,400; 791,1,Lightning Shock,-; 1448,1,Blink,-; 1437,26,Dark Flame,40; 1438,9,Annihilation Circle,500; 1469,1,Leopold,600; 1529,7,Soul Web,600; 1435,10,Death Mark,600; 1445,18,Surrender to the Unholy,900
+NOTES: Rapier + magic hybrid; most attacks consume up to 5 souls for bonus power (Soul Gathering/Life to Soul to fill). Soul Vortex Extinction detonates an existing Soul Vortex (cast Vortex first). Checkmate (40) = big melee hit with bonus vs Death-Marked targets (pair with 1435 Death Mark). Shadow Bind = 15s hold; Voice Bind = 20s silence; Lightning Shock / Blink = self-centered AoE stun; Dark Flame = front-cone AoE fear; Annihilation Circle / Leopold = AoE nukes; Soul Web = AoE slow. Soul to Empower = +55% M.Atk 20min. Lightning Barrier = paralyzes attackers (20 min). 1442 Protection from Darkness, 1443 Dark Weapon, 1444 Pride of Kamael = party skills (excluded). 490 Fast Shot / 487 Penetrating Shot / 627 Soul Shock are crossbow leftovers (only with crossbow via 1473 Change Weapon). Key passives: 474 Rapier Mastery, 465 Light Armor Mastery, 467 Soul Mastery, 1474 Abyssal Power, 626 Critical Sense.
+
+== CLASS 134 Trickster (parent: Arbalester) ==
+TYPE: crossbow
+SELF_BUFFS: 521,8,Sharpshooting; 490,2,Fast Shot; 1514,1,Soul Barrier; 538,1,Final Form; 622,2,Ultimate Escape; 334,1,Focus Skill Mastery; 621,1,Create Special Bolt; 520,1,Quiver of Bolts: S-Grade; 625,1,Soul Gathering
+ROTATION: 522,4,Real Target,900; 507,37,Twin Shot,900; 509,34,Bleeding Shot,900; 790,1,Wild Shot,900; 508,31,Rising Shot,500; 523,7,Imbue Dark Seed,40; 835,4,Imbue Seed of Destruction,40; 1435,2,Death Mark,600; 792,1,Betrayal Mark,600; 1445,3,Surrender to the Unholy,900; 510,5,Deadly Roulette,900; 525,6,Decoy,-; 514,9,Fire Trap,-; 516,6,Slow Trap,-; 518,8,Binding Trap,-; 836,3,Oblivion Trap,-
+NOTES: Crossbow + bolts required - 620/519/520 Quiver of Bolts (B/A/S) and 621 Create Special Bolt craft ammunition. Sharpshooting (lvl 8) = Snipe-type stance (acc/crit/range, immobile). Real Target = -16% crossbow resist debuff (opener). Imbue Dark Seed = DOT that paralyzes when grown (513 Create Dark Seed / 524 Cure Dark Seed manage seeds); Imbue Seed of Destruction = drains mana + blocks skills when grown. Betrayal Mark = damages the target's party when it is hit. Deadly Roulette = lethal-strike finisher, requires Special Bolt + HP under 10%. Traps (514 Fire, 515 Poison, 516 Slow, 517 Flash, 518 Binding, 836 Oblivion) are placed at the caster's position (self-place, trigger on approach) - pre-set before engagement. Decoy = mirror-image aggro dump. 511 Temptation (400) = target-cancel; 489 Shift Target (40) = provoke. 1473 Change Weapon swaps rapier/crossbow. Key passives: 473 Crossbow Mastery, 486 Increase Range, 465 Light Armor Mastery, 626 Critical Sense.
+
+## MISC
+- experience.xml: levels 1..87 defined; level 85 exists (tolevel 19,827,360,000); server max level is 87.
+- Skill trees: game\data\stats\players\skillTrees\{StartingClass,1stClass,2ndClass,3rdClass}\*.xml (11/20/36/36 files). The classId inside <skillTree classId="N"> is authoritative; do NOT trust file names (case differs from templates, e.g. skillTrees\3rdClass\Swordmuse.xml vs templates\3rdClass\SwordMuse.xml). A 3rd-prof class's full skill set is the union of its lineage trees (base -> 1st -> 2nd -> 3rd); 3rdClass trees only contain getLevel 76-83 entries (incl. Forgotten-Scroll skills at 81-83). Tree rows list one row per (skillLevel, getLevel) - take the highest skillLevel. No tree row anywhere has skillLevel >= 100, so enchant levels are a non-issue in trees; all reported levels are base maxima.
+- Templates: game\data\stats\players\templates\{StartingClass,1stClass,2ndClass,3rdClass}\*.xml; 3rdClass holds all 36 third-profession files (incl. all 21 combat classes above), each file starts with <classId>NN</classId> plus stats and creation points. Naming = PascalCase class name, apostrophes kept (Eva'sTemplar.xml, FemaleSoulHound.xml).
+- Skill data: game\data\stats\skills\NNNNN-NNNNN.xml (68 range files, ~6100 skills). One flat element per skill: <skill id levels name> with shared child tags <operateType> (A1/A2/A3 = active, CA1 = channelled, DA1/DA2 = dash-attack actives (Kamael Rush family), T = toggle, P = passive), <targetType> (ONE, SELF, AREA, FRONT_AREA, AURA, PARTY, GROUND, SERVITOR, UNLOCKABLE, CORPSE_MOB...), <castRange>, <hitTime>, <reuseDelay>, <mpConsume>; per-level values live in <table name="#..."> rows (use last value for max level). castRange may itself reference a #castRange table - e.g. 28 Aggression -> 800, 494 Shoulder Charge -> 600 (both resolved above).
+- "-" castRange = no castRange element in XML = self-centered (AURA AoE around caster) or self/ground-placed skill.
+- Excluded per spec: 96 Arcana Lord, 104 Elemental Master, 111 Spectral Master (summoners); 97 Cardinal, 105 Eva's Saint, 112 Shillien Saint (healers); 98 Hierophant, 100 Sword Muse, 107 Spectral Dancer, 115 Dominator, 116 Doom Cryer, 136 Judicator (pure supports); 117 Fortune Seeker, 118 Maestro (crafters). 132 Male Soul Hound exists and its 3rdClass tree is identical in skill content to 133 Female Soul Hound - reuse the 133 data for male bots if needed.
+- Common/utility skills deliberately left out of rotations: 1322 Common Craft, 1320 Create Common Item, 194 Lucky, 226 Relax, 841/842 Aura Bird - Falcon/Owl (level-75 flying forms), Fake Death (60,T), Silent Move (221,T), Unlock (27), Detect/Remove Trap, cures (44 Remedy, 61 Cure Bleeding, 21 Poison Recovery, 34 Bandage), 933 Detection (anti-stealth radar), rank-1 weak debuffs (Curse: Poison/Weakness low levels, 1160 Slow lvl1 on 95).
+- Transformation skills do not appear in class trees (they live in transformSkillTree.xml); the only transform-like class skill is Kamael 538 Final Form (consumes 20 souls).
+- Item requirements sampled from skill XML comments: 1148 Death Spike consumes 1 Cursed Bone; 1419/1420/1421/1422/1423 (Volcano/Cyclone/Raging Waves/Day of Doom/Gehenna) are channelled ground ultimates consuming 1 Magic Symbol; 454-461 Symbol skills consume 1 Battle Symbol; cubics require D-grade crystals; 625 Soul Gathering consumes 10 Spirit Ores; 1387 Summon Cursed Bones consumes 40 Spirit Ores; archers consume arrows, Trickster consumes bolts.
+- Per-class active counts (SELF_BUFFS + ROTATION) all land in the plausible 10-25 band (19-25 per class). Minor/overlapping low-level stances omitted from the trimmed lists for brevity (all verified present in the trees): 72 Iron Will, 82 Majesty, 197 Holy Armor, 350 Physical Mirror, 351 Magical Mirror, 527 Iron Shield, 86 Reflect Damage, 481 Dark Armor, 480 Dark Blade, 479 Hard March, 475 Strike Back, 1040 Shield, 1216 Self Heal, 112 Deflect Arrow (106), 913 Deflect Magic (106).

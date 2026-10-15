@@ -1,0 +1,333 @@
+Compiled from "ScriptEngine.java"
+public class org.l2jmobius.gameserver.scripting.ScriptEngine implements org.l2jmobius.commons.util.IXmlReader {
+  private static final java.util.logging.Logger LOGGER;
+
+  public static final java.nio.file.Path SCRIPT_FOLDER;
+
+  public static final java.nio.file.Path MASTER_HANDLER_FILE;
+
+  public static final java.nio.file.Path EFFECT_MASTER_HANDLER_FILE;
+
+  private static final org.l2jmobius.gameserver.scripting.engine.ScriptExecutor SCRIPT_EXECUTOR;
+
+  private static final java.util.Set<java.lang.String> EXCLUSIONS;
+
+  protected org.l2jmobius.gameserver.scripting.ScriptEngine();
+    Code:
+         0: aload_0
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: invokevirtual #7                  // Method load:()V
+         8: return
+
+  public void load();
+    Code:
+         0: getstatic     #12                 // Field EXCLUSIONS:Ljava/util/Set;
+         3: invokeinterface #16,  1           // InterfaceMethod java/util/Set.clear:()V
+         8: aload_0
+         9: ldc           #21                 // String config/Scripts.xml
+        11: invokevirtual #23                 // Method parseDatapackFile:(Ljava/lang/String;)V
+        14: getstatic     #27                 // Field LOGGER:Ljava/util/logging/Logger;
+        17: getstatic     #12                 // Field EXCLUSIONS:Ljava/util/Set;
+        20: invokeinterface #31,  1           // InterfaceMethod java/util/Set.size:()I
+        25: invokedynamic #35,  0             // InvokeDynamic #0:makeConcatWithConstants:(I)Ljava/lang/String;
+        30: invokevirtual #39                 // Method java/util/logging/Logger.info:(Ljava/lang/String;)V
+        33: return
+
+  public void parseDocument(org.w3c.dom.Document, java.io.File);
+    Code:
+         0: new           #44                 // class java/util/HashMap
+         3: dup
+         4: invokespecial #46                 // Method java/util/HashMap."<init>":()V
+         7: astore_3
+         8: aload_0
+         9: aload_1
+        10: ldc           #47                 // String list
+        12: aload_0
+        13: aload_3
+        14: invokedynamic #49,  0             // InvokeDynamic #1:accept:(Lorg/l2jmobius/gameserver/scripting/ScriptEngine;Ljava/util/Map;)Ljava/util/function/Consumer;
+        19: invokevirtual #53                 // Method forEach:(Lorg/w3c/dom/Node;Ljava/lang/String;Ljava/util/function/Consumer;)V
+        22: getstatic     #57                 // Field SCRIPT_FOLDER:Ljava/nio/file/Path;
+        25: invokeinterface #61,  1           // InterfaceMethod java/nio/file/Path.getNameCount:()I
+        30: istore        4
+        32: getstatic     #57                 // Field SCRIPT_FOLDER:Ljava/nio/file/Path;
+        35: new           #66                 // class org/l2jmobius/gameserver/scripting/ScriptEngine$1
+        38: dup
+        39: aload_0
+        40: iload         4
+        42: aload_3
+        43: invokespecial #68                 // Method org/l2jmobius/gameserver/scripting/ScriptEngine$1."<init>":(Lorg/l2jmobius/gameserver/scripting/ScriptEngine;ILjava/util/Map;)V
+        46: invokestatic  #71                 // Method java/nio/file/Files.walkFileTree:(Ljava/nio/file/Path;Ljava/nio/file/FileVisitor;)Ljava/nio/file/Path;
+        49: pop
+        50: goto          76
+        53: astore_3
+        54: getstatic     #27                 // Field LOGGER:Ljava/util/logging/Logger;
+        57: aload_0
+        58: invokevirtual #79                 // Method java/lang/Object.getClass:()Ljava/lang/Class;
+        61: invokevirtual #83                 // Method java/lang/Class.getSimpleName:()Ljava/lang/String;
+        64: aload_3
+        65: invokevirtual #89                 // Method java/io/IOException.getMessage:()Ljava/lang/String;
+        68: invokedynamic #92,  0             // InvokeDynamic #2:makeConcatWithConstants:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+        73: invokevirtual #95                 // Method java/util/logging/Logger.warning:(Ljava/lang/String;)V
+        76: return
+      Exception table:
+         from    to  target type
+             0    50    53   Class java/io/IOException
+
+  private void processDirectory(java.io.File, java.util.List<java.nio.file.Path>);
+    Code:
+         0: aload_1
+         1: invokevirtual #98                 // Method java/io/File.listFiles:()[Ljava/io/File;
+         4: astore_3
+         5: aload_3
+         6: arraylength
+         7: istore        4
+         9: iconst_0
+        10: istore        5
+        12: iload         5
+        14: iload         4
+        16: if_icmpge     107
+        19: aload_3
+        20: iload         5
+        22: aaload
+        23: astore        6
+        25: aload         6
+        27: invokevirtual #104                // Method java/io/File.isFile:()Z
+        30: ifeq          86
+        33: aload         6
+        35: invokevirtual #108                // Method java/io/File.toURI:()Ljava/net/URI;
+        38: invokevirtual #112                // Method java/net/URI.getPath:()Ljava/lang/String;
+        41: astore        7
+        43: aload         7
+        45: ldc           #117                // String .java
+        47: invokevirtual #119                // Method java/lang/String.endsWith:(Ljava/lang/String;)Z
+        50: ifeq          83
+        53: getstatic     #12                 // Field EXCLUSIONS:Ljava/util/Set;
+        56: aload         7
+        58: invokeinterface #125,  2          // InterfaceMethod java/util/Set.contains:(Ljava/lang/Object;)Z
+        63: ifne          83
+        66: aload_2
+        67: aload         6
+        69: invokevirtual #129                // Method java/io/File.toPath:()Ljava/nio/file/Path;
+        72: invokeinterface #133,  1          // InterfaceMethod java/nio/file/Path.toAbsolutePath:()Ljava/nio/file/Path;
+        77: invokeinterface #136,  2          // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+        82: pop
+        83: goto          101
+        86: aload         6
+        88: invokevirtual #141                // Method java/io/File.isDirectory:()Z
+        91: ifeq          101
+        94: aload_0
+        95: aload         6
+        97: aload_2
+        98: invokevirtual #144                // Method processDirectory:(Ljava/io/File;Ljava/util/List;)V
+       101: iinc          5, 1
+       104: goto          12
+       107: return
+
+  public void executeScript(java.nio.file.Path) throws java.lang.Exception;
+    Code:
+         0: aload_1
+         1: astore_2
+         2: aload_2
+         3: invokeinterface #148,  1          // InterfaceMethod java/nio/file/Path.isAbsolute:()Z
+         8: ifne          21
+        11: getstatic     #57                 // Field SCRIPT_FOLDER:Ljava/nio/file/Path;
+        14: aload_2
+        15: invokeinterface #151,  2          // InterfaceMethod java/nio/file/Path.resolve:(Ljava/nio/file/Path;)Ljava/nio/file/Path;
+        20: astore_2
+        21: aload_2
+        22: invokeinterface #133,  1          // InterfaceMethod java/nio/file/Path.toAbsolutePath:()Ljava/nio/file/Path;
+        27: astore_2
+        28: aload_2
+        29: iconst_0
+        30: anewarray     #155                // class java/nio/file/LinkOption
+        33: invokestatic  #157                // Method java/nio/file/Files.exists:(Ljava/nio/file/Path;[Ljava/nio/file/LinkOption;)Z
+        36: ifne          58
+        39: new           #161                // class java/lang/Exception
+        42: dup
+        43: aload_2
+        44: invokeinterface #163,  1          // InterfaceMethod java/nio/file/Path.toString:()Ljava/lang/String;
+        49: invokedynamic #166,  0            // InvokeDynamic #3:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+        54: invokespecial #169                // Method java/lang/Exception."<init>":(Ljava/lang/String;)V
+        57: athrow
+        58: getstatic     #171                // Field SCRIPT_EXECUTOR:Lorg/l2jmobius/gameserver/scripting/engine/ScriptExecutor;
+        61: aload_2
+        62: invokevirtual #175                // Method org/l2jmobius/gameserver/scripting/engine/ScriptExecutor.executeScript:(Ljava/nio/file/Path;)Ljava/util/Map$Entry;
+        65: astore_3
+        66: aload_3
+        67: ifnull        121
+        70: aload_3
+        71: invokeinterface #181,  1          // InterfaceMethod java/util/Map$Entry.getValue:()Ljava/lang/Object;
+        76: checkcast     #187                // class java/lang/Throwable
+        79: astore        4
+        81: aload         4
+        83: ifnull        97
+        86: getstatic     #27                 // Field LOGGER:Ljava/util/logging/Logger;
+        89: aload         4
+        91: invokestatic  #189                // Method org/l2jmobius/commons/util/TraceUtil.getStackTrace:(Ljava/lang/Throwable;)Ljava/lang/String;
+        94: invokevirtual #95                 // Method java/util/logging/Logger.warning:(Ljava/lang/String;)V
+        97: new           #161                // class java/lang/Exception
+       100: dup
+       101: aload_3
+       102: invokeinterface #195,  1          // InterfaceMethod java/util/Map$Entry.getKey:()Ljava/lang/Object;
+       107: invokestatic  #198                // Method java/lang/String.valueOf:(Ljava/lang/Object;)Ljava/lang/String;
+       110: invokedynamic #202,  0            // InvokeDynamic #4:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+       115: aload         4
+       117: invokespecial #203                // Method java/lang/Exception."<init>":(Ljava/lang/String;Ljava/lang/Throwable;)V
+       120: athrow
+       121: return
+
+  public void executeScriptList() throws java.lang.Exception;
+    Code:
+         0: getstatic     #206                // Field org/l2jmobius/gameserver/config/DevelopmentConfig.NO_QUESTS:Z
+         3: ifeq          7
+         6: return
+         7: new           #212                // class java/util/ArrayList
+        10: dup
+        11: invokespecial #214                // Method java/util/ArrayList."<init>":()V
+        14: astore_1
+        15: aload_0
+        16: getstatic     #57                 // Field SCRIPT_FOLDER:Ljava/nio/file/Path;
+        19: invokeinterface #215,  1          // InterfaceMethod java/nio/file/Path.toFile:()Ljava/io/File;
+        24: aload_1
+        25: invokevirtual #144                // Method processDirectory:(Ljava/io/File;Ljava/util/List;)V
+        28: getstatic     #171                // Field SCRIPT_EXECUTOR:Lorg/l2jmobius/gameserver/scripting/engine/ScriptExecutor;
+        31: aload_1
+        32: invokevirtual #219                // Method org/l2jmobius/gameserver/scripting/engine/ScriptExecutor.executeScripts:(Ljava/lang/Iterable;)Ljava/util/Map;
+        35: astore_2
+        36: aload_2
+        37: invokeinterface #223,  1          // InterfaceMethod java/util/Map.entrySet:()Ljava/util/Set;
+        42: invokeinterface #229,  1          // InterfaceMethod java/util/Set.iterator:()Ljava/util/Iterator;
+        47: astore_3
+        48: aload_3
+        49: invokeinterface #233,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+        54: ifeq          112
+        57: aload_3
+        58: invokeinterface #238,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        63: checkcast     #182                // class java/util/Map$Entry
+        66: astore        4
+        68: getstatic     #27                 // Field LOGGER:Ljava/util/logging/Logger;
+        71: aload_0
+        72: invokevirtual #79                 // Method java/lang/Object.getClass:()Ljava/lang/Class;
+        75: invokevirtual #83                 // Method java/lang/Class.getSimpleName:()Ljava/lang/String;
+        78: aload         4
+        80: invokeinterface #195,  1          // InterfaceMethod java/util/Map$Entry.getKey:()Ljava/lang/Object;
+        85: invokestatic  #198                // Method java/lang/String.valueOf:(Ljava/lang/Object;)Ljava/lang/String;
+        88: aload         4
+        90: invokeinterface #181,  1          // InterfaceMethod java/util/Map$Entry.getValue:()Ljava/lang/Object;
+        95: checkcast     #187                // class java/lang/Throwable
+        98: invokevirtual #241                // Method java/lang/Throwable.getMessage:()Ljava/lang/String;
+       101: invokedynamic #242,  0            // InvokeDynamic #5:makeConcatWithConstants:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+       106: invokevirtual #95                 // Method java/util/logging/Logger.warning:(Ljava/lang/String;)V
+       109: goto          48
+       112: return
+
+  public java.nio.file.Path getCurrentLoadingScript();
+    Code:
+         0: getstatic     #171                // Field SCRIPT_EXECUTOR:Lorg/l2jmobius/gameserver/scripting/engine/ScriptExecutor;
+         3: invokevirtual #245                // Method org/l2jmobius/gameserver/scripting/engine/ScriptExecutor.getCurrentExecutingScript:()Ljava/nio/file/Path;
+         6: areturn
+
+  public static org.l2jmobius.gameserver.scripting.ScriptEngine getInstance();
+    Code:
+         0: getstatic     #248                // Field org/l2jmobius/gameserver/scripting/ScriptEngine$SingletonHolder.INSTANCE:Lorg/l2jmobius/gameserver/scripting/ScriptEngine;
+         3: areturn
+
+  private void lambda$parseDocument$0(java.util.Map, org.w3c.dom.Node);
+    Code:
+         0: aload_0
+         1: aload_2
+         2: ldc           #254                // String exclude
+         4: aload_0
+         5: aload_1
+         6: invokedynamic #256,  0            // InvokeDynamic #6:accept:(Lorg/l2jmobius/gameserver/scripting/ScriptEngine;Ljava/util/Map;)Ljava/util/function/Consumer;
+        11: invokevirtual #53                 // Method forEach:(Lorg/w3c/dom/Node;Ljava/lang/String;Ljava/util/function/Consumer;)V
+        14: return
+
+  private void lambda$parseDocument$1(java.util.Map, org.w3c.dom.Node);
+    Code:
+         0: aload_0
+         1: aload_2
+         2: invokeinterface #257,  1          // InterfaceMethod org/w3c/dom/Node.getAttributes:()Lorg/w3c/dom/NamedNodeMap;
+         7: ldc_w         #263                // String file
+        10: invokevirtual #265                // Method parseString:(Lorg/w3c/dom/NamedNodeMap;Ljava/lang/String;)Ljava/lang/String;
+        13: astore_3
+        14: aload_1
+        15: aload_3
+        16: new           #269                // class java/util/HashSet
+        19: dup
+        20: invokespecial #271                // Method java/util/HashSet."<init>":()V
+        23: invokeinterface #272,  3          // InterfaceMethod java/util/Map.putIfAbsent:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+        28: pop
+        29: aload_0
+        30: aload_2
+        31: ldc_w         #276                // String include
+        34: aload_0
+        35: aload_1
+        36: aload_3
+        37: invokedynamic #278,  0            // InvokeDynamic #7:accept:(Lorg/l2jmobius/gameserver/scripting/ScriptEngine;Ljava/util/Map;Ljava/lang/String;)Ljava/util/function/Consumer;
+        42: invokevirtual #53                 // Method forEach:(Lorg/w3c/dom/Node;Ljava/lang/String;Ljava/util/function/Consumer;)V
+        45: return
+
+  private void lambda$parseDocument$2(java.util.Map, java.lang.String, org.w3c.dom.Node);
+    Code:
+         0: aload_1
+         1: aload_2
+         2: invokeinterface #281,  2          // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+         7: checkcast     #17                 // class java/util/Set
+        10: aload_0
+        11: aload_3
+        12: invokeinterface #257,  1          // InterfaceMethod org/w3c/dom/Node.getAttributes:()Lorg/w3c/dom/NamedNodeMap;
+        17: ldc_w         #263                // String file
+        20: invokevirtual #265                // Method parseString:(Lorg/w3c/dom/NamedNodeMap;Ljava/lang/String;)Ljava/lang/String;
+        23: invokeinterface #285,  2          // InterfaceMethod java/util/Set.add:(Ljava/lang/Object;)Z
+        28: pop
+        29: return
+
+  static {};
+    Code:
+         0: ldc           #8                  // class org/l2jmobius/gameserver/scripting/ScriptEngine
+         2: invokevirtual #286                // Method java/lang/Class.getName:()Ljava/lang/String;
+         5: invokestatic  #289                // Method java/util/logging/Logger.getLogger:(Ljava/lang/String;)Ljava/util/logging/Logger;
+         8: putstatic     #27                 // Field LOGGER:Ljava/util/logging/Logger;
+        11: getstatic     #293                // Field org/l2jmobius/gameserver/config/ServerConfig.SCRIPT_ROOT:Ljava/io/File;
+        14: invokevirtual #129                // Method java/io/File.toPath:()Ljava/nio/file/Path;
+        17: putstatic     #57                 // Field SCRIPT_FOLDER:Ljava/nio/file/Path;
+        20: getstatic     #57                 // Field SCRIPT_FOLDER:Ljava/nio/file/Path;
+        23: invokeinterface #163,  1          // InterfaceMethod java/nio/file/Path.toString:()Ljava/lang/String;
+        28: iconst_2
+        29: anewarray     #120                // class java/lang/String
+        32: dup
+        33: iconst_0
+        34: ldc_w         #299                // String handlers
+        37: aastore
+        38: dup
+        39: iconst_1
+        40: ldc_w         #301                // String MasterHandler.java
+        43: aastore
+        44: invokestatic  #303                // Method java/nio/file/Paths.get:(Ljava/lang/String;[Ljava/lang/String;)Ljava/nio/file/Path;
+        47: putstatic     #308                // Field MASTER_HANDLER_FILE:Ljava/nio/file/Path;
+        50: getstatic     #57                 // Field SCRIPT_FOLDER:Ljava/nio/file/Path;
+        53: invokeinterface #163,  1          // InterfaceMethod java/nio/file/Path.toString:()Ljava/lang/String;
+        58: iconst_2
+        59: anewarray     #120                // class java/lang/String
+        62: dup
+        63: iconst_0
+        64: ldc_w         #299                // String handlers
+        67: aastore
+        68: dup
+        69: iconst_1
+        70: ldc_w         #311                // String EffectMasterHandler.java
+        73: aastore
+        74: invokestatic  #303                // Method java/nio/file/Paths.get:(Ljava/lang/String;[Ljava/lang/String;)Ljava/nio/file/Path;
+        77: putstatic     #313                // Field EFFECT_MASTER_HANDLER_FILE:Ljava/nio/file/Path;
+        80: new           #176                // class org/l2jmobius/gameserver/scripting/engine/ScriptExecutor
+        83: dup
+        84: invokespecial #316                // Method org/l2jmobius/gameserver/scripting/engine/ScriptExecutor."<init>":()V
+        87: putstatic     #171                // Field SCRIPT_EXECUTOR:Lorg/l2jmobius/gameserver/scripting/engine/ScriptExecutor;
+        90: new           #269                // class java/util/HashSet
+        93: dup
+        94: invokespecial #271                // Method java/util/HashSet."<init>":()V
+        97: putstatic     #12                 // Field EXCLUSIONS:Ljava/util/Set;
+       100: return
+}

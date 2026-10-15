@@ -1,0 +1,178 @@
+﻿3080;Item Skill: Aggression;10;A1;ONE;;blue;attack_skill;1
+3081;Item Skill: Charm;10;A1;ONE;;blue;attack_skill;1
+3082;Item Skill: Mana Burn;10;A1;ONE;;red;attack_skill;1
+3083;Item Skill: Slow;10;A2;ONE;;blue;attack_skill;1
+3084;Item Skill: Winter;10;A2;ONE;;purple;attack_skill;1
+3085;Item Skill: Stun;10;A2;ONE;;red;attack_skill;1
+3086;Item Skill: Hold;10;A2;ONE;;purple;attack_skill;1
+3087;Item Skill: Sleep;10;A2;ONE;;red;attack_skill;1
+3088;Item Skill: Paralyze;10;A2;ONE;;red;attack_skill;1
+3089;Item Skill: Medusa;10;A2;ONE;3;purple;attack_skill;1
+3090;Item Skill: Fear;10;A2;ONE;;purple;attack_skill;1
+3091;Item Skill: Poison;10;A2;ONE;;purple;attack_skill;1
+3092;Item Skill: Bleed;10;A2;ONE;;purple;attack_skill;1
+3093;Item Skill: Silence;10;A2;ONE;;red;attack_skill;1
+3094;Item Skill: Doom;10;A2;ONE;;red;attack_skill;1
+3095;Item Skill: Mana Burn;10;A1;ONE;;red;magic_skill;2
+3096;Item Skill: Slow;10;A2;ONE;;blue;magic_skill;2
+3097;Item Skill: Winter;10;A2;ONE;;purple;magic_skill;2
+3098;Item Skill: Stun;10;A2;ONE;;red;magic_skill;2
+3099;Item Skill: Hold;10;A2;SELF;;purple;magic_skill;2
+3100;Item Skill: Sleep;10;A2;ONE;;red;magic_skill;2
+3101;Item Skill: Paralyze;10;A2;ONE;;red;magic_skill;2
+3102;Item Skill: Medusa;10;A2;ONE;3;purple;magic_skill;2
+3103;Item Skill: Fear;10;A2;ONE;;purple;magic_skill;2
+3104;Item Skill: Poison;10;A2;ONE;;purple;magic_skill;2
+3105;Item Skill: Bleed;10;A2;ONE;;purple;magic_skill;2
+3106;Item Skill: Silence;10;A2;ONE;;red;magic_skill;2
+3107;Item Skill: Doom;10;A2;ONE;;red;magic_skill;2
+3108;Item Skill: Aggression Up;10;A1;ONE;;blue,purple;critical_skill;5
+3109;Item Skill: Aggression Down;10;A1;ONE;;blue;critical_skill;5
+3110;Item Skill: Mana Burn;10;A1;ONE;;red;critical_skill;5
+3111;Item Skill: Slow;10;A2;ONE;;blue;critical_skill;5
+3112;Item Skill: Winter;10;A2;ONE;;purple;critical_skill;5
+3113;Item Skill: Stun;10;A2;ONE;;red;critical_skill;5
+3114;Item Skill: Hold;10;A2;ONE;;purple;critical_skill;5
+3115;Item Skill: Sleep;10;A2;ONE;;red;critical_skill;5
+3116;Item Skill: Paralyze;10;A2;ONE;;red;critical_skill;5
+3117;Item Skill: Medusa;10;A2;ONE;3;purple;critical_skill;5
+3118;Item Skill: Fear;10;A2;ONE;;purple;critical_skill;5
+3119;Item Skill: Poison;10;A2;ONE;;purple;critical_skill;5
+3120;Item Skill: Bleed;10;A2;ONE;;purple;critical_skill;5
+3121;Item Skill: Silence;10;A2;ONE;;red;critical_skill;5
+3122;Item Skill: Doom;10;A2;ONE;;red;critical_skill;5
+3123;Item Skill: Heal;10;A1;SELF;;purple;active_skill;-
+3124;Item Skill: Blessed Body;10;A2;SELF;;purple;active_skill;-
+3125;Item Skill: Battle Roar;10;A2;SELF;;purple;active_skill;-
+3126;Item Skill: Prayer;10;A2;SELF;;purple;active_skill;-
+3127;Item Skill: Recharge;10;A1;ONE;;purple;active_skill;-
+3128;Item Skill: Blessed Soul;10;A2;SELF;;purple;active_skill;-
+3129;Item Skill: Mana Gain;10;A2;SELF;;purple;active_skill;-
+3130;Item Skill: Ritual;10;A1;SELF;;purple;active_skill;-
+3131;Item Skill: Cheer;10;A2;SELF;;purple;active_skill;-
+3132;Item Skill: Might;10;A2;SELF;;purple;active_skill;-
+3133;Item Skill: Empower;10;A2;SELF;;purple;active_skill;-
+3134;Item Skill: Duel Might;10;A2;SELF;;purple;active_skill;-
+3135;Item Skill: Shield;10;A2;SELF;;purple;active_skill;-
+3136;Item Skill: Magic Barrier;10;A2;SELF;;purple;active_skill;-
+3137;Item Skill: Duel Weakness;10;A2;ONE;;purple;active_skill;-
+3138;Item Skill: Heal Empower;10;A2;SELF;;purple;active_skill;-
+3139;Item Skill: Agility;10;A2;SELF;;purple;active_skill;-
+3140;Item Skill: Guidance;10;A2;SELF;;purple;active_skill;-
+3141;Item Skill: Focus;10;A2;SELF;;red;active_skill;-
+3142;Item Skill: Wild Magic;10;A2;SELF;;red;active_skill;-
+3143;Item Skill: Kiss of Eva;10;A2;SELF;;blue;active_skill;-
+3144;Item Skill: Acrobatics;10;A2;SELF;;blue;active_skill;-
+3145;Item Skill: Iron Body;10;A2;SELF;;blue;active_skill;-
+3146;Item Skill: Recall;1;A1;SELF;;purple;active_skill;-
+3147;Item Skill: Recall;1;A1;SELF;;red;active_skill;-
+3148;Item Skill: Vampiric Rage;10;A2;SELF;;red;active_skill;-
+3149;Item Skill: Aggression;10;A1;ONE;;purple;active_skill;-
+3150;Item Skill: Charm;10;A1;ONE;;purple;active_skill;-
+3151;Item Skill: Peace;10;A1;ONE;;-;active_skill;-
+3152;Item Skill: Trick;10;A1;ONE;;purple;active_skill;-
+3153;Item Skill: Vampiric Touch;10;A1;ONE;5;purple;active_skill;-
+3154;Item Skill: Mana Burn;10;A1;ONE;;purple;active_skill;-
+3155;Item Skill: Unlock;10;A1;UNLOCKABLE;;purple;active_skill;-
+3156;Item Skill: Firework;1;A1;SELF;;blue;active_skill;-
+3157;Item Skill: Large Firework;1;A1;SELF;;blue;active_skill;-
+3158;Item Skill: Lesser Celestial Shield;1;A2;SELF;;red;active_skill;-
+3159;Item Skill: Stealth;3;A2;SELF;;red;active_skill;-
+3160;Item Skill: Resurrection;9;A1;PC_BODY;;purple;active_skill;-
+3161;Item Skill: Skill Clarity;3;A2;SELF;;red;active_skill;-
+3162;Item Skill: Spell Clarity;3;A2;SELF;;red;active_skill;-
+3163;Item Skill: Music Clarity;3;A2;SELF;;red;active_skill;-
+3164;Item Skill: Clarity;3;A2;SELF;;red;active_skill;-
+3165;Item Skill: Prominence;10;A1;ONE;0;purple;active_skill;-
+3167;Item Skill: Hydro Blast;10;A1;ONE;1;purple;active_skill;-
+3168;Item Skill: Tempest;10;A1;ONE;2;purple;active_skill;-
+3169;Item Skill: Stone;10;A1;ONE;3;purple;active_skill;-
+3170;Item Skill: Solar Flare;10;A1;ONE;4;purple;active_skill;-
+3171;Item Skill: Shadow Flare;10;A1;ONE;5;purple;active_skill;-
+3172;Item Skill: Aura Flare;10;A1;ONE;;purple;active_skill;-
+3173;Item Skill: Prominence;10;A1;AREA;0;purple;active_skill;-
+3174;Item Skill: Hydro Blast;10;A1;AREA;1;-;active_skill;-
+3175;Item Skill: Hurricane;10;A1;AREA;2;-;active_skill;-
+3176;Item Skill: Stone;10;A1;AREA;3;-;active_skill;-
+3177;Item Skill: Solar Flare;10;A1;AREA;4;-;active_skill;-
+3178;Item Skill: Shadow Flare;10;A1;AREA;5;-;active_skill;-
+3179;Item Skill: Aura Flare;10;A1;AREA;;-;active_skill;-
+3180;Item Skill: Prominence;10;A1;AURA;0;purple;active_skill;-
+3181;Item Skill: Hydro Blast;10;A1;AURA;1;purple;active_skill;-
+3182;Item Skill: Hurricane;10;A1;AURA;2;purple;active_skill;-
+3183;Item Skill: Stone;10;A1;AURA;3;purple;active_skill;-
+3184;Item Skill: Solar Flare;10;A1;AURA;4;purple;active_skill;-
+3185;Item Skill: Shadow Flare;10;A1;AURA;5;purple;active_skill;-
+3186;Item Skill: Aura Flare;10;A1;AURA;;purple;active_skill;-
+3187;Item Skill: Slow;10;A2;ONE;;purple;active_skill;-
+3188;Item Skill: Winter;10;A2;ONE;;purple;active_skill;-
+3189;Item Skill: Stun;10;A2;ONE;;purple;active_skill;-
+3190;Item Skill: Hold;10;A2;ONE;;purple;active_skill;-
+3191;Item Skill: Sleep;10;A2;ONE;;purple;active_skill;-
+3192;Item Skill: Paralyze;10;A2;ONE;;purple;active_skill;-
+3193;Item Skill: Medusa;10;A2;ONE;3;purple;active_skill;-
+3194;Item Skill: Fear;10;A2;ONE;;purple;active_skill;-
+3195;Item Skill: Poison;10;A2;ONE;;purple;active_skill;-
+3196;Item Skill: Bleed;10;A2;ONE;;purple;active_skill;-
+3197;Item Skill: Silence;10;A2;ONE;;red;active_skill;-
+3198;Item Skill: Doom;10;A2;ONE;;red;active_skill;-
+3199;Item Skill: Skill Refresh;3;A2;SELF;;red;active_skill;-
+3200;Item Skill: Spell Refresh;3;A2;SELF;;red;active_skill;-
+3201;Item Skill: Music Refresh;3;A2;SELF;;red;active_skill;-
+3202;Item Skill: Refresh;3;A2;SELF;;red;active_skill;-
+3203;Item Skill: Mystery Skill;1;A2;SELF;;blue;active_skill;-
+3204;Item Skill: Reflect Damage;3;A2;SELF;;red;active_skill;-
+3205;Item Skill: Party Recall;2;A1;PARTY;;red;active_skill;-
+3206;Item Skill: Music;10;A1;SELF;;blue;active_skill;-
+3207;Item Skill: Heal;10;P;SELF;;purple;passive_skill;-
+3208;Item Skill: Blessed Body;10;P;SELF;;purple;passive_skill;-
+3209;Item Skill: Prayer;10;P;SELF;;purple;passive_skill;-
+3210;Item Skill: Recharge;10;P;SELF;;red;passive_skill;-
+3211;Item Skill: Blessed Soul;10;P;SELF;;purple;passive_skill;-
+3212;Item Skill: Mana Gain;10;P;SELF;;red;passive_skill;-
+3213;Item Skill: Ritual;10;P;SELF;;purple;passive_skill;-
+3214;Item Skill: Cheer;10;P;SELF;;purple;passive_skill;-
+3215;Item Skill: Might;10;P;SELF;;purple;passive_skill;-
+3216;Item Skill: Empower;10;P;SELF;;purple;passive_skill;-
+3217;Item Skill: Duel Might;10;P;SELF;;purple;passive_skill;-
+3218;Item Skill: Shield;10;P;SELF;;purple;passive_skill;-
+3219;Item Skill: Magic Barrier;10;P;SELF;;purple;passive_skill;-
+3220;Item Skill: Duel Weakness;10;P;SELF;;purple;passive_skill;-
+3221;Item Skill: Agility;10;P;SELF;;purple;passive_skill;-
+3222;Item Skill: Guidance;10;P;SELF;;purple;passive_skill;-
+3223;Item Skill: Focus;10;P;SELF;;purple;passive_skill;-
+3224;Item Skill: Wild Magic;10;P;SELF;;purple;passive_skill;-
+3225;Item Skill: Charm;10;P;SELF;;purple;passive_skill;-
+3226;Item Skill: Slow;10;P;SELF;;purple;passive_skill;-
+3227;Item Skill: Winter;10;P;SELF;;purple;passive_skill;-
+3228;Item Skill: Stun;10;P;SELF;;red;passive_skill;-
+3229;Item Skill: Hold;10;P;SELF;;purple;passive_skill;-
+3230;Item Skill: Sleep;10;P;SELF;;purple;passive_skill;-
+3231;Item Skill: Paralyze;10;P;SELF;;red;passive_skill;-
+3232;Item Skill: Medusa;10;P;SELF;;red;passive_skill;-
+3233;Item Skill: Fear;10;P;SELF;;red;passive_skill;-
+3234;Item Skill: Poison;10;P;SELF;;purple;passive_skill;-
+3235;Item Skill: Bleed;10;P;SELF;;purple;passive_skill;-
+3236;Item Skill: Silence;10;P;SELF;;red;passive_skill;-
+3237;Item Skill: Doom;10;P;SELF;;red;passive_skill;-
+3238;Item Skill: Prayer;10;P;SELF;;purple;passive_skill;-
+3239;Item Skill: Mana Gain;10;P;SELF;;red;passive_skill;-
+3240;Item Skill: Might;10;P;SELF;;purple;passive_skill;-
+3241;Item Skill: Empower;10;P;SELF;;purple;passive_skill;-
+3243;Item Skill: Duel Might;10;P;SELF;;purple;passive_skill;-
+3244;Item Skill: Shield;10;P;SELF;;purple;passive_skill;-
+3245;Item Skill: Magic Barrier;10;P;SELF;;purple;passive_skill;-
+3246;Item Skill: Heal Empower;10;P;SELF;;purple;passive_skill;-
+3247;Item Skill: Agility;10;P;SELF;;red;passive_skill;-
+3248;Item Skill: Guidance;10;P;SELF;;red;passive_skill;-
+3249;Item Skill: Focus;10;P;SELF;;red;passive_skill;-
+3250;Item Skill: Wild Magic;10;P;SELF;;red;passive_skill;-
+3251;Item Skill: Weight Limit;10;P;SELF;;purple;passive_skill;-
+3252;Item Skill: Kiss of Eva;10;P;SELF;;blue;passive_skill;-
+3253;Item Skill: Acrobatics;10;P;SELF;;blue;passive_skill;-
+3254;Item Skill: Iron Body;10;P;SELF;;blue;passive_skill;-
+3255;Item Skill: Skill Clarity;3;P;SELF;;red;passive_skill;-
+3256;Item Skill: Spell Clarity;3;P;SELF;;red;passive_skill;-
+3257;Item Skill: Music Clarity;3;P;SELF;;red;passive_skill;-
+3258;Item Skill: Clarity;3;P;SELF;;red;passive_skill;-
+3259;Item Skill: Reflect Damage;3;P;SELF;;red;passive_skill;-

@@ -1,0 +1,247 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!-- Custom augmentation options for the Blacksmith Aug NPC (Giran, npcId 1006000).
+	Each option augments one of the retail augmentation skills (all skills named
+"Item Skill:*") into a weapon. Encoding follows the retail option data:
+	active_skill = castable active augment, passive_skill = passive augment,
+	attack_skill / magic_skill / critical_skill = chance-triggered augment (retail chance).
+	Levels are the maximum base levels of the skills. Option ids 25000+ are unused
+	by retail augmentation/enchant options (retail ends at 24949).
+	Keep these ids in sync with the OFFERED_SKILLS list in custom\BlacksmithAug\BlacksmithAug.java:
+	option id = 25000 + index in that list (index 0 = option 25000). -->
+<list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../xsd/optionsData.xsd">
+	<option id="25100" name="o_aug_3181">
+		<active_skill id="3181" level="10" /> <!-- Item Skill: Hydro Blast - active, lv 10 -->
+	</option>
+	<option id="25101" name="o_aug_3182">
+		<active_skill id="3182" level="10" /> <!-- Item Skill: Hurricane - active, lv 10 -->
+	</option>
+	<option id="25102" name="o_aug_3183">
+		<active_skill id="3183" level="10" /> <!-- Item Skill: Stone - active, lv 10 -->
+	</option>
+	<option id="25103" name="o_aug_3184">
+		<active_skill id="3184" level="10" /> <!-- Item Skill: Solar Flare - active, lv 10 -->
+	</option>
+	<option id="25104" name="o_aug_3185">
+		<active_skill id="3185" level="10" /> <!-- Item Skill: Shadow Flare - active, lv 10 -->
+	</option>
+	<option id="25105" name="o_aug_3186">
+		<active_skill id="3186" level="10" /> <!-- Item Skill: Aura Flare - active, lv 10 -->
+	</option>
+	<option id="25106" name="o_aug_3187">
+		<active_skill id="3187" level="10" /> <!-- Item Skill: Slow - active, lv 10 -->
+	</option>
+	<option id="25107" name="o_aug_3188">
+		<active_skill id="3188" level="10" /> <!-- Item Skill: Winter - active, lv 10 -->
+	</option>
+	<option id="25108" name="o_aug_3189">
+		<active_skill id="3189" level="10" /> <!-- Item Skill: Stun - active, lv 10 -->
+	</option>
+	<option id="25109" name="o_aug_3190">
+		<active_skill id="3190" level="10" /> <!-- Item Skill: Hold - active, lv 10 -->
+	</option>
+	<option id="25110" name="o_aug_3191">
+		<active_skill id="3191" level="10" /> <!-- Item Skill: Sleep - active, lv 10 -->
+	</option>
+	<option id="25111" name="o_aug_3192">
+		<active_skill id="3192" level="10" /> <!-- Item Skill: Paralyze - active, lv 10 -->
+	</option>
+	<option id="25112" name="o_aug_3193">
+		<active_skill id="3193" level="10" /> <!-- Item Skill: Medusa - active, lv 10 -->
+	</option>
+	<option id="25113" name="o_aug_3194">
+		<active_skill id="3194" level="10" /> <!-- Item Skill: Fear - active, lv 10 -->
+	</option>
+	<option id="25114" name="o_aug_3195">
+		<active_skill id="3195" level="10" /> <!-- Item Skill: Poison - active, lv 10 -->
+	</option>
+	<option id="25115" name="o_aug_3196">
+		<active_skill id="3196" level="10" /> <!-- Item Skill: Bleed - active, lv 10 -->
+	</option>
+	<option id="25116" name="o_aug_3197">
+		<active_skill id="3197" level="10" /> <!-- Item Skill: Silence - active, lv 10 -->
+	</option>
+	<option id="25117" name="o_aug_3198">
+		<active_skill id="3198" level="10" /> <!-- Item Skill: Doom - active, lv 10 -->
+	</option>
+	<option id="25118" name="o_aug_3199">
+		<active_skill id="3199" level="3" /> <!-- Item Skill: Skill Refresh - active, lv 3 -->
+	</option>
+	<option id="25119" name="o_aug_3200">
+		<active_skill id="3200" level="3" /> <!-- Item Skill: Spell Refresh - active, lv 3 -->
+	</option>
+	<option id="25120" name="o_aug_3201">
+		<active_skill id="3201" level="3" /> <!-- Item Skill: Music Refresh - active, lv 3 -->
+	</option>
+	<option id="25121" name="o_aug_3202">
+		<active_skill id="3202" level="3" /> <!-- Item Skill: Refresh - active, lv 3 -->
+	</option>
+	<option id="25122" name="o_aug_3203">
+		<active_skill id="3203" level="1" /> <!-- Item Skill: Mystery Skill - active, lv 1 -->
+	</option>
+	<option id="25123" name="o_aug_3204">
+		<active_skill id="3204" level="3" /> <!-- Item Skill: Reflect Damage - active, lv 3 -->
+	</option>
+	<option id="25124" name="o_aug_3205">
+		<active_skill id="3205" level="2" /> <!-- Item Skill: Party Recall - active, lv 2 -->
+	</option>
+	<option id="25125" name="o_aug_3206">
+		<active_skill id="3206" level="10" /> <!-- Item Skill: Music - active, lv 10 -->
+	</option>
+	<option id="25126" name="o_aug_3207">
+		<passive_skill id="3207" level="10" /> <!-- Item Skill: Heal - passive, lv 10 -->
+	</option>
+	<option id="25127" name="o_aug_3208">
+		<passive_skill id="3208" level="10" /> <!-- Item Skill: Blessed Body - passive, lv 10 -->
+	</option>
+	<option id="25128" name="o_aug_3209">
+		<passive_skill id="3209" level="10" /> <!-- Item Skill: Prayer - passive, lv 10 -->
+	</option>
+	<option id="25129" name="o_aug_3210">
+		<passive_skill id="3210" level="10" /> <!-- Item Skill: Recharge - passive, lv 10 -->
+	</option>
+	<option id="25130" name="o_aug_3211">
+		<passive_skill id="3211" level="10" /> <!-- Item Skill: Blessed Soul - passive, lv 10 -->
+	</option>
+	<option id="25131" name="o_aug_3212">
+		<passive_skill id="3212" level="10" /> <!-- Item Skill: Mana Gain - passive, lv 10 -->
+	</option>
+	<option id="25132" name="o_aug_3213">
+		<passive_skill id="3213" level="10" /> <!-- Item Skill: Ritual - passive, lv 10 -->
+	</option>
+	<option id="25133" name="o_aug_3214">
+		<passive_skill id="3214" level="10" /> <!-- Item Skill: Cheer - passive, lv 10 -->
+	</option>
+	<option id="25134" name="o_aug_3215">
+		<passive_skill id="3215" level="10" /> <!-- Item Skill: Might - passive, lv 10 -->
+	</option>
+	<option id="25135" name="o_aug_3216">
+		<passive_skill id="3216" level="10" /> <!-- Item Skill: Empower - passive, lv 10 -->
+	</option>
+	<option id="25136" name="o_aug_3217">
+		<passive_skill id="3217" level="10" /> <!-- Item Skill: Duel Might - passive, lv 10 -->
+	</option>
+	<option id="25137" name="o_aug_3218">
+		<passive_skill id="3218" level="10" /> <!-- Item Skill: Shield - passive, lv 10 -->
+	</option>
+	<option id="25138" name="o_aug_3219">
+		<passive_skill id="3219" level="10" /> <!-- Item Skill: Magic Barrier - passive, lv 10 -->
+	</option>
+	<option id="25139" name="o_aug_3220">
+		<passive_skill id="3220" level="10" /> <!-- Item Skill: Duel Weakness - passive, lv 10 -->
+	</option>
+	<option id="25140" name="o_aug_3221">
+		<passive_skill id="3221" level="10" /> <!-- Item Skill: Agility - passive, lv 10 -->
+	</option>
+	<option id="25141" name="o_aug_3222">
+		<passive_skill id="3222" level="10" /> <!-- Item Skill: Guidance - passive, lv 10 -->
+	</option>
+	<option id="25142" name="o_aug_3223">
+		<passive_skill id="3223" level="10" /> <!-- Item Skill: Focus - passive, lv 10 -->
+	</option>
+	<option id="25143" name="o_aug_3224">
+		<passive_skill id="3224" level="10" /> <!-- Item Skill: Wild Magic - passive, lv 10 -->
+	</option>
+	<option id="25144" name="o_aug_3225">
+		<passive_skill id="3225" level="10" /> <!-- Item Skill: Charm - passive, lv 10 -->
+	</option>
+	<option id="25145" name="o_aug_3226">
+		<passive_skill id="3226" level="10" /> <!-- Item Skill: Slow - passive, lv 10 -->
+	</option>
+	<option id="25146" name="o_aug_3227">
+		<passive_skill id="3227" level="10" /> <!-- Item Skill: Winter - passive, lv 10 -->
+	</option>
+	<option id="25147" name="o_aug_3228">
+		<passive_skill id="3228" level="10" /> <!-- Item Skill: Stun - passive, lv 10 -->
+	</option>
+	<option id="25148" name="o_aug_3229">
+		<passive_skill id="3229" level="10" /> <!-- Item Skill: Hold - passive, lv 10 -->
+	</option>
+	<option id="25149" name="o_aug_3230">
+		<passive_skill id="3230" level="10" /> <!-- Item Skill: Sleep - passive, lv 10 -->
+	</option>
+	<option id="25150" name="o_aug_3231">
+		<passive_skill id="3231" level="10" /> <!-- Item Skill: Paralyze - passive, lv 10 -->
+	</option>
+	<option id="25151" name="o_aug_3232">
+		<passive_skill id="3232" level="10" /> <!-- Item Skill: Medusa - passive, lv 10 -->
+	</option>
+	<option id="25152" name="o_aug_3233">
+		<passive_skill id="3233" level="10" /> <!-- Item Skill: Fear - passive, lv 10 -->
+	</option>
+	<option id="25153" name="o_aug_3234">
+		<passive_skill id="3234" level="10" /> <!-- Item Skill: Poison - passive, lv 10 -->
+	</option>
+	<option id="25154" name="o_aug_3235">
+		<passive_skill id="3235" level="10" /> <!-- Item Skill: Bleed - passive, lv 10 -->
+	</option>
+	<option id="25155" name="o_aug_3236">
+		<passive_skill id="3236" level="10" /> <!-- Item Skill: Silence - passive, lv 10 -->
+	</option>
+	<option id="25156" name="o_aug_3237">
+		<passive_skill id="3237" level="10" /> <!-- Item Skill: Doom - passive, lv 10 -->
+	</option>
+	<option id="25157" name="o_aug_3238">
+		<passive_skill id="3238" level="10" /> <!-- Item Skill: Prayer - passive, lv 10 -->
+	</option>
+	<option id="25158" name="o_aug_3239">
+		<passive_skill id="3239" level="10" /> <!-- Item Skill: Mana Gain - passive, lv 10 -->
+	</option>
+	<option id="25159" name="o_aug_3240">
+		<passive_skill id="3240" level="10" /> <!-- Item Skill: Might - passive, lv 10 -->
+	</option>
+	<option id="25160" name="o_aug_3241">
+		<passive_skill id="3241" level="10" /> <!-- Item Skill: Empower - passive, lv 10 -->
+	</option>
+	<option id="25161" name="o_aug_3243">
+		<passive_skill id="3243" level="10" /> <!-- Item Skill: Duel Might - passive, lv 10 -->
+	</option>
+	<option id="25162" name="o_aug_3244">
+		<passive_skill id="3244" level="10" /> <!-- Item Skill: Shield - passive, lv 10 -->
+	</option>
+	<option id="25163" name="o_aug_3245">
+		<passive_skill id="3245" level="10" /> <!-- Item Skill: Magic Barrier - passive, lv 10 -->
+	</option>
+	<option id="25164" name="o_aug_3246">
+		<passive_skill id="3246" level="10" /> <!-- Item Skill: Heal Empower - passive, lv 10 -->
+	</option>
+	<option id="25165" name="o_aug_3247">
+		<passive_skill id="3247" level="10" /> <!-- Item Skill: Agility - passive, lv 10 -->
+	</option>
+	<option id="25166" name="o_aug_3248">
+		<passive_skill id="3248" level="10" /> <!-- Item Skill: Guidance - passive, lv 10 -->
+	</option>
+	<option id="25167" name="o_aug_3249">
+		<passive_skill id="3249" level="10" /> <!-- Item Skill: Focus - passive, lv 10 -->
+	</option>
+	<option id="25168" name="o_aug_3250">
+		<passive_skill id="3250" level="10" /> <!-- Item Skill: Wild Magic - passive, lv 10 -->
+	</option>
+	<option id="25169" name="o_aug_3251">
+		<passive_skill id="3251" level="10" /> <!-- Item Skill: Weight Limit - passive, lv 10 -->
+	</option>
+	<option id="25170" name="o_aug_3252">
+		<passive_skill id="3252" level="10" /> <!-- Item Skill: Kiss of Eva - passive, lv 10 -->
+	</option>
+	<option id="25171" name="o_aug_3253">
+		<passive_skill id="3253" level="10" /> <!-- Item Skill: Acrobatics - passive, lv 10 -->
+	</option>
+	<option id="25172" name="o_aug_3254">
+		<passive_skill id="3254" level="10" /> <!-- Item Skill: Iron Body - passive, lv 10 -->
+	</option>
+	<option id="25173" name="o_aug_3255">
+		<passive_skill id="3255" level="3" /> <!-- Item Skill: Skill Clarity - passive, lv 3 -->
+	</option>
+	<option id="25174" name="o_aug_3256">
+		<passive_skill id="3256" level="3" /> <!-- Item Skill: Spell Clarity - passive, lv 3 -->
+	</option>
+	<option id="25175" name="o_aug_3257">
+		<passive_skill id="3257" level="3" /> <!-- Item Skill: Music Clarity - passive, lv 3 -->
+	</option>
+	<option id="25176" name="o_aug_3258">
+		<passive_skill id="3258" level="3" /> <!-- Item Skill: Clarity - passive, lv 3 -->
+	</option>
+	<option id="25177" name="o_aug_3259">
+		<passive_skill id="3259" level="3" /> <!-- Item Skill: Reflect Damage - passive, lv 3 -->
+	</option>
+</list>
+

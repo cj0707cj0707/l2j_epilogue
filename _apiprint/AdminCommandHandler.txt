@@ -1,0 +1,14 @@
+Compiled from "AdminCommandHandler.java"
+public class org.l2jmobius.gameserver.handler.AdminCommandHandler implements org.l2jmobius.gameserver.handler.IHandler<org.l2jmobius.gameserver.handler.IAdminCommandHandler, java.lang.String> {
+  protected org.l2jmobius.gameserver.handler.AdminCommandHandler();
+  public void registerHandler(org.l2jmobius.gameserver.handler.IAdminCommandHandler);
+  public synchronized void removeHandler(org.l2jmobius.gameserver.handler.IAdminCommandHandler);
+  public org.l2jmobius.gameserver.handler.IAdminCommandHandler getHandler(java.lang.String);
+  public void onCommand(org.l2jmobius.gameserver.entity.actor.Player, java.lang.String, boolean);
+  public int size();
+  public static org.l2jmobius.gameserver.handler.AdminCommandHandler getInstance();
+  public java.lang.Object getHandler(java.lang.Object);
+  public void removeHandler(java.lang.Object);
+  public void registerHandler(java.lang.Object);
+  static {};
+}

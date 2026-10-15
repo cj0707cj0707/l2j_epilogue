@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Ant-Version: Apache Ant 1.10.15
+Created-By: 25+37-LTS (BellSoft)
+Build-By: Admin
+Build-Date: 2026-09-05 12:03:00 GMT+05:00
+Implementation-URL: http://www.l2jmobius.org/
+Main-Class: org.l2jmobius.gameserver.GameServer
+Class-Path: ../libs/HikariCP-7.0.2.jar ../libs/mysql-connector-j-9.5.0
+ .jar ../libs/slf4j-api-2.0.17.jar ../libs/slf4j-simple-2.0.17.jar
+

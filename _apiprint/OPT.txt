@@ -1,0 +1,1077 @@
+Compiled from "OfflinePlayTable.java"
+public class org.l2jmobius.gameserver.data.sql.OfflinePlayTable {
+  private static final java.util.logging.Logger LOGGER;
+
+  private static final java.lang.String LOAD_PLAYER_IDS;
+
+  private static final java.lang.String LOAD_PLAYER;
+
+  private static final java.lang.String SAVE_PLAYER;
+
+  private static final java.lang.String REMOVE_PLAYER;
+
+  private static final java.lang.String LOAD_GROUP_LEADER_IDS;
+
+  private static final java.lang.String LOAD_GROUP_MEMBERS;
+
+  private static final java.lang.String SAVE_GROUP_MEMBER;
+
+  private static final java.lang.String REMOVE_GROUP_MEMBERS;
+
+  private static final int TYPE_ACTIVE_SOULSHOT;
+
+  private static final int TYPE_AUTO_SUPPLY_ITEM;
+
+  private static final int TYPE_AUTO_BUFF;
+
+  private static final int TYPE_AUTO_SKILL;
+
+  private static final int TYPE_AUTO_ACTION;
+
+  private static final int TYPE_AUTO_POTION_ITEM;
+
+  private static final int TYPE_CUSTOM_AUTO_POTION_SYSTEM;
+
+  protected org.l2jmobius.gameserver.data.sql.OfflinePlayTable();
+    Code:
+         0: aload_0
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: return
+
+  public void restoreOfflinePlayers();
+    Code:
+         0: getstatic     #7                  // Field LOGGER:Ljava/util/logging/Logger;
+         3: aload_0
+         4: invokevirtual #13                 // Method java/lang/Object.getClass:()Ljava/lang/Class;
+         7: invokevirtual #17                 // Method java/lang/Class.getSimpleName:()Ljava/lang/String;
+        10: invokedynamic #23,  0             // InvokeDynamic #0:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+        15: invokevirtual #27                 // Method java/util/logging/Logger.info:(Ljava/lang/String;)V
+        18: invokestatic  #33                 // Method org/l2jmobius/commons/database/DatabaseFactory.getConnection:()Ljava/sql/Connection;
+        21: astore_1
+        22: aload_1
+        23: invokeinterface #39,  1           // InterfaceMethod java/sql/Connection.createStatement:()Ljava/sql/Statement;
+        28: astore_2
+        29: aload_2
+        30: ldc           #45                 // String SELECT DISTINCT charId FROM character_offline_play
+        32: invokeinterface #47,  2           // InterfaceMethod java/sql/Statement.executeQuery:(Ljava/lang/String;)Ljava/sql/ResultSet;
+        37: astore_3
+        38: iconst_0
+        39: istore        4
+        41: aload_3
+        42: invokeinterface #53,  1           // InterfaceMethod java/sql/ResultSet.next:()Z
+        47: ifeq          590
+        50: aconst_null
+        51: astore        5
+        53: aload_3
+        54: ldc           #59                 // String charId
+        56: invokeinterface #61,  2           // InterfaceMethod java/sql/ResultSet.getInt:(Ljava/lang/String;)I
+        61: invokestatic  #65                 // Method org/l2jmobius/gameserver/entity/actor/Player.load:(I)Lorg/l2jmobius/gameserver/entity/actor/Player;
+        64: astore        5
+        66: aload         5
+        68: iconst_1
+        69: iconst_0
+        70: invokevirtual #71                 // Method org/l2jmobius/gameserver/entity/actor/Player.setOnlineStatus:(ZZ)V
+        73: aload         5
+        75: aload         5
+        77: invokevirtual #75                 // Method org/l2jmobius/gameserver/entity/actor/Player.getX:()I
+        80: aload         5
+        82: invokevirtual #79                 // Method org/l2jmobius/gameserver/entity/actor/Player.getY:()I
+        85: aload         5
+        87: invokevirtual #82                 // Method org/l2jmobius/gameserver/entity/actor/Player.getZ:()I
+        90: invokevirtual #85                 // Method org/l2jmobius/gameserver/entity/actor/Player.spawnMe:(III)V
+        93: aload_1
+        94: ldc           #89                 // String SELECT * FROM character_offline_play WHERE charId=?
+        96: invokeinterface #91,  2           // InterfaceMethod java/sql/Connection.prepareStatement:(Ljava/lang/String;)Ljava/sql/PreparedStatement;
+       101: astore        6
+       103: aload         6
+       105: iconst_1
+       106: aload         5
+       108: invokevirtual #95                 // Method org/l2jmobius/gameserver/entity/actor/Player.getObjectId:()I
+       111: invokeinterface #98,  3           // InterfaceMethod java/sql/PreparedStatement.setInt:(II)V
+       116: aload         6
+       118: invokeinterface #104,  1          // InterfaceMethod java/sql/PreparedStatement.executeQuery:()Ljava/sql/ResultSet;
+       123: astore        7
+       125: aload         5
+       127: invokevirtual #107                // Method org/l2jmobius/gameserver/entity/actor/Player.getAutoUseSettings:()Lorg/l2jmobius/gameserver/entity/actor/holders/player/AutoUseSettingsHolder;
+       130: astore        8
+       132: aload         7
+       134: invokeinterface #53,  1           // InterfaceMethod java/sql/ResultSet.next:()Z
+       139: ifeq          345
+       142: aload         7
+       144: ldc           #111                // String type
+       146: invokeinterface #61,  2           // InterfaceMethod java/sql/ResultSet.getInt:(Ljava/lang/String;)I
+       151: istore        9
+       153: aload         7
+       155: ldc           #113                // String id
+       157: invokeinterface #61,  2           // InterfaceMethod java/sql/ResultSet.getInt:(Ljava/lang/String;)I
+       162: istore        10
+       164: iload         9
+       166: lookupswitch  { // 7
+
+                       0: 232
+
+                       1: 242
+
+                       2: 261
+
+                       3: 280
+
+                       4: 299
+
+                       5: 318
+
+                     100: 328
+                 default: 342
+            }
+       232: aload         5
+       234: iload         10
+       236: invokevirtual #115                // Method org/l2jmobius/gameserver/entity/actor/Player.addAutoSoulShot:(I)V
+       239: goto          342
+       242: aload         8
+       244: invokevirtual #119                // Method org/l2jmobius/gameserver/entity/actor/holders/player/AutoUseSettingsHolder.getAutoSupplyItems:()Ljava/util/Collection;
+       247: iload         10
+       249: invokestatic  #125                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+       252: invokeinterface #131,  2          // InterfaceMethod java/util/Collection.add:(Ljava/lang/Object;)Z
+       257: pop
+       258: goto          342
+       261: aload         8
+       263: invokevirtual #137                // Method org/l2jmobius/gameserver/entity/actor/holders/player/AutoUseSettingsHolder.getAutoBuffs:()Ljava/util/Collection;
+       266: iload         10
+       268: invokestatic  #125                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+       271: invokeinterface #131,  2          // InterfaceMethod java/util/Collection.add:(Ljava/lang/Object;)Z
+       276: pop
+       277: goto          342
+       280: aload         8
+       282: invokevirtual #140                // Method org/l2jmobius/gameserver/entity/actor/holders/player/AutoUseSettingsHolder.getAutoSkills:()Ljava/util/List;
+       285: iload         10
+       287: invokestatic  #125                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+       290: invokeinterface #144,  2          // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+       295: pop
+       296: goto          342
+       299: aload         8
+       301: invokevirtual #147                // Method org/l2jmobius/gameserver/entity/actor/holders/player/AutoUseSettingsHolder.getAutoActions:()Ljava/util/Collection;
+       304: iload         10
+       306: invokestatic  #125                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+       309: invokeinterface #131,  2          // InterfaceMethod java/util/Collection.add:(Ljava/lang/Object;)Z
+       314: pop
+       315: goto          342
+       318: aload         8
+       320: iload         10
+       322: invokevirtual #150                // Method org/l2jmobius/gameserver/entity/actor/holders/player/AutoUseSettingsHolder.setAutoPotionItem:(I)V
+       325: goto          342
+       328: getstatic     #153                // Field org/l2jmobius/gameserver/config/custom/AutoPotionsConfig.AUTO_POTIONS_ENABLED:Z
+       331: ifeq          342
+       334: invokestatic  #159                // Method org/l2jmobius/gameserver/taskmanagers/AutoPotionTaskManager.getInstance:()Lorg/l2jmobius/gameserver/taskmanagers/AutoPotionTaskManager;
+       337: aload         5
+       339: invokevirtual #165                // Method org/l2jmobius/gameserver/taskmanagers/AutoPotionTaskManager.add:(Lorg/l2jmobius/gameserver/entity/actor/Player;)V
+       342: goto          132
+       345: aload         7
+       347: ifnull        389
+       350: aload         7
+       352: invokeinterface #168,  1          // InterfaceMethod java/sql/ResultSet.close:()V
+       357: goto          389
+       360: astore        8
+       362: aload         7
+       364: ifnull        386
+       367: aload         7
+       369: invokeinterface #168,  1          // InterfaceMethod java/sql/ResultSet.close:()V
+       374: goto          386
+       377: astore        9
+       379: aload         8
+       381: aload         9
+       383: invokevirtual #173                // Method java/lang/Throwable.addSuppressed:(Ljava/lang/Throwable;)V
+       386: aload         8
+       388: athrow
+       389: aload         6
+       391: ifnull        433
+       394: aload         6
+       396: invokeinterface #177,  1          // InterfaceMethod java/sql/PreparedStatement.close:()V
+       401: goto          433
+       404: astore        7
+       406: aload         6
+       408: ifnull        430
+       411: aload         6
+       413: invokeinterface #177,  1          // InterfaceMethod java/sql/PreparedStatement.close:()V
+       418: goto          430
+       421: astore        8
+       423: aload         7
+       425: aload         8
+       427: invokevirtual #173                // Method java/lang/Throwable.addSuppressed:(Ljava/lang/Throwable;)V
+       430: aload         7
+       432: athrow
+       433: aload         5
+       435: iconst_1
+       436: invokevirtual #178                // Method org/l2jmobius/gameserver/entity/actor/Player.setOfflinePlay:(Z)V
+       439: aload         5
+       441: iconst_1
+       442: iconst_1
+       443: invokevirtual #71                 // Method org/l2jmobius/gameserver/entity/actor/Player.setOnlineStatus:(ZZ)V
+       446: aload         5
+       448: invokevirtual #182                // Method org/l2jmobius/gameserver/entity/actor/Player.restoreEffects:()V
+       451: aload         5
+       453: invokevirtual #185                // Method org/l2jmobius/gameserver/entity/actor/Player.setRunning:()V
+       456: getstatic     #188                // Field org/l2jmobius/gameserver/config/custom/OfflineTradeConfig.OFFLINE_SET_NAME_COLOR:Z
+       459: ifeq          473
+       462: aload         5
+       464: invokevirtual #193                // Method org/l2jmobius/gameserver/entity/actor/Player.getAppearance:()Lorg/l2jmobius/gameserver/entity/actor/appearance/PlayerAppearance;
+       467: getstatic     #197                // Field org/l2jmobius/gameserver/config/custom/OfflinePlayConfig.OFFLINE_PLAY_NAME_COLOR:I
+       470: invokevirtual #203                // Method org/l2jmobius/gameserver/entity/actor/appearance/PlayerAppearance.setNameColor:(I)V
+       473: getstatic     #208                // Field org/l2jmobius/gameserver/config/custom/OfflinePlayConfig.OFFLINE_PLAY_ABNORMAL_EFFECTS:Ljava/util/List;
+       476: invokeinterface #212,  1          // InterfaceMethod java/util/List.isEmpty:()Z
+       481: ifne          519
+       484: aload         5
+       486: iconst_1
+       487: iconst_1
+       488: anewarray     #215                // class org/l2jmobius/gameserver/mechanics/skill/AbnormalVisualEffect
+       491: dup
+       492: iconst_0
+       493: getstatic     #208                // Field org/l2jmobius/gameserver/config/custom/OfflinePlayConfig.OFFLINE_PLAY_ABNORMAL_EFFECTS:Ljava/util/List;
+       496: getstatic     #208                // Field org/l2jmobius/gameserver/config/custom/OfflinePlayConfig.OFFLINE_PLAY_ABNORMAL_EFFECTS:Ljava/util/List;
+       499: invokeinterface #217,  1          // InterfaceMethod java/util/List.size:()I
+       504: invokestatic  #220                // Method org/l2jmobius/commons/util/Rnd.get:(I)I
+       507: invokeinterface #226,  2          // InterfaceMethod java/util/List.get:(I)Ljava/lang/Object;
+       512: checkcast     #215                // class org/l2jmobius/gameserver/mechanics/skill/AbnormalVisualEffect
+       515: aastore
+       516: invokevirtual #229                // Method org/l2jmobius/gameserver/entity/actor/Player.startAbnormalVisualEffect:(Z[Lorg/l2jmobius/gameserver/mechanics/skill/AbnormalVisualEffect;)V
+       519: invokestatic  #233                // Method org/l2jmobius/gameserver/taskmanagers/AutoPlayTaskManager.getInstance:()Lorg/l2jmobius/gameserver/taskmanagers/AutoPlayTaskManager;
+       522: aload         5
+       524: invokevirtual #238                // Method org/l2jmobius/gameserver/taskmanagers/AutoPlayTaskManager.startAutoPlay:(Lorg/l2jmobius/gameserver/entity/actor/Player;)V
+       527: invokestatic  #241                // Method org/l2jmobius/gameserver/taskmanagers/AutoUseTaskManager.getInstance:()Lorg/l2jmobius/gameserver/taskmanagers/AutoUseTaskManager;
+       530: aload         5
+       532: invokevirtual #246                // Method org/l2jmobius/gameserver/taskmanagers/AutoUseTaskManager.startAutoUseTask:(Lorg/l2jmobius/gameserver/entity/actor/Player;)V
+       535: iinc          4, 1
+       538: goto          587
+       541: astore        6
+       543: getstatic     #7                  // Field LOGGER:Ljava/util/logging/Logger;
+       546: getstatic     #251                // Field java/util/logging/Level.WARNING:Ljava/util/logging/Level;
+       549: aload_0
+       550: invokevirtual #13                 // Method java/lang/Object.getClass:()Ljava/lang/Class;
+       553: invokevirtual #17                 // Method java/lang/Class.getSimpleName:()Ljava/lang/String;
+       556: aload         5
+       558: invokestatic  #257                // Method java/lang/String.valueOf:(Ljava/lang/Object;)Ljava/lang/String;
+       561: invokedynamic #262,  0            // InvokeDynamic #1:makeConcatWithConstants:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+       566: aload         6
+       568: invokevirtual #265                // Method java/util/logging/Logger.log:(Ljava/util/logging/Level;Ljava/lang/String;Ljava/lang/Throwable;)V
+       571: aload         5
+       573: ifnull        587
+       576: aload         5
+       578: invokestatic  #269                // Method org/l2jmobius/gameserver/network/Disconnection.of:(Lorg/l2jmobius/gameserver/entity/actor/Player;)Lorg/l2jmobius/gameserver/network/Disconnection;
+       581: getstatic     #275                // Field org/l2jmobius/gameserver/network/serverpackets/LeaveWorld.STATIC_PACKET:Lorg/l2jmobius/gameserver/network/serverpackets/LeaveWorld;
+       584: invokevirtual #281                // Method org/l2jmobius/gameserver/network/Disconnection.storeAndDeleteWith:(Lorg/l2jmobius/gameserver/network/serverpackets/ServerPacket;)V
+       587: goto          41
+       590: getstatic     #7                  // Field LOGGER:Ljava/util/logging/Logger;
+       593: aload_0
+       594: invokevirtual #13                 // Method java/lang/Object.getClass:()Ljava/lang/Class;
+       597: invokevirtual #17                 // Method java/lang/Class.getSimpleName:()Ljava/lang/String;
+       600: iload         4
+       602: invokedynamic #285,  0            // InvokeDynamic #2:makeConcatWithConstants:(Ljava/lang/String;I)Ljava/lang/String;
+       607: invokevirtual #27                 // Method java/util/logging/Logger.info:(Ljava/lang/String;)V
+       610: aload_3
+       611: ifnull        650
+       614: aload_3
+       615: invokeinterface #168,  1          // InterfaceMethod java/sql/ResultSet.close:()V
+       620: goto          650
+       623: astore        4
+       625: aload_3
+       626: ifnull        647
+       629: aload_3
+       630: invokeinterface #168,  1          // InterfaceMethod java/sql/ResultSet.close:()V
+       635: goto          647
+       638: astore        5
+       640: aload         4
+       642: aload         5
+       644: invokevirtual #173                // Method java/lang/Throwable.addSuppressed:(Ljava/lang/Throwable;)V
+       647: aload         4
+       649: athrow
+       650: aload_2
+       651: ifnull        687
+       654: aload_2
+       655: invokeinterface #288,  1          // InterfaceMethod java/sql/Statement.close:()V
+       660: goto          687
+       663: astore_3
+       664: aload_2
+       665: ifnull        685
+       668: aload_2
+       669: invokeinterface #288,  1          // InterfaceMethod java/sql/Statement.close:()V
+       674: goto          685
+       677: astore        4
+       679: aload_3
+       680: aload         4
+       682: invokevirtual #173                // Method java/lang/Throwable.addSuppressed:(Ljava/lang/Throwable;)V
+       685: aload_3
+       686: athrow
+       687: aload_1
+       688: ifnull        722
+       691: aload_1
+       692: invokeinterface #289,  1          // InterfaceMethod java/sql/Connection.close:()V
+       697: goto          722
+       700: astore_2
+       701: aload_1
+       702: ifnull        720
+       705: aload_1
+       706: invokeinterface #289,  1          // InterfaceMethod java/sql/Connection.close:()V
+       711: goto          720
+       714: astore_3
+       715: aload_2
+       716: aload_3
+       717: invokevirtual #173                // Method java/lang/Throwable.addSuppressed:(Ljava/lang/Throwable;)V
+       720: aload_2
+       721: athrow
+       722: goto          752
+       725: astore_1
+       726: getstatic     #7                  // Field LOGGER:Ljava/util/logging/Logger;
+       729: getstatic     #251                // Field java/util/logging/Level.WARNING:Ljava/util/logging/Level;
+       732: aload_0
+       733: invokevirtual #13                 // Method java/lang/Object.getClass:()Ljava/lang/Class;
+       736: invokevirtual #17                 // Method java/lang/Class.getSimpleName:()Ljava/lang/String;
+       739: aload_1
+       740: invokevirtual #290                // Method java/lang/Exception.getMessage:()Ljava/lang/String;
+       743: invokedynamic #293,  0            // InvokeDynamic #3:makeConcatWithConstants:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+       748: aload_1
+       749: invokevirtual #265                // Method java/util/logging/Logger.log:(Ljava/util/logging/Level;Ljava/lang/String;Ljava/lang/Throwable;)V
+       752: getstatic     #294                // Field org/l2jmobius/gameserver/config/custom/AutoPlayConfig.ENABLE_AUTO_ASSIST:Z
+       755: ifeq          1174
+       758: invokestatic  #33                 // Method org/l2jmobius/commons/database/DatabaseFactory.getConnection:()Ljava/sql/Connection;
+       761: astore_1
+       762: aload_1
+       763: invokeinterface #39,  1           // InterfaceMethod java/sql/Connection.createStatement:()Ljava/sql/Statement;
+       768: astore_2
+       769: aload_2
+       770: ldc_w         #299                // String SELECT DISTINCT leaderId FROM character_offline_play_group
+       773: invokeinterface #47,  2           // InterfaceMethod java/sql/Statement.executeQuery:(Ljava/lang/String;)Ljava/sql/ResultSet;
+       778: astore_3
+       779: iconst_0
+       780: istore        4
+       782: aload_3
+       783: invokeinterface #53,  1           // InterfaceMethod java/sql/ResultSet.next:()Z
+       788: ifeq          1012
+       791: aload_3
+       792: ldc_w         #301                // String leaderId
+       795: invokeinterface #61,  2           // InterfaceMethod java/sql/ResultSet.getInt:(Ljava/lang/String;)I
+       800: istore        5
+       802: iload         5
+       804: invokestatic  #303                // Method org/l2jmobius/gameserver/entity/World.getPlayer:(I)Lorg/l2jmobius/gameserver/entity/actor/Player;
+       807: astore        6
+       809: aload         6
+       811: ifnull        1009
+       814: iinc          4, 1
+       817: aload_1
+       818: ldc_w         #308                // String SELECT charId, type FROM character_offline_play_group WHERE leaderId=?
+       821: invokeinterface #91,  2           // InterfaceMethod java/sql/Connection.prepareStatement:(Ljava/lang/String;)Ljava/sql/PreparedStatement;
+       826: astore        7
+       828: aload         7
+       830: iconst_1
+       831: iload         5
+       833: invokeinterface #98,  3           // InterfaceMethod java/sql/PreparedStatement.setInt:(II)V
+       838: aload         7
+       840: invokeinterface #104,  1          // InterfaceMethod java/sql/PreparedStatement.executeQuery:()Ljava/sql/ResultSet;
+       845: astore        8
+       847: aconst_null
+       848: astore        9
+       850: aload         8
+       852: invokeinterface #53,  1           // InterfaceMethod java/sql/ResultSet.next:()Z
+       857: ifeq          921
+       860: aload         8
+       862: ldc           #59                 // String charId
+       864: invokeinterface #61,  2           // InterfaceMethod java/sql/ResultSet.getInt:(Ljava/lang/String;)I
+       869: istore        10
+       871: iload         10
+       873: invokestatic  #303                // Method org/l2jmobius/gameserver/entity/World.getPlayer:(I)Lorg/l2jmobius/gameserver/entity/actor/Player;
+       876: astore        11
+       878: aload         11
+       880: ifnull        918
+       883: aload         9
+       885: ifnonnull     911
+       888: new           #310                // class org/l2jmobius/gameserver/entity/groups/Party
+       891: dup
+       892: aload         6
+       894: aload         8
+       896: ldc           #111                // String type
+       898: invokeinterface #61,  2           // InterfaceMethod java/sql/ResultSet.getInt:(Ljava/lang/String;)I
+       903: invokestatic  #312                // Method org/l2jmobius/gameserver/entity/groups/PartyDistributionType.findById:(I)Lorg/l2jmobius/gameserver/entity/groups/PartyDistributionType;
+       906: invokespecial #318                // Method org/l2jmobius/gameserver/entity/groups/Party."<init>":(Lorg/l2jmobius/gameserver/entity/actor/Player;Lorg/l2jmobius/gameserver/entity/groups/PartyDistributionType;)V
+       909: astore        9
+       911: aload         11
+       913: aload         9
+       915: invokevirtual #321                // Method org/l2jmobius/gameserver/entity/actor/Player.joinParty:(Lorg/l2jmobius/gameserver/entity/groups/Party;)V
+       918: goto          850
+       921: aload         8
+       923: ifnull        965
+       926: aload         8
+       928: invokeinterface #168,  1          // InterfaceMethod java/sql/ResultSet.close:()V
+       933: goto          965
+       936: astore        9
+       938: aload         8
+       940: ifnull        962
+       943: aload         8
+       945: invokeinterface #168,  1          // InterfaceMethod java/sql/ResultSet.close:()V
+       950: goto          962
+       953: astore        10
+       955: aload         9
+       957: aload         10
+       959: invokevirtual #173                // Method java/lang/Throwable.addSuppressed:(Ljava/lang/Throwable;)V
+       962: aload         9
+       964: athrow
+       965: aload         7
+       967: ifnull        1009
+       970: aload         7
+       972: invokeinterface #177,  1          // InterfaceMethod java/sql/PreparedStatement.close:()V
+       977: goto          1009
+       980: astore        8
+       982: aload         7
+       984: ifnull        1006
+       987: aload         7
+       989: invokeinterface #177,  1          // InterfaceMethod java/sql/PreparedStatement.close:()V
+       994: goto          1006
+       997: astore        9
+       999: aload         8
+      1001: aload         9
+      1003: invokevirtual #173                // Method java/lang/Throwable.addSuppressed:(Ljava/lang/Throwable;)V
+      1006: aload         8
+      1008: athrow
+      1009: goto          782
+      1012: getstatic     #7                  // Field LOGGER:Ljava/util/logging/Logger;
+      1015: aload_0
+      1016: invokevirtual #13                 // Method java/lang/Object.getClass:()Ljava/lang/Class;
+      1019: invokevirtual #17                 // Method java/lang/Class.getSimpleName:()Ljava/lang/String;
+      1022: iload         4
+      1024: invokedynamic #325,  0            // InvokeDynamic #4:makeConcatWithConstants:(Ljava/lang/String;I)Ljava/lang/String;
+      1029: invokevirtual #27                 // Method java/util/logging/Logger.info:(Ljava/lang/String;)V
+      1032: aload_3
+      1033: ifnull        1072
+      1036: aload_3
+      1037: invokeinterface #168,  1          // InterfaceMethod java/sql/ResultSet.close:()V
+      1042: goto          1072
+      1045: astore        4
+      1047: aload_3
+      1048: ifnull        1069
+      1051: aload_3
+      1052: invokeinterface #168,  1          // InterfaceMethod java/sql/ResultSet.close:()V
+      1057: goto          1069
+      1060: astore        5
+      1062: aload         4
+      1064: aload         5
+      1066: invokevirtual #173                // Method java/lang/Throwable.addSuppressed:(Ljava/lang/Throwable;)V
+      1069: aload         4
+      1071: athrow
+      1072: aload_2
+      1073: ifnull        1109
+      1076: aload_2
+      1077: invokeinterface #288,  1          // InterfaceMethod java/sql/Statement.close:()V
+      1082: goto          1109
+      1085: astore_3
+      1086: aload_2
+      1087: ifnull        1107
+      1090: aload_2
+      1091: invokeinterface #288,  1          // InterfaceMethod java/sql/Statement.close:()V
+      1096: goto          1107
+      1099: astore        4
+      1101: aload_3
+      1102: aload         4
+      1104: invokevirtual #173                // Method java/lang/Throwable.addSuppressed:(Ljava/lang/Throwable;)V
+      1107: aload_3
+      1108: athrow
+      1109: aload_1
+      1110: ifnull        1144
+      1113: aload_1
+      1114: invokeinterface #289,  1          // InterfaceMethod java/sql/Connection.close:()V
+      1119: goto          1144
+      1122: astore_2
+      1123: aload_1
+      1124: ifnull        1142
+      1127: aload_1
+      1128: invokeinterface #289,  1          // InterfaceMethod java/sql/Connection.close:()V
+      1133: goto          1142
+      1136: astore_3
+      1137: aload_2
+      1138: aload_3
+      1139: invokevirtual #173                // Method java/lang/Throwable.addSuppressed:(Ljava/lang/Throwable;)V
+      1142: aload_2
+      1143: athrow
+      1144: goto          1174
+      1147: astore_1
+      1148: getstatic     #7                  // Field LOGGER:Ljava/util/logging/Logger;
+      1151: getstatic     #251                // Field java/util/logging/Level.WARNING:Ljava/util/logging/Level;
+      1154: aload_0
+      1155: invokevirtual #13                 // Method java/lang/Object.getClass:()Ljava/lang/Class;
+      1158: invokevirtual #17                 // Method java/lang/Class.getSimpleName:()Ljava/lang/String;
+      1161: aload_1
+      1162: invokevirtual #290                // Method java/lang/Exception.getMessage:()Ljava/lang/String;
+      1165: invokedynamic #326,  0            // InvokeDynamic #5:makeConcatWithConstants:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+      1170: aload_1
+      1171: invokevirtual #265                // Method java/util/logging/Logger.log:(Ljava/util/logging/Level;Ljava/lang/String;Ljava/lang/Throwable;)V
+      1174: invokestatic  #33                 // Method org/l2jmobius/commons/database/DatabaseFactory.getConnection:()Ljava/sql/Connection;
+      1177: astore_1
+      1178: aload_1
+      1179: invokeinterface #39,  1           // InterfaceMethod java/sql/Connection.createStatement:()Ljava/sql/Statement;
+      1184: astore_2
+      1185: aload_2
+      1186: ldc_w         #327                // String TRUNCATE TABLE character_offline_play_group
+      1189: invokeinterface #329,  2          // InterfaceMethod java/sql/Statement.executeUpdate:(Ljava/lang/String;)I
+      1194: pop
+      1195: aload_2
+      1196: ifnull        1232
+      1199: aload_2
+      1200: invokeinterface #288,  1          // InterfaceMethod java/sql/Statement.close:()V
+      1205: goto          1232
+      1208: astore_3
+      1209: aload_2
+      1210: ifnull        1230
+      1213: aload_2
+      1214: invokeinterface #288,  1          // InterfaceMethod java/sql/Statement.close:()V
+      1219: goto          1230
+      1222: astore        4
+      1224: aload_3
+      1225: aload         4
+      1227: invokevirtual #173                // Method java/lang/Throwable.addSuppressed:(Ljava/lang/Throwable;)V
+      1230: aload_3
+      1231: athrow
+      1232: aload_1
+      1233: ifnull        1267
+      1236: aload_1
+      1237: invokeinterface #289,  1          // InterfaceMethod java/sql/Connection.close:()V
+      1242: goto          1267
+      1245: astore_2
+      1246: aload_1
+      1247: ifnull        1265
+      1250: aload_1
+      1251: invokeinterface #289,  1          // InterfaceMethod java/sql/Connection.close:()V
+      1256: goto          1265
+      1259: astore_3
+      1260: aload_2
+      1261: aload_3
+      1262: invokevirtual #173                // Method java/lang/Throwable.addSuppressed:(Ljava/lang/Throwable;)V
+      1265: aload_2
+      1266: athrow
+      1267: goto          1297
+      1270: astore_1
+      1271: getstatic     #7                  // Field LOGGER:Ljava/util/logging/Logger;
+      1274: getstatic     #251                // Field java/util/logging/Level.WARNING:Ljava/util/logging/Level;
+      1277: aload_0
+      1278: invokevirtual #13                 // Method java/lang/Object.getClass:()Ljava/lang/Class;
+      1281: invokevirtual #17                 // Method java/lang/Class.getSimpleName:()Ljava/lang/String;
+      1284: aload_1
+      1285: invokevirtual #290                // Method java/lang/Exception.getMessage:()Ljava/lang/String;
+      1288: invokedynamic #332,  0            // InvokeDynamic #6:makeConcatWithConstants:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+      1293: aload_1
+      1294: invokevirtual #265                // Method java/util/logging/Logger.log:(Ljava/util/logging/Level;Ljava/lang/String;Ljava/lang/Throwable;)V
+      1297: return
+      Exception table:
+         from    to  target type
+           125   345   360   Class java/lang/Throwable
+           367   374   377   Class java/lang/Throwable
+           103   389   404   Class java/lang/Throwable
+           411   418   421   Class java/lang/Throwable
+            53   538   541   Class java/lang/Exception
+            38   610   623   Class java/lang/Throwable
+           629   635   638   Class java/lang/Throwable
+            29   650   663   Class java/lang/Throwable
+           668   674   677   Class java/lang/Throwable
+            22   687   700   Class java/lang/Throwable
+           705   711   714   Class java/lang/Throwable
+            18   722   725   Class java/lang/Exception
+           847   921   936   Class java/lang/Throwable
+           943   950   953   Class java/lang/Throwable
+           828   965   980   Class java/lang/Throwable
+           987   994   997   Class java/lang/Throwable
+           779  1032  1045   Class java/lang/Throwable
+          1051  1057  1060   Class java/lang/Throwable
+           769  1072  1085   Class java/lang/Throwable
+          1090  1096  1099   Class java/lang/Throwable
+           762  1109  1122   Class java/lang/Throwable
+          1127  1133  1136   Class java/lang/Throwable
+           758  1144  1147   Class java/lang/Exception
+          1185  1195  1208   Class java/lang/Throwable
+          1213  1219  1222   Class java/lang/Throwable
+          1178  1232  1245   Class java/lang/Throwable
+          1250  1256  1259   Class java/lang/Throwable
+          1174  1267  1270   Class java/lang/Exception
+
+  public void storeOfflinePlay(org.l2jmobius.gameserver.entity.actor.Player);
+    Code:
+         0: invokestatic  #33                 // Method org/l2jmobius/commons/database/DatabaseFactory.getConnection:()Ljava/sql/Connection;
+         3: astore_2
+         4: aload_2
+         5: ldc_w         #333                // String DELETE FROM character_offline_play WHERE charId=?
+         8: invokeinterface #91,  2           // InterfaceMethod java/sql/Connection.prepareStatement:(Ljava/lang/String;)Ljava/sql/PreparedStatement;
+        13: astore_3
+        14: aload_2
+        15: ldc_w         #335                // String INSERT INTO character_offline_play (charId, type, id) VALUES (?, ?, ?)
+        18: invokeinterface #91,  2           // InterfaceMethod java/sql/Connection.prepareStatement:(Ljava/lang/String;)Ljava/sql/PreparedStatement;
+        23: astore        4
+        25: aload_1
+        26: invokevirtual #95                 // Method org/l2jmobius/gameserver/entity/actor/Player.getObjectId:()I
+        29: istore        5
+        31: aload_3
+        32: iconst_1
+        33: iload         5
+        35: invokeinterface #98,  3           // InterfaceMethod java/sql/PreparedStatement.setInt:(II)V
+        40: aload_3
+        41: invokeinterface #337,  1          // InterfaceMethod java/sql/PreparedStatement.execute:()Z
+        46: pop
+        47: aload_1
+        48: invokevirtual #340                // Method org/l2jmobius/gameserver/entity/actor/Player.getAutoSoulShot:()Ljava/util/Set;
+        51: invokeinterface #344,  1          // InterfaceMethod java/util/Set.iterator:()Ljava/util/Iterator;
+        56: astore        6
+        58: aload         6
+        60: invokeinterface #350,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+        65: ifeq          122
+        68: aload         6
+        70: invokeinterface #355,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        75: checkcast     #126                // class java/lang/Integer
+        78: invokevirtual #358                // Method java/lang/Integer.intValue:()I
+        81: istore        7
+        83: aload         4
+        85: iconst_1
+        86: iload         5
+        88: invokeinterface #98,  3           // InterfaceMethod java/sql/PreparedStatement.setInt:(II)V
+        93: aload         4
+        95: iconst_2
+        96: iconst_0
+        97: invokeinterface #98,  3           // InterfaceMethod java/sql/PreparedStatement.setInt:(II)V
+       102: aload         4
+       104: iconst_3
+       105: iload         7
+       107: invokeinterface #98,  3           // InterfaceMethod java/sql/PreparedStatement.setInt:(II)V
+       112: aload         4
+       114: invokeinterface #361,  1          // InterfaceMethod java/sql/PreparedStatement.addBatch:()V
+       119: goto          58
+       122: aload_1
+       123: invokevirtual #107                // Method org/l2jmobius/gameserver/entity/actor/Player.getAutoUseSettings:()Lorg/l2jmobius/gameserver/entity/actor/holders/player/AutoUseSettingsHolder;
+       126: invokevirtual #119                // Method org/l2jmobius/gameserver/entity/actor/holders/player/AutoUseSettingsHolder.getAutoSupplyItems:()Ljava/util/Collection;
+       129: invokeinterface #364,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+       134: astore        6
+       136: aload         6
+       138: invokeinterface #350,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+       143: ifeq          200
+       146: aload         6
+       148: invokeinterface #355,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+       153: checkcast     #126                // class java/lang/Integer
+       156: astore        7
+       158: aload         4
+       160: iconst_1
+       161: iload         5
+       163: invokeinterface #98,  3           // InterfaceMethod java/sql/PreparedStatement.setInt:(II)V
+       168: aload         4
+       170: iconst_2
+       171: iconst_1
+       172: invokeinterface #98,  3           // InterfaceMethod java/sql/PreparedStatement.setInt:(II)V
+       177: aload         4
+       179: iconst_3
+       180: aload         7
+       182: invokevirtual #358                // Method java/lang/Integer.intValue:()I
+       185: invokeinterface #98,  3           // InterfaceMethod java/sql/PreparedStatement.setInt:(II)V
+       190: aload         4
+       192: invokeinterface #361,  1          // InterfaceMethod java/sql/PreparedStatement.addBatch:()V
+       197: goto          136
+       200: aload_1
+       201: invokevirtual #107                // Method org/l2jmobius/gameserver/entity/actor/Player.getAutoUseSettings:()Lorg/l2jmobius/gameserver/entity/actor/holders/player/AutoUseSettingsHolder;
+       204: invokevirtual #137                // Method org/l2jmobius/gameserver/entity/actor/holders/player/AutoUseSettingsHolder.getAutoBuffs:()Ljava/util/Collection;
+       207: invokeinterface #364,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+       212: astore        6
+       214: aload         6
+       216: invokeinterface #350,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+       221: ifeq          278
+       224: aload         6
+       226: invokeinterface #355,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+       231: checkcast     #126                // class java/lang/Integer
+       234: astore        7
+       236: aload         4
+       238: iconst_1
+       239: iload         5
+       241: invokeinterface #98,  3           // InterfaceMethod java/sql/PreparedStatement.setInt:(II)V
+       246: aload         4
+       248: iconst_2
+       249: iconst_2
+       250: invokeinterface #98,  3           // InterfaceMethod java/sql/PreparedStatement.setInt:(II)V
+       255: aload         4
+       257: iconst_3
+       258: aload         7
+       260: invokevirtual #358                // Method java/lang/Integer.intValue:()I
+       263: invokeinterface #98,  3           // InterfaceMethod java/sql/PreparedStatement.setInt:(II)V
+       268: aload         4
+       270: invokeinterface #361,  1          // InterfaceMethod java/sql/PreparedStatement.addBatch:()V
+       275: goto          214
+       278: aload_1
+       279: invokevirtual #107                // Method org/l2jmobius/gameserver/entity/actor/Player.getAutoUseSettings:()Lorg/l2jmobius/gameserver/entity/actor/holders/player/AutoUseSettingsHolder;
+       282: invokevirtual #140                // Method org/l2jmobius/gameserver/entity/actor/holders/player/AutoUseSettingsHolder.getAutoSkills:()Ljava/util/List;
+       285: invokeinterface #365,  1          // InterfaceMethod java/util/List.iterator:()Ljava/util/Iterator;
+       290: astore        6
+       292: aload         6
+       294: invokeinterface #350,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+       299: ifeq          356
+       302: aload         6
+       304: invokeinterface #355,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+       309: checkcast     #126                // class java/lang/Integer
+       312: astore        7
+       314: aload         4
+       316: iconst_1
+       317: iload         5
+       319: invokeinterface #98,  3           // InterfaceMethod java/sql/PreparedStatement.setInt:(II)V
+       324: aload         4
+       326: iconst_2
+       327: iconst_3
+       328: invokeinterface #98,  3           // InterfaceMethod java/sql/PreparedStatement.setInt:(II)V
+       333: aload         4
+       335: iconst_3
+       336: aload         7
+       338: invokevirtual #358                // Method java/lang/Integer.intValue:()I
+       341: invokeinterface #98,  3           // InterfaceMethod java/sql/PreparedStatement.setInt:(II)V
+       346: aload         4
+       348: invokeinterface #361,  1          // InterfaceMethod java/sql/PreparedStatement.addBatch:()V
+       353: goto          292
+       356: aload_1
+       357: invokevirtual #107                // Method org/l2jmobius/gameserver/entity/actor/Player.getAutoUseSettings:()Lorg/l2jmobius/gameserver/entity/actor/holders/player/AutoUseSettingsHolder;
+       360: invokevirtual #147                // Method org/l2jmobius/gameserver/entity/actor/holders/player/AutoUseSettingsHolder.getAutoActions:()Ljava/util/Collection;
+       363: invokeinterface #364,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+       368: astore        6
+       370: aload         6
+       372: invokeinterface #350,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+       377: ifeq          434
+       380: aload         6
+       382: invokeinterface #355,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+       387: checkcast     #126                // class java/lang/Integer
+       390: astore        7
+       392: aload         4
+       394: iconst_1
+       395: iload         5
+       397: invokeinterface #98,  3           // InterfaceMethod java/sql/PreparedStatement.setInt:(II)V
+       402: aload         4
+       404: iconst_2
+       405: iconst_4
+       406: invokeinterface #98,  3           // InterfaceMethod java/sql/PreparedStatement.setInt:(II)V
+       411: aload         4
+       413: iconst_3
+       414: aload         7
+       416: invokevirtual #358                // Method java/lang/Integer.intValue:()I
+       419: invokeinterface #98,  3           // InterfaceMethod java/sql/PreparedStatement.setInt:(II)V
+       424: aload         4
+       426: invokeinterface #361,  1          // InterfaceMethod java/sql/PreparedStatement.addBatch:()V
+       431: goto          370
+       434: aload_1
+       435: invokevirtual #107                // Method org/l2jmobius/gameserver/entity/actor/Player.getAutoUseSettings:()Lorg/l2jmobius/gameserver/entity/actor/holders/player/AutoUseSettingsHolder;
+       438: invokevirtual #366                // Method org/l2jmobius/gameserver/entity/actor/holders/player/AutoUseSettingsHolder.getAutoPotionItem:()I
+       441: istore        6
+       443: iload         6
+       445: ifle          484
+       448: aload         4
+       450: iconst_1
+       451: iload         5
+       453: invokeinterface #98,  3           // InterfaceMethod java/sql/PreparedStatement.setInt:(II)V
+       458: aload         4
+       460: iconst_2
+       461: iconst_5
+       462: invokeinterface #98,  3           // InterfaceMethod java/sql/PreparedStatement.setInt:(II)V
+       467: aload         4
+       469: iconst_3
+       470: iload         6
+       472: invokeinterface #98,  3           // InterfaceMethod java/sql/PreparedStatement.setInt:(II)V
+       477: aload         4
+       479: invokeinterface #361,  1          // InterfaceMethod java/sql/PreparedStatement.addBatch:()V
+       484: getstatic     #153                // Field org/l2jmobius/gameserver/config/custom/AutoPotionsConfig.AUTO_POTIONS_ENABLED:Z
+       487: ifeq          536
+       490: invokestatic  #159                // Method org/l2jmobius/gameserver/taskmanagers/AutoPotionTaskManager.getInstance:()Lorg/l2jmobius/gameserver/taskmanagers/AutoPotionTaskManager;
+       493: aload_1
+       494: invokevirtual #369                // Method org/l2jmobius/gameserver/taskmanagers/AutoPotionTaskManager.hasPlayer:(Lorg/l2jmobius/gameserver/entity/actor/Player;)Z
+       497: ifeq          536
+       500: aload         4
+       502: iconst_1
+       503: iload         5
+       505: invokeinterface #98,  3           // InterfaceMethod java/sql/PreparedStatement.setInt:(II)V
+       510: aload         4
+       512: iconst_2
+       513: bipush        100
+       515: invokeinterface #98,  3           // InterfaceMethod java/sql/PreparedStatement.setInt:(II)V
+       520: aload         4
+       522: iconst_3
+       523: iconst_0
+       524: invokeinterface #98,  3           // InterfaceMethod java/sql/PreparedStatement.setInt:(II)V
+       529: aload         4
+       531: invokeinterface #361,  1          // InterfaceMethod java/sql/PreparedStatement.addBatch:()V
+       536: aload         4
+       538: invokeinterface #373,  1          // InterfaceMethod java/sql/PreparedStatement.executeBatch:()[I
+       543: pop
+       544: goto          576
+       547: astore        6
+       549: getstatic     #7                  // Field LOGGER:Ljava/util/logging/Logger;
+       552: getstatic     #251                // Field java/util/logging/Level.WARNING:Ljava/util/logging/Level;
+       555: aload_0
+       556: invokevirtual #13                 // Method java/lang/Object.getClass:()Ljava/lang/Class;
+       559: invokevirtual #17                 // Method java/lang/Class.getSimpleName:()Ljava/lang/String;
+       562: aload_1
+       563: invokestatic  #257                // Method java/lang/String.valueOf:(Ljava/lang/Object;)Ljava/lang/String;
+       566: invokedynamic #377,  0            // InvokeDynamic #7:makeConcatWithConstants:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+       571: aload         6
+       573: invokevirtual #265                // Method java/util/logging/Logger.log:(Ljava/util/logging/Level;Ljava/lang/String;Ljava/lang/Throwable;)V
+       576: aload         4
+       578: ifnull        620
+       581: aload         4
+       583: invokeinterface #177,  1          // InterfaceMethod java/sql/PreparedStatement.close:()V
+       588: goto          620
+       591: astore        5
+       593: aload         4
+       595: ifnull        617
+       598: aload         4
+       600: invokeinterface #177,  1          // InterfaceMethod java/sql/PreparedStatement.close:()V
+       605: goto          617
+       608: astore        6
+       610: aload         5
+       612: aload         6
+       614: invokevirtual #173                // Method java/lang/Throwable.addSuppressed:(Ljava/lang/Throwable;)V
+       617: aload         5
+       619: athrow
+       620: aload_3
+       621: ifnull        660
+       624: aload_3
+       625: invokeinterface #177,  1          // InterfaceMethod java/sql/PreparedStatement.close:()V
+       630: goto          660
+       633: astore        4
+       635: aload_3
+       636: ifnull        657
+       639: aload_3
+       640: invokeinterface #177,  1          // InterfaceMethod java/sql/PreparedStatement.close:()V
+       645: goto          657
+       648: astore        5
+       650: aload         4
+       652: aload         5
+       654: invokevirtual #173                // Method java/lang/Throwable.addSuppressed:(Ljava/lang/Throwable;)V
+       657: aload         4
+       659: athrow
+       660: aload_2
+       661: ifnull        697
+       664: aload_2
+       665: invokeinterface #289,  1          // InterfaceMethod java/sql/Connection.close:()V
+       670: goto          697
+       673: astore_3
+       674: aload_2
+       675: ifnull        695
+       678: aload_2
+       679: invokeinterface #289,  1          // InterfaceMethod java/sql/Connection.close:()V
+       684: goto          695
+       687: astore        4
+       689: aload_3
+       690: aload         4
+       692: invokevirtual #173                // Method java/lang/Throwable.addSuppressed:(Ljava/lang/Throwable;)V
+       695: aload_3
+       696: athrow
+       697: goto          727
+       700: astore_2
+       701: getstatic     #7                  // Field LOGGER:Ljava/util/logging/Logger;
+       704: getstatic     #251                // Field java/util/logging/Level.WARNING:Ljava/util/logging/Level;
+       707: aload_0
+       708: invokevirtual #13                 // Method java/lang/Object.getClass:()Ljava/lang/Class;
+       711: invokevirtual #17                 // Method java/lang/Class.getSimpleName:()Ljava/lang/String;
+       714: aload_2
+       715: invokevirtual #290                // Method java/lang/Exception.getMessage:()Ljava/lang/String;
+       718: invokedynamic #378,  0            // InvokeDynamic #8:makeConcatWithConstants:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+       723: aload_2
+       724: invokevirtual #265                // Method java/util/logging/Logger.log:(Ljava/util/logging/Level;Ljava/lang/String;Ljava/lang/Throwable;)V
+       727: return
+      Exception table:
+         from    to  target type
+            47   544   547   Class java/lang/Exception
+            25   576   591   Class java/lang/Throwable
+           598   605   608   Class java/lang/Throwable
+            14   620   633   Class java/lang/Throwable
+           639   645   648   Class java/lang/Throwable
+             4   660   673   Class java/lang/Throwable
+           678   684   687   Class java/lang/Throwable
+             0   697   700   Class java/lang/Exception
+
+  public void storeOfflineGroups();
+    Code:
+         0: invokestatic  #33                 // Method org/l2jmobius/commons/database/DatabaseFactory.getConnection:()Ljava/sql/Connection;
+         3: astore_1
+         4: aload_1
+         5: ldc_w         #379                // String INSERT INTO character_offline_play_group (leaderId, charId, type) VALUES (?, ?, ?)
+         8: invokeinterface #91,  2           // InterfaceMethod java/sql/Connection.prepareStatement:(Ljava/lang/String;)Ljava/sql/PreparedStatement;
+        13: astore_2
+        14: invokestatic  #381                // Method org/l2jmobius/gameserver/entity/World.getPlayers:()Ljava/util/Collection;
+        17: invokeinterface #364,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+        22: astore_3
+        23: aload_3
+        24: invokeinterface #350,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+        29: ifeq          136
+        32: aload_3
+        33: invokeinterface #355,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        38: checkcast     #66                 // class org/l2jmobius/gameserver/entity/actor/Player
+        41: astore        4
+        43: aload         4
+        45: invokevirtual #384                // Method org/l2jmobius/gameserver/entity/actor/Player.isAutoPlaying:()Z
+        48: ifeq          133
+        51: aload         4
+        53: invokevirtual #387                // Method org/l2jmobius/gameserver/entity/actor/Player.getParty:()Lorg/l2jmobius/gameserver/entity/groups/Party;
+        56: astore        5
+        58: aload         5
+        60: ifnull        133
+        63: aload         5
+        65: aload         4
+        67: invokevirtual #391                // Method org/l2jmobius/gameserver/entity/groups/Party.isLeader:(Lorg/l2jmobius/gameserver/entity/actor/Player;)Z
+        70: ifne          133
+        73: aload         5
+        75: invokevirtual #394                // Method org/l2jmobius/gameserver/entity/groups/Party.getLeader:()Lorg/l2jmobius/gameserver/entity/actor/Player;
+        78: astore        6
+        80: aload         6
+        82: invokevirtual #384                // Method org/l2jmobius/gameserver/entity/actor/Player.isAutoPlaying:()Z
+        85: ifeq          133
+        88: aload_2
+        89: iconst_1
+        90: aload         6
+        92: invokevirtual #95                 // Method org/l2jmobius/gameserver/entity/actor/Player.getObjectId:()I
+        95: invokeinterface #98,  3           // InterfaceMethod java/sql/PreparedStatement.setInt:(II)V
+       100: aload_2
+       101: iconst_2
+       102: aload         4
+       104: invokevirtual #95                 // Method org/l2jmobius/gameserver/entity/actor/Player.getObjectId:()I
+       107: invokeinterface #98,  3           // InterfaceMethod java/sql/PreparedStatement.setInt:(II)V
+       112: aload_2
+       113: iconst_3
+       114: aload         5
+       116: invokevirtual #398                // Method org/l2jmobius/gameserver/entity/groups/Party.getDistributionType:()Lorg/l2jmobius/gameserver/entity/groups/PartyDistributionType;
+       119: invokevirtual #402                // Method org/l2jmobius/gameserver/entity/groups/PartyDistributionType.getId:()I
+       122: invokeinterface #98,  3           // InterfaceMethod java/sql/PreparedStatement.setInt:(II)V
+       127: aload_2
+       128: invokeinterface #361,  1          // InterfaceMethod java/sql/PreparedStatement.addBatch:()V
+       133: goto          23
+       136: aload_2
+       137: invokeinterface #373,  1          // InterfaceMethod java/sql/PreparedStatement.executeBatch:()[I
+       142: pop
+       143: aload_2
+       144: ifnull        180
+       147: aload_2
+       148: invokeinterface #177,  1          // InterfaceMethod java/sql/PreparedStatement.close:()V
+       153: goto          180
+       156: astore_3
+       157: aload_2
+       158: ifnull        178
+       161: aload_2
+       162: invokeinterface #177,  1          // InterfaceMethod java/sql/PreparedStatement.close:()V
+       167: goto          178
+       170: astore        4
+       172: aload_3
+       173: aload         4
+       175: invokevirtual #173                // Method java/lang/Throwable.addSuppressed:(Ljava/lang/Throwable;)V
+       178: aload_3
+       179: athrow
+       180: aload_1
+       181: ifnull        215
+       184: aload_1
+       185: invokeinterface #289,  1          // InterfaceMethod java/sql/Connection.close:()V
+       190: goto          215
+       193: astore_2
+       194: aload_1
+       195: ifnull        213
+       198: aload_1
+       199: invokeinterface #289,  1          // InterfaceMethod java/sql/Connection.close:()V
+       204: goto          213
+       207: astore_3
+       208: aload_2
+       209: aload_3
+       210: invokevirtual #173                // Method java/lang/Throwable.addSuppressed:(Ljava/lang/Throwable;)V
+       213: aload_2
+       214: athrow
+       215: goto          245
+       218: astore_1
+       219: getstatic     #7                  // Field LOGGER:Ljava/util/logging/Logger;
+       222: getstatic     #251                // Field java/util/logging/Level.WARNING:Ljava/util/logging/Level;
+       225: aload_0
+       226: invokevirtual #13                 // Method java/lang/Object.getClass:()Ljava/lang/Class;
+       229: invokevirtual #17                 // Method java/lang/Class.getSimpleName:()Ljava/lang/String;
+       232: aload_1
+       233: invokevirtual #290                // Method java/lang/Exception.getMessage:()Ljava/lang/String;
+       236: invokedynamic #405,  0            // InvokeDynamic #9:makeConcatWithConstants:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+       241: aload_1
+       242: invokevirtual #265                // Method java/util/logging/Logger.log:(Ljava/util/logging/Level;Ljava/lang/String;Ljava/lang/Throwable;)V
+       245: return
+      Exception table:
+         from    to  target type
+            14   143   156   Class java/lang/Throwable
+           161   167   170   Class java/lang/Throwable
+             4   180   193   Class java/lang/Throwable
+           198   204   207   Class java/lang/Throwable
+             0   215   218   Class java/lang/Exception
+
+  public void removeOfflinePlay(org.l2jmobius.gameserver.entity.actor.Player);
+    Code:
+         0: invokestatic  #33                 // Method org/l2jmobius/commons/database/DatabaseFactory.getConnection:()Ljava/sql/Connection;
+         3: astore_2
+         4: aload_2
+         5: ldc_w         #333                // String DELETE FROM character_offline_play WHERE charId=?
+         8: invokeinterface #91,  2           // InterfaceMethod java/sql/Connection.prepareStatement:(Ljava/lang/String;)Ljava/sql/PreparedStatement;
+        13: astore_3
+        14: aload_3
+        15: iconst_1
+        16: aload_1
+        17: invokevirtual #95                 // Method org/l2jmobius/gameserver/entity/actor/Player.getObjectId:()I
+        20: invokeinterface #98,  3           // InterfaceMethod java/sql/PreparedStatement.setInt:(II)V
+        25: aload_3
+        26: invokeinterface #337,  1          // InterfaceMethod java/sql/PreparedStatement.execute:()Z
+        31: pop
+        32: aload_3
+        33: ifnull        72
+        36: aload_3
+        37: invokeinterface #177,  1          // InterfaceMethod java/sql/PreparedStatement.close:()V
+        42: goto          72
+        45: astore        4
+        47: aload_3
+        48: ifnull        69
+        51: aload_3
+        52: invokeinterface #177,  1          // InterfaceMethod java/sql/PreparedStatement.close:()V
+        57: goto          69
+        60: astore        5
+        62: aload         4
+        64: aload         5
+        66: invokevirtual #173                // Method java/lang/Throwable.addSuppressed:(Ljava/lang/Throwable;)V
+        69: aload         4
+        71: athrow
+        72: aload_2
+        73: ifnull        109
+        76: aload_2
+        77: invokeinterface #289,  1          // InterfaceMethod java/sql/Connection.close:()V
+        82: goto          109
+        85: astore_3
+        86: aload_2
+        87: ifnull        107
+        90: aload_2
+        91: invokeinterface #289,  1          // InterfaceMethod java/sql/Connection.close:()V
+        96: goto          107
+        99: astore        4
+       101: aload_3
+       102: aload         4
+       104: invokevirtual #173                // Method java/lang/Throwable.addSuppressed:(Ljava/lang/Throwable;)V
+       107: aload_3
+       108: athrow
+       109: goto          139
+       112: astore_2
+       113: getstatic     #7                  // Field LOGGER:Ljava/util/logging/Logger;
+       116: getstatic     #251                // Field java/util/logging/Level.WARNING:Ljava/util/logging/Level;
+       119: aload_0
+       120: invokevirtual #13                 // Method java/lang/Object.getClass:()Ljava/lang/Class;
+       123: invokevirtual #17                 // Method java/lang/Class.getSimpleName:()Ljava/lang/String;
+       126: aload_2
+       127: invokevirtual #290                // Method java/lang/Exception.getMessage:()Ljava/lang/String;
+       130: invokedynamic #406,  0            // InvokeDynamic #10:makeConcatWithConstants:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+       135: aload_2
+       136: invokevirtual #265                // Method java/util/logging/Logger.log:(Ljava/util/logging/Level;Ljava/lang/String;Ljava/lang/Throwable;)V
+       139: return
+      Exception table:
+         from    to  target type
+            14    32    45   Class java/lang/Throwable
+            51    57    60   Class java/lang/Throwable
+             4    72    85   Class java/lang/Throwable
+            90    96    99   Class java/lang/Throwable
+             0   109   112   Class java/lang/Exception
+
+  public static org.l2jmobius.gameserver.data.sql.OfflinePlayTable getInstance();
+    Code:
+         0: getstatic     #407                // Field org/l2jmobius/gameserver/data/sql/OfflinePlayTable$SingletonHolder.INSTANCE:Lorg/l2jmobius/gameserver/data/sql/OfflinePlayTable;
+         3: areturn
+
+  static {};
+    Code:
+         0: ldc           #8                  // class org/l2jmobius/gameserver/data/sql/OfflinePlayTable
+         2: invokevirtual #413                // Method java/lang/Class.getName:()Ljava/lang/String;
+         5: invokestatic  #416                // Method java/util/logging/Logger.getLogger:(Ljava/lang/String;)Ljava/util/logging/Logger;
+         8: putstatic     #7                  // Field LOGGER:Ljava/util/logging/Logger;
+        11: return
+}

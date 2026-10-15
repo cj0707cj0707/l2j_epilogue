@@ -1,0 +1,2597 @@
+/*
+ * Fake Players AI - central bot manager: startup spawning, maintenance ticker,
+ * olympiad registration, respawn and area control.
+ */
+package custom.fakeplayersai;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
+
+import org.l2jmobius.commons.threads.ThreadPool;
+import org.l2jmobius.commons.util.Rnd;
+import org.l2jmobius.gameserver.data.xml.ExperienceData;
+import org.l2jmobius.gameserver.entity.Location;
+import org.l2jmobius.gameserver.entity.World;
+import org.l2jmobius.gameserver.entity.WorldObject;
+import org.l2jmobius.gameserver.entity.actor.Creature;
+import org.l2jmobius.gameserver.entity.actor.Player;
+import org.l2jmobius.gameserver.entity.actor.holders.creature.EffectList;
+import org.l2jmobius.gameserver.ai.Intention;
+import org.l2jmobius.gameserver.entity.zone.ZoneId;
+import org.l2jmobius.gameserver.geoengine.GeoEngine;
+import org.l2jmobius.gameserver.mechanics.effects.EffectType;
+import org.l2jmobius.gameserver.mechanics.olympiad.Olympiad;
+import org.l2jmobius.gameserver.mechanics.skill.Skill;
+import org.l2jmobius.gameserver.mechanics.stats.Formulas;
+import org.l2jmobius.gameserver.network.Disconnection;
+import org.l2jmobius.gameserver.taskmanagers.AutoPlayTaskManager;
+import org.l2jmobius.gameserver.taskmanagers.AutoUseTaskManager;
+import org.l2jmobius.gameserver.taskmanagers.AttackStanceTaskManager;
+
+/**
+ * @author FakePlayersAI
+ */
+public class BotManager
+{
+	private static final Logger LOGGER = Logger.getLogger(BotManager.class.getName());
+	
+	/** Arena centers of the olympiad stadia (mirror of the core OlympiadManager.STADIUMS coordinates). */
+	private static final int[][] OLYMPIAD_STADIUM_CENTERS =
+	{
+		{ -88000, -252637, -3331 }, { -83760, -252637, -3331 }, { -79600, -252637, -3331 }, { -75648, -252637, -3331 },
+		{ -88000, -249762, -3331 }, { -83760, -249762, -3331 }, { -79600, -249762, -3331 }, { -75648, -249762, -3331 },
+		{ -88000, -246951, -3331 }, { -83760, -246951, -3331 }, { -79600, -246951, -3331 }, { -75648, -246951, -3331 },
+		{ -88000, -244290, -3331 }, { -83760, -244290, -3331 }, { -79600, -244290, -3331 }, { -75648, -244290, -3331 },
+		{ -88000, -241490, -3331 }, { -83760, -241490, -3331 }, { -79600, -241490, -3331 }, { -75648, -241490, -3331 },
+		{ -88000, -238825, -3331 }, { -83760, -238825, -3331 },
+	};
+	
+	public static final String REGISTRY_PATH = "data/scripts/custom/fakeplayersai/registry.properties";
+
+	// Charge builder skills (sonic/force): bots whose rotation consumes charges
+	// (Duelist sonics, Grand Khavatari forces) get their charges topped up by the
+	// combat driver, because the core auto-buff block - the only thing that would
+	// normally cast the builder - is gated on "not attacking" and never fires
+	// under a continuous auto-attack.
+	private static final int SONIC_FOCUS_ID = 8; // Sonic Focus (Duelist line)
+	private static final int FOCUS_FORCE_ID = 918; // Maximum Focus Force (Grand Khavatari line)
+	private static final int MAX_CHARGES = 8; // Epilogue cap of sonic/force charges
+
+	// Chase-the-runner: melee bots re-path to the player's CURRENT coordinates on
+	// every combat tick while the distance is above CHASE_RANGE, so a fleeing
+	// player is run down as fast as possible (the auto skill rotation keeps
+	// firing while closing). The move point is re-issued whenever the player has
+	// moved on by more than CHASE_REPATH_DISTANCE from the last issued point.
+	private static final int CHASE_RANGE = 150; // within melee/short-cast range
+	private static final int CHASE_REPATH_DISTANCE = 100; // player moved this far -> re-path
+	/**
+	 * Casters inside an active olympiad match stop closing in once the enemy is within
+	 * this distance (most caster nukes have a 600-900 cast range): from here the skill
+	 * rotation fights and the attack assert engages only a fully stopped caster.
+	 */
+	private static final int CASTER_HOLD_RANGE = 500;
+	/** objectId -> last issued chase point {x, y}. */
+	private static final Map<Integer, int[]> CHASE_POINTS = new ConcurrentHashMap<>();
+
+	/** objectId -> bot */
+	private static final Map<Integer, Player> BOTS = new ConcurrentHashMap<>();
+	/** objectId -> classId */
+	private static final Map<Integer, Integer> BOT_CLASSES = new ConcurrentHashMap<>();
+	/** objectId -> bot name (from the registry file, for logging before bots are in the world). */
+	private static final Map<Integer, String> REGISTRY_NAMES = new ConcurrentHashMap<>();
+	/** objectId -> death timestamp */
+	private static final Map<Integer, Long> DEATH_TIMES = new ConcurrentHashMap<>();
+	/** objectId(bot) -> objectId(enemy) the class opening curse was already applied to (see combatTick). */
+	private static final Map<Integer, Integer> OPEN_CURSE_TARGETS = new ConcurrentHashMap<>();
+	/**
+	 * objectId -> NON-BOT olympiad match participant (real players). Registered by the
+	 * pre-start hook (buff parity: the player receives the same buff treatment as the bot
+	 * of the same class) and maintained by the combat tick while the match lasts; the entry
+	 * is dropped as soon as the player leaves the match or the world.
+	 */
+	private static final Map<Integer, Player> OLYMPIAD_PARTICIPANTS = new ConcurrentHashMap<>();
+
+	// ------------------------------------------------------------------
+	// Olympiad kiting (bow bots + Dominator) and the opening-curse interval
+	// ------------------------------------------------------------------
+
+	/** Dominator (115): a heavy-ARMORED caster that must not stand in melee either (kites like the bow bots on the olympiad). */
+	private static final int CLASS_DOMINATOR = 115;
+	/** A kiting bot closes in only to this distance (same idea as the caster hold range). */
+	private static final int KITE_HOLD_RANGE = 500;
+	/** Below this distance a kiting bot retreats (melee reach + a safety margin). */
+	private static final int KITE_MIN_RANGE = 250;
+	/** Length of one retreat step. */
+	private static final int KITE_STEP = 300;
+	/**
+	 * When a kiting bot gets this close to its OWN arena spawn point, the retreat direction
+	 * flips toward the ENEMY spawn point (the kite crosses the arena instead of backing the
+	 * bot into the wall/corner behind its spawn - the admin request: never get cornered,
+	 * never run into a wall; wall safety is additionally enforced by geodata checks).
+	 */
+	private static final int KITE_FLIP_DISTANCE = 450;
+	/** objectId -> arena spawn point {x, y, z, gameId} of an olympiad participant (bots and real players; recorded by the pre-start hook). */
+	private static final Map<Integer, int[]> OLY_SPAWN_POINTS = new ConcurrentHashMap<>();
+
+	/** objectId(bot) -> timestamp of the last applied class opening curse (anti-spam interval, see combatTick). */
+	private static final Map<Integer, Long> CURSE_LAST_USE = new ConcurrentHashMap<>();
+	/** Minimum interval (ms) between two opening-curse applications by the same bot: the curse must not become a free spammable debuff when the target keeps being re-acquired (Shadow Step target cancels etc.). */
+	private static final long OPEN_CURSE_MIN_INTERVAL_MS = 2500;
+
+	/**
+	 * objectId(bot) whose skill ROTATION is paused because the olympiad kiting bot is
+	 * pressed (dist below KITE_MIN_RANGE): the running cast finishes (never aborted),
+	 * no NEW rotation cast starts, the bot walks one geodata-checked retreat step and
+	 * the rotation resumes - either on the next tick when the distance has opened, or
+	 * immediately when there is no safe retreat point (stand and fight). Purely
+	 * tick-driven: no background timers, nothing to leak.
+	 */
+	private static final Set<Integer> KITE_USE_STOPPED = ConcurrentHashMap.newKeySet();
+
+	// ------------------------------------------------------------------
+	// Dagger bots (100% damage skill success) and combat titles (HP+CP percent)
+	// ------------------------------------------------------------------
+
+	/**
+	 * The dagger classes of the roster: Adventurer (93), Wind Rider (101), Ghost Hunter
+	 * (108). The skill effect handlers (handlers.skill.effects) give every bot of these
+	 * classes a 100% success rate on all damage-dealing skills (the calcSuccess rolls are
+	 * bypassed: skill evasion, blow chance and the Backstab behind requirement); real
+	 * players keep the retail success rates. See isDaggerBot().
+	 */
+	private static final int[] DAGGER_CLASS_IDS =
+	{
+		93, // Adventurer
+		101, // Wind Rider
+		108, // Ghost Hunter
+	};
+
+	// ------------------------------------------------------------------
+	// Tank bots (fixed 25% debuff success chance)
+	// ------------------------------------------------------------------
+
+	/**
+	 * The tank classes of the roster: Phoenix Knight (90), Hell Knight (91), Shillien
+	 * Templar (106). All DEBUFF skills cast by bots of these classes (stuns, roots,
+	 * silence, fear, slows, stat-down debuffs...) land with the FIXED chance
+	 * TANK_DEBUFF_RATE_PERCENT instead of the retail resistance formula - the retail
+	 * formula let tank bots keep players locked in permanent crowd control and win
+	 * almost every fight.
+	 */
+	private static final int[] TANK_DEBUFF_CLASSES =
+	{
+		90, // Phoenix Knight
+		91, // Hell Knight
+		106, // Shillien Templar
+	};
+
+	/**
+	 * The fixed success chance (%) of every debuff cast by a tank bot. The roll is
+	 * performed in the core (Formulas.calcEffectSuccess) for all continuous debuffs and
+	 * in the instant effect handlers (e.g. TargetCancel) for the instant ones; debuff
+	 * immunity of the target still blocks the debuff completely.
+	 */
+	public static final int TANK_DEBUFF_RATE_PERCENT = 25;
+
+	/** objectId -> last combat title text shown above the bot (skips redundant broadcasts). */
+	private static final Map<Integer, String> BOT_TITLES = new ConcurrentHashMap<>();
+
+	// ------------------------------------------------------------------
+	// Berserker (Doombringer, class 131) olympiad duel driver
+	// ------------------------------------------------------------------
+
+	/** The berserker class of the olympiad roster (Kamael berserker line). */
+	private static final int CLASS_DOOMBRINGER = 131;
+
+	/** The cycle opener: rushes to the enemy and stuns it (no reuse delay). */
+	private static final int BERSERKER_RUSH_IMPACT_ID = 793;
+	/** Burst skill 1: disarms the enemy for 5 seconds (8 s reuse). */
+	private static final int BERSERKER_DISARM_ID = 485;
+	/** Burst skill 2: the big frontal strike (75 s reuse - cast only when recharged). */
+	private static final int BERSERKER_ENUMA_ELISH_ID = 526;
+	/** Burst skill 3: the big single blow (7 s reuse - cast only when recharged). */
+	private static final int BERSERKER_CRUSHING_PAIN_ID = 497;
+	/**
+	 * Burst finisher debuff (admin rules): Violent Temper may be used ONCE per battle
+	 * and only AFTER a Rush Impact went off in that battle (2 s reuse - otherwise the
+	 * rotation engine would spam it, which is why it is driver-managed now).
+	 */
+	private static final int BERSERKER_VIOLENT_TEMPER_ID = 501;
+	/** Defensive self-buff, used only vs non-mage opponents when CP dropped below 70% (900 s reuse). */
+	private static final int BERSERKER_SWORD_SHIELD_ID = 483;
+
+	/** Mass Disarm (485) is cast only when the enemy is this close (admin rule: "in melee"). */
+	private static final int BERSERKER_DISARM_MAX_DISTANCE = 150;
+
+	/**
+	 * Rush Impact requires its target to be at least this far away (datapack condition
+	 * "target mindistance=200"): THIS is the distance the berserker breaks by running
+	 * back to its spawn point before the next Rush Impact. Upper bound needs no constant:
+	 * the skill cast range is 600 and a cast initiated farther away walks into range.
+	 */
+	private static final int BERSERKER_RUSH_MIN_DISTANCE = 200;
+
+	/** When the bot is this close to its remembered spawn point, no more distance can be gained. */
+	private static final int BERSERKER_SPAWN_REACHED_DISTANCE = 100;
+
+	/**
+	 * The distance-breaking run is abandoned when the enemy keeps the pressure this close:
+	 * an opponent holding the bot at this range makes the run to the spawn point pointless
+	 * (the bot just takes free damage for the whole 2400 of the arena) - the bot turns and
+	 * fights instead, rushing again as soon as the distance opens.
+	 */
+	private static final int BERSERKER_RETREAT_BREAK_DISTANCE = 100;
+
+	/** Sword Shield is cast only while the bot's CP percent is below this value. */
+	private static final int BERSERKER_SWORD_SHIELD_CP_PERCENT = 70;
+
+	/**
+	 * Skills removed from the LIVE auto rotation while the berserker fights an olympiad
+	 * match (the preset/default rotation is untouched): the burst/opener skills are
+	 * cast by the driver itself (order and timing), and the other rush/charge skills of
+	 * the class (Rush, Storm Assault, Shoulder Charge, Blade Rush - all with the same
+	 * min-target-distance condition) would fire on their own during the approach or the
+	 * retreat and break the Rush-Impact-driven cycle. Violent Temper (501) is driver
+	 * managed too (once per battle, after a rush). What stays in the live rotation:
+	 * Contagion (498), Dark Smash (477), Death Mark (1435).
+	 */
+	private static final int[] BERSERKER_MANAGED_SKILLS =
+	{
+		BERSERKER_RUSH_IMPACT_ID,
+		BERSERKER_DISARM_ID,
+		BERSERKER_ENUMA_ELISH_ID,
+		BERSERKER_CRUSHING_PAIN_ID,
+		BERSERKER_VIOLENT_TEMPER_ID,
+		484, // Rush
+		493, // Storm Assault
+		494, // Shoulder Charge
+		495, // Blade Rush
+	};
+
+	/** objectId -> berserker duel state (exists only while the bot is inside an olympiad match). */
+	private static final Map<Integer, BerserkerState> BERSERKER_STATES = new ConcurrentHashMap<>();
+
+	/** Cumulative count of olympiad opponent force-retargets (observability of the summon-mis-targeting fix). */
+	private static long _oppRetargetTotal = 0;
+
+	/**
+	 * Per-match state of a berserker bot on the olympiad: the remembered arena spawn
+	 * point plus the phase flags of the current rush cycle.
+	 */
+	private static final class BerserkerState
+	{
+		final int gameId;
+		final int spawnX;
+		final int spawnY;
+		final int spawnZ;
+
+		/** Cycle phase: true after Rush Impact was initiated, until the retreat begins again. */
+		boolean rushDone = false;
+		/** Burst bookkeeping: Disarm / Enuma Elish / Crushing Pain cast this cycle. */
+		boolean disarmDone = false;
+		boolean enumaDone = false;
+		boolean crushingDone = false;
+		/** Admin rule: Violent Temper ONCE per battle (NOT reset per cycle), only after a rush. */
+		boolean violentDone = false;
+		/** True while the driver deliberately stopped both auto engines (the distance-breaking run). */
+		boolean enginesStopped = false;
+		/** True while a distance-breaking run is in progress (for the log lines). */
+		boolean retreating = false;
+		/** Rush cycle counter (logs). */
+		int cycle = 0;
+
+		BerserkerState(int x, int y, int z, int game)
+		{
+			spawnX = x;
+			spawnY = y;
+			spawnZ = z;
+			gameId = game;
+		}
+	}
+
+	
+	private static BotSettings SETTINGS = new BotSettings();
+	private static boolean _initialized = false;
+	private static int _tickerCycle = 0;
+	private static int _combatCycle = 0;
+	/**
+	 * Coliseum combat pause (//bot button): when set, the combat driver stops assigning
+	 * targets and asserting attack intentions for WORLD bots (olympiad matches in progress
+	 * are never paused) and the auto combat engines of world bots are stopped, so every
+	 * coliseum fight freezes. Resumed by //bot resume.
+	 */
+	private static volatile boolean _combatPaused = false;
+	
+	public static void init()
+	{
+		if (_initialized)
+		{
+			return;
+		}
+		_initialized = true;
+		
+		SETTINGS.load();
+		BotPresets.loadOverrides();
+		
+		if (!SETTINGS.isEnabled())
+		{
+			LOGGER.info("FakePlayersAI: disabled by config.");
+			return;
+		}
+		
+		// Maintenance ticker.
+		ThreadPool.scheduleAtFixedRate(BotManager::ticker, SETTINGS.getSpawnDelaySeconds() * 1000L, 10000L);
+		
+		// Combat driver: assigns targets and asserts attack intentions at a fast pace.
+		ThreadPool.scheduleAtFixedRate(BotManager::combatTick, SETTINGS.getSpawnDelaySeconds() * 1000L, 2000L);
+		
+		// Fast revive pass (every second): a dead bot is brought back RespawnSeconds after
+		// its death (default 1 s) instead of waiting for the 10-second maintenance ticker,
+		// so bots never lie dead in the coliseum for long.
+		ThreadPool.scheduleAtFixedRate(BotManager::reviveTick, SETTINGS.getSpawnDelaySeconds() * 1000L, 1000L);
+
+		// Fast retarget pass (every second): a bot that lost its target (target-canceling
+		// effects like Shadow Step / Trick / Switch, the target dying, engine cleanups, ...)
+		// takes the enemy back into target within a second instead of waiting for the
+		// 2-second combat tick.
+		ThreadPool.scheduleAtFixedRate(BotManager::retargetTick, SETTINGS.getSpawnDelaySeconds() * 1000L, 1000L);
+		
+		// Initial spawn at server start.
+		if (SETTINGS.isSpawnOnStart())
+		{
+			ThreadPool.schedule(BotManager::spawnAll, (SETTINGS.getSpawnDelaySeconds() + 5) * 1000L);
+		}
+
+		// Olympiad points reset at every server start: every known bot begins the
+		// session with a full points reserve (OlympiadResetPoints). The core loads
+		// the nobles map from olympiad_nobles before scripts run (GameServer init
+		// order puts the Olympiad section ahead of Scripts), so the reset can land
+		// right here, before the first registration cycle of the new session.
+		resetOlympiadPoints();
+
+		// Olympiad pre-start hook: the core fires it for BOTH match participants exactly
+		// 2 seconds before the battle starts. Mage bots (Dominator included) receive their
+		// Arcane Power + Enlightenment auras at this moment; non-bots and non-casters are
+		// ignored by the hook itself.
+		Olympiad.PRE_START_HOOKS.add(BotManager::olympiadPreStart);
+
+		// Olympiad dead-participant revive hook: when a match participant is dead right
+		// before the match starts (a bot killed in the coliseum after its registration),
+		// the core normally cancels the match ("Your opponent does not meet the
+		// requirements..."). This hook revives the dead bot instead, so the match proceeds.
+		Olympiad.DEAD_PARTICIPANT_REVIVE_HOOKS.add(BotManager::reviveDeadBotForOlympiad);
+
+		// Catch-up pass of the same reset for bots that were missing from the nobles
+		// map above (characters created but never registered yet: the core enters
+		// them with the default points on their first registration). Runs once, when
+		// the initial spawn and the first registration cycles are done but no match
+		// of this session has finished yet - see olympiadPointsCatchUp().
+		ThreadPool.schedule(BotManager::olympiadPointsCatchUp, (SETTINGS.getSpawnDelaySeconds() + 70) * 1000L);
+
+		LOGGER.info("FakePlayersAI: initialized, " + SETTINGS.getBotCount() + " bots scheduled.");
+	}
+
+	// ------------------------------------------------------------------
+	// Olympiad points reset (every server start)
+	// ------------------------------------------------------------------
+
+	/**
+	 * Pre-start hook (Olympiad.PRE_START_HOOKS): fired by the core for every match participant
+	 * (bots AND real players) exactly 2 seconds before the battle starts.
+	 * <ul>
+	 * <li><b>Bots</b>: the caster auras, the pre-start combat skills (Final Secret for the
+	 * classes that know it, the dagger class evasion openers), the summoner support (summon +
+	 * Transfer Pain + beast soulshots) and the full buff treatment below.</li>
+	 * <li><b>Real players (buff parity)</b>: the same buff treatment as the bot of the same
+	 * class - the class caster auras for casters, the basic olympiad buff set and the
+	 * olympiad buff profile. Afterwards the participant is tracked by the combat tick, which
+	 * keeps the profile maintained while the match lasts (a buff wiped mid-fight by
+	 * e.g. Cancellation is re-applied, exactly like for bots).</li>
+	 * </ul>
+	 * @param player the match participant
+	 */
+	private static void olympiadPreStart(Player player)
+	{
+		try
+		{
+			if (player == null)
+			{
+				return;
+			}
+
+			final boolean bot = isBot(player);
+			final BotClassPreset preset = BotPresets.getPresetByClassId(bot ? getBotClassId(player) : player.getPlayerClass().getId());
+			final boolean caster = (preset != null) ? preset.isCaster() : player.isMageClass();
+
+			// Arena spawn point of EVERY participant (bots and real players alike): the
+			// olympiad kiting (bow bots / Dominator) flips the retreat direction toward the
+			// enemy spawn point, which is looked up by the opponent's objectId here.
+			OLY_SPAWN_POINTS.put(player.getObjectId(), new int[]
+			{
+				player.getX(),
+				player.getY(),
+				player.getZ(),
+				player.getOlympiadGameId()
+			});
+
+			if (bot && (preset != null))
+			{
+				// Pre-start combat skills: Final Secret (917) for every class that knows it and
+				// the dagger class evasion opener (AW: Mirage, WR: Dodge, TH/GH: Ghost Walking).
+				BotSpawner.applyPreStartSkills(player, preset);
+
+				// Summoner classes (Soultaker / Hell Knight / Phoenix Knight): the summon (and
+				// the Transfer Pain toggle / beast soulshot stock) is prepared 2 seconds before
+				// the battle starts, so the servitor is up from the very first second.
+				BotSpawner.maintainOlympiadSummon(player, preset, null);
+
+				// Berserker (Doombringer): the arena appearance point is remembered right at the
+				// pre-start moment (the bot is already ported and stands still until the fight
+				// starts) - it runs back to this point when breaking the distance for the next
+				// Rush Impact (see driveBerserker). Both auto engines are ALSO stopped here:
+				// the battle has to open with Rush Impact (admin rule "the rotation starts with
+				// the rush") - no autoattack and no rotation filler may fire before it; the
+				// driver re-arms the engines right after the rush lands (armBerserkerCombat).
+				if (preset.getClassId() == CLASS_DOOMBRINGER)
+				{
+					final BerserkerState preStartState = new BerserkerState(player.getX(), player.getY(), player.getZ(), player.getOlympiadGameId());
+					preStartState.enginesStopped = true;
+					BERSERKER_STATES.put(player.getObjectId(), preStartState);
+					AutoPlayTaskManager.getInstance().stopAutoPlay(player);
+					AutoUseTaskManager.getInstance().stopAutoUseTask(player);
+					LOGGER.info("FakePlayersAI: berserker " + player.getName() + ": olympiad spawn point recorded (" + player.getX() + ", " + player.getY() + "), game " + player.getOlympiadGameId() + "; engines stopped until the opening Rush Impact.");
+				}
+			}
+
+			// Buff parity with the bot of the same class: every participant (bots and real
+			// players alike) receives the class caster auras, the basic olympiad buff set and
+			// the olympiad buff profile (all applied instantly).
+			//
+			// Chant of Victory ban (admin rule): NO olympiad participant (bot or real player)
+			// may enter the fight with a Chant of Victory family buff (CoV analogs included).
+			// The core wiped all effects at match creation (OlympiadGame.removals()), but a
+			// self-cast during the countdown is still possible - strip it right before the
+			// pre-start buffs (the olympiad profile applied below contains no family buffs).
+			BotSpawner.stripChantBuffs(player);
+			BotSpawner.applyMagePreStartAuras(player, caster);
+			BotSpawner.applyOlympiadBuffs(player);
+			BotSpawner.maintainFullBuffs(player, caster);
+
+			if (!bot)
+			{
+				OLYMPIAD_PARTICIPANTS.put(player.getObjectId(), player);
+			}
+		}
+		catch (Throwable e)
+		{
+			LOGGER.warning("FakePlayersAI: olympiad pre-start hook failed: " + e);
+		}
+	}
+
+	/**
+	 * Resets the olympiad points of every known bot (registry) to the configured
+	 * value (OlympiadResetPoints, default 300). Called once per server start at
+	 * script init; the reset lands in the core nobles map, the database is updated
+	 * by the core itself as usual (saveNobleData on weekly change / shutdown).
+	 * Bots absent from the nobles map (never registered characters) are skipped
+	 * here - olympiadPointsCatchUp() picks them up after their first registration.
+	 */
+	private static void resetOlympiadPoints()
+	{
+		try
+		{
+			final Olympiad olympiad = Olympiad.getInstance();
+			if (olympiad == null)
+			{
+				LOGGER.warning("FakePlayersAI: olympiad points reset skipped: core olympiad is not available.");
+				return;
+			}
+
+			final int resetPoints = SETTINGS.getOlympiadResetPoints();
+			int adjusted = 0;
+			for (Map.Entry<Integer, Integer> entry : BOT_CLASSES.entrySet())
+			{
+				final int objectId = entry.getKey();
+				final int points = olympiad.getNoblePoints(objectId);
+				if (points != resetPoints)
+				{
+					olympiad.setNoblePoints(objectId, resetPoints);
+					LOGGER.info("FakePlayersAI: oly-reset " + REGISTRY_NAMES.getOrDefault(objectId, "#" + objectId) + ": " + points + " -> " + resetPoints + ".");
+					adjusted++;
+				}
+			}
+			LOGGER.info("FakePlayersAI: olympiad points reset to " + resetPoints + ": " + adjusted + " of " + BOT_CLASSES.size() + " registered bots adjusted.");
+		}
+		catch (Throwable e)
+		{
+			LOGGER.warning("FakePlayersAI: olympiad points reset failed: " + e);
+		}
+	}
+
+	/**
+	 * Catch-up pass of the startup points reset. Bots absent from the nobles map
+	 * at script init (freshly created characters that have never registered) enter
+	 * it with the core default points on their first registration; this pass lifts
+	 * such idle bots to the reset value as well. Runs once, when the initial spawn
+	 * and the first registration cycles are done but no match of this session has
+	 * finished yet (registration needs SpawnDelaySeconds + ~30s, a finished match
+	 * needs ~100s more), so it can never undo a match result. Bots inside an
+	 * active match are skipped: they entered it with proper points.
+	 */
+	private static void olympiadPointsCatchUp()
+	{
+		try
+		{
+			final Olympiad olympiad = Olympiad.getInstance();
+			if (olympiad == null)
+			{
+				return;
+			}
+
+			final int resetPoints = SETTINGS.getOlympiadResetPoints();
+			int adjusted = 0;
+			for (Player bot : BOTS.values())
+			{
+				if (!bot.isNoble() || bot.isInOlympiadMode() || olympiad.playerInStadia(bot))
+				{
+					continue;
+				}
+				final int points = olympiad.getNoblePoints(bot.getObjectId());
+				if (points != resetPoints)
+				{
+					olympiad.setNoblePoints(bot.getObjectId(), resetPoints);
+					LOGGER.info("FakePlayersAI: oly-reset " + bot.getName() + ": " + points + " -> " + resetPoints + " (catch-up).");
+					adjusted++;
+				}
+			}
+			if (adjusted > 0)
+			{
+				LOGGER.info("FakePlayersAI: olympiad points catch-up: " + adjusted + " bots lifted to " + resetPoints + ".");
+			}
+		}
+		catch (Throwable e)
+		{
+			LOGGER.warning("FakePlayersAI: olympiad points catch-up failed: " + e);
+		}
+	}
+	
+	private static void ticker()
+	{
+		try
+		{
+			_tickerCycle++;
+			
+			// Keep only alive/known bots.
+			BOTS.values().removeIf(bot -> !bot.isOnline());			
+			final Olympiad olympiad = Olympiad.getInstance();
+			final boolean compPeriod = olympiad != null && olympiad.inCompPeriod();
+			
+			// 1) Olympiad registration: bots register for the non-class based games
+			// as soon as the competition period opens (immediately at server start when possible).
+			if (SETTINGS.isAutoRegisterOlympiad() && compPeriod && ((_tickerCycle % 3) == 0))
+			{
+				// Keep bots eligible: the core refuses to register a non-classed noble
+				// with less than 5 olympiad points, and once enough bots drain below that,
+				// registrations fall under OlympiadNonClassedParticipants and no new games
+				// are created at all. Top points back up for every idle noble bot.
+				for (Player bot : BOTS.values())
+				{
+					if (bot.isNoble() && !bot.isInOlympiadMode() && !olympiad.playerInStadia(bot))
+					{
+						final int points = olympiad.getNoblePoints(bot.getObjectId());
+						if (points < SETTINGS.getOlympiadMinPoints())
+						{
+							olympiad.setNoblePoints(bot.getObjectId(), SETTINGS.getOlympiadMinPoints());
+							LOGGER.info("FakePlayersAI: oly-points " + bot.getName() + ": " + points + " -> " + SETTINGS.getOlympiadMinPoints() + ".");
+						}
+					}
+				}
+				
+				int registered = 0;
+				int attempted = 0;
+				int inOlympiad = 0;
+				for (Player bot : BOTS.values())
+				{
+					if (bot.isInOlympiadMode() || olympiad.playerInStadia(bot))
+					{
+						inOlympiad++;
+					}
+					// getOlympiadGameId() != -1 = the bot is already assigned to a created game
+					// (pending teleport countdown or fighting) - never re-register it (a second
+					// pairing lets the older game's cleanup reset the newer match's flags).
+					if (bot.isNoble() && (bot.getOlympiadGameId() == -1) && !bot.isInOlympiadMode() && !olympiad.isRegisteredInComp(bot))
+					{
+						attempted++;
+						if (olympiad.registerNoble(bot, false))
+						{
+							registered++;
+						}
+					}
+				}
+				LOGGER.info("FakePlayersAI: olympiad: in-world=" + BOTS.size() + ", in-olympiad=" + inOlympiad + ", attempted=" + attempted + ", registered=" + registered + ".");
+			}
+			
+			// 1b) Combat status (one line per minute): dead bots and total pvp/pk kills.
+			if ((_tickerCycle % 6) == 0)
+			{
+				int dead = 0;
+				long kills = 0;
+				for (Player bot : BOTS.values())
+				{
+					if (bot.isAlikeDead())
+					{
+						dead++;
+					}
+					kills += bot.getPvpKills() + bot.getPkKills();
+				}
+				LOGGER.info("FakePlayersAI: combat status: in-world=" + BOTS.size() + ", dead=" + dead + ", kills=" + kills + ".");
+			}
+			
+			// 2) Per-bot maintenance.
+			for (Player bot : BOTS.values())
+			{
+				// Clientless bots never send the Appearing packet after a teleport, so
+				// the core keeps them in the "teleporting" state forever (invulnerable,
+				// invisible to their own AI). Finish the teleport for them right away.
+				// (The TeleportWatchdogTimeout config is the fallback for this.)
+				if (bot.isTeleporting() && (bot.getClient() == null))
+				{
+					bot.onTeleported();
+				}
+				
+				final boolean inOlympiad = bot.isInOlympiadMode() || olympiad.playerInStadia(bot);
+				
+				// Dead bots are handled by the dedicated 1-second reviveTick() pass.
+				if (bot.isAlikeDead())
+				{
+					continue;
+				}
+				DEATH_TIMES.remove(bot.getObjectId());
+				
+				// Re-arm the auto combat engines: Player.onTeleported() stops them on every
+				// teleport (including the olympiad arena port and the port back home).
+				// Skipped while the coliseum combat is paused (//bot pause). A berserker bot
+				// inside an olympiad match is skipped as well - its duel driver owns the
+				// engines there (it stops them on purpose for the distance-breaking runs);
+				// the fast combat tick repairs them when needed.
+				if (!_combatPaused && (!bot.isAutoPlaying() || bot.getAutoUseSettings().getAutoSkills().isEmpty())
+					&& !BERSERKER_STATES.containsKey(bot.getObjectId()))
+				{
+					final BotClassPreset preset = BotPresets.getPresetByClassId(BOT_CLASSES.getOrDefault(bot.getObjectId(), bot.getPlayerClass().getId()));
+					if (preset != null)
+					{
+						BotSpawner.applyAutoCombat(bot, preset);
+					}
+				}
+				
+				if (inOlympiad)
+				{
+					// DEBUG: olympiad movement check (30s).
+					if ((_tickerCycle % 3) == 0)
+					{
+						final WorldObject t = bot.getTarget();
+						LOGGER.info("FakePlayersAI: oly-dbg " + bot.getName() + ": tgt=" + (t != null ? t.getName() : "null") + ", distToTgt=" + (t != null ? (int) bot.calculateDistance2D(t) : -1) + ", intent=" + bot.getAI().getIntention() + ", mv=" + bot.isMoving() + ", start=" + bot.isOlympiadStart() + ", gameId=" + bot.getOlympiadGameId() + ", pos=" + bot.getX() + "," + bot.getY());
+					}
+					continue;
+				}
+				
+				// Return to the combat area if dragged away (peace zone, town, ...).
+				if (SETTINGS.isTeleportHome() && !bot.isInsideZone(ZoneId.PVP) && !bot.isTeleporting())
+				{
+					final int[] point = randomSpawnPoint();
+					bot.teleToLocation(point[0], point[1], point[2]);
+					continue;
+				}
+				
+				// Out of olympiad: keep bots in shape, but only outside of combat
+				// (healing mid-fight would make arena fights endless).
+				final boolean inCombat = AttackStanceTaskManager.getInstance().hasAttackStanceTask(bot);
+				if (!inCombat)
+				{
+					if (SETTINGS.isHealBots())
+					{
+						bot.setCurrentHp(bot.getMaxHp());
+						bot.setCurrentCp(bot.getMaxCp());
+					}
+					if (SETTINGS.isRestoreMp())
+					{
+						bot.setCurrentMp(bot.getMaxMp());
+					}
+					if (SETTINGS.isClearKarma() && (bot.getKarma() > 0))
+					{
+						bot.setKarma(0);
+						bot.broadcastUserInfo();
+					}
+				}
+				if (SETTINGS.isFixLevel() && (bot.getLevel() < 85))
+				{
+					final long exp = ExperienceData.getInstance().getExpForLevel(85);
+					if (bot.getExp() < exp)
+					{
+						bot.addExpAndSp(exp - bot.getExp(), 0);
+					}
+				}
+
+				// The out-of-combat heal above changed HP/CP: keep the combat title current.
+				updateCombatTitle(bot);
+				
+				// DEBUG: detailed per-bot state once per minute (console truncates long lines).
+				if ((_tickerCycle % 6) == 1)
+				{
+					final WorldObject t = bot.getTarget();
+					double minDist = 99999;
+					for (Player other : BOTS.values())
+					{
+						if ((other != bot) && !other.isAlikeDead())
+						{
+							minDist = Math.min(minDist, bot.calculateDistance2D(other));
+						}
+					}
+					LOGGER.info("FakePlayersAI: dbg " + bot.getName() + ": tgt=" + (t != null ? t.getName() : "null") + ", intent=" + bot.getAI().getIntention() + ", autoPlay=" + bot.isAutoPlaying() + ", pvp=" + bot.isInsideZone(ZoneId.PVP));
+					LOGGER.info("FakePlayersAI: dbg " + bot.getName() + ": dist=" + (int) minDist + ", mv=" + bot.isMoving() + ", cast=" + bot.isCastingNow() + ", atk=" + bot.isAttackingNow() + ", hp=" + (int) bot.getCurrentHp());
+				}
+				
+				// Safety: make sure the combat engines are running (never while paused).
+				if (!_combatPaused && ((_tickerCycle % 6) == 0))
+				{
+					final BotClassPreset preset = BotPresets.getPresetByClassId(BOT_CLASSES.getOrDefault(bot.getObjectId(), bot.getPlayerClass().getId()));
+					if (preset != null)
+					{
+						BotSpawner.applyAutoCombat(bot, preset);
+					}
+				}
+			}
+		}
+		catch (Throwable e)
+		{
+			LOGGER.warning("FakePlayersAI: ticker error: " + e);
+		}
+	}
+	
+	private static void reviveBot(Player bot)
+	{
+		try
+		{
+			bot.doRevive();
+			bot.setCurrentHp(bot.getMaxHp());
+			bot.setCurrentMp(bot.getMaxMp());
+			bot.setCurrentCp(bot.getMaxCp());
+			final int[] point = randomSpawnPoint();
+			bot.teleToLocation(point[0], point[1], point[2]);
+			bot.broadcastUserInfo();
+			// Coliseum auto-buff on EVERY resurrection: the full warrior/mage profile is
+			// applied right after the revive (missing buffs only - the pass is idempotent).
+			final BotClassPreset preset = BotPresets.getPresetByClassId(BOT_CLASSES.getOrDefault(bot.getObjectId(), bot.getPlayerClass().getId()));
+			if (preset != null)
+			{
+				BotSpawner.refreshAutoBuffs(bot, preset);
+				BotSpawner.maintainFullBuffs(bot, preset);
+			}
+			// The revive healed the bot to full: the combat title is "100%" right away.
+			updateCombatTitle(bot);
+		}
+		catch (Throwable e)
+		{
+			LOGGER.warning("FakePlayersAI: revive of " + bot.getName() + " failed: " + e);
+		}
+	}
+	
+	/**
+	 * Fast revive pass (every second): brings dead bots back RespawnSeconds after their
+	 * death (default 1 second). Bots inside an active olympiad match are left alone - the
+	 * match system owns their life state.
+	 */
+	private static void reviveTick()
+	{
+		try
+		{
+			final Olympiad olympiad = Olympiad.getInstance();
+			for (Player bot : BOTS.values())
+			{
+				if (!bot.isAlikeDead() || bot.isInOlympiadMode() || ((olympiad != null) && olympiad.playerInStadia(bot)))
+				{
+					continue;
+				}
+				final long deathTime = DEATH_TIMES.computeIfAbsent(bot.getObjectId(), id -> System.currentTimeMillis());
+				if ((System.currentTimeMillis() - deathTime) > (SETTINGS.getRespawnSeconds() * 1000L))
+				{
+					DEATH_TIMES.remove(bot.getObjectId());
+					reviveBot(bot);
+				}
+			}
+		}
+		catch (Throwable e)
+		{
+			LOGGER.warning("FakePlayersAI: revive tick error: " + e);
+		}
+	}
+	
+	/**
+	 * Olympiad dead-participant revive hook (Olympiad.DEAD_PARTICIPANT_REVIVE_HOOKS): the
+	 * core consults it when a match participant is dead right before the match starts.
+	 * Dead BOT participants are revived (full HP/MP/CP) so the match proceeds instead of
+	 * being cancelled with "Your opponent does not meet the requirements to do battle".
+	 * Real players keep the retail behavior (the match is cancelled as usual).
+	 * @param participant the dead match participant
+	 * @return true when the participant is a bot and was revived
+	 */
+	public static boolean reviveDeadBotForOlympiad(Player participant)
+	{
+		if (!isBot(participant) || !participant.isDead())
+		{
+			return false;
+		}
+		try
+		{
+			participant.doRevive();
+			participant.setCurrentHp(participant.getMaxHp());
+			participant.setCurrentMp(participant.getMaxMp());
+			participant.setCurrentCp(participant.getMaxCp());
+			DEATH_TIMES.remove(participant.getObjectId());
+			updateCombatTitle(participant);
+			LOGGER.info("FakePlayersAI: oly-revive " + participant.getName() + ": dead bot revived for its olympiad match.");
+			return true;
+		}
+		catch (Throwable e)
+		{
+			LOGGER.warning("FakePlayersAI: olympiad revive of " + participant.getName() + " failed: " + e);
+			return false;
+		}
+	}
+	
+	// ------------------------------------------------------------------
+	// Coliseum combat pause (//bot buttons)
+	// ------------------------------------------------------------------
+	
+	/**
+	 * Pauses the coliseum combat: the combat driver stops assigning targets and asserting
+	 * attack intentions for world bots, every world bot's auto combat engines are stopped
+	 * and its current combat intention is dropped (fights freeze). Bots inside an active
+	 * olympiad match are NOT paused. Also revives every dead bot (except olympiad
+	 * participants) as requested by the admin button.
+	 * @return the number of dead bots revived by this call
+	 */
+	public static synchronized int pauseCombat()
+	{
+		_combatPaused = true;
+		int revived = 0;
+		final Olympiad olympiad = Olympiad.getInstance();
+		for (Player bot : BOTS.values())
+		{
+			final boolean inOlympiadMatch = bot.isInOlympiadMode() || ((olympiad != null) && olympiad.playerInStadia(bot));
+			if (bot.isAlikeDead() && !inOlympiadMatch)
+			{
+				reviveBot(bot);
+				revived++;
+			}
+			if (inOlympiadMatch)
+			{
+				continue; // never pause an active olympiad match
+			}
+			BotSpawner.stopAutoCombat(bot);
+			CHASE_POINTS.remove(bot.getObjectId());
+			OPEN_CURSE_TARGETS.remove(bot.getObjectId());
+			bot.setTarget(null);
+			if (!bot.isAlikeDead())
+			{
+				bot.getAI().setIntentionIdle();
+			}
+		}
+		LOGGER.info("FakePlayersAI: coliseum combat PAUSED by admin (revived " + revived + " dead bot(s)).");
+		return revived;
+	}
+	
+	/**
+	 * Resumes the coliseum combat after a pause: re-arms the auto combat engines of every
+	 * alive world bot; the combat driver starts assigning targets again on its next tick.
+	 */
+	public static synchronized void resumeCombat()
+	{
+		_combatPaused = false;
+		final Olympiad olympiad = Olympiad.getInstance();
+		for (Player bot : BOTS.values())
+		{
+			if (bot.isAlikeDead() || bot.isInOlympiadMode() || ((olympiad != null) && olympiad.playerInStadia(bot)))
+			{
+				continue;
+			}
+			final BotClassPreset preset = BotPresets.getPresetByClassId(BOT_CLASSES.getOrDefault(bot.getObjectId(), bot.getPlayerClass().getId()));
+			if (preset != null)
+			{
+				BotSpawner.applyAutoCombat(bot, preset);
+			}
+		}
+		LOGGER.info("FakePlayersAI: coliseum combat RESUMED by admin.");
+	}
+	
+	public static boolean isCombatPaused()
+	{
+		return _combatPaused;
+	}
+	
+	/**
+	 * Force-registers every bot for the olympiad right now (//bot button): olympiad points
+	 * are topped up to OlympiadMinPoints first, then every eligible noble bot is registered
+	 * for the non-classed games. Bots inside an active match are skipped (the core would
+	 * refuse them anyway).
+	 * @return the number of bots registered, or -1 when the competition period is closed
+	 */
+	public static synchronized int forceOlympiadRegister()
+	{
+		final Olympiad olympiad = Olympiad.getInstance();
+		if ((olympiad == null) || !olympiad.inCompPeriod())
+		{
+			return -1;
+		}
+		int registered = 0;
+		for (Player bot : BOTS.values())
+		{
+			if (!bot.isNoble() || bot.isInOlympiadMode() || olympiad.playerInStadia(bot) || olympiad.isRegisteredInComp(bot) || (bot.getOlympiadGameId() != -1))
+			{
+				continue;
+			}
+			final int points = olympiad.getNoblePoints(bot.getObjectId());
+			if (points < SETTINGS.getOlympiadMinPoints())
+			{
+				olympiad.setNoblePoints(bot.getObjectId(), SETTINGS.getOlympiadMinPoints());
+			}
+			if (olympiad.registerNoble(bot, false))
+			{
+				registered++;
+			}
+		}
+		LOGGER.info("FakePlayersAI: olympiad force-register by admin: " + registered + " bot(s) registered.");
+		return registered;
+	}
+	
+	/**
+	 * Despawns every bot that is not inside an active olympiad match and schedules the
+	 * regular startup spawn (spawnAll - the same path the server start uses) 5 seconds
+	 * later, so the bots come back fresh (//bot button).
+	 * @return the number of bots despawned
+	 */
+	public static synchronized int despawnAllForRestart()
+	{
+		int despawned = 0;
+		final Olympiad olympiad = Olympiad.getInstance();
+		for (Player bot : new ArrayList<>(BOTS.values()))
+		{
+			if (bot.isInOlympiadMode() || ((olympiad != null) && olympiad.playerInStadia(bot)))
+			{
+				continue; // never break an active olympiad match
+			}
+			despawnBot(bot);
+			despawned++;
+		}
+		DEATH_TIMES.clear();
+		ThreadPool.schedule(BotManager::spawnAll, 5000);
+		LOGGER.info("FakePlayersAI: admin restart of bots: " + despawned + " despawned, spawn scheduled in 5 seconds.");
+		return despawned;
+	}
+	
+	/**
+	 * Fast combat driver (every 2 seconds): assigns targets to idle bots and
+	 * asserts attack intentions. The core auto play engine keeps cleaning up
+	 * dead targets and rotating the skill list; the attack branch of that engine
+	 * refuses "busy" targets, which deadlocks mutual bot fights, so the attack
+	 * intention is driven here directly.
+	 */
+	private static void combatTick()
+	{
+		try
+		{
+			final Olympiad olympiad = Olympiad.getInstance();
+			int withTarget = 0;
+			int skippedTeleport = 0;
+			int oppRetarget = 0;
+
+			// Olympiad registration on EVERY combat tick (2 s): a bot must never idle between
+			// matches - as soon as it is out of the stadium (the town-return countdown of the
+			// finished match included), it is registered for the next one here, instead of
+			// waiting for the 30-second maintenance ticker. Points are topped up in the same
+			// pass (the core refuses to register a non-classed noble with less than 5 points).
+			// The maintenance ticker keeps its own slower registration pass as a fallback.
+			if (SETTINGS.isAutoRegisterOlympiad() && (olympiad != null) && olympiad.inCompPeriod())
+			{
+				int registeredNow = 0;
+				for (Player bot : BOTS.values())
+				{
+					// Same double-booking guard as the ticker pass: a bot assigned to a created
+					// game (olympiadGameId != -1, e.g. the teleport countdown of its match) must
+					// not be re-registered.
+					if (bot.isNoble() && !bot.isAlikeDead() && (bot.getOlympiadGameId() == -1) && !bot.isInOlympiadMode() && !olympiad.playerInStadia(bot) && !olympiad.isRegisteredInComp(bot))
+					{
+						final int points = olympiad.getNoblePoints(bot.getObjectId());
+						if (points < SETTINGS.getOlympiadMinPoints())
+						{
+							olympiad.setNoblePoints(bot.getObjectId(), SETTINGS.getOlympiadMinPoints());
+						}
+						if (olympiad.registerNoble(bot, false))
+						{
+							registeredNow++;
+						}
+					}
+				}
+				if (registeredNow > 0)
+				{
+					LOGGER.info("FakePlayersAI: olympiad fast-register: " + registeredNow + " bot(s) registered after their match.");
+				}
+			}
+
+			for (Player bot : BOTS.values())
+			{
+				if (bot.isAlikeDead())
+				{
+					continue;
+				}
+
+				// Combat title above the bot's head: the combined HP+CP percent,
+				// refreshed on every combat tick (2 seconds).
+				updateCombatTitle(bot);
+
+				if (bot.isTeleporting())
+				{
+					// Finish clientless bot teleports immediately; real (online) players
+					// are skipped until their teleport completes as usual.
+					if (bot.getClient() == null)
+					{
+						bot.onTeleported();
+					}
+					else
+					{
+						skippedTeleport++;
+						continue;
+					}
+				}
+				
+				final boolean inOlympiad = bot.isInOlympiadMode() || olympiad.playerInStadia(bot);
+
+				// Fallback: make sure the bot's arena spawn point of the CURRENT match is
+				// recorded (the pre-start hook normally does it for every participant; a
+				// missed hook would leave the olympiad kiter without its flip reference).
+				if (inOlympiad && bot.isOlympiadStart())
+				{
+					final int[] recorded = OLY_SPAWN_POINTS.get(bot.getObjectId());
+					if ((recorded == null) || (recorded[3] != bot.getOlympiadGameId()))
+					{
+						OLY_SPAWN_POINTS.put(bot.getObjectId(), new int[]
+						{
+							bot.getX(),
+							bot.getY(),
+							bot.getZ(),
+							bot.getOlympiadGameId()
+						});
+					}
+				}
+
+				// Coliseum combat pause: world bots are kept completely idle - their engines
+				// are (re)stopped on every tick, so a bot returning from an olympiad match
+				// with re-armed engines freezes again instead of resuming world fights.
+				// Bots inside an olympiad match keep fighting.
+				if (_combatPaused && !inOlympiad)
+				{
+					if (bot.isAutoPlaying())
+					{
+						BotSpawner.stopAutoCombat(bot);
+						CHASE_POINTS.remove(bot.getObjectId());
+						OPEN_CURSE_TARGETS.remove(bot.getObjectId());
+						bot.setTarget(null);
+						if (!bot.isAlikeDead())
+						{
+							bot.getAI().setIntentionIdle();
+						}
+					}
+					continue;
+				}
+				
+				// Coliseum: bots must never stay locked by disabling crowd control. A
+				// stun/sleep/root/paralysis/fear/mute chain leaves them standing idle
+				// (they stop attacking AND casting), so every such effect is removed
+				// right here on each combat tick. Olympiad matches keep their CC intact.
+				if (!inOlympiad)
+				{
+					final EffectList effects = bot.getEffectList();
+					effects.stopEffects(EffectType.STUN);
+					effects.stopEffects(EffectType.SLEEP);
+					effects.stopEffects(EffectType.PARALYZE);
+					effects.stopEffects(EffectType.ROOT);
+					effects.stopEffects(EffectType.MUTE);
+					effects.stopEffects(EffectType.FEAR);
+				}
+				else
+				{
+					// Olympiad ban (admin rule): NO participant of an olympiad match may
+					// hold a Chant of Victory family buff (CoV analogs included). The core
+					// wiped all effects at match entry and the pre-start hook stripped the
+					// countdown casts, but a mid-fight self-cast is still possible - remove
+					// the family effects again on every tick, and keep the skills out of the
+					// bot's live auto lists (rotation + auto buffs) so the engines (and any
+					// //bot override) cannot cast them on the arena. The preset itself is
+					// untouched: outside olympiad the full sets work as before.
+					BotSpawner.stripChantBuffs(bot);
+					BotSpawner.trimChantSkillsFromAutoLists(bot);
+				}
+				
+				// onTeleported() stops both auto engines on every teleport - re-arm them.
+				// A rotation emptied by the core (AutoUseTaskManager drops unknown skills
+				// from the list) is re-filled here as well, including inside olympiad
+				// matches, where the maintenance ticker skips its own re-arm block.
+				final BotClassPreset preset = BotPresets.getPresetByClassId(BOT_CLASSES.getOrDefault(bot.getObjectId(), bot.getPlayerClass().getId()));
+				// Berserker (Doombringer) duel driver: active while the bot fights an olympiad
+				// match. Inside the match the driver owns the auto engines (it stops them on
+				// purpose for the distance-breaking runs) and keeps the live rotation trimmed
+				// (its skills are cast by the driver itself), so the generic re-arm must not
+				// run for it. The duel state lives for the WHOLE olympiad stay (countdown
+				// included): it is created by the pre-start hook (or here as the fallback)
+				// and dropped with the full combat setup restored only when the bot actually
+				// leaves the olympiad. (The old "active fight only" lifetime dropped and
+				// re-created the state one second before the battle: a bogus "match is over"
+				// restore right between the pre-start and the gates opening.)
+				final boolean berserkerFight = inOlympiad && bot.isOlympiadStart() && (preset != null) && (preset.getClassId() == CLASS_DOOMBRINGER);
+				updateBerserkerState(bot, preset, inOlympiad && (preset != null) && (preset.getClassId() == CLASS_DOOMBRINGER));
+
+				// Kiting safety net: a pressed kiting bot whose rotation was paused for the
+				// retreat (KITE_USE_STOPPED) gets it resumed right here whenever it is no
+				// longer in a kiting situation (match over, back in the world, not a kiter
+				// preset anymore). Also covers the rotation stop surviving an engine restart
+				// of the generic re-arm above.
+				if (KITE_USE_STOPPED.contains(bot.getObjectId())
+					&& ((preset == null) || !(inOlympiad && bot.isOlympiadStart() && isKiterPreset(preset))))
+				{
+					KITE_USE_STOPPED.remove(bot.getObjectId());
+					if (preset != null)
+					{
+						BotSpawner.applyAutoCombat(bot, preset);
+					}
+				}
+				if (preset != null)
+				{
+					final BerserkerState berserkerState = BERSERKER_STATES.get(bot.getObjectId());
+					if (berserkerFight && (berserkerState != null))
+					{
+						// Only an unexpected engine stop (e.g. a teleport) is repaired inside the
+						// match, and always with the driver-trimmed rotation; the deliberate
+						// engine stop of a distance-breaking run is left alone.
+						if (!bot.isAutoPlaying() && !berserkerState.enginesStopped)
+						{
+							armBerserkerCombat(bot, preset, berserkerState);
+						}
+					}
+					else if (!bot.isAutoPlaying() || bot.getAutoUseSettings().getAutoSkills().isEmpty())
+					{
+						BotSpawner.applyAutoCombat(bot, preset);
+					}
+					
+					// Keep the auto-buff list in sync with the "already applied" state:
+					// personal (self-targeted) buffs currently active on the bot are held
+					// out of the list, so the core auto-buff engine never casts a buff the
+					// bot already has (its canCastBuff refresh window covers buffs with
+					// 3 or fewer seconds left). Buffs that have ended are restored here
+					// every tick, so the bot re-casts them shortly after they drop.
+					//
+					// Coliseum rule (admin request): NO buffing while the bot is in an
+					// active fight - the full buff profile and self-buffs are applied
+					// out of combat (in particular on every resurrection) and never
+					// mid-fight. Olympiad matches keep their mid-match buff maintenance.
+					final boolean inCombat = AttackStanceTaskManager.getInstance().hasAttackStanceTask(bot);
+					if (inOlympiad || !inCombat)
+					{
+						BotSpawner.refreshAutoBuffs(bot, preset);
+						BotSpawner.maintainFullBuffs(bot, preset);
+					}
+					
+					// Full warrior/mage buff profile + consumables: both S-grade shots active
+					// and stocked (the core clears auto shots on olympiad entry), Spirit Ore
+					// stock capped at 1000. Consumables are kept up everywhere - Coliseum
+					// PvP, waiting for the olympiad and olympiad matches alike.
+					BotSpawner.maintainConsumables(bot, preset);
+				}
+
+				// Charge-based rotations: keep sonic/force charges supplied (see the
+				// constants above). Applied instantly, the same way as the olympiad
+				// buff set; bots that have no charge builder are skipped.
+				if (bot.getCharges() <= 0)
+				{
+					final Skill chargeBuilder = bot.getKnownSkill(SONIC_FOCUS_ID) != null ? bot.getKnownSkill(SONIC_FOCUS_ID) : bot.getKnownSkill(FOCUS_FORCE_ID);
+					if (chargeBuilder != null)
+					{
+						bot.increaseCharges(MAX_CHARGES, MAX_CHARGES);
+					}
+				}
+				
+				// Olympiad: the basic buff set is applied by the pre-start hook (2 seconds
+				// BEFORE the gates open, both participants - bots and real players alike).
+				// Once the gates are open no self-buff longer than 2 minutes may be applied
+				// (admin rule), and every buff of the set lasts far longer - so the old
+				// "apply once at battle start" pass was removed with its per-match marker.
+
+				WorldObject target = bot.getTarget();
+
+				// Re-assign when missing or dead.
+				if ((target == null) || !target.isCreature() || target.asCreature().isAlikeDead())
+				{
+					final Player enemy = findTargetFor(bot, inOlympiad);
+					if (enemy != null)
+					{
+						bot.setTarget(enemy);
+						target = enemy;
+					}
+				}
+
+				// Olympiad (active match): the ONLY valid target is the match opponent. The
+				// core auto-play engine re-targets on its own and happily grabs the nearest
+				// "playable" - which on the arena is the opponent's constantly re-created
+				// servitor (maintainOlympiadSummon): bots spent whole matches shooting the
+				// summon while its owner killed them. The opponent is forced back as the
+				// target within one tick whenever the current one is anything else.
+				if (inOlympiad && bot.isOlympiadStart())
+				{
+					final Player opponent = getOlympiadOpponent(bot);
+					if ((opponent != null) && !opponent.isAlikeDead() && (target != opponent))
+					{
+						bot.setTarget(opponent);
+						target = opponent;
+						oppRetarget++;
+					}
+				}
+				_oppRetargetTotal += oppRetarget;
+				if (target == null)
+				{
+					continue;
+				}
+				withTarget++;
+
+				// Opening curse: mage bots open the fight with the resist-lowering
+				// curse of their class (Archmage: Surrender to Fire, Mystic Muse:
+				// Surrender to Water, Storm Screamer: Surrender to Wind; the necromancer:
+				// Curse Gloom). Applied once per enemy, right when the bot acquires a
+				// valid attackable target (world PvP and olympiad matches alike). The
+				// marker resets whenever the target is gone or not attackable yet, so
+				// the opener always fires at the very start of the next fight.
+				// Anti-spam: a minimum interval between two applications (a target kept
+				// being re-acquired - e.g. by Shadow Step target cancels - turned the
+				// opener into an instant free debuff spammed every 1-2 seconds) plus the
+				// skill reuse gate inside applyOpeningCurse itself.
+				if ((preset != null) && target.isCreature() && !target.asCreature().isAlikeDead() && target.asCreature().isAutoAttackable(bot))
+				{
+					final Integer cursed = OPEN_CURSE_TARGETS.get(bot.getObjectId());
+					if ((cursed == null) || (cursed.intValue() != target.getObjectId()))
+					{
+						final long now = System.currentTimeMillis();
+						final Long lastUse = CURSE_LAST_USE.get(bot.getObjectId());
+						if ((lastUse == null) || ((now - lastUse) >= OPEN_CURSE_MIN_INTERVAL_MS))
+						{
+							if (BotSpawner.applyOpeningCurse(bot, preset, target.asCreature()))
+							{
+								OPEN_CURSE_TARGETS.put(bot.getObjectId(), target.getObjectId());
+								CURSE_LAST_USE.put(bot.getObjectId(), now);
+							}
+						}
+					}
+				}
+				else
+				{
+					OPEN_CURSE_TARGETS.remove(bot.getObjectId());
+				}
+
+				// Berserker (Doombringer) olympiad duel driver: rush cycle (Rush Impact ->
+				// Disarm -> Enuma Elish -> Crushing Pain -> run to the spawn point until the
+				// distance allows the next Rush Impact) plus the Sword Shield rule. When the
+				// driver handled this tick, the generic chase/attack-assert logic below is
+				// skipped - the driver owns movement and intentions during its phases.
+				final BerserkerState berserker = berserkerFight ? BERSERKER_STATES.get(bot.getObjectId()) : null;
+				if ((berserker != null) && target.isCreature() && !target.asCreature().isAlikeDead() && target.asCreature().isAutoAttackable(bot)
+					&& driveBerserker(bot, preset, berserker, target.asCreature()))
+				{
+					continue;
+				}
+
+				// Assert the attack intention (unless casting or the target is not yet attackable, e.g. olympiad countdown).
+				final Intention intention = bot.getAI().getIntention();
+
+				// Closing the distance: a fleeing player must be caught up with. Melee bots
+				// continuously re-path to the target's CURRENT coordinates (world PvP and
+				// olympiad alike) - the point is re-issued whenever the player has moved on
+				// from the previously issued one or the bot is standing still, so the bot
+				// never walks to a stale position. While the distance is being closed the
+				// auto skill rotation keeps firing; a casting bot is never interrupted.
+				// Casters close in the same re-pathing way inside an active olympiad match
+				// and stop at the hold range (see CASTER_HOLD_RANGE).
+				boolean closingIn = false;
+				if (!target.asCreature().isAlikeDead() && !bot.isCastingNow() && target.asCreature().isAutoAttackable(bot))
+				{
+					final boolean caster = (preset != null) && preset.isCaster();
+					final double distToTarget = bot.calculateDistance2D(target);
+					final boolean olympiadFight = inOlympiad && bot.isOlympiadStart();
+					// Olympiad kiting (admin request), SMOOTH variant: bow bots (and Dominator,
+					// a heavy-armored caster) must not let a melee opponent pin them down.
+					// Close in only to KITE_HOLD_RANGE; when pressed below KITE_MIN_RANGE,
+					// pause the skill ROTATION (the running cast is never aborted, no NEW
+					// rotation cast starts) and walk one geodata-checked retreat step between
+					// casts - away from the enemy, flipped toward the ENEMY spawn point when
+					// the retreat comes near the OWN spawn point (never cornered at the wall).
+					// Once the distance opens past KITE_MIN_RANGE the rotation resumes and the
+					// bot shoots while the enemy closes in again. With no safe retreat point
+					// the bot stands and fights. World (coliseum) behavior is unchanged.
+					final boolean kiter = olympiadFight && isKiterPreset(preset);
+					if (kiter)
+					{
+						if (distToTarget < KITE_MIN_RANGE)
+						{
+							// Pressed by a melee opponent.
+							closingIn = true;
+							if (!KITE_USE_STOPPED.contains(bot.getObjectId()))
+							{
+								// First tick of the pressing: stop NEW rotation casts; the
+								// running cast finishes and opens the retreat window.
+								KITE_USE_STOPPED.add(bot.getObjectId());
+								AutoUseTaskManager.getInstance().stopAutoUseTask(bot);
+								LOGGER.info("FakePlayersAI: kite " + bot.getName() + ": pressed at dist " + (int) distToTarget + ", rotation paused for the retreat.");
+							}
+							if (!bot.isCastingNow())
+							{
+								final int[] ownSpawn = OLY_SPAWN_POINTS.get(bot.getObjectId());
+								final Player enemyPlayer = target.isPlayer() ? target.asPlayer() : null;
+								final int[] enemySpawn = (enemyPlayer != null) ? OLY_SPAWN_POINTS.get(enemyPlayer.getObjectId()) : null;
+								final Location kiteTo = kitePoint(bot, target.asCreature(), ownSpawn, enemySpawn);
+								if (kiteTo == null)
+								{
+									// No safe retreat point (wall / arena edge / enemy behind
+									// every candidate): stand and fight, rotation back on.
+									KITE_USE_STOPPED.remove(bot.getObjectId());
+									BotSpawner.applyAutoCombat(bot, preset);
+									closingIn = false;
+								}
+								else if (!bot.isMoving())
+								{
+									bot.getAI().setIntentionMoveTo(kiteTo);
+								}
+							}
+							CHASE_POINTS.remove(bot.getObjectId());
+						}
+						else
+						{
+							// Outside the pressed zone: make sure the rotation is running.
+							if (KITE_USE_STOPPED.remove(bot.getObjectId()))
+							{
+								BotSpawner.applyAutoCombat(bot, preset);
+							}
+							if (distToTarget > KITE_HOLD_RANGE)
+							{
+								// Far: close in like the casters (re-path to the enemy's CURRENT position).
+								final int[] last = CHASE_POINTS.get(bot.getObjectId());
+								final boolean targetMoved = (last == null) || ((Math.abs(last[0] - target.getX()) + Math.abs(last[1] - target.getY())) > CHASE_REPATH_DISTANCE);
+								if (targetMoved || !bot.isMoving())
+								{
+									bot.getAI().setIntentionMoveTo(new Location(target.getX(), target.getY(), target.getZ()));
+									CHASE_POINTS.put(bot.getObjectId(), new int[]
+									{
+										target.getX(),
+										target.getY()
+									});
+								}
+								closingIn = true;
+							}
+							else
+							{
+								// Inside the fight window (KITE_MIN_RANGE..KITE_HOLD_RANGE): stand and shoot.
+								CHASE_POINTS.remove(bot.getObjectId());
+							}
+						}
+					}
+					else if (caster)
+					{
+						if (olympiadFight && (distToTarget > CASTER_HOLD_RANGE))
+						{
+							// Casters inside an active olympiad match close in like melee: the move
+							// point is re-issued toward the enemy's CURRENT position while the bot
+							// is walking too. The old "only when fully stopped" variant walked to
+							// the enemy's ORIGINAL point - caster pairs ran past each other to the
+							// opposite spawn points and kept swapping the sides of the arena for
+							// the whole match without ever fighting (the reported "bots run to
+							// each other's respawn places and do not fight" bug).
+							final int[] last = CHASE_POINTS.get(bot.getObjectId());
+							final boolean targetMoved = (last == null) || ((Math.abs(last[0] - target.getX()) + Math.abs(last[1] - target.getY())) > CHASE_REPATH_DISTANCE);
+							if (targetMoved || !bot.isMoving())
+							{
+								bot.getAI().setIntentionMoveTo(new Location(target.getX(), target.getY(), target.getZ()));
+								CHASE_POINTS.put(bot.getObjectId(), new int[]
+								{
+									target.getX(),
+									target.getY()
+								});
+							}
+							closingIn = true;
+						}
+						else if (olympiadFight && bot.isMoving() && (intention != Intention.ATTACK))
+						{
+							// The enemy is inside the hold range while the bot is still walking to
+							// an older (farther) point: stop the stale run and fight from here.
+							// A purposeful ATTACK approach is not interrupted - the AI stops itself
+							// at the strike range.
+							CHASE_POINTS.remove(bot.getObjectId());
+							bot.getAI().setIntentionIdle();
+							closingIn = true;
+						}
+						else
+						{
+							// World casters (and a caster standing inside the hold range): the core
+							// auto play engine keeps the caster at distance - no chasing. While far
+							// away the attack intention is not asserted either (old behavior): the
+							// rotation fires from where the caster stands.
+							if (!olympiadFight && (distToTarget > CHASE_RANGE) && !bot.isMoving())
+							{
+								closingIn = true;
+							}
+							CHASE_POINTS.remove(bot.getObjectId());
+						}
+					}
+					else if (distToTarget > CHASE_RANGE)
+					{
+						// Melee: chase the player's actual position, regardless of the
+						// current intention (including ATTACK - closing the distance has
+						// priority, the skills fire as soon as they come into range).
+						final int[] last = CHASE_POINTS.get(bot.getObjectId());
+						final boolean targetMoved = (last == null) || ((Math.abs(last[0] - target.getX()) + Math.abs(last[1] - target.getY())) > CHASE_REPATH_DISTANCE);
+						final boolean issue = targetMoved || !bot.isMoving();
+						if (issue)
+						{
+							bot.getAI().setIntentionMoveTo(new Location(target.getX(), target.getY(), target.getZ()));
+							CHASE_POINTS.put(bot.getObjectId(), new int[]
+							{
+								target.getX(),
+								target.getY()
+							});
+							closingIn = true;
+						}
+						else if (!bot.isMoving())
+						{
+							// Walking an already issued point - do not override with ATTACK.
+							closingIn = true;
+						}
+					}
+					else
+					{
+						// Within strike range again - clear the chase state.
+						CHASE_POINTS.remove(bot.getObjectId());
+					}
+				}
+
+				// Admin rule: mage bots (Archmage / Soultaker / Mystic Muse / Storm Screamer /
+				// Dominator - all "casters" in the presets) must NEVER auto-attack: in a fight
+				// they only cast their magic strikes and curses. Any lingering ATTACK intention
+				// (e.g. picked up from the AI after a cast) is killed here, and the attack
+				// assert below is skipped for casters.
+				if ((preset != null) && preset.isCaster() && !bot.isCastingNow() && (bot.getAI().getIntention() == Intention.ATTACK))
+				{
+					bot.getAI().setIntentionIdle();
+				}
+
+				if (!closingIn && ((preset == null) || !preset.isCaster()) && (intention != Intention.ATTACK) && (intention != Intention.CAST) && !bot.isMoving() && target.asCreature().isAutoAttackable(bot))
+				{
+					bot.getAI().setIntentionAttack(target);
+				}
+
+				// Summoner classes on the olympiad (Soultaker / Hell Knight / Phoenix Knight):
+				// the class summon is always up, the Soultaker always has Transfer Pain on, the
+				// knights always have the beast soulshot stock, and the servitor is sent at the
+				// match opponent. Runs on every combat tick of an active match.
+				if (inOlympiad && bot.isOlympiadStart())
+				{
+					BotSpawner.maintainOlympiadSummon(bot, preset, target);
+				}
+			}
+
+			// Non-bot olympiad participants (real players): keep the olympiad buff profile
+			// maintained for the whole match - the same treatment the bots get (a buff wiped
+			// mid-match, e.g. by Cancellation, is re-applied within 2 seconds). Entries are
+			// dropped when the player leaves the match or the world.
+			if (!OLYMPIAD_PARTICIPANTS.isEmpty())
+			{
+				for (Map.Entry<Integer, Player> entry : OLYMPIAD_PARTICIPANTS.entrySet())
+				{
+					final Player participant = entry.getValue();
+					if (BOTS.containsKey(entry.getKey()) || !participant.isOnline()
+						|| (!participant.isInOlympiadMode() && ((olympiad == null) || !olympiad.playerInStadia(participant))))
+					{
+						OLYMPIAD_PARTICIPANTS.remove(entry.getKey());
+						OLY_SPAWN_POINTS.remove(entry.getKey());
+						continue;
+					}
+
+					final BotClassPreset preset = BotPresets.getPresetByClassId(participant.getPlayerClass().getId());
+					// Chant of Victory ban for REAL participants (same rule as for the bots):
+					// strip a family buff the player may have (self-)cast during the countdown
+					// or mid-fight, before the (family-free) olympiad profile is re-maintained.
+					BotSpawner.stripChantBuffs(participant);
+					BotSpawner.maintainFullBuffs(participant, preset != null ? preset.isCaster() : participant.isMageClass());
+				}
+			}
+			if ((_combatCycle % 15) == 0)
+			{
+				LOGGER.info("FakePlayersAI: combatTick: bots=" + BOTS.size() + ", withTarget=" + withTarget + ", skippedTeleport=" + skippedTeleport + ", opp-retarget=" + oppRetarget + " (total " + _oppRetargetTotal + ").");
+			}
+			_combatCycle++;
+		}
+		catch (Throwable e)
+		{
+			LOGGER.warning("FakePlayersAI: combatTick error: " + e);
+		}
+	}
+
+	/**
+	 * Fast retarget pass (every second): a bot whose target is gone (canceled by effects
+	 * like Shadow Step / Trick / Switch, dead, or no longer a creature) takes the enemy
+	 * back into target within a second - the 2-second combat tick is too slow for that.
+	 * A valid target that the bot is merely standing idle on (aborted attack/cast) also
+	 * resumes the fight within the same second: non-casters get the attack intention
+	 * re-asserted (the AI walks into strike range and swings), a casting or moving bot is
+	 * never interrupted. Casters only receive the target - the rotation engine fires at it
+	 * and the combat tick owns their closing in. Paused world bots and the berserker duel
+	 * driver (which owns its bot's targeting) are skipped.
+	 */
+	private static void retargetTick()
+	{
+		try
+		{
+			final Olympiad olympiad = Olympiad.getInstance();
+			for (Player bot : BOTS.values())
+			{
+				if (bot.isAlikeDead() || bot.isTeleporting())
+				{
+					continue;
+				}
+				final boolean inOlympiad = bot.isInOlympiadMode() || ((olympiad != null) && olympiad.playerInStadia(bot));
+				if ((_combatPaused && !inOlympiad) || BERSERKER_STATES.containsKey(bot.getObjectId()))
+				{
+					continue;
+				}
+
+				final WorldObject target = bot.getTarget();
+				if ((target == null) || !target.isCreature() || target.asCreature().isAlikeDead())
+				{
+					final Player enemy = findTargetFor(bot, inOlympiad);
+					if (enemy == null)
+					{
+						continue;
+					}
+					bot.setTarget(enemy);
+				}
+
+				// Olympiad (active match): the auto-play engine may have swapped the target
+				// for the opponent's servitor (the nearest "playable" on the arena) between
+				// the combat ticks - force the match opponent back here too, within a second.
+				if (inOlympiad && bot.isOlympiadStart())
+				{
+					final Player opponent = getOlympiadOpponent(bot);
+					if ((opponent != null) && !opponent.isAlikeDead() && (bot.getTarget() != opponent))
+					{
+						bot.setTarget(opponent);
+					}
+				}
+
+				// The bot has a target again: resume the fight immediately when it is doing
+				// nothing (this is what makes the recovery feel instant - target AND attack).
+				final BotClassPreset preset = BotPresets.getPresetByClassId(getBotClassId(bot));
+				final boolean caster = (preset != null) && preset.isCaster();
+				final WorldObject currentTarget = bot.getTarget();
+				if (!caster && !bot.isCastingNow() && !bot.isMoving() && (currentTarget != null) && currentTarget.isCreature()
+					&& !currentTarget.asCreature().isAlikeDead() && currentTarget.asCreature().isAutoAttackable(bot))
+				{
+					final Intention intention = bot.getAI().getIntention();
+					if ((intention != Intention.ATTACK) && (intention != Intention.CAST))
+					{
+						bot.getAI().setIntentionAttack(currentTarget.asCreature());
+					}
+				}
+			}
+		}
+		catch (Throwable e)
+		{
+			LOGGER.warning("FakePlayersAI: retarget tick error: " + e);
+		}
+	}
+
+	/**
+	 * Finds the enemy a bot should fight. In olympiad: the match opponent.
+	 * In the world: the nearest valid (attackable) player or bot in range.
+	 */
+	private static Player findTargetFor(Player bot, boolean inOlympiad)
+	{
+		try
+		{
+			if (inOlympiad)
+			{
+				final int gameId = bot.getOlympiadGameId();
+				if (gameId < 0)
+				{
+					return null;
+				}
+				final Player[] pair = Olympiad.getInstance().getPlayers(gameId);
+				if (pair == null)
+				{
+					LOGGER.info("FakePlayersAI: oly-pair " + bot.getName() + ": gameId=" + gameId + " -> null pair");
+					return null;
+				}
+				for (Player participant : pair)
+				{
+					if (participant == null)
+					{
+						continue;
+					}
+					if (participant != bot)
+					{
+						return participant.isAlikeDead() ? null : participant;
+					}
+				}
+				LOGGER.info("FakePlayersAI: oly-pair " + bot.getName() + ": gameId=" + gameId + " -> no opponent in pair of " + pair.length);
+				return null;
+			}
+			
+			Player nearest = null;
+			double nearestDist = Double.MAX_VALUE;
+			for (Player candidate : World.getVisibleObjectsInRange(bot, Player.class, 1200, p -> (p != bot) && !p.isAlikeDead() && !p.isInOlympiadMode() && p.isAutoAttackable(bot)))
+			{
+				final double dist = bot.calculateDistance2D(candidate);
+				if (dist < nearestDist)
+				{
+					nearest = candidate;
+					nearestDist = dist;
+				}
+			}
+			return nearest;
+		}
+		catch (Throwable e)
+		{
+			LOGGER.warning("FakePlayersAI: findTargetFor(" + bot.getName() + ") failed: " + e);
+			return null;
+		}
+	}
+
+	/**
+	 * @return true when the class preset is an olympiad kiter: the bow bots (Sagittarius,
+	 *         Moonlight Sentinel, Ghost Sentinel) and the Dominator (a heavy-armored caster
+	 *         that must not stand in melee either). Casters other than the Dominator keep
+	 *         the plain hold-range behavior.
+	 */
+	private static boolean isKiterPreset(BotClassPreset preset)
+	{
+		return (preset != null) && ((preset.getWeaponKind() == BotClassPreset.WeaponKind.BOW) || (preset.getClassId() == CLASS_DOMINATOR));
+	}
+
+	/**
+	 * @return the olympiad match opponent of the player (null when the player is not in a
+	 *         match or the pair is not resolvable). Unlike findTargetFor this returns the
+	 *         opponent unconditionally (alive or not) - it is the identity check for the
+	 *         "the only valid olympiad target is the opponent" enforcement.
+	 */
+	private static Player getOlympiadOpponent(Player player)
+	{
+		try
+		{
+			final Olympiad olympiad = Olympiad.getInstance();
+			final int gameId = player.getOlympiadGameId();
+			if ((olympiad == null) || (gameId < 0))
+			{
+				return null;
+			}
+			final Player[] pair = olympiad.getPlayers(gameId);
+			if (pair == null)
+			{
+				return null;
+			}
+			for (Player participant : pair)
+			{
+				if ((participant != null) && (participant != player))
+				{
+					return participant;
+				}
+			}
+		}
+		catch (Throwable e)
+		{
+			// Swallowed: a null result just means "no enforcement this tick".
+		}
+		return null;
+	}
+
+	/**
+	 * Computes the retreat point of a kiting bot (bow bots / Dominator on the olympiad).
+	 * <ul>
+	 * <li>Primary direction: away from the enemy.</li>
+	 * <li>Flip (the admin rule): when the bot is within KITE_FLIP_DISTANCE of its OWN arena
+	 * spawn point, the direction is blended toward the ENEMY spawn point - the kite crosses
+	 * the arena instead of backing the bot into the wall/corner behind its own spawn.</li>
+	 * <li>Wall safety (the priority): every candidate point is checked with geodata
+	 * (canMoveToTarget); rotated fallbacks (±45°, ±90°, ±135°) are tried next; a candidate
+	 * that would come significantly CLOSER to the enemy is skipped. No safe candidate
+	 * (null) = the bot stands where it is and fights.</li>
+	 * </ul>
+	 * @param bot the kiting bot
+	 * @param enemy the pressing enemy
+	 * @param ownSpawn the bot's own arena spawn point (may be null)
+	 * @param enemySpawn the enemy's arena spawn point (may be null)
+	 * @return the retreat point, or null when no safe point exists (stand and fight)
+	 */
+	private static Location kitePoint(Player bot, Creature enemy, int[] ownSpawn, int[] enemySpawn)
+	{
+		final double distToEnemy = bot.calculateDistance2D(enemy);
+		if (distToEnemy <= 1)
+		{
+			return null;
+		}
+
+		// Away from the enemy (normalized).
+		double dirX = (bot.getX() - enemy.getX()) / distToEnemy;
+		double dirY = (bot.getY() - enemy.getY()) / distToEnemy;
+
+		// Flip near the own spawn point: blend the retreat with the direction toward the
+		// enemy spawn point (the kite runs back across the arena, never into the corner).
+		if ((ownSpawn != null) && (enemySpawn != null) && (bot.calculateDistance2D(ownSpawn[0], ownSpawn[1], ownSpawn[2]) < KITE_FLIP_DISTANCE))
+		{
+			final double ex = enemySpawn[0] - bot.getX();
+			final double ey = enemySpawn[1] - bot.getY();
+			final double el = Math.sqrt((ex * ex) + (ey * ey));
+			if (el > 1)
+			{
+				final double bx = (dirX * 0.6) + ((ex / el) * 1.0);
+				final double by = (dirY * 0.6) + ((ey / el) * 1.0);
+				final double bl = Math.sqrt((bx * bx) + (by * by));
+				if (bl > 0.001)
+				{
+					dirX = bx / bl;
+					dirY = by / bl;
+				}
+			}
+		}
+
+		// Candidate directions: primary + rotated fallbacks, first geodata-passable wins.
+		final double[] angles =
+		{
+			0.0, Math.PI / 4, -Math.PI / 4, Math.PI / 2, -Math.PI / 2, (3 * Math.PI) / 4, (-3 * Math.PI) / 4
+		};
+		for (double angle : angles)
+		{
+			final double cos = Math.cos(angle);
+			final double sin = Math.sin(angle);
+			final int px = bot.getX() + (int) (((dirX * cos) - (dirY * sin)) * KITE_STEP);
+			final int py = bot.getY() + (int) (((dirX * sin) + (dirY * cos)) * KITE_STEP);
+			// Wall check: the move must be walkable.
+			if (!GeoEngine.getInstance().canMoveToTarget(bot.getX(), bot.getY(), bot.getZ(), px, py, bot.getZ(), bot.getInstanceId()))
+			{
+				continue;
+			}
+			// Do not run INTO the enemy: the point must not come significantly closer.
+			final double pdx = px - enemy.getX();
+			final double pdy = py - enemy.getY();
+			if (Math.sqrt((pdx * pdx) + (pdy * pdy)) < (distToEnemy - 30))
+			{
+				continue;
+			}
+			return new Location(px, py, bot.getZ());
+		}
+		return null;
+	}
+	
+	// ------------------------------------------------------------------
+	// Berserker (Doombringer) olympiad duel driver
+	// ------------------------------------------------------------------
+
+	/**
+	 * Creates / resets / drops the berserker duel state of the bot. The state is created
+	 * by the pre-start hook (the remembered appearance point); this pass is the fallback
+	 * (the first tick of an active match) and the reset on a new game id. When the match
+	 * is over, the state is dropped and the FULL combat setup is restored (the driver
+	 * kept a trimmed live rotation while the match lasted).
+	 * @param bot the berserker bot
+	 * @param preset its class preset (may be null)
+	 * @param inActiveMatch true while the bot fights an olympiad match (isOlympiadStart)
+	 */
+	private static void updateBerserkerState(Player bot, BotClassPreset preset, boolean inActiveMatch)
+	{
+		final int objectId = bot.getObjectId();
+		final BerserkerState state = BERSERKER_STATES.get(objectId);
+		if (inActiveMatch)
+		{
+			final int gameId = bot.getOlympiadGameId();
+			if ((state == null) || (state.gameId != gameId))
+			{
+				BERSERKER_STATES.put(objectId, new BerserkerState(bot.getX(), bot.getY(), bot.getZ(), gameId));
+				LOGGER.info("FakePlayersAI: berserker " + bot.getName() + ": spawn point recorded (" + bot.getX() + ", " + bot.getY() + "), game " + gameId + ".");
+			}
+		}
+		else if (state != null)
+		{
+			BERSERKER_STATES.remove(objectId);
+			if ((preset != null) && !bot.isAlikeDead())
+			{
+				BotSpawner.applyAutoCombat(bot, preset);
+				LOGGER.info("FakePlayersAI: berserker " + bot.getName() + ": match is over, full combat setup restored.");
+			}
+		}
+	}
+
+	/**
+	 * The berserker duel algorithm (olympiad matches only). One rush cycle:
+	 * <ol>
+	 * <li><b>Rush Impact</b> (793) on the opponent - the cycle opener. The skill has no
+	 * reuse delay but its datapack condition requires the target to be at least 200 away
+	 * (and its cast range is 600); a cast initiated farther away walks into range first,
+	 * the skill itself dashes to the enemy. BOTH auto engines stay stopped while the rush
+	 * is pending: the auto-play engine's melee approach would close the distance below
+	 * 200, and the rotation engine's fillers kept re-queueing themselves over the queued
+	 * rush - with the engines armed the rush almost never went off. A leftover rotation
+	 * cast is aborted, the rush has priority (admin rule: the rotation starts with it).</li>
+	 * <li><b>Burst</b>: Disarm (485, only within 150 - admin rule "in melee") -> Enuma
+	 * Elish (526) -> Crushing Pain (497) -> Violent Temper (501, ONCE per battle, only
+	 * after a rush), in this order, each only when it is actually recharged (never waited
+	 * for, never cast during the retreat - they must not interfere with the distance
+	 * breaking).</li>
+	 * <li><b>Retreat</b>: as soon as Enuma Elish and Crushing Pain are resolved (cast, or
+	 * still on reuse), the bot runs toward its remembered olympiad spawn point until the
+	 * distance to the opponent allows Rush Impact again (>= 200). Both auto engines are
+	 * stopped for the run: no autoattack and no rotation casts can interrupt it.</li>
+	 * </ol>
+	 * Sword Shield (483) is cast at any phase, but only while CP is below 70% and the
+	 * opponent is not a mage (900 s reuse and the effect check keep it a rare button).
+	 * A bot cornered directly at its spawn point (no distance left to gain) fights on
+	 * and rushes as soon as the distance opens again.
+	 * @param bot the berserker bot (engines are kept armed by the caller's re-arm pass)
+	 * @param preset the class preset
+	 * @param state the per-match duel state
+	 * @param enemy the match opponent (alive and attackable)
+	 * @return true when the driver handled this tick (the generic chase/attack logic is skipped)
+	 */
+	private static boolean driveBerserker(Player bot, BotClassPreset preset, BerserkerState state, Creature enemy)
+	{
+		// Without Rush Impact there is no cycle (should not happen with the full class tree):
+		// fall back to the generic combat logic.
+		if (bot.getKnownSkill(BERSERKER_RUSH_IMPACT_ID) == null)
+		{
+			return false;
+		}
+
+		final double dist = bot.calculateDistance2D(enemy);
+
+		// Sword Shield: only when CP dropped below 70% and the opponent is not a mage.
+		if (!enemy.isPlayer() || !enemy.asPlayer().isMageClass())
+		{
+			if ((bot.getCurrentCpPercent() < BERSERKER_SWORD_SHIELD_CP_PERCENT)
+				&& !bot.getEffectList().isAffectedBySkill(BERSERKER_SWORD_SHIELD_ID)
+				&& castSkill(bot, BERSERKER_SWORD_SHIELD_ID))
+			{
+				LOGGER.info("FakePlayersAI: berserker " + bot.getName() + ": Sword Shield (CP " + bot.getCurrentCpPercent() + "%).");
+			}
+		}
+
+		if (!state.rushDone)
+		{
+			if (dist < BERSERKER_RUSH_MIN_DISTANCE)
+			{
+				if (!canBerserkerCast(bot, BERSERKER_RUSH_IMPACT_ID))
+				{
+					// Rush Impact cannot be used at all right now (e.g. MP is drained):
+					// breaking the distance would change nothing - fight on until it can.
+					state.retreating = false;
+					state.rushDone = true;
+					state.disarmDone = false;
+					state.enumaDone = false;
+					state.crushingDone = false;
+					armBerserkerCombat(bot, preset, state);
+					return true;
+				}
+				if (bot.calculateDistance2D(state.spawnX, state.spawnY, state.spawnZ) > BERSERKER_SPAWN_REACHED_DISTANCE)
+				{
+					if (dist <= BERSERKER_RETREAT_BREAK_DISTANCE)
+					{
+						// The enemy keeps the melee pressure: running the whole arena to the
+						// spawn point would only take free damage (an equally fast opponent
+						// holds the distance closed) - abandon the run, turn and fight, rush
+						// again as soon as the distance opens.
+						state.retreating = false;
+						state.rushDone = true;
+						state.disarmDone = false;
+						state.enumaDone = false;
+						state.crushingDone = false;
+						armBerserkerCombat(bot, preset, state);
+						return true;
+					}
+					// Too close for Rush Impact (its condition requires the target at 200+):
+					// break the distance toward the remembered spawn point. Both auto engines
+					// are stopped for the run - nothing (autoattack, rotation, Enuma Elish,
+					// Crushing Pain) may interrupt the distance breaking.
+					stopBerserkerEngines(bot, state);
+					if (!state.retreating)
+					{
+						state.retreating = true;
+						LOGGER.info("FakePlayersAI: berserker " + bot.getName() + ": breaking the distance toward the spawn point (dist " + (int) dist + ").");
+					}
+					bot.getAI().setIntentionMoveTo(new Location(state.spawnX, state.spawnY, state.spawnZ));
+				}
+				else
+				{
+					// Cornered right at the spawn point: no more distance can be gained - fight on.
+					state.retreating = false;
+					state.rushDone = true;
+					state.disarmDone = false;
+					state.enumaDone = false;
+					state.crushingDone = false;
+					armBerserkerCombat(bot, preset, state);
+					LOGGER.info("FakePlayersAI: berserker " + bot.getName() + ": cornered at the spawn point, fighting on.");
+				}
+				return true;
+			}
+
+			// The distance allows the rush (admin rule: the rotation starts with it). The
+			// driver OWNS the bot here: both auto engines stay stopped so the auto-play
+			// engine cannot assert the melee ATTACK intention (its approach closes the
+			// distance below the 200 the rush requires) and the rotation engine cannot
+			// keep the bot casting its fillers (each rotation cast also re-queued itself
+			// over the queued rush, which is why the rush almost never went off).
+			stopBerserkerEngines(bot, state);
+			if (bot.isCastingNow())
+			{
+				// A cast is going: either the rush itself (its walk into the 600 cast range
+				// and the 800 ms cast before the dash) - left alone - or a leftover rotation
+				// filler, which is aborted: the rush has priority over the fillers.
+				final Skill pendingSkill = (bot.getCurrentSkill() != null) ? bot.getCurrentSkill().getSkill() : null;
+				if ((pendingSkill != null) && (pendingSkill.getId() == BERSERKER_RUSH_IMPACT_ID))
+				{
+					return true; // the rush walk/cast is already going off
+				}
+				bot.abortCast();
+			}
+			if (castSkill(bot, BERSERKER_RUSH_IMPACT_ID))
+			{
+				state.cycle++;
+				state.rushDone = true;
+				state.disarmDone = false;
+				state.enumaDone = false;
+				state.crushingDone = false;
+				// The engines are re-armed right here: the burst phase (and its rotation
+				// fillers) runs while the rush cast is completing.
+				armBerserkerCombat(bot, preset, state);
+				LOGGER.info("FakePlayersAI: berserker " + bot.getName() + ": Rush Impact on " + enemy.getName() + " (cycle " + state.cycle + ").");
+				return true;
+			}
+			// The rush cannot start right now (e.g. MP): the generic approach/attack runs.
+			return false;
+		}
+
+		// Burst: Disarm -> Enuma Elish -> Crushing Pain -> Violent Temper (once per battle),
+		// in order, each only when recharged. Disarm only in close range (admin rule).
+		armBerserkerCombat(bot, preset, state);
+		if (!bot.isCastingNow())
+		{
+			if (!state.disarmDone && (dist <= BERSERKER_DISARM_MAX_DISTANCE) && castSkill(bot, BERSERKER_DISARM_ID))
+			{
+				state.disarmDone = true;
+			}
+			else if (!state.enumaDone && castSkill(bot, BERSERKER_ENUMA_ELISH_ID))
+			{
+				state.enumaDone = true;
+				LOGGER.info("FakePlayersAI: berserker " + bot.getName() + ": Enuma Elish on " + enemy.getName() + ".");
+			}
+			else if (!state.crushingDone && castSkill(bot, BERSERKER_CRUSHING_PAIN_ID))
+			{
+				state.crushingDone = true;
+			}
+			else if (!state.violentDone && (state.cycle >= 1) && castSkill(bot, BERSERKER_VIOLENT_TEMPER_ID))
+			{
+				state.violentDone = true;
+				LOGGER.info("FakePlayersAI: berserker " + bot.getName() + ": Violent Temper on " + enemy.getName() + " (1st use this battle).");
+			}
+		}
+		// Retreat trigger: both big skills resolved - cast this cycle, or still on reuse
+		// (they are used only when recharged and never delay the distance breaking).
+		if (isBerserkerSkillResolved(bot, BERSERKER_ENUMA_ELISH_ID, state.enumaDone)
+			&& isBerserkerSkillResolved(bot, BERSERKER_CRUSHING_PAIN_ID, state.crushingDone))
+		{
+			state.rushDone = false; // the next tick opens the distance for the next Rush Impact
+		}
+		// While the enemy is beyond strike range the generic chase keeps running on top.
+		return dist <= CHASE_RANGE;
+	}
+
+	/**
+	 * @return true when the burst skill needs no further action this cycle: it was cast,
+	 *         or it is still on its reuse delay (it is never waited for), or it is unknown.
+	 */
+	private static boolean isBerserkerSkillResolved(Player bot, int skillId, boolean done)
+	{
+		if (done)
+		{
+			return true;
+		}
+		final Skill skill = bot.getKnownSkill(skillId);
+		return (skill == null) || bot.isSkillDisabled(skill);
+	}
+
+	/**
+	 * Casts one of the driver's skills through the regular player cast path (full reuse,
+	 * condition, MP, consumable and olympiad checks apply; a cast initiated out of range
+	 * walks into range first). The bot's target is already the enemy (or the skill is
+	 * self-targeted), so no target juggling is needed.
+	 * @return true when the cast was initiated
+	 */
+	private static boolean castSkill(Player bot, int skillId)
+	{
+		if (!canBerserkerCast(bot, skillId))
+		{
+			return false;
+		}
+		return bot.useMagic(bot.getKnownSkill(skillId), true, false);
+	}
+
+	/**
+	 * Cheap pre-check of a driver skill cast (reuse, MP, consumables, charges) WITHOUT
+	 * initiating it - used to decide the phase before moving (a rush that cannot be paid
+	 * for must not trigger a distance-breaking run).
+	 */
+	private static boolean canBerserkerCast(Player bot, int skillId)
+	{
+		final Skill skill = bot.getKnownSkill(skillId);
+		if (skill == null)
+		{
+			return false;
+		}
+		if (bot.isSkillDisabled(skill))
+		{
+			return false;
+		}
+		final int mp = skill.getMpInitialConsume() + skill.getMpConsume();
+		if ((mp > 0) && (bot.getCurrentMp() < mp))
+		{
+			return false;
+		}
+		if ((skill.getItemConsumeCount() > 0)
+			&& (bot.getInventory().getInventoryItemCount(skill.getItemConsumeId(), -1) < skill.getItemConsumeCount()))
+		{
+			return false;
+		}
+		return bot.getCharges() >= skill.getChargeConsumeCount();
+	}
+
+	/**
+	 * Stops both auto combat engines for the distance-breaking run: no autoattack (the
+	 * bot must not stop to swing), no rotation casts and no auto buffs (nothing may
+	 * interrupt the run toward the spawn point). Called once per run (the flag guards it).
+	 */
+	private static void stopBerserkerEngines(Player bot, BerserkerState state)
+	{
+		if (!state.enginesStopped)
+		{
+			AutoPlayTaskManager.getInstance().stopAutoPlay(bot);
+			AutoUseTaskManager.getInstance().stopAutoUseTask(bot);
+			state.enginesStopped = true;
+		}
+	}
+
+	/**
+	 * (Re)arms the auto combat engines of a berserker bot inside its olympiad match and
+	 * trims the live rotation down to the non-managed skills (see BERSERKER_MANAGED_SKILLS):
+	 * the opener/burst skills and the other rush/charge skills are cast by the driver
+	 * only, so they must not be fired by the rotation engine on its own. Cheap: it does
+	 * real work only when the engines were stopped, went missing, or the live rotation
+	 * contains a managed skill again (e.g. after an admin re-apply).
+	 */
+	private static void armBerserkerCombat(Player bot, BotClassPreset preset, BerserkerState state)
+	{
+		if (state.enginesStopped || !bot.isAutoPlaying() || rotationHasManagedSkill(bot))
+		{
+			BotSpawner.applyAutoCombat(bot, preset);
+			trimBerserkerRotation(bot);
+			state.enginesStopped = false;
+			state.retreating = false;
+		}
+	}
+
+	/**
+	 * Removes the driver-managed skills from the bot's live auto rotation (the preset and
+	 * the //bot overrides stay untouched - the trim lives only while the match lasts and
+	 * is undone by updateBerserkerState when the match is over).
+	 */
+	private static void trimBerserkerRotation(Player bot)
+	{
+		bot.getAutoUseSettings().getAutoSkills().removeIf(BotManager::isManagedBerserkerSkill);
+	}
+
+	/**
+	 * @return true when the bot's live rotation still contains a driver-managed skill.
+	 */
+	private static boolean rotationHasManagedSkill(Player bot)
+	{
+		for (int skillId : bot.getAutoUseSettings().getAutoSkills())
+		{
+			if (isManagedBerserkerSkill(skillId))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * @return true when the skill id belongs to the berserker driver (cast by the driver
+	 *         itself or excluded from the olympiad rotation to protect the cycle).
+	 */
+	private static boolean isManagedBerserkerSkill(int skillId)
+	{
+		for (int managed : BERSERKER_MANAGED_SKILLS)
+		{
+			if (managed == skillId)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static int[] randomSpawnPoint()
+	{
+		final BotSettings settings = SETTINGS;
+		final int angle = Rnd.get(360);
+		final int radius = Rnd.get(0, settings.getSpawnRadius());
+		final int x = settings.getSpawnX() + (int) (radius * Math.cos(Math.toRadians(angle)));
+		final int y = settings.getSpawnY() + (int) (radius * Math.sin(Math.toRadians(angle)));
+		return new int[]
+		{
+			x,
+			y,
+			settings.getSpawnZ()
+		};
+	}
+	
+	// ------------------------------------------------------------------
+	// Spawn / despawn
+	// ------------------------------------------------------------------
+	
+	/**
+	 * Spawns bots up to the configured amount, cycling through all class presets.
+	 */
+	public static synchronized int spawnAll()
+	{
+		if (!SETTINGS.isEnabled())
+		{
+			return 0;
+		}
+		
+		int spawned = 0;
+		int guard = 0;
+		while ((BOTS.size() < SETTINGS.getBotCount()) && (guard++ < 200))
+		{
+			final BotClassPreset preset = BotPresets.getNextPreset();
+			if (preset == null)
+			{
+				break;
+			}
+			if (spawnBot(preset) != null)
+			{
+				spawned++;
+			}
+		}
+		
+		if (spawned > 0)
+		{
+			LOGGER.info("FakePlayersAI: spawned " + spawned + " bots (total " + BOTS.size() + ").");
+		}
+		return spawned;
+	}
+	
+	public static synchronized Player spawnBot(BotClassPreset preset)
+	{
+		try
+		{
+			// Reuse an existing (not spawned) bot of this class if the registry has one.
+			for (Map.Entry<Integer, Integer> entry : BOT_CLASSES.entrySet())
+			{
+				if ((entry.getValue() == preset.getClassId()) && !BOTS.containsKey(entry.getKey()))
+				{
+					final Player loaded = loadBot(entry.getKey());
+					if (loaded != null)
+					{
+						return registerBot(loaded, preset);
+					}
+				}
+			}
+			
+			// Create a brand new character: the nickname is the class name itself
+			// (numeric suffix when taken) - the bot name displays its class from
+			// the very start. ensureClassNickname() in registerBot() only handles
+			// renames of bots restored from the registry/database.
+			final String name = BotSpawner.generateClassNickname(preset);
+			final Player bot = BotSpawner.createBot(preset, name);
+			if (bot == null)
+			{
+				return null;
+			}
+			saveRegistry();
+			return registerBot(bot, preset);
+		}
+		catch (Throwable e)
+		{
+			LOGGER.warning("FakePlayersAI: spawnBot(" + preset.getClassName() + ") failed: " + e);
+			return null;
+		}
+	}
+	
+	private static Player loadBot(int objectId)
+	{
+		try
+		{
+			final Player player = Player.load(objectId);
+			return player;
+		}
+		catch (Throwable e)
+		{
+			LOGGER.warning("FakePlayersAI: failed to load bot objectId " + objectId + ": " + e);
+			BOT_CLASSES.remove(objectId);
+			return null;
+		}
+	}
+	
+	private static Player registerBot(Player bot, BotClassPreset preset)
+	{
+		// Class-based nickname: the displayed name shows the bot's class ("Duelist"
+		// for the Duelist, a numeric suffix when the name is taken). Existing bots are
+		// renamed too - the rename happens BEFORE world entry, so the database row and
+		// the CharInfo broadcast of the spawn carry the final name.
+		final boolean renamed = BotSpawner.ensureClassNickname(bot, preset);
+		// The combat title (HP+CP percent) is set BEFORE the world entry as well, so the
+		// spawn broadcast (CharInfo) already carries it - no extra title packet needed.
+		updateCombatTitle(bot);
+		final int[] point = randomSpawnPoint();
+		if (!BotSpawner.enterWorld(bot, point[0], point[1], point[2]))
+		{
+			return null;
+		}
+		// Gear integrity: every required piece (Vesper weapon/armor/jewelry per settings) must
+		// be equipped and must pass its item conditions (a restricted piece - e.g. the
+		// Kamael-incompatible Vesper heavy - would be unequipped by the core right at the
+		// olympiad arena entry). Re-equips the preset set when something is wrong. Idempotent.
+		BotSpawner.ensurePresetGear(bot, preset);
+		// Skill enchant policy (Power/Chance to the route maximum) - covers both freshly
+		// created bots and bots restored from the registry/database. Idempotent.
+		BotSpawner.applyClassSkills(bot);
+		BotSpawner.applySkillEnchants(bot);
+		// The class opening curse (mage bots: the elemental Surrender, the necromancer:
+		// Curse Gloom) must sit on the maximum Chance enchant route (highest trigger
+		// rate) - guaranteed here, independent of the general enchant policy. Idempotent.
+		BotSpawner.ensureOpeningCurseEnchant(bot, preset);
+		BotSpawner.applyAutoCombat(bot, preset);
+		BOTS.put(bot.getObjectId(), bot);
+		BOT_CLASSES.put(bot.getObjectId(), preset.getClassId());
+		// Universal passive (Subclass Counter Celestial, skill 655) for freshly created
+		// bots; bots restored via Player.load receive it from the core restoreSkills().
+		BotSpawner.applyCounterCelestial(bot);
+		// Tank bots: fixed 25% debuff success chance (core Formulas gate); non-tank bots
+		// are (re)removed, so class overrides applied between registrations stay correct.
+		updateTankDebuffRegistration(bot, preset);
+		if (renamed)
+		{
+			// Persist the new name (this bot is already in BOTS at this point).
+			saveRegistry();
+		}
+		LOGGER.info("FakePlayersAI: bot " + bot.getName() + " (" + preset.getClassName() + ") is in the world.");
+		return bot;
+	}
+	
+	public static synchronized void despawnBot(Player bot)
+	{
+		if (bot == null)
+		{
+			return;
+		}
+		try
+		{
+			BotSpawner.stopAutoCombat(bot);
+			Disconnection.of(bot).storeAndDelete();
+		}
+		catch (Throwable e)
+		{
+			LOGGER.warning("FakePlayersAI: despawn of " + bot.getName() + " failed: " + e);
+		}
+		BOTS.remove(bot.getObjectId());
+		CHASE_POINTS.remove(bot.getObjectId());
+		OPEN_CURSE_TARGETS.remove(bot.getObjectId());
+		CURSE_LAST_USE.remove(bot.getObjectId());
+		KITE_USE_STOPPED.remove(bot.getObjectId());
+		BERSERKER_STATES.remove(bot.getObjectId());
+		OLYMPIAD_PARTICIPANTS.remove(bot.getObjectId());
+		OLY_SPAWN_POINTS.remove(bot.getObjectId());
+		BOT_TITLES.remove(bot.getObjectId());
+		// Tank-bot fixed debuff chance: drop the registration (no leak into reuse of
+		// the objectId by another character).
+		Formulas.FIXED_DEBUFF_RATE_PLAYERS.remove(bot.getObjectId());
+	}
+	
+	public static synchronized void despawnAll()
+	{
+		for (Player bot : new ArrayList<>(BOTS.values()))
+		{
+			despawnBot(bot);
+		}
+	}
+	
+	/**
+	 * Deletes bot characters from the database and removes them from the registry.
+	 */
+	public static synchronized int deleteAll()
+	{
+		int count = 0;
+		for (Player bot : new ArrayList<>(BOTS.values()))
+		{
+			despawnBot(bot);
+			count++;
+		}
+		BOT_CLASSES.clear();
+		DEATH_TIMES.clear();
+		saveRegistry();
+		return count;
+	}
+	
+	// ------------------------------------------------------------------
+	// Registry persistence (objectId;name;classId)
+	// ------------------------------------------------------------------
+	
+	public static void saveRegistry()
+	{
+		final Properties props = new Properties();
+		for (Map.Entry<Integer, Integer> entry : BOT_CLASSES.entrySet())
+		{
+			final Player bot = BOTS.get(entry.getKey());
+			// Bots outside the world keep their registry name (a rename must not be
+			// lost in the file by a despawned bot's entry).
+			final String name = bot != null ? bot.getName() : REGISTRY_NAMES.getOrDefault(entry.getKey(), "unknown");
+			props.setProperty(String.valueOf(entry.getKey()), name + ";" + entry.getValue());
+		}
+		try (OutputStream os = new FileOutputStream(REGISTRY_PATH))
+		{
+			props.store(os, "# FakePlayersAI bot registry: objectId = name;classId");
+		}
+		catch (IOException e)
+		{
+			LOGGER.warning("FakePlayersAI: registry save failed: " + e.getMessage());
+		}
+	}
+	
+	public static void loadRegistry()
+	{
+		BOT_CLASSES.clear();
+		REGISTRY_NAMES.clear();
+		final File file = new File(REGISTRY_PATH);
+		if (!file.exists())
+		{
+			return;
+		}
+		final Properties props = new Properties();
+		try (InputStream is = new FileInputStream(file))
+		{
+			props.load(is);
+		}
+		catch (IOException e)
+		{
+			LOGGER.warning("FakePlayersAI: registry load failed: " + e.getMessage());
+			return;
+		}
+		for (String key : props.stringPropertyNames())
+		{
+			try
+			{
+				final int objectId = Integer.parseInt(key);
+				final String[] parts = props.getProperty(key).split(";");
+				final int classId = Integer.parseInt(parts[1]);
+				BOT_CLASSES.put(objectId, classId);
+				REGISTRY_NAMES.put(objectId, parts[0]);
+			}
+			catch (Exception e)
+			{
+				LOGGER.warning("FakePlayersAI: bad registry entry: " + key);
+			}
+		}
+		LOGGER.info("FakePlayersAI: registry loaded, " + BOT_CLASSES.size() + " known bots.");
+	}
+	
+	// ------------------------------------------------------------------
+	// Accessors
+	// ------------------------------------------------------------------
+	
+	/**
+	 * Re-applies the (possibly edited) skill rotation of a preset to all live bots of that class.
+	 */
+	public static void applyRotationToBots(BotClassPreset preset)
+	{
+		if (preset == null)
+		{
+			return;
+		}
+		for (Player bot : BOTS.values())
+		{
+			if (getBotClassId(bot) == preset.getClassId())
+			{
+				BotSpawner.applyAutoCombat(bot, preset);
+			}
+		}
+	}
+	
+	public static BotSettings getSettings()
+	{
+		return SETTINGS;
+	}
+	
+	public static Map<Integer, Player> getBots()
+	{
+		return BOTS;
+	}
+	
+	public static int getBotClassId(Player player)
+	{
+		return BOT_CLASSES.getOrDefault(player.getObjectId(), player.getPlayerClass().getId());
+	}
+	
+	public static boolean isBot(Player player)
+	{
+		return (player != null) && BOTS.containsKey(player.getObjectId());
+	}
+
+	/**
+	 * @return true when the player is a FakePlayersAI bot of a dagger class (Adventurer,
+	 *         Wind Rider, Ghost Hunter). The skill effect handlers (handlers.skill.effects)
+	 *         give such bots a 100% success rate on all damage-dealing skills - the
+	 *         calcSuccess rolls (skill evasion, blow chance, Backstab behind requirement,
+	 *         magic resistance) are bypassed for them. Real players keep the retail rates.
+	 */
+	public static boolean isDaggerBot(Player player)
+	{
+		if ((player == null) || !BOTS.containsKey(player.getObjectId()))
+		{
+			return false;
+		}
+		final int classId = getBotClassId(player);
+		for (int daggerClassId : DAGGER_CLASS_IDS)
+		{
+			if (daggerClassId == classId)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * @return true when the player is a FakePlayersAI bot of a tank class (Phoenix Knight,
+	 *         Hell Knight, Shillien Templar).
+	 */
+	public static boolean isTankBot(Player player)
+	{
+		if ((player == null) || !BOTS.containsKey(player.getObjectId()))
+		{
+			return false;
+		}
+		final int classId = getBotClassId(player);
+		for (int tankClassId : TANK_DEBUFF_CLASSES)
+		{
+			if (tankClassId == classId)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * The fixed tank-bot debuff roll used by the instant debuff effect handlers
+	 * (handlers.skill.effects, e.g. TargetCancel of Shield Slam/Shield Bash): tank bots
+	 * pass the roll with TANK_DEBUFF_RATE_PERCENT probability, everyone else falls
+	 * through to the caller's own retail logic. Continuous debuffs do not reach the
+	 * effect handlers - they are decided in the core (Formulas.calcEffectSuccess).
+	 * @param effector the casting player
+	 * @return true when a tank bot passed the fixed 25% roll
+	 */
+	public static boolean isTankBotDebuffSuccess(Player effector)
+	{
+		if (!isTankBot(effector))
+		{
+			return false;
+		}
+		return Rnd.get(100) < TANK_DEBUFF_RATE_PERCENT;
+	}
+
+	/**
+	 * Registers/unregisters the bot in the core fixed-debuff-chance gate
+	 * (Formulas.FIXED_DEBUFF_RATE_PLAYERS): tank bots are added, all other bots removed.
+	 * Called on every bot registration and despawn; also fixes bots of classes changed
+	 * through //bot overrides.
+	 * @param bot the bot
+	 * @param preset the bot's class preset
+	 */
+	public static void updateTankDebuffRegistration(Player bot, BotClassPreset preset)
+	{
+		if ((bot == null) || (preset == null))
+		{
+			return;
+		}
+		
+		boolean isTank = false;
+		final int classId = preset.getClassId();
+		for (int tankClassId : TANK_DEBUFF_CLASSES)
+		{
+			if (tankClassId == classId)
+			{
+				isTank = true;
+				break;
+			}
+		}
+		
+		if (isTank)
+		{
+			Formulas.FIXED_DEBUFF_RATE_PLAYERS.add(bot.getObjectId());
+		}
+		else
+		{
+			Formulas.FIXED_DEBUFF_RATE_PLAYERS.remove(bot.getObjectId());
+		}
+	}
+
+	/**
+	 * Refreshes the combat title of the bot: the combined HP+CP percent - the average of
+	 * the current HP and CP percentages (100% HP + 100% CP -> "100%", 100% HP + 0% CP ->
+	 * "50%"). Called on every combat tick (2 seconds), right before the world entry and
+	 * after out-of-combat heals; the title packet is only broadcast when the text actually
+	 * changed. The title replaces the static BotTitle value for as long as the bot lives.
+	 * @param bot the bot whose title is refreshed
+	 */
+	public static void updateCombatTitle(Player bot)
+	{
+		try
+		{
+			final double hpPercent = (bot.getMaxHp() > 0) ? ((bot.getCurrentHp() * 100.0) / bot.getMaxHp()) : 0.0;
+			final double cpPercent = (bot.getMaxCp() > 0) ? ((bot.getCurrentCp() * 100.0) / bot.getMaxCp()) : 0.0;
+			final String title = Math.round((hpPercent + cpPercent) / 2.0) + "%";
+			if (!title.equals(BOT_TITLES.get(bot.getObjectId())))
+			{
+				BOT_TITLES.put(bot.getObjectId(), title);
+				bot.setTitle(title);
+				bot.broadcastTitleInfo();
+			}
+		}
+		catch (Throwable e)
+		{
+			LOGGER.warning("FakePlayersAI: combat title update of " + bot.getName() + " failed: " + e);
+		}
+	}
+	
+	public static List<Player> getAliveBots()
+	{
+		final List<Player> list = new ArrayList<>();
+		for (Player bot : BOTS.values())
+		{
+			if (!bot.isAlikeDead())
+			{
+				list.add(bot);
+			}
+		}
+		return list;
+	}
+	
+	/**
+	 * Script entry point (called by the ScriptEngine for each script file).
+	 */
+	public static void main(String[] args)
+	{
+		loadRegistry();
+		init();
+	}
+}

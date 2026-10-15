@@ -1,0 +1,32 @@
+package org.l2jmobius.gameserver.entity.clan;
+
+public enum ClanAccess {
+   NONE,
+   INVITE_MEMBER,
+   ASSIGN_TITLE,
+   ACCESS_WAREHOUSE,
+   MODIFY_RANKS,
+   WAR_DECLARATION,
+   REMOVE_MEMBER,
+   CHANGE_CREST,
+   DISMISS_MENTEE,
+   MEMBER_FAME,
+   ACCESS_AIRSHIP,
+   HALL_OPEN_DOOR,
+   HALL_FUNCTIONS,
+   HALL_AUCTION,
+   HALL_BANISH,
+   HALL_MANAGE_FUNCTIONS,
+   CASTLE_OPEN_DOOR,
+   CASTLE_MANOR,
+   CASTLE_SIEGE,
+   CASTLE_FUNCTIONS,
+   CASTLE_BANISH,
+   CASTLE_VAULT,
+   CASTLE_MERCENARIES,
+   CASTLE_MANAGE_FUNCTIONS;
+
+   public int getMask() {
+      return 1 << this.ordinal();
+   }
+}

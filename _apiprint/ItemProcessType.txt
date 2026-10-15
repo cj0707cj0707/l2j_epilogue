@@ -1,0 +1,23 @@
+Compiled from "ItemProcessType.java"
+public final class org.l2jmobius.gameserver.entity.item.enums.ItemProcessType extends java.lang.Enum<org.l2jmobius.gameserver.entity.item.enums.ItemProcessType> {
+  public static final org.l2jmobius.gameserver.entity.item.enums.ItemProcessType NONE;
+  public static final org.l2jmobius.gameserver.entity.item.enums.ItemProcessType DROP;
+  public static final org.l2jmobius.gameserver.entity.item.enums.ItemProcessType LOOT;
+  public static final org.l2jmobius.gameserver.entity.item.enums.ItemProcessType PICKUP;
+  public static final org.l2jmobius.gameserver.entity.item.enums.ItemProcessType SWEEP;
+  public static final org.l2jmobius.gameserver.entity.item.enums.ItemProcessType DEATH;
+  public static final org.l2jmobius.gameserver.entity.item.enums.ItemProcessType COMPENSATE;
+  public static final org.l2jmobius.gameserver.entity.item.enums.ItemProcessType TRANSFER;
+  public static final org.l2jmobius.gameserver.entity.item.enums.ItemProcessType CRAFT;
+  public static final org.l2jmobius.gameserver.entity.item.enums.ItemProcessType BUY;
+  public static final org.l2jmobius.gameserver.entity.item.enums.ItemProcessType SELL;
+  public static final org.l2jmobius.gameserver.entity.item.enums.ItemProcessType FEE;
+  public static final org.l2jmobius.gameserver.entity.item.enums.ItemProcessType REFUND;
+  public static final org.l2jmobius.gameserver.entity.item.enums.ItemProcessType RESTORE;
+  public static final org.l2jmobius.gameserver.entity.item.enums.ItemProcessType REWARD;
+  public static final org.l2jmobius.gameserver.entity.item.enums.ItemProcessType QUEST;
+  public static final org.l2jmobius.gameserver.entity.item.enums.ItemProcessType DESTROY;
+  public static org.l2jmobius.gameserver.entity.item.enums.ItemProcessType[] values();
+  public static org.l2jmobius.gameserver.entity.item.enums.ItemProcessType valueOf(java.lang.String);
+  static {};
+}

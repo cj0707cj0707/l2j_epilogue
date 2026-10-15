@@ -1,0 +1,775 @@
+[07 сент. 19:42:40] AUDIT, Player Cedric has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:Cedric[268480825], BROADCAST
+[07 сент. 19:42:40] AUDIT, Player Falken has invalid skill Stunning Shot (101/130), class:Adventurer, Player:Falken[268480879], BROADCAST
+[07 сент. 19:42:40] AUDIT, Player Haldor has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Haldor[268480892], BROADCAST
+[07 сент. 19:42:40] AUDIT, Player Haldor has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Haldor[268480892], BROADCAST
+[07 сент. 19:42:40] AUDIT, Player Haldor has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Haldor[268480892], BROADCAST
+[07 сент. 19:42:40] AUDIT, Player Zarek has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Zarek[268480905], BROADCAST
+[07 сент. 19:42:40] AUDIT, Player Zarek has invalid skill Slow (1160/130), class:Soultaker, Player:Zarek[268480905], BROADCAST
+[07 сент. 19:42:40] AUDIT, Player Xandor has invalid skill Stunning Shot (101/130), class:Wind Rider, Player:Xandor[268480934], BROADCAST
+[07 сент. 19:42:40] AUDIT, Player Lena has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:Lena[268480961], BROADCAST
+[07 сент. 19:42:40] AUDIT, Player Varen has invalid skill Stunning Shot (101/130), class:Ghost Hunter, Player:Varen[268480988], BROADCAST
+[07 сент. 19:42:40] AUDIT, Player Merle has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:Merle[268481015], BROADCAST
+[07 сент. 20:15:54] AUDIT, Player Cedric has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:Cedric[268480825], BROADCAST
+[07 сент. 20:15:54] AUDIT, Player Falken has invalid skill Stunning Shot (101/130), class:Adventurer, Player:Falken[268480879], BROADCAST
+[07 сент. 20:15:54] AUDIT, Player Haldor has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Haldor[268480892], BROADCAST
+[07 сент. 20:15:54] AUDIT, Player Haldor has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Haldor[268480892], BROADCAST
+[07 сент. 20:15:54] AUDIT, Player Haldor has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Haldor[268480892], BROADCAST
+[07 сент. 20:15:54] AUDIT, Player Zarek has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Zarek[268480905], BROADCAST
+[07 сент. 20:15:54] AUDIT, Player Zarek has invalid skill Slow (1160/130), class:Soultaker, Player:Zarek[268480905], BROADCAST
+[07 сент. 20:15:54] AUDIT, Player Xandor has invalid skill Stunning Shot (101/130), class:Wind Rider, Player:Xandor[268480934], BROADCAST
+[07 сент. 20:15:54] AUDIT, Player Lena has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:Lena[268480961], BROADCAST
+[07 сент. 20:15:54] AUDIT, Player Varen has invalid skill Stunning Shot (101/130), class:Ghost Hunter, Player:Varen[268480988], BROADCAST
+[07 сент. 20:15:54] AUDIT, Player Merle has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:Merle[268481015], BROADCAST
+[07 сент. 21:18:33] AUDIT, Player Cedric has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:Cedric[268480825], BROADCAST
+[07 сент. 21:18:33] AUDIT, Player Falken has invalid skill Stunning Shot (101/130), class:Adventurer, Player:Falken[268480879], BROADCAST
+[07 сент. 21:18:33] AUDIT, Player Haldor has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Haldor[268480892], BROADCAST
+[07 сент. 21:18:33] AUDIT, Player Haldor has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Haldor[268480892], BROADCAST
+[07 сент. 21:18:33] AUDIT, Player Haldor has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Haldor[268480892], BROADCAST
+[07 сент. 21:18:33] AUDIT, Player Zarek has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Zarek[268480905], BROADCAST
+[07 сент. 21:18:33] AUDIT, Player Zarek has invalid skill Slow (1160/130), class:Soultaker, Player:Zarek[268480905], BROADCAST
+[07 сент. 21:18:33] AUDIT, Player Xandor has invalid skill Stunning Shot (101/130), class:Wind Rider, Player:Xandor[268480934], BROADCAST
+[07 сент. 21:18:33] AUDIT, Player Lena has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:Lena[268480961], BROADCAST
+[07 сент. 21:18:33] AUDIT, Player Varen has invalid skill Stunning Shot (101/130), class:Ghost Hunter, Player:Varen[268480988], BROADCAST
+[07 сент. 21:18:33] AUDIT, Player Merle has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:Merle[268481015], BROADCAST
+[08 сент. 18:07:00] AUDIT, Player Cedric has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[08 сент. 18:07:00] AUDIT, Player Falken has invalid skill Stunning Shot (101/130), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[08 сент. 18:07:00] AUDIT, Player Haldor has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[08 сент. 18:07:00] AUDIT, Player Haldor has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[08 сент. 18:07:00] AUDIT, Player Haldor has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[08 сент. 18:07:00] AUDIT, Player Zarek has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[08 сент. 18:07:00] AUDIT, Player Zarek has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[08 сент. 18:07:00] AUDIT, Player Xandor has invalid skill Stunning Shot (101/130), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[08 сент. 18:07:00] AUDIT, Player Lena has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[08 сент. 18:07:00] AUDIT, Player Varen has invalid skill Stunning Shot (101/130), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[08 сент. 18:07:00] AUDIT, Player Merle has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[08 сент. 19:35:22] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[08 сент. 19:35:22] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[08 сент. 19:35:22] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[08 сент. 19:35:22] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[08 сент. 19:35:22] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[08 сент. 19:35:22] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[08 сент. 19:35:22] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[08 сент. 19:35:22] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[08 сент. 19:35:22] AUDIT, Player MysticMuse has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[08 сент. 19:35:22] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[08 сент. 19:35:22] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[08 сент. 19:35:22] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[08 сент. 19:35:22] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[08 сент. 19:35:22] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[08 сент. 19:35:22] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[08 сент. 22:06:23] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[08 сент. 22:06:23] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[08 сент. 22:06:23] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[08 сент. 22:06:23] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[08 сент. 22:06:23] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[08 сент. 22:06:23] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[08 сент. 22:06:23] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[08 сент. 22:06:23] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[08 сент. 22:06:23] AUDIT, Player MysticMuse has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[08 сент. 22:06:23] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[08 сент. 22:06:23] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[08 сент. 22:06:23] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[08 сент. 22:06:23] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[08 сент. 22:06:23] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[08 сент. 22:06:23] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[08 сент. 23:00:49] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[08 сент. 23:00:49] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[08 сент. 23:00:49] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[08 сент. 23:00:49] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[08 сент. 23:00:49] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[08 сент. 23:00:49] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[08 сент. 23:00:49] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[08 сент. 23:00:49] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[08 сент. 23:00:49] AUDIT, Player MysticMuse has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[08 сент. 23:00:49] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[08 сент. 23:00:49] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[08 сент. 23:00:49] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[08 сент. 23:00:49] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[08 сент. 23:00:49] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[08 сент. 23:00:49] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[09 сент. 20:05:58] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[09 сент. 20:05:58] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[09 сент. 20:05:58] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[09 сент. 20:05:58] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[09 сент. 20:05:58] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[09 сент. 20:05:58] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[09 сент. 20:05:58] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[09 сент. 20:05:58] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[09 сент. 20:05:58] AUDIT, Player MysticMuse has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[09 сент. 20:05:58] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[09 сент. 20:05:58] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[09 сент. 20:05:58] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[09 сент. 20:05:58] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[09 сент. 20:05:58] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[09 сент. 20:05:58] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[09 сент. 21:34:08] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[09 сент. 21:34:08] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[09 сент. 21:34:08] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[09 сент. 21:34:08] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[09 сент. 21:34:08] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[09 сент. 21:34:08] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[09 сент. 21:34:08] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[09 сент. 21:34:08] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[09 сент. 21:34:08] AUDIT, Player MysticMuse has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[09 сент. 21:34:08] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[09 сент. 21:34:08] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[09 сент. 21:34:08] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[09 сент. 21:34:08] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[09 сент. 21:34:08] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[09 сент. 21:34:08] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[09 сент. 23:18:41] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[09 сент. 23:18:41] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[09 сент. 23:18:41] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[09 сент. 23:18:41] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[09 сент. 23:18:41] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[09 сент. 23:18:41] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[09 сент. 23:18:41] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[09 сент. 23:18:41] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[09 сент. 23:18:41] AUDIT, Player MysticMuse has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[09 сент. 23:18:41] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[09 сент. 23:18:41] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[09 сент. 23:18:41] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[09 сент. 23:18:41] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[09 сент. 23:18:41] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[09 сент. 23:18:41] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[09 сент. 23:35:59] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[09 сент. 23:35:59] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[09 сент. 23:35:59] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[09 сент. 23:35:59] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[09 сент. 23:35:59] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[09 сент. 23:35:59] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[09 сент. 23:35:59] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[09 сент. 23:35:59] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[09 сент. 23:35:59] AUDIT, Player MysticMuse has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[09 сент. 23:35:59] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[09 сент. 23:35:59] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[09 сент. 23:35:59] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[09 сент. 23:36:00] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[09 сент. 23:36:00] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[09 сент. 23:36:00] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[10 сент. 18:08:11] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[10 сент. 18:08:11] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[10 сент. 18:08:11] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[10 сент. 18:08:11] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[10 сент. 18:08:11] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[10 сент. 18:08:11] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[10 сент. 18:08:11] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[10 сент. 18:08:11] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[10 сент. 18:08:11] AUDIT, Player MysticMuse has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[10 сент. 18:08:11] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[10 сент. 18:08:11] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[10 сент. 18:08:11] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[10 сент. 18:08:11] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[10 сент. 18:08:11] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[10 сент. 18:08:11] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[10 сент. 20:00:52] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[10 сент. 20:00:52] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[10 сент. 20:00:52] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[10 сент. 20:00:52] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[10 сент. 20:00:52] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[10 сент. 20:00:52] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[10 сент. 20:00:52] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[10 сент. 20:00:52] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[10 сент. 20:00:52] AUDIT, Player MysticMuse has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[10 сент. 20:00:52] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[10 сент. 20:00:52] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[10 сент. 20:00:52] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[10 сент. 20:00:52] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[10 сент. 20:00:52] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[10 сент. 20:00:52] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[10 сент. 20:59:29] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[10 сент. 20:59:29] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[10 сент. 20:59:29] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[10 сент. 20:59:29] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[10 сент. 20:59:29] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[10 сент. 20:59:30] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[10 сент. 20:59:30] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[10 сент. 20:59:30] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[10 сент. 20:59:30] AUDIT, Player MysticMuse has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[10 сент. 20:59:30] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[10 сент. 20:59:30] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[10 сент. 20:59:30] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[10 сент. 20:59:30] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[10 сент. 20:59:30] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[10 сент. 20:59:30] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[10 сент. 22:59:34] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[10 сент. 22:59:34] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[10 сент. 22:59:34] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[10 сент. 22:59:34] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[10 сент. 22:59:34] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[10 сент. 22:59:34] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[10 сент. 22:59:34] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[10 сент. 22:59:34] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[10 сент. 22:59:34] AUDIT, Player MysticMuse has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[10 сент. 22:59:34] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[10 сент. 22:59:34] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[10 сент. 22:59:34] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[10 сент. 22:59:34] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[10 сент. 22:59:34] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[10 сент. 22:59:34] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[10 сент. 23:27:42] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[10 сент. 23:27:42] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[10 сент. 23:27:42] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[10 сент. 23:27:42] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[10 сент. 23:27:42] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[10 сент. 23:27:42] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[10 сент. 23:27:42] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[10 сент. 23:27:42] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[10 сент. 23:27:42] AUDIT, Player MysticMuse has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[10 сент. 23:27:42] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[10 сент. 23:27:42] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[10 сент. 23:27:43] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[10 сент. 23:27:43] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[10 сент. 23:27:43] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[10 сент. 23:27:43] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[11 сент. 0:19:13] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[11 сент. 0:19:13] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[11 сент. 0:19:13] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[11 сент. 0:19:13] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[11 сент. 0:19:13] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[11 сент. 0:19:13] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[11 сент. 0:19:13] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[11 сент. 0:19:13] AUDIT, Player MysticMuse has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[11 сент. 0:19:13] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[11 сент. 0:19:13] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[11 сент. 0:19:13] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[11 сент. 0:19:13] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[11 сент. 0:19:13] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[11 сент. 0:19:13] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[12 сент. 7:52:26] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[12 сент. 7:52:26] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[12 сент. 7:52:26] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[12 сент. 7:52:26] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[12 сент. 7:52:26] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[12 сент. 7:52:26] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[12 сент. 7:52:26] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[12 сент. 7:52:26] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[12 сент. 7:52:26] AUDIT, Player MysticMuse has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[12 сент. 7:52:26] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[12 сент. 7:52:26] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[12 сент. 7:52:26] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[12 сент. 7:52:26] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[12 сент. 7:52:26] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[12 сент. 7:52:26] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[12 сент. 8:31:53] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[12 сент. 8:31:53] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[12 сент. 8:31:53] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[12 сент. 8:31:53] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[12 сент. 8:31:53] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[12 сент. 8:31:53] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[12 сент. 8:31:53] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[12 сент. 8:31:53] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[12 сент. 8:31:53] AUDIT, Player MysticMuse has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[12 сент. 8:31:53] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[12 сент. 8:31:53] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[12 сент. 8:31:54] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[12 сент. 8:31:54] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[12 сент. 8:31:54] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[12 сент. 8:31:54] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[12 сент. 8:51:14] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[12 сент. 8:51:14] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[12 сент. 8:51:14] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[12 сент. 8:51:14] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[12 сент. 8:51:14] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[12 сент. 8:51:14] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[12 сент. 8:51:14] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[12 сент. 8:51:14] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[12 сент. 8:51:14] AUDIT, Player MysticMuse has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[12 сент. 8:51:14] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[12 сент. 8:51:14] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[12 сент. 8:51:14] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[12 сент. 8:51:14] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[12 сент. 8:51:14] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[12 сент. 8:51:14] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[12 сент. 9:20:22] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[12 сент. 9:20:23] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[12 сент. 9:20:23] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[12 сент. 9:20:23] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[12 сент. 9:20:23] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[12 сент. 9:20:23] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[12 сент. 9:20:23] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[12 сент. 9:20:23] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[12 сент. 9:20:23] AUDIT, Player MysticMuse has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[12 сент. 9:20:23] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[12 сент. 9:20:23] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[12 сент. 9:20:23] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[12 сент. 9:20:23] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[12 сент. 9:20:23] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[12 сент. 9:20:23] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[12 сент. 10:03:39] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[12 сент. 10:03:39] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[12 сент. 10:03:39] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[12 сент. 10:03:39] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[12 сент. 10:03:39] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[12 сент. 10:03:39] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[12 сент. 10:03:39] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[12 сент. 10:03:39] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[12 сент. 10:03:39] AUDIT, Player MysticMuse has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[12 сент. 10:03:39] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[12 сент. 10:03:39] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[12 сент. 10:03:39] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[12 сент. 10:03:39] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[12 сент. 10:03:39] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[12 сент. 10:03:39] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[12 сент. 10:22:02] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[12 сент. 10:22:02] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[12 сент. 10:22:02] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[12 сент. 10:22:02] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[12 сент. 10:22:02] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[12 сент. 10:22:02] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[12 сент. 10:22:02] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[12 сент. 10:22:02] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[12 сент. 10:22:02] AUDIT, Player MysticMuse has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[12 сент. 10:22:02] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[12 сент. 10:22:02] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[12 сент. 10:22:03] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[12 сент. 10:22:03] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[12 сент. 10:22:03] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[12 сент. 10:22:03] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[12 сент. 11:30:30] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[12 сент. 11:30:31] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[12 сент. 11:30:31] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[12 сент. 11:30:31] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[12 сент. 11:30:31] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[12 сент. 11:30:31] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[12 сент. 11:30:31] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[12 сент. 11:30:31] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[12 сент. 11:30:31] AUDIT, Player MysticMuse has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[12 сент. 11:30:31] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[12 сент. 11:30:31] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[12 сент. 11:30:31] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[12 сент. 11:30:31] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[12 сент. 11:30:31] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[12 сент. 11:30:31] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[13 сент. 1:23:29] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[13 сент. 1:23:29] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[13 сент. 1:23:29] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[13 сент. 1:23:29] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[13 сент. 1:23:29] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[13 сент. 1:23:29] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[13 сент. 1:23:29] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[13 сент. 1:23:29] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[13 сент. 1:23:29] AUDIT, Player MysticMuse has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[13 сент. 1:23:29] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[13 сент. 1:23:29] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[13 сент. 1:23:29] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[13 сент. 1:23:29] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[13 сент. 1:23:29] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[13 сент. 1:23:29] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[13 сент. 14:00:04] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[13 сент. 14:00:04] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[13 сент. 14:00:04] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[13 сент. 14:00:04] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[13 сент. 14:00:04] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[13 сент. 14:00:04] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[13 сент. 14:00:04] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[13 сент. 14:00:04] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[13 сент. 14:00:04] AUDIT, Player MysticMuse has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[13 сент. 14:00:04] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[13 сент. 14:00:04] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[13 сент. 14:00:04] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[13 сент. 14:00:04] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[13 сент. 14:00:04] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[13 сент. 14:00:04] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[13 сент. 14:22:18] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[13 сент. 14:22:18] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[13 сент. 14:22:18] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[13 сент. 14:22:18] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[13 сент. 14:22:18] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[13 сент. 14:22:18] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[13 сент. 14:22:18] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[13 сент. 14:22:18] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[13 сент. 14:22:18] AUDIT, Player MysticMuse has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[13 сент. 14:22:18] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[13 сент. 14:22:18] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[13 сент. 14:22:18] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[13 сент. 14:22:18] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[13 сент. 14:22:18] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[13 сент. 14:22:18] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[13 сент. 20:38:12] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[13 сент. 20:38:12] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[13 сент. 20:38:12] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[13 сент. 20:38:12] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[13 сент. 20:38:12] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[13 сент. 20:38:12] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[13 сент. 20:38:12] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[13 сент. 20:38:12] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[13 сент. 20:38:12] AUDIT, Player MysticMuse has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[13 сент. 20:38:12] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[13 сент. 20:38:12] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[13 сент. 20:38:12] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[13 сент. 20:38:12] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[13 сент. 20:38:12] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[13 сент. 20:38:12] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[13 сент. 22:16:48] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[13 сент. 22:16:48] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[13 сент. 22:16:48] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[13 сент. 22:16:48] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[13 сент. 22:16:48] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[13 сент. 22:16:48] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[13 сент. 22:16:48] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[13 сент. 22:16:48] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[13 сент. 22:16:48] AUDIT, Player MysticMuse has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[13 сент. 22:16:48] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[13 сент. 22:16:48] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[13 сент. 22:16:48] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[13 сент. 22:16:48] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[13 сент. 22:16:48] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[13 сент. 22:16:48] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[14 сент. 20:00:46] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[14 сент. 20:00:46] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[14 сент. 20:00:46] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[14 сент. 20:00:46] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[14 сент. 20:00:46] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[14 сент. 20:00:46] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[14 сент. 20:00:46] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[14 сент. 20:00:46] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[14 сент. 20:00:46] AUDIT, Player MysticMuse has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[14 сент. 20:00:46] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[14 сент. 20:00:46] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[14 сент. 20:00:47] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[14 сент. 20:00:47] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[14 сент. 20:00:47] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[14 сент. 20:00:47] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[14 сент. 21:19:39] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[14 сент. 21:19:40] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[14 сент. 21:19:40] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[14 сент. 21:19:40] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[14 сент. 21:19:40] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[14 сент. 21:19:40] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[14 сент. 21:19:40] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[14 сент. 21:19:40] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[14 сент. 21:19:40] AUDIT, Player MysticMuse has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[14 сент. 21:19:40] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[14 сент. 21:19:40] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[14 сент. 21:19:40] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[14 сент. 21:19:40] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[14 сент. 21:19:40] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[14 сент. 21:19:40] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[15 сент. 0:12:10] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[15 сент. 0:12:10] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[15 сент. 0:12:10] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[15 сент. 0:12:10] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[15 сент. 0:12:10] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[15 сент. 0:12:10] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[15 сент. 0:12:10] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[15 сент. 0:12:10] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[15 сент. 0:12:10] AUDIT, Player MysticMuse has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[15 сент. 0:12:11] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[15 сент. 0:12:11] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[15 сент. 0:12:11] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[15 сент. 0:12:11] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[15 сент. 0:12:11] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[15 сент. 0:12:11] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[15 сент. 19:16:30] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[15 сент. 19:16:30] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[15 сент. 19:16:30] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[15 сент. 19:16:30] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[15 сент. 19:16:30] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[15 сент. 19:16:30] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[15 сент. 19:16:30] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[15 сент. 19:16:30] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[15 сент. 19:16:30] AUDIT, Player MysticMuse has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[15 сент. 19:16:30] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[15 сент. 19:16:30] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[15 сент. 19:16:30] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[15 сент. 19:16:30] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[15 сент. 19:16:31] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[15 сент. 19:16:31] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[15 сент. 23:05:00] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[15 сент. 23:05:00] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[15 сент. 23:05:00] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[15 сент. 23:05:00] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[15 сент. 23:05:00] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[15 сент. 23:05:00] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[15 сент. 23:05:00] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[15 сент. 23:05:00] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[15 сент. 23:05:00] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[15 сент. 23:05:00] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[15 сент. 23:05:00] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[15 сент. 23:05:00] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[15 сент. 23:05:00] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[15 сент. 23:05:00] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[16 сент. 17:59:27] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[16 сент. 17:59:27] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[16 сент. 17:59:27] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[16 сент. 17:59:27] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[16 сент. 17:59:27] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[16 сент. 17:59:27] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[16 сент. 17:59:27] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[16 сент. 17:59:27] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[16 сент. 17:59:27] AUDIT, Player MysticMuse has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[16 сент. 17:59:27] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[16 сент. 17:59:28] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[16 сент. 17:59:28] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[16 сент. 17:59:28] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[16 сент. 17:59:28] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[16 сент. 17:59:28] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[16 сент. 20:15:32] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[16 сент. 20:15:32] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[16 сент. 20:15:32] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[16 сент. 20:15:32] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[16 сент. 20:15:32] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[16 сент. 20:15:32] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[16 сент. 20:15:32] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[16 сент. 20:15:33] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[16 сент. 20:15:33] AUDIT, Player MysticMuse has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[16 сент. 20:15:33] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[16 сент. 20:15:33] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[16 сент. 20:15:33] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[16 сент. 20:15:33] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[16 сент. 20:15:33] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[16 сент. 20:15:33] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[16 сент. 21:10:38] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[16 сент. 21:10:38] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[16 сент. 21:10:38] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[16 сент. 21:10:38] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[16 сент. 21:10:38] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[16 сент. 21:10:38] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[16 сент. 21:10:38] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[16 сент. 21:10:38] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[16 сент. 21:10:38] AUDIT, Player MysticMuse has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[16 сент. 21:10:38] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[16 сент. 21:10:38] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[16 сент. 21:10:38] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[16 сент. 21:10:38] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[16 сент. 21:10:39] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[16 сент. 21:10:39] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[17 сент. 21:20:30] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[17 сент. 21:20:30] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[17 сент. 21:20:30] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[17 сент. 21:20:30] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[17 сент. 21:20:30] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[17 сент. 21:20:30] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[17 сент. 21:20:30] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[17 сент. 21:20:30] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[17 сент. 21:20:30] AUDIT, Player MysticMuse has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[17 сент. 21:20:30] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[17 сент. 21:20:30] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[17 сент. 21:20:30] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[17 сент. 21:20:30] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[17 сент. 21:20:30] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[17 сент. 21:20:30] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[19 сент. 17:40:52] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[19 сент. 17:40:52] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[19 сент. 17:40:52] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[19 сент. 17:40:52] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[19 сент. 17:40:52] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[19 сент. 17:40:52] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[19 сент. 17:40:52] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[19 сент. 17:40:52] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[19 сент. 17:40:52] AUDIT, Player MysticMuse has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[19 сент. 17:40:52] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[19 сент. 17:40:53] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[19 сент. 17:40:53] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[19 сент. 17:40:53] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[19 сент. 17:40:53] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[19 сент. 17:40:53] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[19 сент. 20:54:49] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[19 сент. 20:54:49] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[19 сент. 20:54:49] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[19 сент. 20:54:49] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[19 сент. 20:54:49] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[19 сент. 20:54:49] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[19 сент. 20:54:49] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[19 сент. 20:54:49] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[19 сент. 20:54:49] AUDIT, Player MysticMuse has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[19 сент. 20:54:49] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[19 сент. 20:54:49] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[19 сент. 20:54:49] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[19 сент. 20:54:49] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[19 сент. 20:54:50] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[19 сент. 20:54:50] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[20 сент. 20:56:46] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[20 сент. 20:56:46] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[20 сент. 20:56:46] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[20 сент. 20:56:46] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[20 сент. 20:56:46] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[20 сент. 20:56:46] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[20 сент. 20:56:46] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[20 сент. 20:56:46] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[20 сент. 20:56:46] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[20 сент. 20:56:46] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[20 сент. 20:56:47] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[20 сент. 20:56:47] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[20 сент. 20:56:47] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[20 сент. 20:56:47] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[22 сент. 20:00:02] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[22 сент. 20:00:02] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[22 сент. 20:00:02] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[22 сент. 20:00:02] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[22 сент. 20:00:02] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[22 сент. 20:00:02] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[22 сент. 20:00:02] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[22 сент. 20:00:02] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[22 сент. 20:00:02] AUDIT, Player MysticMuse has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[22 сент. 20:00:02] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[22 сент. 20:00:02] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[22 сент. 20:00:02] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[22 сент. 20:00:02] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[22 сент. 20:00:02] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[22 сент. 20:00:02] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[26 сент. 17:54:40] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[26 сент. 17:54:40] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[26 сент. 17:54:40] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[26 сент. 17:54:40] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[26 сент. 17:54:40] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[26 сент. 17:54:40] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[26 сент. 17:54:40] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[26 сент. 17:54:40] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[26 сент. 17:54:40] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[26 сент. 17:54:40] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[26 сент. 17:54:40] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[26 сент. 17:54:40] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[26 сент. 17:54:40] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[26 сент. 17:54:40] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[02 окт. 21:57:14] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[02 окт. 21:57:14] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[02 окт. 21:57:14] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[02 окт. 21:57:14] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[02 окт. 21:57:14] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[02 окт. 21:57:14] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[02 окт. 21:57:14] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[02 окт. 21:57:14] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[02 окт. 21:57:14] AUDIT, Player MysticMuse has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[02 окт. 21:57:14] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[02 окт. 21:57:14] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[02 окт. 21:57:14] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[02 окт. 21:57:14] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[02 окт. 21:57:14] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[02 окт. 21:57:14] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[03 окт. 18:15:48] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[03 окт. 18:15:48] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[03 окт. 18:15:48] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[03 окт. 18:15:48] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[03 окт. 18:15:48] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[03 окт. 18:15:48] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[03 окт. 18:15:48] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[03 окт. 18:15:48] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[03 окт. 18:15:48] AUDIT, Player MysticMuse has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[03 окт. 18:15:48] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[03 окт. 18:15:48] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[03 окт. 18:15:48] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[03 окт. 18:15:48] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[03 окт. 18:15:48] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[03 окт. 18:15:48] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[03 окт. 19:27:01] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[03 окт. 19:27:01] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[03 окт. 19:27:01] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[03 окт. 19:27:01] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[03 окт. 19:27:01] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[03 окт. 19:27:01] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[03 окт. 19:27:01] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[03 окт. 19:27:01] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[03 окт. 19:27:01] AUDIT, Player MysticMuse has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[03 окт. 19:27:02] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[03 окт. 19:27:02] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[03 окт. 19:27:02] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[03 окт. 19:27:02] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[03 окт. 19:27:02] AUDIT, Player Dominator has invalid skill Enlightenment (1533/1), class:Dominator, Player:Dominator[268481289], BROADCAST
+[03 окт. 19:27:02] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[03 окт. 19:27:02] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[04 окт. 12:02:07] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[04 окт. 12:02:07] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[04 окт. 12:02:07] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[04 окт. 12:02:07] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[04 окт. 12:02:07] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[04 окт. 12:02:07] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[04 окт. 12:02:07] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[04 окт. 12:02:07] AUDIT, Player MysticMuse has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[04 окт. 12:02:07] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[04 окт. 12:02:07] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[04 окт. 12:02:07] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[04 окт. 12:02:07] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[04 окт. 12:02:07] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[04 окт. 12:02:07] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[04 окт. 12:04:46] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[04 окт. 12:04:46] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[04 окт. 12:04:46] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[04 окт. 12:04:46] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[04 окт. 12:04:46] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[04 окт. 12:04:46] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[04 окт. 12:04:46] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[04 окт. 12:04:46] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[04 окт. 12:04:46] AUDIT, Player MysticMuse has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[04 окт. 12:04:46] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[04 окт. 12:04:47] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[04 окт. 12:04:47] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[04 окт. 12:04:47] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[04 окт. 12:04:47] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[04 окт. 12:04:47] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[04 окт. 12:05:59] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[04 окт. 12:05:59] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[04 окт. 12:05:59] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[04 окт. 12:05:59] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[04 окт. 12:05:59] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[04 окт. 12:05:59] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[04 окт. 12:05:59] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[04 окт. 12:05:59] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[04 окт. 12:05:59] AUDIT, Player MysticMuse has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[04 окт. 12:05:59] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[04 окт. 12:05:59] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[04 окт. 12:05:59] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[04 окт. 12:05:59] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[04 окт. 12:05:59] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[04 окт. 12:05:59] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[04 окт. 13:45:05] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[04 окт. 13:45:05] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[04 окт. 13:45:05] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[04 окт. 13:45:05] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[04 окт. 13:45:05] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[04 окт. 13:45:06] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[04 окт. 13:45:06] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[04 окт. 13:45:06] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[04 окт. 13:45:06] AUDIT, Player MysticMuse has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[04 окт. 13:45:06] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[04 окт. 13:45:06] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[04 окт. 13:45:06] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[04 окт. 13:45:06] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[04 окт. 13:45:06] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[04 окт. 13:45:06] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[04 окт. 21:00:55] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[04 окт. 21:00:55] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[04 окт. 21:00:55] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[04 окт. 21:00:55] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[04 окт. 21:00:55] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[04 окт. 21:00:55] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[04 окт. 21:00:55] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[04 окт. 21:00:55] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[04 окт. 21:00:56] AUDIT, Player MysticMuse has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[04 окт. 21:00:56] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[04 окт. 21:00:56] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[04 окт. 21:00:56] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[04 окт. 21:00:56] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[04 окт. 21:00:56] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[04 окт. 21:00:56] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[11 окт. 12:33:05] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[11 окт. 12:33:05] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[11 окт. 12:33:05] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[11 окт. 12:33:05] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[11 окт. 12:33:05] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[11 окт. 12:33:05] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[11 окт. 12:33:05] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[11 окт. 12:33:05] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[11 окт. 12:33:05] AUDIT, Player MysticMuse has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[11 окт. 12:33:05] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[11 окт. 12:33:05] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[11 окт. 12:33:05] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[11 окт. 12:33:05] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[11 окт. 12:33:05] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[11 окт. 12:33:05] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[11 окт. 14:25:54] AUDIT, Player PhoenixKnight has invalid skill Drain Health (70/130), class:Phoenix Knight, Player:PhoenixKnight[268480825], BROADCAST
+[11 окт. 14:25:54] AUDIT, Player Adventurer has invalid skill Stunning Shot (101/330), class:Adventurer, Player:Adventurer[268480879], BROADCAST
+[11 окт. 14:25:54] AUDIT, Player Archmage has invalid skill Curse: Weakness (1164/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[11 окт. 14:25:54] AUDIT, Player Archmage has invalid skill Poisonous Cloud (1167/330), class:Archmage, Player:Archmage[268480892], BROADCAST
+[11 окт. 14:25:54] AUDIT, Player Archmage has invalid skill Curse Chaos (1222/130), class:Archmage, Player:Archmage[268480892], BROADCAST
+[11 окт. 14:25:54] AUDIT, Player Soultaker has invalid skill Slow (1160/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[11 окт. 14:25:54] AUDIT, Player Soultaker has invalid skill Surrender To Fire (1083/130), class:Soultaker, Player:Soultaker[268480905], BROADCAST
+[11 окт. 14:25:54] AUDIT, Player WindRider has invalid skill Stunning Shot (101/330), class:Wind Rider, Player:WindRider[268480934], BROADCAST
+[11 окт. 14:25:54] AUDIT, Player MysticMuse has invalid skill Wind Shackle (1206/130), class:Mystic Muse, Player:MysticMuse[268480961], BROADCAST
+[11 окт. 14:25:54] AUDIT, Player GhostHunter has invalid skill Stunning Shot (101/330), class:Ghost Hunter, Player:GhostHunter[268480988], BROADCAST
+[11 окт. 14:25:54] AUDIT, Player StormScreamer has invalid skill Wind Shackle (1206/130), class:Storm Screamer, Player:StormScreamer[268481015], BROADCAST
+[11 окт. 14:25:54] AUDIT, Player Dominator has invalid skill Stun Attack (100/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[11 окт. 14:25:54] AUDIT, Player Dominator has invalid skill Hammer Crush (260/130), class:Dominator, Player:Dominator[268481289], BROADCAST
+[11 окт. 14:25:54] AUDIT, Player Doombringer has invalid skill Death Mark (1435/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST
+[11 окт. 14:25:54] AUDIT, Player Doombringer has invalid skill Surrender to the Unholy (1445/230), class:Doombringer, Player:Doombringer[268481305], BROADCAST

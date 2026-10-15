@@ -1,0 +1,45 @@
+Compiled from "ArenaZone.java"
+public class org.l2jmobius.gameserver.entity.zone.type.ArenaZone extends org.l2jmobius.gameserver.entity.zone.ZoneType {
+  public org.l2jmobius.gameserver.entity.zone.type.ArenaZone(int);
+    Code:
+         0: aload_0
+         1: iload_1
+         2: invokespecial #1                  // Method org/l2jmobius/gameserver/entity/zone/ZoneType."<init>":(I)V
+         5: return
+
+  protected void onEnter(org.l2jmobius.gameserver.entity.actor.Creature);
+    Code:
+         0: aload_1
+         1: invokevirtual #7                  // Method org/l2jmobius/gameserver/entity/actor/Creature.isPlayer:()Z
+         4: ifeq          24
+         7: aload_1
+         8: getstatic     #13                 // Field org/l2jmobius/gameserver/entity/zone/ZoneId.PVP:Lorg/l2jmobius/gameserver/entity/zone/ZoneId;
+        11: invokevirtual #19                 // Method org/l2jmobius/gameserver/entity/actor/Creature.isInsideZone:(Lorg/l2jmobius/gameserver/entity/zone/ZoneId;)Z
+        14: ifne          24
+        17: aload_1
+        18: getstatic     #23                 // Field org/l2jmobius/gameserver/network/SystemMessageId.YOU_HAVE_ENTERED_A_COMBAT_ZONE:Lorg/l2jmobius/gameserver/network/SystemMessageId;
+        21: invokevirtual #29                 // Method org/l2jmobius/gameserver/entity/actor/Creature.sendPacket:(Lorg/l2jmobius/gameserver/network/SystemMessageId;)V
+        24: aload_1
+        25: getstatic     #13                 // Field org/l2jmobius/gameserver/entity/zone/ZoneId.PVP:Lorg/l2jmobius/gameserver/entity/zone/ZoneId;
+        28: iconst_1
+        29: invokevirtual #33                 // Method org/l2jmobius/gameserver/entity/actor/Creature.setInsideZone:(Lorg/l2jmobius/gameserver/entity/zone/ZoneId;Z)V
+        32: return
+
+  protected void onExit(org.l2jmobius.gameserver.entity.actor.Creature);
+    Code:
+         0: aload_1
+         1: getstatic     #13                 // Field org/l2jmobius/gameserver/entity/zone/ZoneId.PVP:Lorg/l2jmobius/gameserver/entity/zone/ZoneId;
+         4: iconst_0
+         5: invokevirtual #33                 // Method org/l2jmobius/gameserver/entity/actor/Creature.setInsideZone:(Lorg/l2jmobius/gameserver/entity/zone/ZoneId;Z)V
+         8: aload_1
+         9: invokevirtual #7                  // Method org/l2jmobius/gameserver/entity/actor/Creature.isPlayer:()Z
+        12: ifeq          32
+        15: aload_1
+        16: getstatic     #13                 // Field org/l2jmobius/gameserver/entity/zone/ZoneId.PVP:Lorg/l2jmobius/gameserver/entity/zone/ZoneId;
+        19: invokevirtual #19                 // Method org/l2jmobius/gameserver/entity/actor/Creature.isInsideZone:(Lorg/l2jmobius/gameserver/entity/zone/ZoneId;)Z
+        22: ifne          32
+        25: aload_1
+        26: getstatic     #37                 // Field org/l2jmobius/gameserver/network/SystemMessageId.YOU_HAVE_LEFT_A_COMBAT_ZONE:Lorg/l2jmobius/gameserver/network/SystemMessageId;
+        29: invokevirtual #29                 // Method org/l2jmobius/gameserver/entity/actor/Creature.sendPacket:(Lorg/l2jmobius/gameserver/network/SystemMessageId;)V
+        32: return
+}

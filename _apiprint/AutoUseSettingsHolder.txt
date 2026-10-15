@@ -1,0 +1,15 @@
+Compiled from "AutoUseSettingsHolder.java"
+public class org.l2jmobius.gameserver.entity.actor.holders.player.AutoUseSettingsHolder {
+  public org.l2jmobius.gameserver.entity.actor.holders.player.AutoUseSettingsHolder();
+  public java.util.Collection<java.lang.Integer> getAutoSupplyItems();
+  public java.util.Collection<java.lang.Integer> getAutoActions();
+  public java.util.Collection<java.lang.Integer> getAutoBuffs();
+  public java.util.List<java.lang.Integer> getAutoSkills();
+  public int getAutoPotionItem();
+  public void setAutoPotionItem(int);
+  public boolean isAutoSkill(int);
+  public java.lang.Integer getNextSkillId();
+  public void incrementSkillOrder();
+  public void resetSkillOrder();
+  public boolean isEmpty();
+}

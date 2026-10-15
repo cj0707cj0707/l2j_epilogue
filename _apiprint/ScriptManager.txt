@@ -1,0 +1,20 @@
+Compiled from "ScriptManager.java"
+public class org.l2jmobius.gameserver.managers.ScriptManager {
+  protected org.l2jmobius.gameserver.managers.ScriptManager();
+  public void reload(java.lang.String);
+  public void reload(int);
+  public void reloadAllScripts();
+  public void unloadAllScripts();
+  public void report();
+  public void save();
+  public org.l2jmobius.gameserver.mechanics.script.Quest getScript(java.lang.String);
+  public org.l2jmobius.gameserver.mechanics.script.Quest getQuest(int);
+  public void addQuest(org.l2jmobius.gameserver.mechanics.script.Quest);
+  public boolean removeScript(org.l2jmobius.gameserver.mechanics.script.Quest);
+  public java.util.Map<java.lang.String, org.l2jmobius.gameserver.mechanics.script.Quest> getQuests();
+  public boolean unload(org.l2jmobius.gameserver.mechanics.script.Quest);
+  public java.util.Map<java.lang.String, org.l2jmobius.gameserver.mechanics.script.Quest> getScripts();
+  public void addScript(org.l2jmobius.gameserver.mechanics.script.Quest);
+  public static org.l2jmobius.gameserver.managers.ScriptManager getInstance();
+  static {};
+}

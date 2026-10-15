@@ -1,0 +1,313 @@
+Compiled from "AdminCommandHandler.java"
+public class org.l2jmobius.gameserver.handler.AdminCommandHandler implements org.l2jmobius.gameserver.handler.IHandler<org.l2jmobius.gameserver.handler.IAdminCommandHandler, java.lang.String> {
+  private static final java.util.logging.Logger LOGGER;
+
+  private final java.util.Map<java.lang.String, org.l2jmobius.gameserver.handler.IAdminCommandHandler> _datatable;
+
+  protected org.l2jmobius.gameserver.handler.AdminCommandHandler();
+    Code:
+         0: aload_0
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: new           #7                  // class java/util/HashMap
+         8: dup
+         9: invokespecial #9                  // Method java/util/HashMap."<init>":()V
+        12: putfield      #10                 // Field _datatable:Ljava/util/Map;
+        15: return
+
+  public void registerHandler(org.l2jmobius.gameserver.handler.IAdminCommandHandler);
+    Code:
+         0: aload_1
+         1: invokeinterface #16,  1           // InterfaceMethod org/l2jmobius/gameserver/handler/IAdminCommandHandler.getCommandList:()[Ljava/lang/String;
+         6: astore_2
+         7: aload_2
+         8: arraylength
+         9: istore_3
+        10: iconst_0
+        11: istore        4
+        13: iload         4
+        15: iload_3
+        16: if_icmpge     44
+        19: aload_2
+        20: iload         4
+        22: aaload
+        23: astore        5
+        25: aload_0
+        26: getfield      #10                 // Field _datatable:Ljava/util/Map;
+        29: aload         5
+        31: aload_1
+        32: invokeinterface #22,  3           // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+        37: pop
+        38: iinc          4, 1
+        41: goto          13
+        44: return
+
+  public synchronized void removeHandler(org.l2jmobius.gameserver.handler.IAdminCommandHandler);
+    Code:
+         0: aload_1
+         1: invokeinterface #16,  1           // InterfaceMethod org/l2jmobius/gameserver/handler/IAdminCommandHandler.getCommandList:()[Ljava/lang/String;
+         6: astore_2
+         7: aload_2
+         8: arraylength
+         9: istore_3
+        10: iconst_0
+        11: istore        4
+        13: iload         4
+        15: iload_3
+        16: if_icmpge     43
+        19: aload_2
+        20: iload         4
+        22: aaload
+        23: astore        5
+        25: aload_0
+        26: getfield      #10                 // Field _datatable:Ljava/util/Map;
+        29: aload         5
+        31: invokeinterface #28,  2           // InterfaceMethod java/util/Map.remove:(Ljava/lang/Object;)Ljava/lang/Object;
+        36: pop
+        37: iinc          4, 1
+        40: goto          13
+        43: return
+
+  public org.l2jmobius.gameserver.handler.IAdminCommandHandler getHandler(java.lang.String);
+    Code:
+         0: aload_1
+         1: astore_2
+         2: aload_1
+         3: ldc           #32                 // String
+         5: invokevirtual #34                 // Method java/lang/String.contains:(Ljava/lang/CharSequence;)Z
+         8: ifeq          23
+        11: aload_1
+        12: iconst_0
+        13: aload_1
+        14: bipush        32
+        16: invokevirtual #40                 // Method java/lang/String.indexOf:(I)I
+        19: invokevirtual #44                 // Method java/lang/String.substring:(II)Ljava/lang/String;
+        22: astore_2
+        23: aload_0
+        24: getfield      #10                 // Field _datatable:Ljava/util/Map;
+        27: aload_2
+        28: invokeinterface #48,  2           // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+        33: checkcast     #17                 // class org/l2jmobius/gameserver/handler/IAdminCommandHandler
+        36: areturn
+
+  public void onCommand(org.l2jmobius.gameserver.entity.actor.Player, java.lang.String, boolean);
+    Code:
+         0: aload_1
+         1: invokevirtual #51                 // Method org/l2jmobius/gameserver/entity/actor/Player.isGM:()Z
+         4: ifne          8
+         7: return
+         8: aload_2
+         9: ldc           #32                 // String
+        11: invokevirtual #57                 // Method java/lang/String.split:(Ljava/lang/String;)[Ljava/lang/String;
+        14: iconst_0
+        15: aaload
+        16: astore        4
+        18: aload         4
+        20: bipush        6
+        22: invokevirtual #61                 // Method java/lang/String.substring:(I)Ljava/lang/String;
+        25: astore        5
+        27: aload_0
+        28: aload         4
+        30: invokevirtual #64                 // Method getHandler:(Ljava/lang/String;)Lorg/l2jmobius/gameserver/handler/IAdminCommandHandler;
+        33: astore        6
+        35: aload         6
+        37: ifnonnull     65
+        40: aload_1
+        41: aload         5
+        43: invokedynamic #68,  0             // InvokeDynamic #0:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+        48: invokevirtual #72                 // Method org/l2jmobius/gameserver/entity/actor/Player.sendMessage:(Ljava/lang/String;)V
+        51: getstatic     #76                 // Field LOGGER:Ljava/util/logging/Logger;
+        54: aload         4
+        56: invokedynamic #80,  0             // InvokeDynamic #1:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+        61: invokevirtual #81                 // Method java/util/logging/Logger.warning:(Ljava/lang/String;)V
+        64: return
+        65: invokestatic  #86                 // Method org/l2jmobius/gameserver/data/xml/AdminData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/AdminData;
+        68: aload         4
+        70: aload_1
+        71: invokevirtual #92                 // Method org/l2jmobius/gameserver/entity/actor/Player.getAccessLevel:()Lorg/l2jmobius/gameserver/data/holders/AccessLevel;
+        74: invokevirtual #96                 // Method org/l2jmobius/gameserver/data/xml/AdminData.hasAccess:(Ljava/lang/String;Lorg/l2jmobius/gameserver/data/holders/AccessLevel;)Z
+        77: ifne          104
+        80: aload_1
+        81: ldc           #100                // String You don\'t have the access rights to use this command!
+        83: invokevirtual #72                 // Method org/l2jmobius/gameserver/entity/actor/Player.sendMessage:(Ljava/lang/String;)V
+        86: getstatic     #76                 // Field LOGGER:Ljava/util/logging/Logger;
+        89: aload_1
+        90: invokestatic  #102                // Method java/lang/String.valueOf:(Ljava/lang/Object;)Ljava/lang/String;
+        93: aload         4
+        95: invokedynamic #106,  0            // InvokeDynamic #2:makeConcatWithConstants:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+       100: invokevirtual #81                 // Method java/util/logging/Logger.warning:(Ljava/lang/String;)V
+       103: return
+       104: iload_3
+       105: ifeq          169
+       108: invokestatic  #86                 // Method org/l2jmobius/gameserver/data/xml/AdminData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/AdminData;
+       111: aload         4
+       113: invokevirtual #109                // Method org/l2jmobius/gameserver/data/xml/AdminData.requireConfirm:(Ljava/lang/String;)Z
+       116: ifeq          169
+       119: aload_1
+       120: aload_2
+       121: invokevirtual #113                // Method org/l2jmobius/gameserver/entity/actor/Player.setAdminConfirmCmd:(Ljava/lang/String;)V
+       124: new           #116                // class org/l2jmobius/gameserver/network/serverpackets/ConfirmDlg
+       127: dup
+       128: getstatic     #118                // Field org/l2jmobius/gameserver/network/SystemMessageId.S1_3:Lorg/l2jmobius/gameserver/network/SystemMessageId;
+       131: invokespecial #124                // Method org/l2jmobius/gameserver/network/serverpackets/ConfirmDlg."<init>":(Lorg/l2jmobius/gameserver/network/SystemMessageId;)V
+       134: astore        7
+       136: aload         7
+       138: invokevirtual #127                // Method org/l2jmobius/gameserver/network/serverpackets/ConfirmDlg.getSystemMessage:()Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+       141: aload         5
+       143: invokedynamic #131,  0            // InvokeDynamic #3:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+       148: invokevirtual #132                // Method org/l2jmobius/gameserver/network/serverpackets/SystemMessage.addString:(Ljava/lang/String;)Lorg/l2jmobius/gameserver/network/serverpackets/SystemMessage;
+       151: pop
+       152: aload_1
+       153: getstatic     #138                // Field org/l2jmobius/gameserver/entity/actor/enums/player/PlayerAction.ADMIN_COMMAND:Lorg/l2jmobius/gameserver/entity/actor/enums/player/PlayerAction;
+       156: invokevirtual #144                // Method org/l2jmobius/gameserver/entity/actor/Player.addAction:(Lorg/l2jmobius/gameserver/entity/actor/enums/player/PlayerAction;)Z
+       159: pop
+       160: aload_1
+       161: aload         7
+       163: invokevirtual #148                // Method org/l2jmobius/gameserver/entity/actor/Player.sendPacket:(Lorg/l2jmobius/gameserver/network/serverpackets/ServerPacket;)V
+       166: goto          181
+       169: aload_1
+       170: aload_2
+       171: aload         6
+       173: invokedynamic #152,  0            // InvokeDynamic #4:run:(Lorg/l2jmobius/gameserver/entity/actor/Player;Ljava/lang/String;Lorg/l2jmobius/gameserver/handler/IAdminCommandHandler;)Ljava/lang/Runnable;
+       178: invokestatic  #156                // Method org/l2jmobius/commons/threads/ThreadPool.execute:(Ljava/lang/Runnable;)V
+       181: return
+
+  public int size();
+    Code:
+         0: aload_0
+         1: getfield      #10                 // Field _datatable:Ljava/util/Map;
+         4: invokeinterface #162,  1          // InterfaceMethod java/util/Map.size:()I
+         9: ireturn
+
+  public static org.l2jmobius.gameserver.handler.AdminCommandHandler getInstance();
+    Code:
+         0: getstatic     #166                // Field org/l2jmobius/gameserver/handler/AdminCommandHandler$SingletonHolder.INSTANCE:Lorg/l2jmobius/gameserver/handler/AdminCommandHandler;
+         3: areturn
+
+  public java.lang.Object getHandler(java.lang.Object);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: checkcast     #35                 // class java/lang/String
+         5: invokevirtual #64                 // Method getHandler:(Ljava/lang/String;)Lorg/l2jmobius/gameserver/handler/IAdminCommandHandler;
+         8: areturn
+
+  public void removeHandler(java.lang.Object);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: checkcast     #17                 // class org/l2jmobius/gameserver/handler/IAdminCommandHandler
+         5: invokevirtual #172                // Method removeHandler:(Lorg/l2jmobius/gameserver/handler/IAdminCommandHandler;)V
+         8: return
+
+  public void registerHandler(java.lang.Object);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: checkcast     #17                 // class org/l2jmobius/gameserver/handler/IAdminCommandHandler
+         5: invokevirtual #176                // Method registerHandler:(Lorg/l2jmobius/gameserver/handler/IAdminCommandHandler;)V
+         8: return
+
+  private static void lambda$onCommand$0(org.l2jmobius.gameserver.entity.actor.Player, java.lang.String, org.l2jmobius.gameserver.handler.IAdminCommandHandler);
+    Code:
+         0: invokestatic  #179                // Method java/lang/System.currentTimeMillis:()J
+         3: lstore_3
+         4: getstatic     #185                // Field org/l2jmobius/gameserver/config/GeneralConfig.GMAUDIT:Z
+         7: ifeq          48
+        10: aload_0
+        11: invokevirtual #191                // Method org/l2jmobius/gameserver/entity/actor/Player.getTarget:()Lorg/l2jmobius/gameserver/entity/WorldObject;
+        14: astore        5
+        16: aload_0
+        17: invokevirtual #195                // Method org/l2jmobius/gameserver/entity/actor/Player.getName:()Ljava/lang/String;
+        20: aload_0
+        21: invokevirtual #199                // Method org/l2jmobius/gameserver/entity/actor/Player.getObjectId:()I
+        24: invokedynamic #202,  0            // InvokeDynamic #5:makeConcatWithConstants:(Ljava/lang/String;I)Ljava/lang/String;
+        29: aload_1
+        30: aload         5
+        32: ifnull        43
+        35: aload         5
+        37: invokevirtual #205                // Method org/l2jmobius/gameserver/entity/WorldObject.getName:()Ljava/lang/String;
+        40: goto          45
+        43: ldc           #208                // String no-target
+        45: invokestatic  #210                // Method org/l2jmobius/gameserver/util/GMAudit.logAction:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+        48: aload_2
+        49: aload_1
+        50: aload_0
+        51: invokeinterface #216,  3          // InterfaceMethod org/l2jmobius/gameserver/handler/IAdminCommandHandler.onCommand:(Ljava/lang/String;Lorg/l2jmobius/gameserver/entity/actor/Player;)Z
+        56: pop
+        57: invokestatic  #179                // Method java/lang/System.currentTimeMillis:()J
+        60: lload_3
+        61: lsub
+        62: lstore        5
+        64: lload         5
+        66: ldc2_w        #220                // long 5000l
+        69: lcmp
+        70: ifle          88
+        73: aload_0
+        74: aload_1
+        75: lload         5
+        77: invokestatic  #222                // Method org/l2jmobius/commons/time/TimeUtil.formatDuration:(J)Ljava/lang/String;
+        80: invokedynamic #228,  0            // InvokeDynamic #6:makeConcatWithConstants:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+        85: invokevirtual #72                 // Method org/l2jmobius/gameserver/entity/actor/Player.sendMessage:(Ljava/lang/String;)V
+        88: goto          195
+        91: astore        5
+        93: aload_0
+        94: aload_1
+        95: aload         5
+        97: invokevirtual #231                // Method java/lang/RuntimeException.toString:()Ljava/lang/String;
+       100: invokedynamic #234,  0            // InvokeDynamic #7:makeConcatWithConstants:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+       105: invokevirtual #72                 // Method org/l2jmobius/gameserver/entity/actor/Player.sendMessage:(Ljava/lang/String;)V
+       108: getstatic     #76                 // Field LOGGER:Ljava/util/logging/Logger;
+       111: getstatic     #235                // Field java/util/logging/Level.WARNING:Ljava/util/logging/Level;
+       114: aload_1
+       115: invokedynamic #241,  0            // InvokeDynamic #8:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+       120: aload         5
+       122: invokevirtual #242                // Method java/util/logging/Logger.log:(Ljava/util/logging/Level;Ljava/lang/String;Ljava/lang/Throwable;)V
+       125: invokestatic  #179                // Method java/lang/System.currentTimeMillis:()J
+       128: lload_3
+       129: lsub
+       130: lstore        5
+       132: lload         5
+       134: ldc2_w        #220                // long 5000l
+       137: lcmp
+       138: ifle          156
+       141: aload_0
+       142: aload_1
+       143: lload         5
+       145: invokestatic  #222                // Method org/l2jmobius/commons/time/TimeUtil.formatDuration:(J)Ljava/lang/String;
+       148: invokedynamic #228,  0            // InvokeDynamic #6:makeConcatWithConstants:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+       153: invokevirtual #72                 // Method org/l2jmobius/gameserver/entity/actor/Player.sendMessage:(Ljava/lang/String;)V
+       156: goto          195
+       159: astore        7
+       161: invokestatic  #179                // Method java/lang/System.currentTimeMillis:()J
+       164: lload_3
+       165: lsub
+       166: lstore        8
+       168: lload         8
+       170: ldc2_w        #220                // long 5000l
+       173: lcmp
+       174: ifle          192
+       177: aload_0
+       178: aload_1
+       179: lload         8
+       181: invokestatic  #222                // Method org/l2jmobius/commons/time/TimeUtil.formatDuration:(J)Ljava/lang/String;
+       184: invokedynamic #228,  0            // InvokeDynamic #6:makeConcatWithConstants:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+       189: invokevirtual #72                 // Method org/l2jmobius/gameserver/entity/actor/Player.sendMessage:(Ljava/lang/String;)V
+       192: aload         7
+       194: athrow
+       195: return
+      Exception table:
+         from    to  target type
+             4    57    91   Class java/lang/RuntimeException
+             4    57   159   any
+            91   125   159   any
+           159   161   159   any
+
+  static {};
+    Code:
+         0: ldc           #11                 // class org/l2jmobius/gameserver/handler/AdminCommandHandler
+         2: invokevirtual #246                // Method java/lang/Class.getName:()Ljava/lang/String;
+         5: invokestatic  #249                // Method java/util/logging/Logger.getLogger:(Ljava/lang/String;)Ljava/util/logging/Logger;
+         8: putstatic     #76                 // Field LOGGER:Ljava/util/logging/Logger;
+        11: return
+}

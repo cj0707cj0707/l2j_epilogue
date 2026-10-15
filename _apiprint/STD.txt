@@ -1,0 +1,2962 @@
+Compiled from "SkillTreeData.java"
+public class org.l2jmobius.gameserver.data.xml.SkillTreeData implements org.l2jmobius.commons.util.IXmlReader {
+  private final java.util.Map<org.l2jmobius.gameserver.entity.actor.enums.player.PlayerClass, java.util.Map<java.lang.Integer, org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn>> _classSkillTrees;
+
+  private final java.util.Map<org.l2jmobius.gameserver.entity.actor.enums.player.PlayerClass, java.util.Map<java.lang.Integer, org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn>> _completeClassSkillTree;
+
+  private final java.util.Map<org.l2jmobius.gameserver.entity.actor.enums.player.PlayerClass, java.util.Map<java.lang.Integer, org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn>> _transferSkillTrees;
+
+  private final java.util.Map<java.lang.Integer, org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> _collectSkillTree;
+
+  private final java.util.Map<java.lang.Integer, org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> _fishingSkillTree;
+
+  private final java.util.Map<java.lang.Integer, org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> _pledgeSkillTree;
+
+  private final java.util.Map<java.lang.Integer, org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> _subClassSkillTree;
+
+  private final java.util.Map<java.lang.Integer, org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> _subPledgeSkillTree;
+
+  private final java.util.Map<java.lang.Integer, org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> _transformSkillTree;
+
+  private final java.util.Map<java.lang.Integer, org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> _commonSkillTree;
+
+  private final java.util.Map<java.lang.Integer, org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> _nobleSkillTree;
+
+  private final java.util.Map<java.lang.Integer, org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> _heroSkillTree;
+
+  private final java.util.Map<java.lang.Integer, org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> _gameMasterSkillTree;
+
+  private final java.util.Map<java.lang.Integer, org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> _gameMasterAuraSkillTree;
+
+  private java.util.Map<java.lang.Integer, int[]> _skillsByClassIdHashCodes;
+
+  private java.util.Map<java.lang.Integer, int[]> _skillsByRaceHashCodes;
+
+  private int[] _allSkillsHashCodes;
+
+  private final java.util.Map<org.l2jmobius.gameserver.entity.actor.enums.player.PlayerClass, org.l2jmobius.gameserver.entity.actor.enums.player.PlayerClass> _parentClassMap;
+
+  private boolean _loading;
+
+  protected org.l2jmobius.gameserver.data.xml.SkillTreeData();
+    Code:
+         0: aload_0
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: new           #7                  // class java/util/concurrent/ConcurrentHashMap
+         8: dup
+         9: invokespecial #9                  // Method java/util/concurrent/ConcurrentHashMap."<init>":()V
+        12: putfield      #10                 // Field _classSkillTrees:Ljava/util/Map;
+        15: aload_0
+        16: new           #16                 // class java/util/HashMap
+        19: dup
+        20: invokespecial #18                 // Method java/util/HashMap."<init>":()V
+        23: putfield      #19                 // Field _completeClassSkillTree:Ljava/util/Map;
+        26: aload_0
+        27: new           #7                  // class java/util/concurrent/ConcurrentHashMap
+        30: dup
+        31: invokespecial #9                  // Method java/util/concurrent/ConcurrentHashMap."<init>":()V
+        34: putfield      #22                 // Field _transferSkillTrees:Ljava/util/Map;
+        37: aload_0
+        38: new           #7                  // class java/util/concurrent/ConcurrentHashMap
+        41: dup
+        42: invokespecial #9                  // Method java/util/concurrent/ConcurrentHashMap."<init>":()V
+        45: putfield      #25                 // Field _collectSkillTree:Ljava/util/Map;
+        48: aload_0
+        49: new           #7                  // class java/util/concurrent/ConcurrentHashMap
+        52: dup
+        53: invokespecial #9                  // Method java/util/concurrent/ConcurrentHashMap."<init>":()V
+        56: putfield      #28                 // Field _fishingSkillTree:Ljava/util/Map;
+        59: aload_0
+        60: new           #7                  // class java/util/concurrent/ConcurrentHashMap
+        63: dup
+        64: invokespecial #9                  // Method java/util/concurrent/ConcurrentHashMap."<init>":()V
+        67: putfield      #31                 // Field _pledgeSkillTree:Ljava/util/Map;
+        70: aload_0
+        71: new           #7                  // class java/util/concurrent/ConcurrentHashMap
+        74: dup
+        75: invokespecial #9                  // Method java/util/concurrent/ConcurrentHashMap."<init>":()V
+        78: putfield      #34                 // Field _subClassSkillTree:Ljava/util/Map;
+        81: aload_0
+        82: new           #7                  // class java/util/concurrent/ConcurrentHashMap
+        85: dup
+        86: invokespecial #9                  // Method java/util/concurrent/ConcurrentHashMap."<init>":()V
+        89: putfield      #37                 // Field _subPledgeSkillTree:Ljava/util/Map;
+        92: aload_0
+        93: new           #7                  // class java/util/concurrent/ConcurrentHashMap
+        96: dup
+        97: invokespecial #9                  // Method java/util/concurrent/ConcurrentHashMap."<init>":()V
+       100: putfield      #40                 // Field _transformSkillTree:Ljava/util/Map;
+       103: aload_0
+       104: new           #7                  // class java/util/concurrent/ConcurrentHashMap
+       107: dup
+       108: invokespecial #9                  // Method java/util/concurrent/ConcurrentHashMap."<init>":()V
+       111: putfield      #43                 // Field _commonSkillTree:Ljava/util/Map;
+       114: aload_0
+       115: new           #7                  // class java/util/concurrent/ConcurrentHashMap
+       118: dup
+       119: invokespecial #9                  // Method java/util/concurrent/ConcurrentHashMap."<init>":()V
+       122: putfield      #46                 // Field _nobleSkillTree:Ljava/util/Map;
+       125: aload_0
+       126: new           #7                  // class java/util/concurrent/ConcurrentHashMap
+       129: dup
+       130: invokespecial #9                  // Method java/util/concurrent/ConcurrentHashMap."<init>":()V
+       133: putfield      #49                 // Field _heroSkillTree:Ljava/util/Map;
+       136: aload_0
+       137: new           #7                  // class java/util/concurrent/ConcurrentHashMap
+       140: dup
+       141: invokespecial #9                  // Method java/util/concurrent/ConcurrentHashMap."<init>":()V
+       144: putfield      #52                 // Field _gameMasterSkillTree:Ljava/util/Map;
+       147: aload_0
+       148: new           #7                  // class java/util/concurrent/ConcurrentHashMap
+       151: dup
+       152: invokespecial #9                  // Method java/util/concurrent/ConcurrentHashMap."<init>":()V
+       155: putfield      #55                 // Field _gameMasterAuraSkillTree:Ljava/util/Map;
+       158: aload_0
+       159: new           #58                 // class java/util/LinkedHashMap
+       162: dup
+       163: invokespecial #60                 // Method java/util/LinkedHashMap."<init>":()V
+       166: putfield      #61                 // Field _parentClassMap:Ljava/util/Map;
+       169: aload_0
+       170: iconst_1
+       171: putfield      #64                 // Field _loading:Z
+       174: aload_0
+       175: invokevirtual #68                 // Method load:()V
+       178: return
+
+  public void load();
+    Code:
+         0: aload_0
+         1: iconst_1
+         2: putfield      #64                 // Field _loading:Z
+         5: aload_0
+         6: getfield      #61                 // Field _parentClassMap:Ljava/util/Map;
+         9: invokeinterface #71,  1           // InterfaceMethod java/util/Map.clear:()V
+        14: aload_0
+        15: getfield      #10                 // Field _classSkillTrees:Ljava/util/Map;
+        18: invokeinterface #71,  1           // InterfaceMethod java/util/Map.clear:()V
+        23: aload_0
+        24: getfield      #25                 // Field _collectSkillTree:Ljava/util/Map;
+        27: invokeinterface #71,  1           // InterfaceMethod java/util/Map.clear:()V
+        32: aload_0
+        33: getfield      #28                 // Field _fishingSkillTree:Ljava/util/Map;
+        36: invokeinterface #71,  1           // InterfaceMethod java/util/Map.clear:()V
+        41: aload_0
+        42: getfield      #31                 // Field _pledgeSkillTree:Ljava/util/Map;
+        45: invokeinterface #71,  1           // InterfaceMethod java/util/Map.clear:()V
+        50: aload_0
+        51: getfield      #34                 // Field _subClassSkillTree:Ljava/util/Map;
+        54: invokeinterface #71,  1           // InterfaceMethod java/util/Map.clear:()V
+        59: aload_0
+        60: getfield      #37                 // Field _subPledgeSkillTree:Ljava/util/Map;
+        63: invokeinterface #71,  1           // InterfaceMethod java/util/Map.clear:()V
+        68: aload_0
+        69: getfield      #22                 // Field _transferSkillTrees:Ljava/util/Map;
+        72: invokeinterface #71,  1           // InterfaceMethod java/util/Map.clear:()V
+        77: aload_0
+        78: getfield      #40                 // Field _transformSkillTree:Ljava/util/Map;
+        81: invokeinterface #71,  1           // InterfaceMethod java/util/Map.clear:()V
+        86: aload_0
+        87: getfield      #46                 // Field _nobleSkillTree:Ljava/util/Map;
+        90: invokeinterface #71,  1           // InterfaceMethod java/util/Map.clear:()V
+        95: aload_0
+        96: getfield      #49                 // Field _heroSkillTree:Ljava/util/Map;
+        99: invokeinterface #71,  1           // InterfaceMethod java/util/Map.clear:()V
+       104: aload_0
+       105: getfield      #52                 // Field _gameMasterSkillTree:Ljava/util/Map;
+       108: invokeinterface #71,  1           // InterfaceMethod java/util/Map.clear:()V
+       113: aload_0
+       114: getfield      #55                 // Field _gameMasterAuraSkillTree:Ljava/util/Map;
+       117: invokeinterface #71,  1           // InterfaceMethod java/util/Map.clear:()V
+       122: aload_0
+       123: ldc           #76                 // String data/stats/players/skillTrees/
+       125: iconst_1
+       126: invokevirtual #78                 // Method parseDatapackDirectory:(Ljava/lang/String;Z)Z
+       129: pop
+       130: aload_0
+       131: getfield      #19                 // Field _completeClassSkillTree:Ljava/util/Map;
+       134: invokeinterface #71,  1           // InterfaceMethod java/util/Map.clear:()V
+       139: aload_0
+       140: getfield      #10                 // Field _classSkillTrees:Ljava/util/Map;
+       143: invokeinterface #82,  1           // InterfaceMethod java/util/Map.entrySet:()Ljava/util/Set;
+       148: invokeinterface #86,  1           // InterfaceMethod java/util/Set.iterator:()Ljava/util/Iterator;
+       153: astore_1
+       154: aload_1
+       155: invokeinterface #92,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+       160: ifeq          327
+       163: aload_1
+       164: invokeinterface #98,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+       169: checkcast     #102                // class java/util/Map$Entry
+       172: astore_2
+       173: new           #58                 // class java/util/LinkedHashMap
+       176: dup
+       177: invokespecial #60                 // Method java/util/LinkedHashMap."<init>":()V
+       180: astore_3
+       181: aload_3
+       182: aload_0
+       183: getfield      #43                 // Field _commonSkillTree:Ljava/util/Map;
+       186: invokeinterface #104,  2          // InterfaceMethod java/util/Map.putAll:(Ljava/util/Map;)V
+       191: aload_2
+       192: invokeinterface #108,  1          // InterfaceMethod java/util/Map$Entry.getKey:()Ljava/lang/Object;
+       197: checkcast     #111                // class org/l2jmobius/gameserver/entity/actor/enums/player/PlayerClass
+       200: astore        4
+       202: aload         4
+       204: astore        5
+       206: new           #113                // class java/util/ArrayList
+       209: dup
+       210: invokespecial #115                // Method java/util/ArrayList."<init>":()V
+       213: astore        6
+       215: aload         5
+       217: ifnull        248
+       220: aload         6
+       222: aload         5
+       224: invokeinterface #116,  2          // InterfaceMethod java/util/List.addFirst:(Ljava/lang/Object;)V
+       229: aload_0
+       230: getfield      #61                 // Field _parentClassMap:Ljava/util/Map;
+       233: aload         5
+       235: invokeinterface #122,  2          // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+       240: checkcast     #111                // class org/l2jmobius/gameserver/entity/actor/enums/player/PlayerClass
+       243: astore        5
+       245: goto          215
+       248: aload         6
+       250: invokeinterface #126,  1          // InterfaceMethod java/util/List.iterator:()Ljava/util/Iterator;
+       255: astore        7
+       257: aload         7
+       259: invokeinterface #92,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+       264: ifeq          311
+       267: aload         7
+       269: invokeinterface #98,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+       274: checkcast     #111                // class org/l2jmobius/gameserver/entity/actor/enums/player/PlayerClass
+       277: astore        8
+       279: aload_0
+       280: getfield      #10                 // Field _classSkillTrees:Ljava/util/Map;
+       283: aload         8
+       285: invokeinterface #122,  2          // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+       290: checkcast     #72                 // class java/util/Map
+       293: astore        9
+       295: aload         9
+       297: ifnull        308
+       300: aload_3
+       301: aload         9
+       303: invokeinterface #104,  2          // InterfaceMethod java/util/Map.putAll:(Ljava/util/Map;)V
+       308: goto          257
+       311: aload_0
+       312: getfield      #19                 // Field _completeClassSkillTree:Ljava/util/Map;
+       315: aload         4
+       317: aload_3
+       318: invokeinterface #127,  3          // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+       323: pop
+       324: goto          154
+       327: aload_0
+       328: invokevirtual #131                // Method generateCheckArrays:()V
+       331: aload_0
+       332: invokevirtual #134                // Method report:()V
+       335: aload_0
+       336: iconst_0
+       337: putfield      #64                 // Field _loading:Z
+       340: return
+
+  public void parseDocument(org.w3c.dom.Document, java.io.File);
+    Code:
+         0: iconst_m1
+         1: istore_3
+         2: aconst_null
+         3: astore        4
+         5: aload_1
+         6: invokeinterface #137,  1          // InterfaceMethod org/w3c/dom/Document.getFirstChild:()Lorg/w3c/dom/Node;
+        11: astore        5
+        13: aload         5
+        15: ifnull        1561
+        18: ldc           #143                // String list
+        20: aload         5
+        22: invokeinterface #145,  1          // InterfaceMethod org/w3c/dom/Node.getNodeName:()Ljava/lang/String;
+        27: invokevirtual #151                // Method java/lang/String.equalsIgnoreCase:(Ljava/lang/String;)Z
+        30: ifeq          1549
+        33: aload         5
+        35: invokeinterface #157,  1          // InterfaceMethod org/w3c/dom/Node.getFirstChild:()Lorg/w3c/dom/Node;
+        40: astore        6
+        42: aload         6
+        44: ifnull        1549
+        47: ldc           #158                // String skillTree
+        49: aload         6
+        51: invokeinterface #145,  1          // InterfaceMethod org/w3c/dom/Node.getNodeName:()Ljava/lang/String;
+        56: invokevirtual #151                // Method java/lang/String.equalsIgnoreCase:(Ljava/lang/String;)Z
+        59: ifeq          1537
+        62: new           #16                 // class java/util/HashMap
+        65: dup
+        66: invokespecial #18                 // Method java/util/HashMap."<init>":()V
+        69: astore        7
+        71: new           #16                 // class java/util/HashMap
+        74: dup
+        75: invokespecial #18                 // Method java/util/HashMap."<init>":()V
+        78: astore        8
+        80: aload         6
+        82: invokeinterface #160,  1          // InterfaceMethod org/w3c/dom/Node.getAttributes:()Lorg/w3c/dom/NamedNodeMap;
+        87: ldc           #164                // String type
+        89: invokeinterface #166,  2          // InterfaceMethod org/w3c/dom/NamedNodeMap.getNamedItem:(Ljava/lang/String;)Lorg/w3c/dom/Node;
+        94: invokeinterface #172,  1          // InterfaceMethod org/w3c/dom/Node.getNodeValue:()Ljava/lang/String;
+        99: astore        9
+       101: aload         6
+       103: invokeinterface #160,  1          // InterfaceMethod org/w3c/dom/Node.getAttributes:()Lorg/w3c/dom/NamedNodeMap;
+       108: ldc           #175                // String classId
+       110: invokeinterface #166,  2          // InterfaceMethod org/w3c/dom/NamedNodeMap.getNamedItem:(Ljava/lang/String;)Lorg/w3c/dom/Node;
+       115: astore        10
+       117: aload         10
+       119: ifnull        142
+       122: aload         10
+       124: invokeinterface #172,  1          // InterfaceMethod org/w3c/dom/Node.getNodeValue:()Ljava/lang/String;
+       129: invokestatic  #177                // Method java/lang/Integer.parseInt:(Ljava/lang/String;)I
+       132: istore_3
+       133: iload_3
+       134: invokestatic  #183                // Method org/l2jmobius/gameserver/entity/actor/enums/player/PlayerClass.getPlayerClass:(I)Lorg/l2jmobius/gameserver/entity/actor/enums/player/PlayerClass;
+       137: astore        4
+       139: goto          144
+       142: iconst_m1
+       143: istore_3
+       144: aload         6
+       146: invokeinterface #160,  1          // InterfaceMethod org/w3c/dom/Node.getAttributes:()Lorg/w3c/dom/NamedNodeMap;
+       151: ldc           #187                // String parentClassId
+       153: invokeinterface #166,  2          // InterfaceMethod org/w3c/dom/NamedNodeMap.getNamedItem:(Ljava/lang/String;)Lorg/w3c/dom/Node;
+       158: astore        10
+       160: aload         10
+       162: ifnull        225
+       165: aload         10
+       167: invokeinterface #172,  1          // InterfaceMethod org/w3c/dom/Node.getNodeValue:()Ljava/lang/String;
+       172: invokestatic  #177                // Method java/lang/Integer.parseInt:(Ljava/lang/String;)I
+       175: istore        11
+       177: iload_3
+       178: iconst_m1
+       179: if_icmple     225
+       182: iload_3
+       183: iload         11
+       185: if_icmpeq     225
+       188: iload         11
+       190: iconst_m1
+       191: if_icmple     225
+       194: aload_0
+       195: getfield      #61                 // Field _parentClassMap:Ljava/util/Map;
+       198: aload         4
+       200: invokeinterface #189,  2          // InterfaceMethod java/util/Map.containsKey:(Ljava/lang/Object;)Z
+       205: ifne          225
+       208: aload_0
+       209: getfield      #61                 // Field _parentClassMap:Ljava/util/Map;
+       212: aload         4
+       214: iload         11
+       216: invokestatic  #183                // Method org/l2jmobius/gameserver/entity/actor/enums/player/PlayerClass.getPlayerClass:(I)Lorg/l2jmobius/gameserver/entity/actor/enums/player/PlayerClass;
+       219: invokeinterface #127,  3          // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+       224: pop
+       225: aload         6
+       227: invokeinterface #157,  1          // InterfaceMethod org/w3c/dom/Node.getFirstChild:()Lorg/w3c/dom/Node;
+       232: astore        11
+       234: aload         11
+       236: ifnull        1441
+       239: ldc           #193                // String skill
+       241: aload         11
+       243: invokeinterface #145,  1          // InterfaceMethod org/w3c/dom/Node.getNodeName:()Ljava/lang/String;
+       248: invokevirtual #151                // Method java/lang/String.equalsIgnoreCase:(Ljava/lang/String;)Z
+       251: ifeq          1429
+       254: new           #195                // class org/l2jmobius/gameserver/util/StatSet
+       257: dup
+       258: invokespecial #197                // Method org/l2jmobius/gameserver/util/StatSet."<init>":()V
+       261: astore        12
+       263: aload         11
+       265: invokeinterface #160,  1          // InterfaceMethod org/w3c/dom/Node.getAttributes:()Lorg/w3c/dom/NamedNodeMap;
+       270: astore        13
+       272: iconst_0
+       273: istore        14
+       275: iload         14
+       277: aload         13
+       279: invokeinterface #198,  1          // InterfaceMethod org/w3c/dom/NamedNodeMap.getLength:()I
+       284: if_icmpge     323
+       287: aload         13
+       289: iload         14
+       291: invokeinterface #202,  2          // InterfaceMethod org/w3c/dom/NamedNodeMap.item:(I)Lorg/w3c/dom/Node;
+       296: astore        10
+       298: aload         12
+       300: aload         10
+       302: invokeinterface #145,  1          // InterfaceMethod org/w3c/dom/Node.getNodeName:()Ljava/lang/String;
+       307: aload         10
+       309: invokeinterface #172,  1          // InterfaceMethod org/w3c/dom/Node.getNodeValue:()Ljava/lang/String;
+       314: invokevirtual #206                // Method org/l2jmobius/gameserver/util/StatSet.set:(Ljava/lang/String;Ljava/lang/String;)V
+       317: iinc          14, 1
+       320: goto          275
+       323: new           #210                // class org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn
+       326: dup
+       327: aload         12
+       329: invokespecial #212                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn."<init>":(Lorg/l2jmobius/gameserver/util/StatSet;)V
+       332: astore        14
+       334: aload         11
+       336: invokeinterface #157,  1          // InterfaceMethod org/w3c/dom/Node.getFirstChild:()Lorg/w3c/dom/Node;
+       341: astore        15
+       343: aload         15
+       345: ifnull        742
+       348: aload         15
+       350: invokeinterface #160,  1          // InterfaceMethod org/w3c/dom/Node.getAttributes:()Lorg/w3c/dom/NamedNodeMap;
+       355: astore        13
+       357: aload         15
+       359: invokeinterface #145,  1          // InterfaceMethod org/w3c/dom/Node.getNodeName:()Ljava/lang/String;
+       364: astore        16
+       366: iconst_m1
+       367: istore        17
+       369: aload         16
+       371: invokevirtual #215                // Method java/lang/String.hashCode:()I
+       374: lookupswitch  { // 6
+
+             -2016330229: 496
+
+                 3242771: 432
+
+                 3492561: 464
+
+               657163611: 448
+
+              1097841345: 480
+
+              1233450992: 512
+                 default: 525
+            }
+       432: aload         16
+       434: ldc           #218                // String item
+       436: invokevirtual #219                // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       439: ifeq          525
+       442: iconst_0
+       443: istore        17
+       445: goto          525
+       448: aload         16
+       450: ldc           #222                // String preRequisiteSkill
+       452: invokevirtual #219                // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       455: ifeq          525
+       458: iconst_1
+       459: istore        17
+       461: goto          525
+       464: aload         16
+       466: ldc           #224                // String race
+       468: invokevirtual #219                // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       471: ifeq          525
+       474: iconst_2
+       475: istore        17
+       477: goto          525
+       480: aload         16
+       482: ldc           #226                // String residenceId
+       484: invokevirtual #219                // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       487: ifeq          525
+       490: iconst_3
+       491: istore        17
+       493: goto          525
+       496: aload         16
+       498: ldc           #228                // String socialClass
+       500: invokevirtual #219                // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       503: ifeq          525
+       506: iconst_4
+       507: istore        17
+       509: goto          525
+       512: aload         16
+       514: ldc           #230                // String subClassConditions
+       516: invokevirtual #219                // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       519: ifeq          525
+       522: iconst_5
+       523: istore        17
+       525: iload         17
+       527: tableswitch   { // 0 to 5
+
+                       0: 564
+
+                       1: 602
+
+                       2: 639
+
+                       3: 657
+
+                       4: 678
+
+                       5: 702
+                 default: 730
+            }
+       564: aload         14
+       566: new           #232                // class org/l2jmobius/gameserver/entity/item/holders/ItemHolder
+       569: dup
+       570: aload_0
+       571: aload         13
+       573: ldc           #234                // String id
+       575: invokevirtual #236                // Method parseInteger:(Lorg/w3c/dom/NamedNodeMap;Ljava/lang/String;)Ljava/lang/Integer;
+       578: invokevirtual #240                // Method java/lang/Integer.intValue:()I
+       581: aload_0
+       582: aload         13
+       584: ldc           #243                // String count
+       586: invokevirtual #236                // Method parseInteger:(Lorg/w3c/dom/NamedNodeMap;Ljava/lang/String;)Ljava/lang/Integer;
+       589: invokevirtual #240                // Method java/lang/Integer.intValue:()I
+       592: i2l
+       593: invokespecial #245                // Method org/l2jmobius/gameserver/entity/item/holders/ItemHolder."<init>":(IJ)V
+       596: invokevirtual #248                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.addRequiredItem:(Lorg/l2jmobius/gameserver/entity/item/holders/ItemHolder;)V
+       599: goto          730
+       602: aload         14
+       604: new           #252                // class org/l2jmobius/gameserver/mechanics/skill/holders/SkillHolder
+       607: dup
+       608: aload_0
+       609: aload         13
+       611: ldc           #234                // String id
+       613: invokevirtual #236                // Method parseInteger:(Lorg/w3c/dom/NamedNodeMap;Ljava/lang/String;)Ljava/lang/Integer;
+       616: invokevirtual #240                // Method java/lang/Integer.intValue:()I
+       619: aload_0
+       620: aload         13
+       622: ldc           #254                // String lvl
+       624: invokevirtual #236                // Method parseInteger:(Lorg/w3c/dom/NamedNodeMap;Ljava/lang/String;)Ljava/lang/Integer;
+       627: invokevirtual #240                // Method java/lang/Integer.intValue:()I
+       630: invokespecial #256                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillHolder."<init>":(II)V
+       633: invokevirtual #259                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.addPreReqSkill:(Lorg/l2jmobius/gameserver/mechanics/skill/holders/SkillHolder;)V
+       636: goto          730
+       639: aload         14
+       641: aload         15
+       643: invokeinterface #263,  1          // InterfaceMethod org/w3c/dom/Node.getTextContent:()Ljava/lang/String;
+       648: invokestatic  #266                // Method org/l2jmobius/gameserver/entity/actor/enums/creature/Race.valueOf:(Ljava/lang/String;)Lorg/l2jmobius/gameserver/entity/actor/enums/creature/Race;
+       651: invokevirtual #272                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.addRace:(Lorg/l2jmobius/gameserver/entity/actor/enums/creature/Race;)V
+       654: goto          730
+       657: aload         14
+       659: aload         15
+       661: invokeinterface #263,  1          // InterfaceMethod org/w3c/dom/Node.getTextContent:()Ljava/lang/String;
+       666: invokestatic  #177                // Method java/lang/Integer.parseInt:(Ljava/lang/String;)I
+       669: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+       672: invokevirtual #279                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.addResidenceId:(Ljava/lang/Integer;)V
+       675: goto          730
+       678: aload         14
+       680: ldc_w         #283                // class org/l2jmobius/gameserver/entity/actor/enums/player/SocialClass
+       683: aload         15
+       685: invokeinterface #263,  1          // InterfaceMethod org/w3c/dom/Node.getTextContent:()Ljava/lang/String;
+       690: invokestatic  #285                // Method java/lang/Enum.valueOf:(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/Enum;
+       693: checkcast     #283                // class org/l2jmobius/gameserver/entity/actor/enums/player/SocialClass
+       696: invokevirtual #290                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.setSocialClass:(Lorg/l2jmobius/gameserver/entity/actor/enums/player/SocialClass;)V
+       699: goto          730
+       702: aload         14
+       704: aload_0
+       705: aload         13
+       707: ldc_w         #294                // String slot
+       710: invokevirtual #236                // Method parseInteger:(Lorg/w3c/dom/NamedNodeMap;Ljava/lang/String;)Ljava/lang/Integer;
+       713: invokevirtual #240                // Method java/lang/Integer.intValue:()I
+       716: aload_0
+       717: aload         13
+       719: ldc           #254                // String lvl
+       721: invokevirtual #236                // Method parseInteger:(Lorg/w3c/dom/NamedNodeMap;Ljava/lang/String;)Ljava/lang/Integer;
+       724: invokevirtual #240                // Method java/lang/Integer.intValue:()I
+       727: invokevirtual #296                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.addSubclassConditions:(II)V
+       730: aload         15
+       732: invokeinterface #299,  1          // InterfaceMethod org/w3c/dom/Node.getNextSibling:()Lorg/w3c/dom/Node;
+       737: astore        15
+       739: goto          343
+       742: aload         14
+       744: invokevirtual #302                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillId:()I
+       747: aload         14
+       749: invokevirtual #305                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillLevel:()I
+       752: invokestatic  #308                // Method org/l2jmobius/gameserver/data/xml/SkillData.getSkillHashCode:(II)I
+       755: istore        15
+       757: aload         9
+       759: astore        16
+       761: iconst_m1
+       762: istore        17
+       764: aload         16
+       766: invokevirtual #215                // Method java/lang/String.hashCode:()I
+       769: lookupswitch  { // 12
+
+             -1984688459: 1014
+
+             -1005501980: 893
+
+              -339442730: 944
+
+              -294299305: 961
+
+               371313333: 1032
+
+               644280195: 996
+
+               895038838: 978
+
+              1142848216: 1068
+
+              1143435003: 1050
+
+              1465094021: 910
+
+              1882636023: 876
+
+              1892194853: 927
+                 default: 1083
+            }
+       876: aload         16
+       878: ldc_w         #314                // String classSkillTree
+       881: invokevirtual #219                // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       884: ifeq          1083
+       887: iconst_0
+       888: istore        17
+       890: goto          1083
+       893: aload         16
+       895: ldc_w         #316                // String transferSkillTree
+       898: invokevirtual #219                // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       901: ifeq          1083
+       904: iconst_1
+       905: istore        17
+       907: goto          1083
+       910: aload         16
+       912: ldc_w         #318                // String collectSkillTree
+       915: invokevirtual #219                // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       918: ifeq          1083
+       921: iconst_2
+       922: istore        17
+       924: goto          1083
+       927: aload         16
+       929: ldc_w         #320                // String fishingSkillTree
+       932: invokevirtual #219                // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       935: ifeq          1083
+       938: iconst_3
+       939: istore        17
+       941: goto          1083
+       944: aload         16
+       946: ldc_w         #322                // String pledgeSkillTree
+       949: invokevirtual #219                // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       952: ifeq          1083
+       955: iconst_4
+       956: istore        17
+       958: goto          1083
+       961: aload         16
+       963: ldc_w         #324                // String subClassSkillTree
+       966: invokevirtual #219                // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       969: ifeq          1083
+       972: iconst_5
+       973: istore        17
+       975: goto          1083
+       978: aload         16
+       980: ldc_w         #326                // String subPledgeSkillTree
+       983: invokevirtual #219                // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       986: ifeq          1083
+       989: bipush        6
+       991: istore        17
+       993: goto          1083
+       996: aload         16
+       998: ldc_w         #328                // String transformSkillTree
+      1001: invokevirtual #219                // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+      1004: ifeq          1083
+      1007: bipush        7
+      1009: istore        17
+      1011: goto          1083
+      1014: aload         16
+      1016: ldc_w         #330                // String nobleSkillTree
+      1019: invokevirtual #219                // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+      1022: ifeq          1083
+      1025: bipush        8
+      1027: istore        17
+      1029: goto          1083
+      1032: aload         16
+      1034: ldc_w         #332                // String heroSkillTree
+      1037: invokevirtual #219                // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+      1040: ifeq          1083
+      1043: bipush        9
+      1045: istore        17
+      1047: goto          1083
+      1050: aload         16
+      1052: ldc_w         #334                // String gameMasterSkillTree
+      1055: invokevirtual #219                // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+      1058: ifeq          1083
+      1061: bipush        10
+      1063: istore        17
+      1065: goto          1083
+      1068: aload         16
+      1070: ldc_w         #336                // String gameMasterAuraSkillTree
+      1073: invokevirtual #219                // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+      1076: ifeq          1083
+      1079: bipush        11
+      1081: istore        17
+      1083: iload         17
+      1085: tableswitch   { // 0 to 11
+
+                       0: 1148
+
+                       1: 1191
+
+                       2: 1209
+
+                       3: 1229
+
+                       4: 1249
+
+                       5: 1269
+
+                       6: 1289
+
+                       7: 1309
+
+                       8: 1329
+
+                       9: 1349
+
+                      10: 1369
+
+                      11: 1389
+                 default: 1409
+            }
+      1148: iload_3
+      1149: iconst_m1
+      1150: if_icmpeq     1171
+      1153: aload         7
+      1155: iload         15
+      1157: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+      1160: aload         14
+      1162: invokeinterface #127,  3          // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+      1167: pop
+      1168: goto          1429
+      1171: aload_0
+      1172: getfield      #43                 // Field _commonSkillTree:Ljava/util/Map;
+      1175: iload         15
+      1177: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+      1180: aload         14
+      1182: invokeinterface #127,  3          // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+      1187: pop
+      1188: goto          1429
+      1191: aload         8
+      1193: iload         15
+      1195: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+      1198: aload         14
+      1200: invokeinterface #127,  3          // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+      1205: pop
+      1206: goto          1429
+      1209: aload_0
+      1210: getfield      #25                 // Field _collectSkillTree:Ljava/util/Map;
+      1213: iload         15
+      1215: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+      1218: aload         14
+      1220: invokeinterface #127,  3          // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+      1225: pop
+      1226: goto          1429
+      1229: aload_0
+      1230: getfield      #28                 // Field _fishingSkillTree:Ljava/util/Map;
+      1233: iload         15
+      1235: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+      1238: aload         14
+      1240: invokeinterface #127,  3          // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+      1245: pop
+      1246: goto          1429
+      1249: aload_0
+      1250: getfield      #31                 // Field _pledgeSkillTree:Ljava/util/Map;
+      1253: iload         15
+      1255: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+      1258: aload         14
+      1260: invokeinterface #127,  3          // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+      1265: pop
+      1266: goto          1429
+      1269: aload_0
+      1270: getfield      #34                 // Field _subClassSkillTree:Ljava/util/Map;
+      1273: iload         15
+      1275: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+      1278: aload         14
+      1280: invokeinterface #127,  3          // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+      1285: pop
+      1286: goto          1429
+      1289: aload_0
+      1290: getfield      #37                 // Field _subPledgeSkillTree:Ljava/util/Map;
+      1293: iload         15
+      1295: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+      1298: aload         14
+      1300: invokeinterface #127,  3          // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+      1305: pop
+      1306: goto          1429
+      1309: aload_0
+      1310: getfield      #40                 // Field _transformSkillTree:Ljava/util/Map;
+      1313: iload         15
+      1315: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+      1318: aload         14
+      1320: invokeinterface #127,  3          // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+      1325: pop
+      1326: goto          1429
+      1329: aload_0
+      1330: getfield      #46                 // Field _nobleSkillTree:Ljava/util/Map;
+      1333: iload         15
+      1335: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+      1338: aload         14
+      1340: invokeinterface #127,  3          // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+      1345: pop
+      1346: goto          1429
+      1349: aload_0
+      1350: getfield      #49                 // Field _heroSkillTree:Ljava/util/Map;
+      1353: iload         15
+      1355: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+      1358: aload         14
+      1360: invokeinterface #127,  3          // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+      1365: pop
+      1366: goto          1429
+      1369: aload_0
+      1370: getfield      #52                 // Field _gameMasterSkillTree:Ljava/util/Map;
+      1373: iload         15
+      1375: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+      1378: aload         14
+      1380: invokeinterface #127,  3          // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+      1385: pop
+      1386: goto          1429
+      1389: aload_0
+      1390: getfield      #55                 // Field _gameMasterAuraSkillTree:Ljava/util/Map;
+      1393: iload         15
+      1395: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+      1398: aload         14
+      1400: invokeinterface #127,  3          // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+      1405: pop
+      1406: goto          1429
+      1409: getstatic     #338                // Field LOGGER:Ljava/util/logging/Logger;
+      1412: aload_0
+      1413: invokevirtual #342                // Method java/lang/Object.getClass:()Ljava/lang/Class;
+      1416: invokevirtual #346                // Method java/lang/Class.getSimpleName:()Ljava/lang/String;
+      1419: aload         9
+      1421: invokedynamic #351,  0            // InvokeDynamic #0:makeConcatWithConstants:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+      1426: invokevirtual #355                // Method java/util/logging/Logger.warning:(Ljava/lang/String;)V
+      1429: aload         11
+      1431: invokeinterface #299,  1          // InterfaceMethod org/w3c/dom/Node.getNextSibling:()Lorg/w3c/dom/Node;
+      1436: astore        11
+      1438: goto          234
+      1441: aload         9
+      1443: ldc_w         #316                // String transferSkillTree
+      1446: invokevirtual #219                // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+      1449: ifeq          1469
+      1452: aload_0
+      1453: getfield      #22                 // Field _transferSkillTrees:Ljava/util/Map;
+      1456: aload         4
+      1458: aload         8
+      1460: invokeinterface #127,  3          // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+      1465: pop
+      1466: goto          1537
+      1469: aload         9
+      1471: ldc_w         #314                // String classSkillTree
+      1474: invokevirtual #219                // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+      1477: ifeq          1537
+      1480: iload_3
+      1481: iconst_m1
+      1482: if_icmple     1537
+      1485: aload_0
+      1486: getfield      #10                 // Field _classSkillTrees:Ljava/util/Map;
+      1489: aload         4
+      1491: invokeinterface #189,  2          // InterfaceMethod java/util/Map.containsKey:(Ljava/lang/Object;)Z
+      1496: ifne          1516
+      1499: aload_0
+      1500: getfield      #10                 // Field _classSkillTrees:Ljava/util/Map;
+      1503: aload         4
+      1505: aload         7
+      1507: invokeinterface #127,  3          // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+      1512: pop
+      1513: goto          1537
+      1516: aload_0
+      1517: getfield      #10                 // Field _classSkillTrees:Ljava/util/Map;
+      1520: aload         4
+      1522: invokeinterface #122,  2          // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+      1527: checkcast     #72                 // class java/util/Map
+      1530: aload         7
+      1532: invokeinterface #104,  2          // InterfaceMethod java/util/Map.putAll:(Ljava/util/Map;)V
+      1537: aload         6
+      1539: invokeinterface #299,  1          // InterfaceMethod org/w3c/dom/Node.getNextSibling:()Lorg/w3c/dom/Node;
+      1544: astore        6
+      1546: goto          42
+      1549: aload         5
+      1551: invokeinterface #299,  1          // InterfaceMethod org/w3c/dom/Node.getNextSibling:()Lorg/w3c/dom/Node;
+      1556: astore        5
+      1558: goto          13
+      1561: return
+
+  public java.util.Map<java.lang.Integer, org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> getCompleteClassSkillTree(org.l2jmobius.gameserver.entity.actor.enums.player.PlayerClass);
+    Code:
+         0: aload_0
+         1: getfield      #19                 // Field _completeClassSkillTree:Ljava/util/Map;
+         4: aload_1
+         5: invokestatic  #361                // Method java/util/Collections.emptyMap:()Ljava/util/Map;
+         8: invokeinterface #367,  3          // InterfaceMethod java/util/Map.getOrDefault:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+        13: checkcast     #72                 // class java/util/Map
+        16: areturn
+
+  public java.util.Map<java.lang.Integer, org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> getTransferSkillTree(org.l2jmobius.gameserver.entity.actor.enums.player.PlayerClass);
+    Code:
+         0: aload_1
+         1: invokevirtual #370                // Method org/l2jmobius/gameserver/entity/actor/enums/player/PlayerClass.level:()I
+         4: iconst_3
+         5: if_icmplt     17
+         8: aload_0
+         9: aload_1
+        10: invokevirtual #373                // Method org/l2jmobius/gameserver/entity/actor/enums/player/PlayerClass.getParent:()Lorg/l2jmobius/gameserver/entity/actor/enums/player/PlayerClass;
+        13: invokevirtual #377                // Method getTransferSkillTree:(Lorg/l2jmobius/gameserver/entity/actor/enums/player/PlayerClass;)Ljava/util/Map;
+        16: areturn
+        17: aload_0
+        18: getfield      #22                 // Field _transferSkillTrees:Ljava/util/Map;
+        21: aload_1
+        22: invokeinterface #122,  2          // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+        27: checkcast     #72                 // class java/util/Map
+        30: areturn
+
+  public java.util.Map<java.lang.Integer, org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> getCommonSkillTree();
+    Code:
+         0: aload_0
+         1: getfield      #43                 // Field _commonSkillTree:Ljava/util/Map;
+         4: areturn
+
+  public java.util.Map<java.lang.Integer, org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> getCollectSkillTree();
+    Code:
+         0: aload_0
+         1: getfield      #25                 // Field _collectSkillTree:Ljava/util/Map;
+         4: areturn
+
+  public java.util.Map<java.lang.Integer, org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> getFishingSkillTree();
+    Code:
+         0: aload_0
+         1: getfield      #28                 // Field _fishingSkillTree:Ljava/util/Map;
+         4: areturn
+
+  public java.util.Map<java.lang.Integer, org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> getPledgeSkillTree();
+    Code:
+         0: aload_0
+         1: getfield      #31                 // Field _pledgeSkillTree:Ljava/util/Map;
+         4: areturn
+
+  public java.util.Map<java.lang.Integer, org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> getSubClassSkillTree();
+    Code:
+         0: aload_0
+         1: getfield      #34                 // Field _subClassSkillTree:Ljava/util/Map;
+         4: areturn
+
+  public java.util.Map<java.lang.Integer, org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> getSubPledgeSkillTree();
+    Code:
+         0: aload_0
+         1: getfield      #37                 // Field _subPledgeSkillTree:Ljava/util/Map;
+         4: areturn
+
+  public java.util.Map<java.lang.Integer, org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> getTransformSkillTree();
+    Code:
+         0: aload_0
+         1: getfield      #40                 // Field _transformSkillTree:Ljava/util/Map;
+         4: areturn
+
+  public java.util.Map<java.lang.Integer, org.l2jmobius.gameserver.mechanics.skill.Skill> getNobleSkillTree();
+    Code:
+         0: new           #16                 // class java/util/HashMap
+         3: dup
+         4: invokespecial #18                 // Method java/util/HashMap."<init>":()V
+         7: astore_1
+         8: invokestatic  #381                // Method org/l2jmobius/gameserver/data/xml/SkillData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/SkillData;
+        11: astore_2
+        12: aload_0
+        13: getfield      #46                 // Field _nobleSkillTree:Ljava/util/Map;
+        16: invokeinterface #82,  1           // InterfaceMethod java/util/Map.entrySet:()Ljava/util/Set;
+        21: invokeinterface #86,  1           // InterfaceMethod java/util/Set.iterator:()Ljava/util/Iterator;
+        26: astore_3
+        27: aload_3
+        28: invokeinterface #92,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+        33: ifeq          97
+        36: aload_3
+        37: invokeinterface #98,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        42: checkcast     #102                // class java/util/Map$Entry
+        45: astore        4
+        47: aload_1
+        48: aload         4
+        50: invokeinterface #108,  1          // InterfaceMethod java/util/Map$Entry.getKey:()Ljava/lang/Object;
+        55: checkcast     #178                // class java/lang/Integer
+        58: aload_2
+        59: aload         4
+        61: invokeinterface #385,  1          // InterfaceMethod java/util/Map$Entry.getValue:()Ljava/lang/Object;
+        66: checkcast     #210                // class org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn
+        69: invokevirtual #302                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillId:()I
+        72: aload         4
+        74: invokeinterface #385,  1          // InterfaceMethod java/util/Map$Entry.getValue:()Ljava/lang/Object;
+        79: checkcast     #210                // class org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn
+        82: invokevirtual #305                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillLevel:()I
+        85: invokevirtual #388                // Method org/l2jmobius/gameserver/data/xml/SkillData.getSkill:(II)Lorg/l2jmobius/gameserver/mechanics/skill/Skill;
+        88: invokeinterface #127,  3          // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+        93: pop
+        94: goto          27
+        97: aload_1
+        98: areturn
+
+  public java.util.Map<java.lang.Integer, org.l2jmobius.gameserver.mechanics.skill.Skill> getHeroSkillTree();
+    Code:
+         0: new           #16                 // class java/util/HashMap
+         3: dup
+         4: invokespecial #18                 // Method java/util/HashMap."<init>":()V
+         7: astore_1
+         8: invokestatic  #381                // Method org/l2jmobius/gameserver/data/xml/SkillData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/SkillData;
+        11: astore_2
+        12: aload_0
+        13: getfield      #49                 // Field _heroSkillTree:Ljava/util/Map;
+        16: invokeinterface #82,  1           // InterfaceMethod java/util/Map.entrySet:()Ljava/util/Set;
+        21: invokeinterface #86,  1           // InterfaceMethod java/util/Set.iterator:()Ljava/util/Iterator;
+        26: astore_3
+        27: aload_3
+        28: invokeinterface #92,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+        33: ifeq          97
+        36: aload_3
+        37: invokeinterface #98,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        42: checkcast     #102                // class java/util/Map$Entry
+        45: astore        4
+        47: aload_1
+        48: aload         4
+        50: invokeinterface #108,  1          // InterfaceMethod java/util/Map$Entry.getKey:()Ljava/lang/Object;
+        55: checkcast     #178                // class java/lang/Integer
+        58: aload_2
+        59: aload         4
+        61: invokeinterface #385,  1          // InterfaceMethod java/util/Map$Entry.getValue:()Ljava/lang/Object;
+        66: checkcast     #210                // class org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn
+        69: invokevirtual #302                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillId:()I
+        72: aload         4
+        74: invokeinterface #385,  1          // InterfaceMethod java/util/Map$Entry.getValue:()Ljava/lang/Object;
+        79: checkcast     #210                // class org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn
+        82: invokevirtual #305                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillLevel:()I
+        85: invokevirtual #388                // Method org/l2jmobius/gameserver/data/xml/SkillData.getSkill:(II)Lorg/l2jmobius/gameserver/mechanics/skill/Skill;
+        88: invokeinterface #127,  3          // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+        93: pop
+        94: goto          27
+        97: aload_1
+        98: areturn
+
+  public java.util.Map<java.lang.Integer, org.l2jmobius.gameserver.mechanics.skill.Skill> getGMSkillTree();
+    Code:
+         0: new           #16                 // class java/util/HashMap
+         3: dup
+         4: invokespecial #18                 // Method java/util/HashMap."<init>":()V
+         7: astore_1
+         8: invokestatic  #381                // Method org/l2jmobius/gameserver/data/xml/SkillData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/SkillData;
+        11: astore_2
+        12: aload_0
+        13: getfield      #52                 // Field _gameMasterSkillTree:Ljava/util/Map;
+        16: invokeinterface #82,  1           // InterfaceMethod java/util/Map.entrySet:()Ljava/util/Set;
+        21: invokeinterface #86,  1           // InterfaceMethod java/util/Set.iterator:()Ljava/util/Iterator;
+        26: astore_3
+        27: aload_3
+        28: invokeinterface #92,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+        33: ifeq          97
+        36: aload_3
+        37: invokeinterface #98,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        42: checkcast     #102                // class java/util/Map$Entry
+        45: astore        4
+        47: aload_1
+        48: aload         4
+        50: invokeinterface #108,  1          // InterfaceMethod java/util/Map$Entry.getKey:()Ljava/lang/Object;
+        55: checkcast     #178                // class java/lang/Integer
+        58: aload_2
+        59: aload         4
+        61: invokeinterface #385,  1          // InterfaceMethod java/util/Map$Entry.getValue:()Ljava/lang/Object;
+        66: checkcast     #210                // class org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn
+        69: invokevirtual #302                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillId:()I
+        72: aload         4
+        74: invokeinterface #385,  1          // InterfaceMethod java/util/Map$Entry.getValue:()Ljava/lang/Object;
+        79: checkcast     #210                // class org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn
+        82: invokevirtual #305                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillLevel:()I
+        85: invokevirtual #388                // Method org/l2jmobius/gameserver/data/xml/SkillData.getSkill:(II)Lorg/l2jmobius/gameserver/mechanics/skill/Skill;
+        88: invokeinterface #127,  3          // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+        93: pop
+        94: goto          27
+        97: aload_1
+        98: areturn
+
+  public java.util.Map<java.lang.Integer, org.l2jmobius.gameserver.mechanics.skill.Skill> getGMAuraSkillTree();
+    Code:
+         0: new           #16                 // class java/util/HashMap
+         3: dup
+         4: invokespecial #18                 // Method java/util/HashMap."<init>":()V
+         7: astore_1
+         8: invokestatic  #381                // Method org/l2jmobius/gameserver/data/xml/SkillData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/SkillData;
+        11: astore_2
+        12: aload_0
+        13: getfield      #55                 // Field _gameMasterAuraSkillTree:Ljava/util/Map;
+        16: invokeinterface #82,  1           // InterfaceMethod java/util/Map.entrySet:()Ljava/util/Set;
+        21: invokeinterface #86,  1           // InterfaceMethod java/util/Set.iterator:()Ljava/util/Iterator;
+        26: astore_3
+        27: aload_3
+        28: invokeinterface #92,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+        33: ifeq          97
+        36: aload_3
+        37: invokeinterface #98,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        42: checkcast     #102                // class java/util/Map$Entry
+        45: astore        4
+        47: aload_1
+        48: aload         4
+        50: invokeinterface #108,  1          // InterfaceMethod java/util/Map$Entry.getKey:()Ljava/lang/Object;
+        55: checkcast     #178                // class java/lang/Integer
+        58: aload_2
+        59: aload         4
+        61: invokeinterface #385,  1          // InterfaceMethod java/util/Map$Entry.getValue:()Ljava/lang/Object;
+        66: checkcast     #210                // class org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn
+        69: invokevirtual #302                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillId:()I
+        72: aload         4
+        74: invokeinterface #385,  1          // InterfaceMethod java/util/Map$Entry.getValue:()Ljava/lang/Object;
+        79: checkcast     #210                // class org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn
+        82: invokevirtual #305                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillLevel:()I
+        85: invokevirtual #388                // Method org/l2jmobius/gameserver/data/xml/SkillData.getSkill:(II)Lorg/l2jmobius/gameserver/mechanics/skill/Skill;
+        88: invokeinterface #127,  3          // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+        93: pop
+        94: goto          27
+        97: aload_1
+        98: areturn
+
+  public java.util.Collection<org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> getAvailableSkills(org.l2jmobius.gameserver.entity.actor.Player, org.l2jmobius.gameserver.entity.actor.enums.player.PlayerClass, boolean, boolean);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: aload_2
+         3: iload_3
+         4: iload         4
+         6: iconst_1
+         7: aload_1
+         8: invokevirtual #392                // Method org/l2jmobius/gameserver/entity/actor/Player.getSkills:()Ljava/util/Map;
+        11: invokevirtual #397                // Method getAvailableSkills:(Lorg/l2jmobius/gameserver/entity/actor/Player;Lorg/l2jmobius/gameserver/entity/actor/enums/player/PlayerClass;ZZZLjava/util/Map;)Ljava/util/Collection;
+        14: areturn
+
+  private java.util.Collection<org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> getAvailableSkills(org.l2jmobius.gameserver.entity.actor.Player, org.l2jmobius.gameserver.entity.actor.enums.player.PlayerClass, boolean, boolean, boolean, java.util.Map<java.lang.Integer, org.l2jmobius.gameserver.mechanics.skill.Skill>);
+    Code:
+         0: new           #113                // class java/util/ArrayList
+         3: dup
+         4: invokespecial #115                // Method java/util/ArrayList."<init>":()V
+         7: astore        7
+         9: aload_0
+        10: aload_2
+        11: invokevirtual #401                // Method getCompleteClassSkillTree:(Lorg/l2jmobius/gameserver/entity/actor/enums/player/PlayerClass;)Ljava/util/Map;
+        14: astore        8
+        16: aload         8
+        18: invokeinterface #404,  1          // InterfaceMethod java/util/Map.isEmpty:()Z
+        23: ifeq          51
+        26: getstatic     #338                // Field LOGGER:Ljava/util/logging/Logger;
+        29: aload_0
+        30: invokevirtual #342                // Method java/lang/Object.getClass:()Ljava/lang/Class;
+        33: invokevirtual #346                // Method java/lang/Class.getSimpleName:()Ljava/lang/String;
+        36: aload_2
+        37: invokestatic  #407                // Method java/lang/String.valueOf:(Ljava/lang/Object;)Ljava/lang/String;
+        40: invokedynamic #410,  0            // InvokeDynamic #1:makeConcatWithConstants:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+        45: invokevirtual #355                // Method java/util/logging/Logger.warning:(Ljava/lang/String;)V
+        48: aload         7
+        50: areturn
+        51: aload         8
+        53: invokeinterface #411,  1          // InterfaceMethod java/util/Map.values:()Ljava/util/Collection;
+        58: invokeinterface #415,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+        63: astore        9
+        65: aload         9
+        67: invokeinterface #92,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+        72: ifeq          274
+        75: aload         9
+        77: invokeinterface #98,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        82: checkcast     #210                // class org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn
+        85: astore        10
+        87: aload         10
+        89: invokevirtual #302                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillId:()I
+        92: getstatic     #418                // Field org/l2jmobius/gameserver/mechanics/skill/CommonSkill.DIVINE_INSPIRATION:Lorg/l2jmobius/gameserver/mechanics/skill/CommonSkill;
+        95: invokevirtual #424                // Method org/l2jmobius/gameserver/mechanics/skill/CommonSkill.getId:()I
+        98: if_icmpne     122
+       101: getstatic     #427                // Field org/l2jmobius/gameserver/config/PlayerConfig.AUTO_LEARN_DIVINE_INSPIRATION:Z
+       104: ifne          122
+       107: iload         4
+       109: ifeq          122
+       112: aload_1
+       113: invokevirtual #432                // Method org/l2jmobius/gameserver/entity/actor/Player.isGM:()Z
+       116: ifne          122
+       119: goto          65
+       122: iload         4
+       124: ifeq          135
+       127: aload         10
+       129: invokevirtual #435                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.isAutoGet:()Z
+       132: ifne          155
+       135: aload         10
+       137: invokevirtual #438                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.isLearnedByNpc:()Z
+       140: ifne          155
+       143: iload_3
+       144: ifeq          65
+       147: aload         10
+       149: invokevirtual #441                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.isLearnedByFS:()Z
+       152: ifeq          65
+       155: aload_1
+       156: invokevirtual #444                // Method org/l2jmobius/gameserver/entity/actor/Player.getLevel:()I
+       159: aload         10
+       161: invokevirtual #447                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getGetLevel:()I
+       164: if_icmpge     170
+       167: goto          65
+       170: iload         5
+       172: ifne          199
+       175: aload         10
+       177: invokevirtual #450                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getRequiredItems:()Ljava/util/Set;
+       180: invokeinterface #453,  1          // InterfaceMethod java/util/Set.isEmpty:()Z
+       185: ifne          199
+       188: aload         10
+       190: invokevirtual #441                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.isLearnedByFS:()Z
+       193: ifne          199
+       196: goto          65
+       199: aload         6
+       201: aload         10
+       203: invokevirtual #302                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillId:()I
+       206: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+       209: invokeinterface #122,  2          // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+       214: checkcast     #454                // class org/l2jmobius/gameserver/mechanics/skill/Skill
+       217: astore        11
+       219: aload         11
+       221: ifnull        252
+       224: aload         11
+       226: invokevirtual #456                // Method org/l2jmobius/gameserver/mechanics/skill/Skill.getLevel:()I
+       229: aload         10
+       231: invokevirtual #305                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillLevel:()I
+       234: iconst_1
+       235: isub
+       236: if_icmpne     271
+       239: aload         7
+       241: aload         10
+       243: invokeinterface #457,  2          // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+       248: pop
+       249: goto          271
+       252: aload         10
+       254: invokevirtual #305                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillLevel:()I
+       257: iconst_1
+       258: if_icmpne     271
+       261: aload         7
+       263: aload         10
+       265: invokeinterface #457,  2          // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+       270: pop
+       271: goto          65
+       274: aload         7
+       276: areturn
+
+  public java.util.Collection<org.l2jmobius.gameserver.mechanics.skill.Skill> getAllAvailableSkills(org.l2jmobius.gameserver.entity.actor.Player, org.l2jmobius.gameserver.entity.actor.enums.player.PlayerClass, boolean, boolean, boolean);
+    Code:
+         0: new           #16                 // class java/util/HashMap
+         3: dup
+         4: invokespecial #18                 // Method java/util/HashMap."<init>":()V
+         7: astore        6
+         9: aload_1
+        10: invokevirtual #392                // Method org/l2jmobius/gameserver/entity/actor/Player.getSkills:()Ljava/util/Map;
+        13: invokeinterface #411,  1          // InterfaceMethod java/util/Map.values:()Ljava/util/Collection;
+        18: invokeinterface #415,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+        23: astore        7
+        25: aload         7
+        27: invokeinterface #92,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+        32: ifeq          78
+        35: aload         7
+        37: invokeinterface #98,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        42: checkcast     #454                // class org/l2jmobius/gameserver/mechanics/skill/Skill
+        45: astore        8
+        47: aload_0
+        48: aload_1
+        49: aload         8
+        51: invokevirtual #460                // Method isSkillAllowed:(Lorg/l2jmobius/gameserver/entity/actor/Player;Lorg/l2jmobius/gameserver/mechanics/skill/Skill;)Z
+        54: ifeq          75
+        57: aload         6
+        59: aload         8
+        61: invokevirtual #464                // Method org/l2jmobius/gameserver/mechanics/skill/Skill.getId:()I
+        64: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+        67: aload         8
+        69: invokeinterface #127,  3          // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+        74: pop
+        75: goto          25
+        78: aconst_null
+        79: astore        8
+        81: aload_0
+        82: aload_1
+        83: aload_2
+        84: iload_3
+        85: iload         4
+        87: iload         5
+        89: aload         6
+        91: invokevirtual #397                // Method getAvailableSkills:(Lorg/l2jmobius/gameserver/entity/actor/Player;Lorg/l2jmobius/gameserver/entity/actor/enums/player/PlayerClass;ZZZLjava/util/Map;)Ljava/util/Collection;
+        94: astore        7
+        96: aload         7
+        98: invokeinterface #465,  1          // InterfaceMethod java/util/Collection.isEmpty:()Z
+       103: ifeq          109
+       106: goto          201
+       109: aload         7
+       111: aload         8
+       113: invokeinterface #466,  2          // InterfaceMethod java/util/Collection.equals:(Ljava/lang/Object;)Z
+       118: ifeq          124
+       121: goto          201
+       124: aload         7
+       126: invokeinterface #415,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+       131: astore        9
+       133: aload         9
+       135: invokeinterface #92,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+       140: ifeq          194
+       143: aload         9
+       145: invokeinterface #98,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+       150: checkcast     #210                // class org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn
+       153: astore        10
+       155: invokestatic  #381                // Method org/l2jmobius/gameserver/data/xml/SkillData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/SkillData;
+       158: aload         10
+       160: invokevirtual #302                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillId:()I
+       163: aload         10
+       165: invokevirtual #305                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillLevel:()I
+       168: invokevirtual #388                // Method org/l2jmobius/gameserver/data/xml/SkillData.getSkill:(II)Lorg/l2jmobius/gameserver/mechanics/skill/Skill;
+       171: astore        11
+       173: aload         6
+       175: aload         11
+       177: invokevirtual #464                // Method org/l2jmobius/gameserver/mechanics/skill/Skill.getId:()I
+       180: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+       183: aload         11
+       185: invokeinterface #127,  3          // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+       190: pop
+       191: goto          133
+       194: aload         7
+       196: astore        8
+       198: goto          81
+       201: aload         6
+       203: invokeinterface #411,  1          // InterfaceMethod java/util/Map.values:()Ljava/util/Collection;
+       208: areturn
+
+  public java.util.List<org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> getAvailableAutoGetSkills(org.l2jmobius.gameserver.entity.actor.Player);
+    Code:
+         0: new           #113                // class java/util/ArrayList
+         3: dup
+         4: invokespecial #115                // Method java/util/ArrayList."<init>":()V
+         7: astore_2
+         8: aload_0
+         9: aload_1
+        10: invokevirtual #467                // Method org/l2jmobius/gameserver/entity/actor/Player.getPlayerClass:()Lorg/l2jmobius/gameserver/entity/actor/enums/player/PlayerClass;
+        13: invokevirtual #401                // Method getCompleteClassSkillTree:(Lorg/l2jmobius/gameserver/entity/actor/enums/player/PlayerClass;)Ljava/util/Map;
+        16: astore_3
+        17: aload_3
+        18: invokeinterface #404,  1          // InterfaceMethod java/util/Map.isEmpty:()Z
+        23: ifeq          53
+        26: getstatic     #338                // Field LOGGER:Ljava/util/logging/Logger;
+        29: aload_0
+        30: invokevirtual #342                // Method java/lang/Object.getClass:()Ljava/lang/Class;
+        33: invokevirtual #346                // Method java/lang/Class.getSimpleName:()Ljava/lang/String;
+        36: aload_1
+        37: invokevirtual #467                // Method org/l2jmobius/gameserver/entity/actor/Player.getPlayerClass:()Lorg/l2jmobius/gameserver/entity/actor/enums/player/PlayerClass;
+        40: invokestatic  #407                // Method java/lang/String.valueOf:(Ljava/lang/Object;)Ljava/lang/String;
+        43: invokedynamic #469,  0            // InvokeDynamic #2:makeConcatWithConstants:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+        48: invokevirtual #355                // Method java/util/logging/Logger.warning:(Ljava/lang/String;)V
+        51: aload_2
+        52: areturn
+        53: aload_1
+        54: invokevirtual #470                // Method org/l2jmobius/gameserver/entity/actor/Player.getRace:()Lorg/l2jmobius/gameserver/entity/actor/enums/creature/Race;
+        57: astore        4
+        59: aload_3
+        60: invokeinterface #411,  1          // InterfaceMethod java/util/Map.values:()Ljava/util/Collection;
+        65: invokeinterface #415,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+        70: astore        5
+        72: aload         5
+        74: invokeinterface #92,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+        79: ifeq          209
+        82: aload         5
+        84: invokeinterface #98,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        89: checkcast     #210                // class org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn
+        92: astore        6
+        94: aload         6
+        96: invokevirtual #474                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getRaces:()Ljava/util/Set;
+        99: invokeinterface #453,  1          // InterfaceMethod java/util/Set.isEmpty:()Z
+       104: ifne          125
+       107: aload         6
+       109: invokevirtual #474                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getRaces:()Ljava/util/Set;
+       112: aload         4
+       114: invokeinterface #477,  2          // InterfaceMethod java/util/Set.contains:(Ljava/lang/Object;)Z
+       119: ifne          125
+       122: goto          72
+       125: aload         6
+       127: invokevirtual #435                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.isAutoGet:()Z
+       130: ifeq          206
+       133: aload_1
+       134: invokevirtual #444                // Method org/l2jmobius/gameserver/entity/actor/Player.getLevel:()I
+       137: aload         6
+       139: invokevirtual #447                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getGetLevel:()I
+       142: if_icmplt     206
+       145: aload_1
+       146: invokevirtual #392                // Method org/l2jmobius/gameserver/entity/actor/Player.getSkills:()Ljava/util/Map;
+       149: aload         6
+       151: invokevirtual #302                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillId:()I
+       154: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+       157: invokeinterface #122,  2          // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+       162: checkcast     #454                // class org/l2jmobius/gameserver/mechanics/skill/Skill
+       165: astore        7
+       167: aload         7
+       169: ifnull        197
+       172: aload         7
+       174: invokevirtual #456                // Method org/l2jmobius/gameserver/mechanics/skill/Skill.getLevel:()I
+       177: aload         6
+       179: invokevirtual #305                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillLevel:()I
+       182: if_icmpge     206
+       185: aload_2
+       186: aload         6
+       188: invokeinterface #457,  2          // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+       193: pop
+       194: goto          206
+       197: aload_2
+       198: aload         6
+       200: invokeinterface #457,  2          // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+       205: pop
+       206: goto          72
+       209: aload_2
+       210: areturn
+
+  public java.util.List<org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> getAvailableFishingSkills(org.l2jmobius.gameserver.entity.actor.Player);
+    Code:
+         0: new           #113                // class java/util/ArrayList
+         3: dup
+         4: invokespecial #115                // Method java/util/ArrayList."<init>":()V
+         7: astore_2
+         8: aload_1
+         9: invokevirtual #470                // Method org/l2jmobius/gameserver/entity/actor/Player.getRace:()Lorg/l2jmobius/gameserver/entity/actor/enums/creature/Race;
+        12: astore_3
+        13: aload_0
+        14: getfield      #28                 // Field _fishingSkillTree:Ljava/util/Map;
+        17: invokeinterface #411,  1          // InterfaceMethod java/util/Map.values:()Ljava/util/Collection;
+        22: invokeinterface #415,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+        27: astore        4
+        29: aload         4
+        31: invokeinterface #92,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+        36: ifeq          176
+        39: aload         4
+        41: invokeinterface #98,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        46: checkcast     #210                // class org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn
+        49: astore        5
+        51: aload         5
+        53: invokevirtual #474                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getRaces:()Ljava/util/Set;
+        56: invokeinterface #453,  1          // InterfaceMethod java/util/Set.isEmpty:()Z
+        61: ifne          81
+        64: aload         5
+        66: invokevirtual #474                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getRaces:()Ljava/util/Set;
+        69: aload_3
+        70: invokeinterface #477,  2          // InterfaceMethod java/util/Set.contains:(Ljava/lang/Object;)Z
+        75: ifne          81
+        78: goto          29
+        81: aload         5
+        83: invokevirtual #438                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.isLearnedByNpc:()Z
+        86: ifeq          173
+        89: aload_1
+        90: invokevirtual #444                // Method org/l2jmobius/gameserver/entity/actor/Player.getLevel:()I
+        93: aload         5
+        95: invokevirtual #447                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getGetLevel:()I
+        98: if_icmplt     173
+       101: aload_1
+       102: invokevirtual #392                // Method org/l2jmobius/gameserver/entity/actor/Player.getSkills:()Ljava/util/Map;
+       105: aload         5
+       107: invokevirtual #302                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillId:()I
+       110: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+       113: invokeinterface #122,  2          // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+       118: checkcast     #454                // class org/l2jmobius/gameserver/mechanics/skill/Skill
+       121: astore        6
+       123: aload         6
+       125: ifnull        155
+       128: aload         6
+       130: invokevirtual #456                // Method org/l2jmobius/gameserver/mechanics/skill/Skill.getLevel:()I
+       133: aload         5
+       135: invokevirtual #305                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillLevel:()I
+       138: iconst_1
+       139: isub
+       140: if_icmpne     173
+       143: aload_2
+       144: aload         5
+       146: invokeinterface #457,  2          // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+       151: pop
+       152: goto          173
+       155: aload         5
+       157: invokevirtual #305                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillLevel:()I
+       160: iconst_1
+       161: if_icmpne     173
+       164: aload_2
+       165: aload         5
+       167: invokeinterface #457,  2          // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+       172: pop
+       173: goto          29
+       176: aload_2
+       177: areturn
+
+  public java.util.List<org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> getAvailableCollectSkills(org.l2jmobius.gameserver.entity.actor.Player);
+    Code:
+         0: new           #113                // class java/util/ArrayList
+         3: dup
+         4: invokespecial #115                // Method java/util/ArrayList."<init>":()V
+         7: astore_2
+         8: aload_0
+         9: getfield      #25                 // Field _collectSkillTree:Ljava/util/Map;
+        12: invokeinterface #411,  1          // InterfaceMethod java/util/Map.values:()Ljava/util/Collection;
+        17: invokeinterface #415,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+        22: astore_3
+        23: aload_3
+        24: invokeinterface #92,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+        29: ifeq          118
+        32: aload_3
+        33: invokeinterface #98,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        38: checkcast     #210                // class org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn
+        41: astore        4
+        43: aload_1
+        44: invokevirtual #392                // Method org/l2jmobius/gameserver/entity/actor/Player.getSkills:()Ljava/util/Map;
+        47: aload         4
+        49: invokevirtual #302                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillId:()I
+        52: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+        55: invokeinterface #122,  2          // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+        60: checkcast     #454                // class org/l2jmobius/gameserver/mechanics/skill/Skill
+        63: astore        5
+        65: aload         5
+        67: ifnull        97
+        70: aload         5
+        72: invokevirtual #456                // Method org/l2jmobius/gameserver/mechanics/skill/Skill.getLevel:()I
+        75: aload         4
+        77: invokevirtual #305                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillLevel:()I
+        80: iconst_1
+        81: isub
+        82: if_icmpne     115
+        85: aload_2
+        86: aload         4
+        88: invokeinterface #457,  2          // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+        93: pop
+        94: goto          115
+        97: aload         4
+        99: invokevirtual #305                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillLevel:()I
+       102: iconst_1
+       103: if_icmpne     115
+       106: aload_2
+       107: aload         4
+       109: invokeinterface #457,  2          // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+       114: pop
+       115: goto          23
+       118: aload_2
+       119: areturn
+
+  public java.util.List<org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> getAvailableTransferSkills(org.l2jmobius.gameserver.entity.actor.Player);
+    Code:
+         0: new           #113                // class java/util/ArrayList
+         3: dup
+         4: invokespecial #115                // Method java/util/ArrayList."<init>":()V
+         7: astore_2
+         8: aload_1
+         9: invokevirtual #467                // Method org/l2jmobius/gameserver/entity/actor/Player.getPlayerClass:()Lorg/l2jmobius/gameserver/entity/actor/enums/player/PlayerClass;
+        12: astore_3
+        13: aload_3
+        14: invokevirtual #370                // Method org/l2jmobius/gameserver/entity/actor/enums/player/PlayerClass.level:()I
+        17: iconst_3
+        18: if_icmpne     26
+        21: aload_3
+        22: invokevirtual #373                // Method org/l2jmobius/gameserver/entity/actor/enums/player/PlayerClass.getParent:()Lorg/l2jmobius/gameserver/entity/actor/enums/player/PlayerClass;
+        25: astore_3
+        26: aload_0
+        27: getfield      #22                 // Field _transferSkillTrees:Ljava/util/Map;
+        30: aload_3
+        31: invokeinterface #189,  2          // InterfaceMethod java/util/Map.containsKey:(Ljava/lang/Object;)Z
+        36: ifne          41
+        39: aload_2
+        40: areturn
+        41: aload_0
+        42: getfield      #22                 // Field _transferSkillTrees:Ljava/util/Map;
+        45: aload_3
+        46: invokeinterface #122,  2          // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+        51: checkcast     #72                 // class java/util/Map
+        54: invokeinterface #411,  1          // InterfaceMethod java/util/Map.values:()Ljava/util/Collection;
+        59: invokeinterface #415,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+        64: astore        4
+        66: aload         4
+        68: invokeinterface #92,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+        73: ifeq          112
+        76: aload         4
+        78: invokeinterface #98,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        83: checkcast     #210                // class org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn
+        86: astore        5
+        88: aload_1
+        89: aload         5
+        91: invokevirtual #302                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillId:()I
+        94: invokevirtual #480                // Method org/l2jmobius/gameserver/entity/actor/Player.getKnownSkill:(I)Lorg/l2jmobius/gameserver/mechanics/skill/Skill;
+        97: ifnonnull     109
+       100: aload_2
+       101: aload         5
+       103: invokeinterface #457,  2          // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+       108: pop
+       109: goto          66
+       112: aload_2
+       113: areturn
+
+  public java.util.List<org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> getAvailableTransformSkills(org.l2jmobius.gameserver.entity.actor.Player);
+    Code:
+         0: new           #113                // class java/util/ArrayList
+         3: dup
+         4: invokespecial #115                // Method java/util/ArrayList."<init>":()V
+         7: astore_2
+         8: aload_1
+         9: invokevirtual #470                // Method org/l2jmobius/gameserver/entity/actor/Player.getRace:()Lorg/l2jmobius/gameserver/entity/actor/enums/creature/Race;
+        12: astore_3
+        13: aload_0
+        14: getfield      #40                 // Field _transformSkillTree:Ljava/util/Map;
+        17: invokeinterface #411,  1          // InterfaceMethod java/util/Map.values:()Ljava/util/Collection;
+        22: invokeinterface #415,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+        27: astore        4
+        29: aload         4
+        31: invokeinterface #92,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+        36: ifeq          165
+        39: aload         4
+        41: invokeinterface #98,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        46: checkcast     #210                // class org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn
+        49: astore        5
+        51: aload_1
+        52: invokevirtual #444                // Method org/l2jmobius/gameserver/entity/actor/Player.getLevel:()I
+        55: aload         5
+        57: invokevirtual #447                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getGetLevel:()I
+        60: if_icmplt     162
+        63: aload         5
+        65: invokevirtual #474                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getRaces:()Ljava/util/Set;
+        68: invokeinterface #453,  1          // InterfaceMethod java/util/Set.isEmpty:()Z
+        73: ifne          90
+        76: aload         5
+        78: invokevirtual #474                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getRaces:()Ljava/util/Set;
+        81: aload_3
+        82: invokeinterface #477,  2          // InterfaceMethod java/util/Set.contains:(Ljava/lang/Object;)Z
+        87: ifeq          162
+        90: aload_1
+        91: invokevirtual #392                // Method org/l2jmobius/gameserver/entity/actor/Player.getSkills:()Ljava/util/Map;
+        94: aload         5
+        96: invokevirtual #302                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillId:()I
+        99: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+       102: invokeinterface #122,  2          // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+       107: checkcast     #454                // class org/l2jmobius/gameserver/mechanics/skill/Skill
+       110: astore        6
+       112: aload         6
+       114: ifnull        144
+       117: aload         6
+       119: invokevirtual #456                // Method org/l2jmobius/gameserver/mechanics/skill/Skill.getLevel:()I
+       122: aload         5
+       124: invokevirtual #305                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillLevel:()I
+       127: iconst_1
+       128: isub
+       129: if_icmpne     162
+       132: aload_2
+       133: aload         5
+       135: invokeinterface #457,  2          // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+       140: pop
+       141: goto          162
+       144: aload         5
+       146: invokevirtual #305                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillLevel:()I
+       149: iconst_1
+       150: if_icmpne     162
+       153: aload_2
+       154: aload         5
+       156: invokeinterface #457,  2          // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+       161: pop
+       162: goto          29
+       165: aload_2
+       166: areturn
+
+  public java.util.List<org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> getAvailablePledgeSkills(org.l2jmobius.gameserver.entity.clan.Clan);
+    Code:
+         0: new           #113                // class java/util/ArrayList
+         3: dup
+         4: invokespecial #115                // Method java/util/ArrayList."<init>":()V
+         7: astore_2
+         8: aload_0
+         9: getfield      #31                 // Field _pledgeSkillTree:Ljava/util/Map;
+        12: invokeinterface #411,  1          // InterfaceMethod java/util/Map.values:()Ljava/util/Collection;
+        17: invokeinterface #415,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+        22: astore_3
+        23: aload_3
+        24: invokeinterface #92,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+        29: ifeq          138
+        32: aload_3
+        33: invokeinterface #98,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        38: checkcast     #210                // class org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn
+        41: astore        4
+        43: aload         4
+        45: invokevirtual #484                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.isResidencialSkill:()Z
+        48: ifne          135
+        51: aload_1
+        52: invokevirtual #487                // Method org/l2jmobius/gameserver/entity/clan/Clan.getLevel:()I
+        55: aload         4
+        57: invokevirtual #447                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getGetLevel:()I
+        60: if_icmplt     135
+        63: aload_1
+        64: invokevirtual #490                // Method org/l2jmobius/gameserver/entity/clan/Clan.getSkills:()Ljava/util/Map;
+        67: aload         4
+        69: invokevirtual #302                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillId:()I
+        72: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+        75: invokeinterface #122,  2          // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+        80: checkcast     #454                // class org/l2jmobius/gameserver/mechanics/skill/Skill
+        83: astore        5
+        85: aload         5
+        87: ifnull        117
+        90: aload         5
+        92: invokevirtual #456                // Method org/l2jmobius/gameserver/mechanics/skill/Skill.getLevel:()I
+        95: iconst_1
+        96: iadd
+        97: aload         4
+        99: invokevirtual #305                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillLevel:()I
+       102: if_icmpne     135
+       105: aload_2
+       106: aload         4
+       108: invokeinterface #457,  2          // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+       113: pop
+       114: goto          135
+       117: aload         4
+       119: invokevirtual #305                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillLevel:()I
+       122: iconst_1
+       123: if_icmpne     135
+       126: aload_2
+       127: aload         4
+       129: invokeinterface #457,  2          // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+       134: pop
+       135: goto          23
+       138: aload_2
+       139: areturn
+
+  public java.util.Map<java.lang.Integer, org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> getMaxPledgeSkills(org.l2jmobius.gameserver.entity.clan.Clan, boolean);
+    Code:
+         0: new           #16                 // class java/util/HashMap
+         3: dup
+         4: invokespecial #18                 // Method java/util/HashMap."<init>":()V
+         7: astore_3
+         8: aload_0
+         9: getfield      #31                 // Field _pledgeSkillTree:Ljava/util/Map;
+        12: invokeinterface #411,  1          // InterfaceMethod java/util/Map.values:()Ljava/util/Collection;
+        17: invokeinterface #415,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+        22: astore        4
+        24: aload         4
+        26: invokeinterface #92,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+        31: ifeq          126
+        34: aload         4
+        36: invokeinterface #98,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        41: checkcast     #210                // class org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn
+        44: astore        5
+        46: aload         5
+        48: invokevirtual #484                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.isResidencialSkill:()Z
+        51: ifne          123
+        54: aload_1
+        55: invokevirtual #487                // Method org/l2jmobius/gameserver/entity/clan/Clan.getLevel:()I
+        58: aload         5
+        60: invokevirtual #447                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getGetLevel:()I
+        63: if_icmplt     123
+        66: aload_1
+        67: invokevirtual #490                // Method org/l2jmobius/gameserver/entity/clan/Clan.getSkills:()Ljava/util/Map;
+        70: aload         5
+        72: invokevirtual #302                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillId:()I
+        75: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+        78: invokeinterface #122,  2          // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+        83: checkcast     #454                // class org/l2jmobius/gameserver/mechanics/skill/Skill
+        86: astore        6
+        88: aload         6
+        90: ifnull        106
+        93: aload         6
+        95: invokevirtual #456                // Method org/l2jmobius/gameserver/mechanics/skill/Skill.getLevel:()I
+        98: aload         5
+       100: invokevirtual #305                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillLevel:()I
+       103: if_icmpge     123
+       106: aload_3
+       107: aload         5
+       109: invokevirtual #302                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillId:()I
+       112: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+       115: aload         5
+       117: invokeinterface #127,  3          // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+       122: pop
+       123: goto          24
+       126: iload_2
+       127: ifeq          240
+       130: aload_0
+       131: getfield      #37                 // Field _subPledgeSkillTree:Ljava/util/Map;
+       134: invokeinterface #411,  1          // InterfaceMethod java/util/Map.values:()Ljava/util/Collection;
+       139: invokeinterface #415,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+       144: astore        4
+       146: aload         4
+       148: invokeinterface #92,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+       153: ifeq          240
+       156: aload         4
+       158: invokeinterface #98,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+       163: checkcast     #210                // class org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn
+       166: astore        5
+       168: aload_1
+       169: invokevirtual #487                // Method org/l2jmobius/gameserver/entity/clan/Clan.getLevel:()I
+       172: aload         5
+       174: invokevirtual #447                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getGetLevel:()I
+       177: if_icmplt     237
+       180: aload_1
+       181: invokevirtual #490                // Method org/l2jmobius/gameserver/entity/clan/Clan.getSkills:()Ljava/util/Map;
+       184: aload         5
+       186: invokevirtual #302                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillId:()I
+       189: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+       192: invokeinterface #122,  2          // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+       197: checkcast     #454                // class org/l2jmobius/gameserver/mechanics/skill/Skill
+       200: astore        6
+       202: aload         6
+       204: ifnull        220
+       207: aload         6
+       209: invokevirtual #456                // Method org/l2jmobius/gameserver/mechanics/skill/Skill.getLevel:()I
+       212: aload         5
+       214: invokevirtual #305                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillLevel:()I
+       217: if_icmpge     237
+       220: aload_3
+       221: aload         5
+       223: invokevirtual #302                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillId:()I
+       226: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+       229: aload         5
+       231: invokeinterface #127,  3          // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+       236: pop
+       237: goto          146
+       240: aload_3
+       241: areturn
+
+  public java.util.List<org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> getAvailableSubPledgeSkills(org.l2jmobius.gameserver.entity.clan.Clan);
+    Code:
+         0: new           #113                // class java/util/ArrayList
+         3: dup
+         4: invokespecial #115                // Method java/util/ArrayList."<init>":()V
+         7: astore_2
+         8: aload_0
+         9: getfield      #37                 // Field _subPledgeSkillTree:Ljava/util/Map;
+        12: invokeinterface #411,  1          // InterfaceMethod java/util/Map.values:()Ljava/util/Collection;
+        17: invokeinterface #415,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+        22: astore_3
+        23: aload_3
+        24: invokeinterface #92,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+        29: ifeq          84
+        32: aload_3
+        33: invokeinterface #98,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        38: checkcast     #210                // class org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn
+        41: astore        4
+        43: aload_1
+        44: invokevirtual #487                // Method org/l2jmobius/gameserver/entity/clan/Clan.getLevel:()I
+        47: aload         4
+        49: invokevirtual #447                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getGetLevel:()I
+        52: if_icmplt     81
+        55: aload_1
+        56: aload         4
+        58: invokevirtual #302                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillId:()I
+        61: aload         4
+        63: invokevirtual #305                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillLevel:()I
+        66: invokevirtual #491                // Method org/l2jmobius/gameserver/entity/clan/Clan.isLearnableSubSkill:(II)Z
+        69: ifeq          81
+        72: aload_2
+        73: aload         4
+        75: invokeinterface #457,  2          // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+        80: pop
+        81: goto          23
+        84: aload_2
+        85: areturn
+
+  public java.util.List<org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> getAvailableSubClassSkills(org.l2jmobius.gameserver.entity.actor.Player);
+    Code:
+         0: new           #113                // class java/util/ArrayList
+         3: dup
+         4: invokespecial #115                // Method java/util/ArrayList."<init>":()V
+         7: astore_2
+         8: aload_0
+         9: getfield      #34                 // Field _subClassSkillTree:Ljava/util/Map;
+        12: invokeinterface #411,  1          // InterfaceMethod java/util/Map.values:()Ljava/util/Collection;
+        17: invokeinterface #415,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+        22: astore_3
+        23: aload_3
+        24: invokeinterface #92,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+        29: ifeq          262
+        32: aload_3
+        33: invokeinterface #98,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        38: checkcast     #210                // class org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn
+        41: astore        4
+        43: aload_1
+        44: invokevirtual #444                // Method org/l2jmobius/gameserver/entity/actor/Player.getLevel:()I
+        47: aload         4
+        49: invokevirtual #447                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getGetLevel:()I
+        52: if_icmplt     259
+        55: aconst_null
+        56: astore        5
+        58: aload_1
+        59: invokevirtual #495                // Method org/l2jmobius/gameserver/entity/actor/Player.getSubClasses:()Ljava/util/Map;
+        62: invokeinterface #411,  1          // InterfaceMethod java/util/Map.values:()Ljava/util/Collection;
+        67: invokeinterface #415,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+        72: astore        6
+        74: aload         6
+        76: invokeinterface #92,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+        81: ifeq          259
+        84: aload         6
+        86: invokeinterface #98,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        91: checkcast     #498                // class org/l2jmobius/gameserver/entity/actor/holders/player/SubClassHolder
+        94: astore        7
+        96: aload         4
+        98: invokevirtual #500                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSubClassConditions:()Ljava/util/List;
+       101: astore        5
+       103: aload         5
+       105: invokeinterface #504,  1          // InterfaceMethod java/util/List.isEmpty:()Z
+       110: ifne          256
+       113: aload         7
+       115: invokevirtual #505                // Method org/l2jmobius/gameserver/entity/actor/holders/player/SubClassHolder.getClassIndex:()I
+       118: aload         5
+       120: invokeinterface #508,  1          // InterfaceMethod java/util/List.size:()I
+       125: if_icmpgt     256
+       128: aload         7
+       130: invokevirtual #505                // Method org/l2jmobius/gameserver/entity/actor/holders/player/SubClassHolder.getClassIndex:()I
+       133: aload         5
+       135: aload         7
+       137: invokevirtual #505                // Method org/l2jmobius/gameserver/entity/actor/holders/player/SubClassHolder.getClassIndex:()I
+       140: iconst_1
+       141: isub
+       142: invokeinterface #511,  2          // InterfaceMethod java/util/List.get:(I)Ljava/lang/Object;
+       147: checkcast     #514                // class org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn$SubClassData
+       150: invokevirtual #516                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn$SubClassData.getSlot:()I
+       153: if_icmpne     256
+       156: aload         5
+       158: aload         7
+       160: invokevirtual #505                // Method org/l2jmobius/gameserver/entity/actor/holders/player/SubClassHolder.getClassIndex:()I
+       163: iconst_1
+       164: isub
+       165: invokeinterface #511,  2          // InterfaceMethod java/util/List.get:(I)Ljava/lang/Object;
+       170: checkcast     #514                // class org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn$SubClassData
+       173: invokevirtual #519                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn$SubClassData.getLvl:()I
+       176: aload         7
+       178: invokevirtual #522                // Method org/l2jmobius/gameserver/entity/actor/holders/player/SubClassHolder.getLevel:()B
+       181: if_icmpgt     256
+       184: aload_1
+       185: invokevirtual #392                // Method org/l2jmobius/gameserver/entity/actor/Player.getSkills:()Ljava/util/Map;
+       188: aload         4
+       190: invokevirtual #302                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillId:()I
+       193: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+       196: invokeinterface #122,  2          // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+       201: checkcast     #454                // class org/l2jmobius/gameserver/mechanics/skill/Skill
+       204: astore        8
+       206: aload         8
+       208: ifnull        238
+       211: aload         8
+       213: invokevirtual #456                // Method org/l2jmobius/gameserver/mechanics/skill/Skill.getLevel:()I
+       216: aload         4
+       218: invokevirtual #305                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillLevel:()I
+       221: iconst_1
+       222: isub
+       223: if_icmpne     256
+       226: aload_2
+       227: aload         4
+       229: invokeinterface #457,  2          // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+       234: pop
+       235: goto          256
+       238: aload         4
+       240: invokevirtual #305                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillLevel:()I
+       243: iconst_1
+       244: if_icmpne     256
+       247: aload_2
+       248: aload         4
+       250: invokeinterface #457,  2          // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+       255: pop
+       256: goto          74
+       259: goto          23
+       262: aload_2
+       263: areturn
+
+  public java.util.List<org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn> getAvailableResidentialSkills(int);
+    Code:
+         0: new           #113                // class java/util/ArrayList
+         3: dup
+         4: invokespecial #115                // Method java/util/ArrayList."<init>":()V
+         7: astore_2
+         8: aload_0
+         9: getfield      #31                 // Field _pledgeSkillTree:Ljava/util/Map;
+        12: invokeinterface #411,  1          // InterfaceMethod java/util/Map.values:()Ljava/util/Collection;
+        17: invokeinterface #415,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+        22: astore_3
+        23: aload_3
+        24: invokeinterface #92,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+        29: ifeq          80
+        32: aload_3
+        33: invokeinterface #98,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        38: checkcast     #210                // class org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn
+        41: astore        4
+        43: aload         4
+        45: invokevirtual #484                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.isResidencialSkill:()Z
+        48: ifeq          77
+        51: aload         4
+        53: invokevirtual #525                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getResidenceIds:()Ljava/util/Set;
+        56: iload_1
+        57: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+        60: invokeinterface #477,  2          // InterfaceMethod java/util/Set.contains:(Ljava/lang/Object;)Z
+        65: ifeq          77
+        68: aload_2
+        69: aload         4
+        71: invokeinterface #457,  2          // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+        76: pop
+        77: goto          23
+        80: aload_2
+        81: areturn
+
+  public org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn getSkillLearn(org.l2jmobius.gameserver.mechanics.skill.enums.AcquireSkillType, int, int, org.l2jmobius.gameserver.entity.actor.Player);
+    Code:
+         0: aconst_null
+         1: astore        5
+         3: getstatic     #528                // Field org/l2jmobius/gameserver/data/xml/SkillTreeData$1.$SwitchMap$org$l2jmobius$gameserver$mechanics$skill$enums$AcquireSkillType:[I
+         6: aload_1
+         7: invokevirtual #534                // Method org/l2jmobius/gameserver/mechanics/skill/enums/AcquireSkillType.ordinal:()I
+        10: iaload
+        11: tableswitch   { // 1 to 8
+
+                       1: 56
+
+                       2: 72
+
+                       3: 83
+
+                       4: 94
+
+                       5: 105
+
+                       6: 116
+
+                       7: 132
+
+                       8: 143
+                 default: 151
+            }
+        56: aload_0
+        57: iload_2
+        58: iload_3
+        59: aload         4
+        61: invokevirtual #539                // Method org/l2jmobius/gameserver/entity/actor/Player.getLearningClass:()Lorg/l2jmobius/gameserver/entity/actor/enums/player/PlayerClass;
+        64: invokevirtual #542                // Method getClassSkill:(IILorg/l2jmobius/gameserver/entity/actor/enums/player/PlayerClass;)Lorg/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn;
+        67: astore        5
+        69: goto          151
+        72: aload_0
+        73: iload_2
+        74: iload_3
+        75: invokevirtual #546                // Method getTransformSkill:(II)Lorg/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn;
+        78: astore        5
+        80: goto          151
+        83: aload_0
+        84: iload_2
+        85: iload_3
+        86: invokevirtual #550                // Method getFishingSkill:(II)Lorg/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn;
+        89: astore        5
+        91: goto          151
+        94: aload_0
+        95: iload_2
+        96: iload_3
+        97: invokevirtual #553                // Method getPledgeSkill:(II)Lorg/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn;
+       100: astore        5
+       102: goto          151
+       105: aload_0
+       106: iload_2
+       107: iload_3
+       108: invokevirtual #556                // Method getSubPledgeSkill:(II)Lorg/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn;
+       111: astore        5
+       113: goto          151
+       116: aload_0
+       117: iload_2
+       118: iload_3
+       119: aload         4
+       121: invokevirtual #467                // Method org/l2jmobius/gameserver/entity/actor/Player.getPlayerClass:()Lorg/l2jmobius/gameserver/entity/actor/enums/player/PlayerClass;
+       124: invokevirtual #559                // Method getTransferSkill:(IILorg/l2jmobius/gameserver/entity/actor/enums/player/PlayerClass;)Lorg/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn;
+       127: astore        5
+       129: goto          151
+       132: aload_0
+       133: iload_2
+       134: iload_3
+       135: invokevirtual #562                // Method getSubClassSkill:(II)Lorg/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn;
+       138: astore        5
+       140: goto          151
+       143: aload_0
+       144: iload_2
+       145: iload_3
+       146: invokevirtual #565                // Method getCollectSkill:(II)Lorg/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn;
+       149: astore        5
+       151: aload         5
+       153: areturn
+
+  public org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn getTransformSkill(int, int);
+    Code:
+         0: aload_0
+         1: getfield      #40                 // Field _transformSkillTree:Ljava/util/Map;
+         4: iload_1
+         5: iload_2
+         6: invokestatic  #308                // Method org/l2jmobius/gameserver/data/xml/SkillData.getSkillHashCode:(II)I
+         9: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+        12: invokeinterface #122,  2          // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+        17: checkcast     #210                // class org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn
+        20: areturn
+
+  public org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn getClassSkill(int, int, org.l2jmobius.gameserver.entity.actor.enums.player.PlayerClass);
+    Code:
+         0: aload_0
+         1: aload_3
+         2: invokevirtual #401                // Method getCompleteClassSkillTree:(Lorg/l2jmobius/gameserver/entity/actor/enums/player/PlayerClass;)Ljava/util/Map;
+         5: iload_1
+         6: iload_2
+         7: invokestatic  #308                // Method org/l2jmobius/gameserver/data/xml/SkillData.getSkillHashCode:(II)I
+        10: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+        13: invokeinterface #122,  2          // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+        18: checkcast     #210                // class org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn
+        21: areturn
+
+  public org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn getFishingSkill(int, int);
+    Code:
+         0: aload_0
+         1: getfield      #28                 // Field _fishingSkillTree:Ljava/util/Map;
+         4: iload_1
+         5: iload_2
+         6: invokestatic  #308                // Method org/l2jmobius/gameserver/data/xml/SkillData.getSkillHashCode:(II)I
+         9: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+        12: invokeinterface #122,  2          // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+        17: checkcast     #210                // class org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn
+        20: areturn
+
+  public org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn getPledgeSkill(int, int);
+    Code:
+         0: aload_0
+         1: getfield      #31                 // Field _pledgeSkillTree:Ljava/util/Map;
+         4: iload_1
+         5: iload_2
+         6: invokestatic  #308                // Method org/l2jmobius/gameserver/data/xml/SkillData.getSkillHashCode:(II)I
+         9: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+        12: invokeinterface #122,  2          // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+        17: checkcast     #210                // class org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn
+        20: areturn
+
+  public org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn getSubPledgeSkill(int, int);
+    Code:
+         0: aload_0
+         1: getfield      #37                 // Field _subPledgeSkillTree:Ljava/util/Map;
+         4: iload_1
+         5: iload_2
+         6: invokestatic  #308                // Method org/l2jmobius/gameserver/data/xml/SkillData.getSkillHashCode:(II)I
+         9: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+        12: invokeinterface #122,  2          // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+        17: checkcast     #210                // class org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn
+        20: areturn
+
+  public org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn getTransferSkill(int, int, org.l2jmobius.gameserver.entity.actor.enums.player.PlayerClass);
+    Code:
+         0: aload_3
+         1: invokevirtual #373                // Method org/l2jmobius/gameserver/entity/actor/enums/player/PlayerClass.getParent:()Lorg/l2jmobius/gameserver/entity/actor/enums/player/PlayerClass;
+         4: ifnull        58
+         7: aload_3
+         8: invokevirtual #373                // Method org/l2jmobius/gameserver/entity/actor/enums/player/PlayerClass.getParent:()Lorg/l2jmobius/gameserver/entity/actor/enums/player/PlayerClass;
+        11: astore        4
+        13: aload_0
+        14: getfield      #22                 // Field _transferSkillTrees:Ljava/util/Map;
+        17: aload         4
+        19: invokeinterface #122,  2          // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+        24: ifnull        58
+        27: aload_0
+        28: getfield      #22                 // Field _transferSkillTrees:Ljava/util/Map;
+        31: aload         4
+        33: invokeinterface #122,  2          // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+        38: checkcast     #72                 // class java/util/Map
+        41: iload_1
+        42: iload_2
+        43: invokestatic  #308                // Method org/l2jmobius/gameserver/data/xml/SkillData.getSkillHashCode:(II)I
+        46: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+        49: invokeinterface #122,  2          // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+        54: checkcast     #210                // class org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn
+        57: areturn
+        58: aconst_null
+        59: areturn
+
+  public org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn getSubClassSkill(int, int);
+    Code:
+         0: aload_0
+         1: getfield      #34                 // Field _subClassSkillTree:Ljava/util/Map;
+         4: iload_1
+         5: iload_2
+         6: invokestatic  #308                // Method org/l2jmobius/gameserver/data/xml/SkillData.getSkillHashCode:(II)I
+         9: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+        12: invokeinterface #122,  2          // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+        17: checkcast     #210                // class org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn
+        20: areturn
+
+  public org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn getCommonSkill(int, int);
+    Code:
+         0: aload_0
+         1: getfield      #43                 // Field _commonSkillTree:Ljava/util/Map;
+         4: iload_1
+         5: iload_2
+         6: invokestatic  #308                // Method org/l2jmobius/gameserver/data/xml/SkillData.getSkillHashCode:(II)I
+         9: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+        12: invokeinterface #122,  2          // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+        17: checkcast     #210                // class org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn
+        20: areturn
+
+  public org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn getCollectSkill(int, int);
+    Code:
+         0: aload_0
+         1: getfield      #25                 // Field _collectSkillTree:Ljava/util/Map;
+         4: iload_1
+         5: iload_2
+         6: invokestatic  #308                // Method org/l2jmobius/gameserver/data/xml/SkillData.getSkillHashCode:(II)I
+         9: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+        12: invokeinterface #122,  2          // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+        17: checkcast     #210                // class org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn
+        20: areturn
+
+  public int getMinLevelForNewSkill(org.l2jmobius.gameserver.entity.actor.Player, java.util.Map<java.lang.Integer, org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn>);
+    Code:
+         0: iconst_0
+         1: istore_3
+         2: aload_2
+         3: invokeinterface #404,  1          // InterfaceMethod java/util/Map.isEmpty:()Z
+         8: ifeq          32
+        11: getstatic     #338                // Field LOGGER:Ljava/util/logging/Logger;
+        14: aload_0
+        15: invokevirtual #342                // Method java/lang/Object.getClass:()Ljava/lang/Class;
+        18: invokevirtual #346                // Method java/lang/Class.getSimpleName:()Ljava/lang/String;
+        21: invokedynamic #568,  0            // InvokeDynamic #3:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+        26: invokevirtual #355                // Method java/util/logging/Logger.warning:(Ljava/lang/String;)V
+        29: goto          109
+        32: aload_2
+        33: invokeinterface #411,  1          // InterfaceMethod java/util/Map.values:()Ljava/util/Collection;
+        38: invokeinterface #415,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+        43: astore        4
+        45: aload         4
+        47: invokeinterface #92,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+        52: ifeq          109
+        55: aload         4
+        57: invokeinterface #98,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        62: checkcast     #210                // class org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn
+        65: astore        5
+        67: aload         5
+        69: invokevirtual #438                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.isLearnedByNpc:()Z
+        72: ifeq          106
+        75: aload_1
+        76: invokevirtual #444                // Method org/l2jmobius/gameserver/entity/actor/Player.getLevel:()I
+        79: aload         5
+        81: invokevirtual #447                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getGetLevel:()I
+        84: if_icmpge     106
+        87: iload_3
+        88: ifeq          100
+        91: iload_3
+        92: aload         5
+        94: invokevirtual #447                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getGetLevel:()I
+        97: if_icmple     106
+       100: aload         5
+       102: invokevirtual #447                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getGetLevel:()I
+       105: istore_3
+       106: goto          45
+       109: iload_3
+       110: ireturn
+
+  public boolean isHeroSkill(int, int);
+    Code:
+         0: aload_0
+         1: getfield      #49                 // Field _heroSkillTree:Ljava/util/Map;
+         4: iload_1
+         5: iload_2
+         6: invokestatic  #308                // Method org/l2jmobius/gameserver/data/xml/SkillData.getSkillHashCode:(II)I
+         9: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+        12: invokeinterface #189,  2          // InterfaceMethod java/util/Map.containsKey:(Ljava/lang/Object;)Z
+        17: ifeq          22
+        20: iconst_1
+        21: ireturn
+        22: aload_0
+        23: getfield      #49                 // Field _heroSkillTree:Ljava/util/Map;
+        26: invokeinterface #411,  1          // InterfaceMethod java/util/Map.values:()Ljava/util/Collection;
+        31: invokeinterface #415,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+        36: astore_3
+        37: aload_3
+        38: invokeinterface #92,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+        43: ifeq          76
+        46: aload_3
+        47: invokeinterface #98,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        52: checkcast     #210                // class org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn
+        55: astore        4
+        57: aload         4
+        59: invokevirtual #302                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillId:()I
+        62: iload_1
+        63: if_icmpne     73
+        66: iload_2
+        67: iconst_m1
+        68: if_icmpne     73
+        71: iconst_1
+        72: ireturn
+        73: goto          37
+        76: iconst_0
+        77: ireturn
+
+  public boolean isGMSkill(int, int);
+    Code:
+         0: iload_2
+         1: ifgt          66
+         4: aload_0
+         5: getfield      #52                 // Field _gameMasterSkillTree:Ljava/util/Map;
+         8: invokeinterface #411,  1          // InterfaceMethod java/util/Map.values:()Ljava/util/Collection;
+        13: invokeinterface #571,  1          // InterfaceMethod java/util/Collection.stream:()Ljava/util/stream/Stream;
+        18: iload_1
+        19: invokedynamic #575,  0            // InvokeDynamic #4:test:(I)Ljava/util/function/Predicate;
+        24: invokeinterface #579,  2          // InterfaceMethod java/util/stream/Stream.anyMatch:(Ljava/util/function/Predicate;)Z
+        29: ifne          60
+        32: aload_0
+        33: getfield      #55                 // Field _gameMasterAuraSkillTree:Ljava/util/Map;
+        36: invokeinterface #411,  1          // InterfaceMethod java/util/Map.values:()Ljava/util/Collection;
+        41: invokeinterface #571,  1          // InterfaceMethod java/util/Collection.stream:()Ljava/util/stream/Stream;
+        46: iload_1
+        47: invokedynamic #585,  0            // InvokeDynamic #5:test:(I)Ljava/util/function/Predicate;
+        52: invokeinterface #579,  2          // InterfaceMethod java/util/stream/Stream.anyMatch:(Ljava/util/function/Predicate;)Z
+        57: ifeq          64
+        60: iconst_1
+        61: goto          65
+        64: iconst_0
+        65: ireturn
+        66: iload_1
+        67: iload_2
+        68: invokestatic  #308                // Method org/l2jmobius/gameserver/data/xml/SkillData.getSkillHashCode:(II)I
+        71: istore_3
+        72: aload_0
+        73: getfield      #52                 // Field _gameMasterSkillTree:Ljava/util/Map;
+        76: iload_3
+        77: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+        80: invokeinterface #189,  2          // InterfaceMethod java/util/Map.containsKey:(Ljava/lang/Object;)Z
+        85: ifne          104
+        88: aload_0
+        89: getfield      #55                 // Field _gameMasterAuraSkillTree:Ljava/util/Map;
+        92: iload_3
+        93: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+        96: invokeinterface #189,  2          // InterfaceMethod java/util/Map.containsKey:(Ljava/lang/Object;)Z
+       101: ifeq          108
+       104: iconst_1
+       105: goto          109
+       108: iconst_0
+       109: ireturn
+
+  public boolean isClanSkill(int, int);
+    Code:
+         0: iload_1
+         1: iload_2
+         2: invokestatic  #308                // Method org/l2jmobius/gameserver/data/xml/SkillData.getSkillHashCode:(II)I
+         5: istore_3
+         6: aload_0
+         7: getfield      #31                 // Field _pledgeSkillTree:Ljava/util/Map;
+        10: iload_3
+        11: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+        14: invokeinterface #189,  2          // InterfaceMethod java/util/Map.containsKey:(Ljava/lang/Object;)Z
+        19: ifne          38
+        22: aload_0
+        23: getfield      #37                 // Field _subPledgeSkillTree:Ljava/util/Map;
+        26: iload_3
+        27: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+        30: invokeinterface #189,  2          // InterfaceMethod java/util/Map.containsKey:(Ljava/lang/Object;)Z
+        35: ifeq          42
+        38: iconst_1
+        39: goto          43
+        42: iconst_0
+        43: ireturn
+
+  public void addSkills(org.l2jmobius.gameserver.entity.actor.Player, boolean);
+    Code:
+         0: iload_2
+         1: ifeq          16
+         4: aload_0
+         5: getfield      #55                 // Field _gameMasterAuraSkillTree:Ljava/util/Map;
+         8: invokeinterface #411,  1          // InterfaceMethod java/util/Map.values:()Ljava/util/Collection;
+        13: goto          25
+        16: aload_0
+        17: getfield      #52                 // Field _gameMasterSkillTree:Ljava/util/Map;
+        20: invokeinterface #411,  1          // InterfaceMethod java/util/Map.values:()Ljava/util/Collection;
+        25: astore_3
+        26: invokestatic  #381                // Method org/l2jmobius/gameserver/data/xml/SkillData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/SkillData;
+        29: astore        4
+        31: aload_3
+        32: invokeinterface #415,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+        37: astore        5
+        39: aload         5
+        41: invokeinterface #92,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+        46: ifeq          85
+        49: aload         5
+        51: invokeinterface #98,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        56: checkcast     #210                // class org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn
+        59: astore        6
+        61: aload_1
+        62: aload         4
+        64: aload         6
+        66: invokevirtual #302                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillId:()I
+        69: aload         6
+        71: invokevirtual #305                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillLevel:()I
+        74: invokevirtual #388                // Method org/l2jmobius/gameserver/data/xml/SkillData.getSkill:(II)Lorg/l2jmobius/gameserver/mechanics/skill/Skill;
+        77: iconst_0
+        78: invokevirtual #586                // Method org/l2jmobius/gameserver/entity/actor/Player.addSkill:(Lorg/l2jmobius/gameserver/mechanics/skill/Skill;Z)Lorg/l2jmobius/gameserver/mechanics/skill/Skill;
+        81: pop
+        82: goto          39
+        85: return
+
+  private void generateCheckArrays();
+    Code:
+         0: aload_0
+         1: getfield      #10                 // Field _classSkillTrees:Ljava/util/Map;
+         4: invokeinterface #590,  1          // InterfaceMethod java/util/Map.keySet:()Ljava/util/Set;
+         9: astore        4
+        11: aload_0
+        12: new           #16                 // class java/util/HashMap
+        15: dup
+        16: aload         4
+        18: invokeinterface #593,  1          // InterfaceMethod java/util/Set.size:()I
+        23: invokespecial #594                // Method java/util/HashMap."<init>":(I)V
+        26: putfield      #597                // Field _skillsByClassIdHashCodes:Ljava/util/Map;
+        29: aload         4
+        31: invokeinterface #86,  1           // InterfaceMethod java/util/Set.iterator:()Ljava/util/Iterator;
+        36: astore        5
+        38: aload         5
+        40: invokeinterface #92,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+        45: ifeq          166
+        48: aload         5
+        50: invokeinterface #98,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        55: checkcast     #111                // class org/l2jmobius/gameserver/entity/actor/enums/player/PlayerClass
+        58: astore        6
+        60: iconst_0
+        61: istore_1
+        62: new           #16                 // class java/util/HashMap
+        65: dup
+        66: aload_0
+        67: aload         6
+        69: invokevirtual #401                // Method getCompleteClassSkillTree:(Lorg/l2jmobius/gameserver/entity/actor/enums/player/PlayerClass;)Ljava/util/Map;
+        72: invokespecial #600                // Method java/util/HashMap."<init>":(Ljava/util/Map;)V
+        75: astore_3
+        76: aload_3
+        77: invokeinterface #602,  1          // InterfaceMethod java/util/Map.size:()I
+        82: newarray       int
+        84: astore_2
+        85: aload_3
+        86: invokeinterface #590,  1          // InterfaceMethod java/util/Map.keySet:()Ljava/util/Set;
+        91: invokeinterface #86,  1           // InterfaceMethod java/util/Set.iterator:()Ljava/util/Iterator;
+        96: astore        7
+        98: aload         7
+       100: invokeinterface #92,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+       105: ifeq          134
+       108: aload         7
+       110: invokeinterface #98,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+       115: checkcast     #178                // class java/lang/Integer
+       118: invokevirtual #240                // Method java/lang/Integer.intValue:()I
+       121: istore        8
+       123: aload_2
+       124: iload_1
+       125: iinc          1, 1
+       128: iload         8
+       130: iastore
+       131: goto          98
+       134: aload_3
+       135: invokeinterface #71,  1           // InterfaceMethod java/util/Map.clear:()V
+       140: aload_2
+       141: invokestatic  #603                // Method java/util/Arrays.sort:([I)V
+       144: aload_0
+       145: getfield      #597                // Field _skillsByClassIdHashCodes:Ljava/util/Map;
+       148: aload         6
+       150: invokevirtual #609                // Method org/l2jmobius/gameserver/entity/actor/enums/player/PlayerClass.getId:()I
+       153: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+       156: aload_2
+       157: invokeinterface #127,  3          // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+       162: pop
+       163: goto          38
+       166: new           #113                // class java/util/ArrayList
+       169: dup
+       170: invokespecial #115                // Method java/util/ArrayList."<init>":()V
+       173: astore        5
+       175: aload_0
+       176: new           #16                 // class java/util/HashMap
+       179: dup
+       180: invokestatic  #610                // Method org/l2jmobius/gameserver/entity/actor/enums/creature/Race.values:()[Lorg/l2jmobius/gameserver/entity/actor/enums/creature/Race;
+       183: arraylength
+       184: invokespecial #594                // Method java/util/HashMap."<init>":(I)V
+       187: putfield      #613                // Field _skillsByRaceHashCodes:Ljava/util/Map;
+       190: invokestatic  #610                // Method org/l2jmobius/gameserver/entity/actor/enums/creature/Race.values:()[Lorg/l2jmobius/gameserver/entity/actor/enums/creature/Race;
+       193: astore        6
+       195: aload         6
+       197: arraylength
+       198: istore        7
+       200: iconst_0
+       201: istore        8
+       203: iload         8
+       205: iload         7
+       207: if_icmpge     470
+       210: aload         6
+       212: iload         8
+       214: aaload
+       215: astore        9
+       217: aload_0
+       218: getfield      #28                 // Field _fishingSkillTree:Ljava/util/Map;
+       221: invokeinterface #411,  1          // InterfaceMethod java/util/Map.values:()Ljava/util/Collection;
+       226: invokeinterface #415,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+       231: astore        10
+       233: aload         10
+       235: invokeinterface #92,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+       240: ifeq          297
+       243: aload         10
+       245: invokeinterface #98,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+       250: checkcast     #210                // class org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn
+       253: astore        11
+       255: aload         11
+       257: invokevirtual #474                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getRaces:()Ljava/util/Set;
+       260: aload         9
+       262: invokeinterface #477,  2          // InterfaceMethod java/util/Set.contains:(Ljava/lang/Object;)Z
+       267: ifeq          294
+       270: aload         5
+       272: aload         11
+       274: invokevirtual #302                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillId:()I
+       277: aload         11
+       279: invokevirtual #305                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillLevel:()I
+       282: invokestatic  #308                // Method org/l2jmobius/gameserver/data/xml/SkillData.getSkillHashCode:(II)I
+       285: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+       288: invokeinterface #457,  2          // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+       293: pop
+       294: goto          233
+       297: aload_0
+       298: getfield      #40                 // Field _transformSkillTree:Ljava/util/Map;
+       301: invokeinterface #411,  1          // InterfaceMethod java/util/Map.values:()Ljava/util/Collection;
+       306: invokeinterface #415,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+       311: astore        10
+       313: aload         10
+       315: invokeinterface #92,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+       320: ifeq          377
+       323: aload         10
+       325: invokeinterface #98,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+       330: checkcast     #210                // class org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn
+       333: astore        11
+       335: aload         11
+       337: invokevirtual #474                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getRaces:()Ljava/util/Set;
+       340: aload         9
+       342: invokeinterface #477,  2          // InterfaceMethod java/util/Set.contains:(Ljava/lang/Object;)Z
+       347: ifeq          374
+       350: aload         5
+       352: aload         11
+       354: invokevirtual #302                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillId:()I
+       357: aload         11
+       359: invokevirtual #305                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillLevel:()I
+       362: invokestatic  #308                // Method org/l2jmobius/gameserver/data/xml/SkillData.getSkillHashCode:(II)I
+       365: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+       368: invokeinterface #457,  2          // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+       373: pop
+       374: goto          313
+       377: iconst_0
+       378: istore_1
+       379: aload         5
+       381: invokeinterface #508,  1          // InterfaceMethod java/util/List.size:()I
+       386: newarray       int
+       388: astore_2
+       389: aload         5
+       391: invokeinterface #126,  1          // InterfaceMethod java/util/List.iterator:()Ljava/util/Iterator;
+       396: astore        10
+       398: aload         10
+       400: invokeinterface #92,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+       405: ifeq          434
+       408: aload         10
+       410: invokeinterface #98,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+       415: checkcast     #178                // class java/lang/Integer
+       418: invokevirtual #240                // Method java/lang/Integer.intValue:()I
+       421: istore        11
+       423: aload_2
+       424: iload_1
+       425: iinc          1, 1
+       428: iload         11
+       430: iastore
+       431: goto          398
+       434: aload_2
+       435: invokestatic  #603                // Method java/util/Arrays.sort:([I)V
+       438: aload_0
+       439: getfield      #613                // Field _skillsByRaceHashCodes:Ljava/util/Map;
+       442: aload         9
+       444: invokevirtual #616                // Method org/l2jmobius/gameserver/entity/actor/enums/creature/Race.ordinal:()I
+       447: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+       450: aload_2
+       451: invokeinterface #127,  3          // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+       456: pop
+       457: aload         5
+       459: invokeinterface #617,  1          // InterfaceMethod java/util/List.clear:()V
+       464: iinc          8, 1
+       467: goto          203
+       470: aload_0
+       471: getfield      #43                 // Field _commonSkillTree:Ljava/util/Map;
+       474: invokeinterface #411,  1          // InterfaceMethod java/util/Map.values:()Ljava/util/Collection;
+       479: invokeinterface #415,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+       484: astore        6
+       486: aload         6
+       488: invokeinterface #92,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+       493: ifeq          548
+       496: aload         6
+       498: invokeinterface #98,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+       503: checkcast     #210                // class org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn
+       506: astore        7
+       508: aload         7
+       510: invokevirtual #474                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getRaces:()Ljava/util/Set;
+       513: invokeinterface #453,  1          // InterfaceMethod java/util/Set.isEmpty:()Z
+       518: ifeq          545
+       521: aload         5
+       523: aload         7
+       525: invokevirtual #302                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillId:()I
+       528: aload         7
+       530: invokevirtual #305                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillLevel:()I
+       533: invokestatic  #308                // Method org/l2jmobius/gameserver/data/xml/SkillData.getSkillHashCode:(II)I
+       536: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+       539: invokeinterface #457,  2          // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+       544: pop
+       545: goto          486
+       548: aload_0
+       549: getfield      #28                 // Field _fishingSkillTree:Ljava/util/Map;
+       552: invokeinterface #411,  1          // InterfaceMethod java/util/Map.values:()Ljava/util/Collection;
+       557: invokeinterface #415,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+       562: astore        6
+       564: aload         6
+       566: invokeinterface #92,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+       571: ifeq          626
+       574: aload         6
+       576: invokeinterface #98,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+       581: checkcast     #210                // class org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn
+       584: astore        7
+       586: aload         7
+       588: invokevirtual #474                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getRaces:()Ljava/util/Set;
+       591: invokeinterface #453,  1          // InterfaceMethod java/util/Set.isEmpty:()Z
+       596: ifeq          623
+       599: aload         5
+       601: aload         7
+       603: invokevirtual #302                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillId:()I
+       606: aload         7
+       608: invokevirtual #305                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillLevel:()I
+       611: invokestatic  #308                // Method org/l2jmobius/gameserver/data/xml/SkillData.getSkillHashCode:(II)I
+       614: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+       617: invokeinterface #457,  2          // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+       622: pop
+       623: goto          564
+       626: aload_0
+       627: getfield      #40                 // Field _transformSkillTree:Ljava/util/Map;
+       630: invokeinterface #411,  1          // InterfaceMethod java/util/Map.values:()Ljava/util/Collection;
+       635: invokeinterface #415,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+       640: astore        6
+       642: aload         6
+       644: invokeinterface #92,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+       649: ifeq          704
+       652: aload         6
+       654: invokeinterface #98,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+       659: checkcast     #210                // class org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn
+       662: astore        7
+       664: aload         7
+       666: invokevirtual #474                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getRaces:()Ljava/util/Set;
+       669: invokeinterface #453,  1          // InterfaceMethod java/util/Set.isEmpty:()Z
+       674: ifeq          701
+       677: aload         5
+       679: aload         7
+       681: invokevirtual #302                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillId:()I
+       684: aload         7
+       686: invokevirtual #305                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillLevel:()I
+       689: invokestatic  #308                // Method org/l2jmobius/gameserver/data/xml/SkillData.getSkillHashCode:(II)I
+       692: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+       695: invokeinterface #457,  2          // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+       700: pop
+       701: goto          642
+       704: aload_0
+       705: getfield      #25                 // Field _collectSkillTree:Ljava/util/Map;
+       708: invokeinterface #411,  1          // InterfaceMethod java/util/Map.values:()Ljava/util/Collection;
+       713: invokeinterface #415,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+       718: astore        6
+       720: aload         6
+       722: invokeinterface #92,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+       727: ifeq          769
+       730: aload         6
+       732: invokeinterface #98,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+       737: checkcast     #210                // class org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn
+       740: astore        7
+       742: aload         5
+       744: aload         7
+       746: invokevirtual #302                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillId:()I
+       749: aload         7
+       751: invokevirtual #305                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillLevel:()I
+       754: invokestatic  #308                // Method org/l2jmobius/gameserver/data/xml/SkillData.getSkillHashCode:(II)I
+       757: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+       760: invokeinterface #457,  2          // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+       765: pop
+       766: goto          720
+       769: aload_0
+       770: aload         5
+       772: invokeinterface #508,  1          // InterfaceMethod java/util/List.size:()I
+       777: newarray       int
+       779: putfield      #618                // Field _allSkillsHashCodes:[I
+       782: iconst_0
+       783: istore        6
+       785: aload         5
+       787: invokeinterface #126,  1          // InterfaceMethod java/util/List.iterator:()Ljava/util/Iterator;
+       792: astore        7
+       794: aload         7
+       796: invokeinterface #92,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+       801: ifeq          834
+       804: aload         7
+       806: invokeinterface #98,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+       811: checkcast     #178                // class java/lang/Integer
+       814: invokevirtual #240                // Method java/lang/Integer.intValue:()I
+       817: istore        8
+       819: aload_0
+       820: getfield      #618                // Field _allSkillsHashCodes:[I
+       823: iload         6
+       825: iinc          6, 1
+       828: iload         8
+       830: iastore
+       831: goto          794
+       834: aload_0
+       835: getfield      #618                // Field _allSkillsHashCodes:[I
+       838: invokestatic  #603                // Method java/util/Arrays.sort:([I)V
+       841: return
+
+  public boolean isSkillAllowed(org.l2jmobius.gameserver.entity.actor.Player, org.l2jmobius.gameserver.mechanics.skill.Skill);
+    Code:
+         0: aload_2
+         1: invokevirtual #621                // Method org/l2jmobius/gameserver/mechanics/skill/Skill.isExcludedFromCheck:()Z
+         4: ifeq          9
+         7: iconst_1
+         8: ireturn
+         9: aload_1
+        10: invokevirtual #432                // Method org/l2jmobius/gameserver/entity/actor/Player.isGM:()Z
+        13: ifeq          25
+        16: aload_2
+        17: invokevirtual #624                // Method org/l2jmobius/gameserver/mechanics/skill/Skill.isGMSkill:()Z
+        20: ifeq          25
+        23: iconst_1
+        24: ireturn
+        25: aload_0
+        26: getfield      #64                 // Field _loading:Z
+        29: ifeq          34
+        32: iconst_1
+        33: ireturn
+        34: invokestatic  #381                // Method org/l2jmobius/gameserver/data/xml/SkillData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/SkillData;
+        37: aload_2
+        38: invokevirtual #464                // Method org/l2jmobius/gameserver/mechanics/skill/Skill.getId:()I
+        41: invokevirtual #627                // Method org/l2jmobius/gameserver/data/xml/SkillData.getMaxLevel:(I)I
+        44: istore_3
+        45: aload_2
+        46: invokevirtual #464                // Method org/l2jmobius/gameserver/mechanics/skill/Skill.getId:()I
+        49: aload_2
+        50: invokevirtual #456                // Method org/l2jmobius/gameserver/mechanics/skill/Skill.getLevel:()I
+        53: iload_3
+        54: invokestatic  #631                // Method java/lang/Math.min:(II)I
+        57: invokestatic  #308                // Method org/l2jmobius/gameserver/data/xml/SkillData.getSkillHashCode:(II)I
+        60: istore        4
+        62: aload_0
+        63: getfield      #597                // Field _skillsByClassIdHashCodes:Ljava/util/Map;
+        66: aload_1
+        67: invokevirtual #467                // Method org/l2jmobius/gameserver/entity/actor/Player.getPlayerClass:()Lorg/l2jmobius/gameserver/entity/actor/enums/player/PlayerClass;
+        70: invokevirtual #609                // Method org/l2jmobius/gameserver/entity/actor/enums/player/PlayerClass.getId:()I
+        73: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+        76: invokeinterface #122,  2          // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+        81: checkcast     #636                // class "[I"
+        84: iload         4
+        86: invokestatic  #637                // Method java/util/Arrays.binarySearch:([II)I
+        89: iflt          94
+        92: iconst_1
+        93: ireturn
+        94: aload_0
+        95: getfield      #613                // Field _skillsByRaceHashCodes:Ljava/util/Map;
+        98: aload_1
+        99: invokevirtual #470                // Method org/l2jmobius/gameserver/entity/actor/Player.getRace:()Lorg/l2jmobius/gameserver/entity/actor/enums/creature/Race;
+       102: invokevirtual #616                // Method org/l2jmobius/gameserver/entity/actor/enums/creature/Race.ordinal:()I
+       105: invokestatic  #276                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+       108: invokeinterface #122,  2          // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+       113: checkcast     #636                // class "[I"
+       116: iload         4
+       118: invokestatic  #637                // Method java/util/Arrays.binarySearch:([II)I
+       121: iflt          126
+       124: iconst_1
+       125: ireturn
+       126: aload_0
+       127: getfield      #618                // Field _allSkillsHashCodes:[I
+       130: iload         4
+       132: invokestatic  #637                // Method java/util/Arrays.binarySearch:([II)I
+       135: iflt          140
+       138: iconst_1
+       139: ireturn
+       140: aload_0
+       141: aload_2
+       142: invokevirtual #464                // Method org/l2jmobius/gameserver/mechanics/skill/Skill.getId:()I
+       145: aload_2
+       146: invokevirtual #456                // Method org/l2jmobius/gameserver/mechanics/skill/Skill.getLevel:()I
+       149: iload_3
+       150: invokestatic  #631                // Method java/lang/Math.min:(II)I
+       153: aload_1
+       154: invokevirtual #467                // Method org/l2jmobius/gameserver/entity/actor/Player.getPlayerClass:()Lorg/l2jmobius/gameserver/entity/actor/enums/player/PlayerClass;
+       157: invokevirtual #559                // Method getTransferSkill:(IILorg/l2jmobius/gameserver/entity/actor/enums/player/PlayerClass;)Lorg/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn;
+       160: ifnull        167
+       163: iconst_1
+       164: goto          168
+       167: iconst_0
+       168: ireturn
+
+  private void report();
+    Code:
+         0: iconst_0
+         1: istore_1
+         2: aload_0
+         3: getfield      #10                 // Field _classSkillTrees:Ljava/util/Map;
+         6: invokeinterface #411,  1          // InterfaceMethod java/util/Map.values:()Ljava/util/Collection;
+        11: invokeinterface #415,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+        16: astore_2
+        17: aload_2
+        18: invokeinterface #92,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+        23: ifeq          48
+        26: aload_2
+        27: invokeinterface #98,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        32: checkcast     #72                 // class java/util/Map
+        35: astore_3
+        36: iload_1
+        37: aload_3
+        38: invokeinterface #602,  1          // InterfaceMethod java/util/Map.size:()I
+        43: iadd
+        44: istore_1
+        45: goto          17
+        48: iconst_0
+        49: istore_2
+        50: aload_0
+        51: getfield      #22                 // Field _transferSkillTrees:Ljava/util/Map;
+        54: invokeinterface #411,  1          // InterfaceMethod java/util/Map.values:()Ljava/util/Collection;
+        59: invokeinterface #415,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+        64: astore_3
+        65: aload_3
+        66: invokeinterface #92,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+        71: ifeq          98
+        74: aload_3
+        75: invokeinterface #98,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        80: checkcast     #72                 // class java/util/Map
+        83: astore        4
+        85: iload_2
+        86: aload         4
+        88: invokeinterface #602,  1          // InterfaceMethod java/util/Map.size:()I
+        93: iadd
+        94: istore_2
+        95: goto          65
+        98: iconst_0
+        99: istore_3
+       100: aload_0
+       101: getfield      #28                 // Field _fishingSkillTree:Ljava/util/Map;
+       104: invokeinterface #411,  1          // InterfaceMethod java/util/Map.values:()Ljava/util/Collection;
+       109: invokeinterface #415,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+       114: astore        4
+       116: aload         4
+       118: invokeinterface #92,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+       123: ifeq          160
+       126: aload         4
+       128: invokeinterface #98,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+       133: checkcast     #210                // class org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn
+       136: astore        5
+       138: aload         5
+       140: invokevirtual #474                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getRaces:()Ljava/util/Set;
+       143: getstatic     #641                // Field org/l2jmobius/gameserver/entity/actor/enums/creature/Race.DWARF:Lorg/l2jmobius/gameserver/entity/actor/enums/creature/Race;
+       146: invokeinterface #477,  2          // InterfaceMethod java/util/Set.contains:(Ljava/lang/Object;)Z
+       151: ifeq          157
+       154: iinc          3, 1
+       157: goto          116
+       160: iconst_0
+       161: istore        4
+       163: aload_0
+       164: getfield      #31                 // Field _pledgeSkillTree:Ljava/util/Map;
+       167: invokeinterface #411,  1          // InterfaceMethod java/util/Map.values:()Ljava/util/Collection;
+       172: invokeinterface #415,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+       177: astore        5
+       179: aload         5
+       181: invokeinterface #92,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+       186: ifeq          215
+       189: aload         5
+       191: invokeinterface #98,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+       196: checkcast     #210                // class org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn
+       199: astore        6
+       201: aload         6
+       203: invokevirtual #484                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.isResidencialSkill:()Z
+       206: ifeq          212
+       209: iinc          4, 1
+       212: goto          179
+       215: aload_0
+       216: invokevirtual #342                // Method java/lang/Object.getClass:()Ljava/lang/Class;
+       219: invokevirtual #346                // Method java/lang/Class.getSimpleName:()Ljava/lang/String;
+       222: astore        5
+       224: getstatic     #338                // Field LOGGER:Ljava/util/logging/Logger;
+       227: aload         5
+       229: iload_1
+       230: aload_0
+       231: getfield      #10                 // Field _classSkillTrees:Ljava/util/Map;
+       234: invokeinterface #602,  1          // InterfaceMethod java/util/Map.size:()I
+       239: invokedynamic #645,  0            // InvokeDynamic #6:makeConcatWithConstants:(Ljava/lang/String;II)Ljava/lang/String;
+       244: invokevirtual #648                // Method java/util/logging/Logger.info:(Ljava/lang/String;)V
+       247: getstatic     #338                // Field LOGGER:Ljava/util/logging/Logger;
+       250: aload         5
+       252: aload_0
+       253: getfield      #34                 // Field _subClassSkillTree:Ljava/util/Map;
+       256: invokeinterface #602,  1          // InterfaceMethod java/util/Map.size:()I
+       261: invokedynamic #651,  0            // InvokeDynamic #7:makeConcatWithConstants:(Ljava/lang/String;I)Ljava/lang/String;
+       266: invokevirtual #648                // Method java/util/logging/Logger.info:(Ljava/lang/String;)V
+       269: getstatic     #338                // Field LOGGER:Ljava/util/logging/Logger;
+       272: aload         5
+       274: iload_2
+       275: aload_0
+       276: getfield      #22                 // Field _transferSkillTrees:Ljava/util/Map;
+       279: invokeinterface #602,  1          // InterfaceMethod java/util/Map.size:()I
+       284: invokedynamic #654,  0            // InvokeDynamic #8:makeConcatWithConstants:(Ljava/lang/String;II)Ljava/lang/String;
+       289: invokevirtual #648                // Method java/util/logging/Logger.info:(Ljava/lang/String;)V
+       292: getstatic     #338                // Field LOGGER:Ljava/util/logging/Logger;
+       295: aload         5
+       297: aload_0
+       298: getfield      #28                 // Field _fishingSkillTree:Ljava/util/Map;
+       301: invokeinterface #602,  1          // InterfaceMethod java/util/Map.size:()I
+       306: iload_3
+       307: invokedynamic #655,  0            // InvokeDynamic #9:makeConcatWithConstants:(Ljava/lang/String;II)Ljava/lang/String;
+       312: invokevirtual #648                // Method java/util/logging/Logger.info:(Ljava/lang/String;)V
+       315: getstatic     #338                // Field LOGGER:Ljava/util/logging/Logger;
+       318: aload         5
+       320: aload_0
+       321: getfield      #25                 // Field _collectSkillTree:Ljava/util/Map;
+       324: invokeinterface #602,  1          // InterfaceMethod java/util/Map.size:()I
+       329: invokedynamic #656,  0            // InvokeDynamic #10:makeConcatWithConstants:(Ljava/lang/String;I)Ljava/lang/String;
+       334: invokevirtual #648                // Method java/util/logging/Logger.info:(Ljava/lang/String;)V
+       337: getstatic     #338                // Field LOGGER:Ljava/util/logging/Logger;
+       340: aload         5
+       342: aload_0
+       343: getfield      #31                 // Field _pledgeSkillTree:Ljava/util/Map;
+       346: invokeinterface #602,  1          // InterfaceMethod java/util/Map.size:()I
+       351: aload_0
+       352: getfield      #31                 // Field _pledgeSkillTree:Ljava/util/Map;
+       355: invokeinterface #602,  1          // InterfaceMethod java/util/Map.size:()I
+       360: iload         4
+       362: isub
+       363: iload         4
+       365: invokedynamic #657,  0            // InvokeDynamic #11:makeConcatWithConstants:(Ljava/lang/String;III)Ljava/lang/String;
+       370: invokevirtual #648                // Method java/util/logging/Logger.info:(Ljava/lang/String;)V
+       373: getstatic     #338                // Field LOGGER:Ljava/util/logging/Logger;
+       376: aload         5
+       378: aload_0
+       379: getfield      #37                 // Field _subPledgeSkillTree:Ljava/util/Map;
+       382: invokeinterface #602,  1          // InterfaceMethod java/util/Map.size:()I
+       387: invokedynamic #660,  0            // InvokeDynamic #12:makeConcatWithConstants:(Ljava/lang/String;I)Ljava/lang/String;
+       392: invokevirtual #648                // Method java/util/logging/Logger.info:(Ljava/lang/String;)V
+       395: getstatic     #338                // Field LOGGER:Ljava/util/logging/Logger;
+       398: aload         5
+       400: aload_0
+       401: getfield      #40                 // Field _transformSkillTree:Ljava/util/Map;
+       404: invokeinterface #602,  1          // InterfaceMethod java/util/Map.size:()I
+       409: invokedynamic #661,  0            // InvokeDynamic #13:makeConcatWithConstants:(Ljava/lang/String;I)Ljava/lang/String;
+       414: invokevirtual #648                // Method java/util/logging/Logger.info:(Ljava/lang/String;)V
+       417: getstatic     #338                // Field LOGGER:Ljava/util/logging/Logger;
+       420: aload         5
+       422: aload_0
+       423: getfield      #46                 // Field _nobleSkillTree:Ljava/util/Map;
+       426: invokeinterface #602,  1          // InterfaceMethod java/util/Map.size:()I
+       431: invokedynamic #662,  0            // InvokeDynamic #14:makeConcatWithConstants:(Ljava/lang/String;I)Ljava/lang/String;
+       436: invokevirtual #648                // Method java/util/logging/Logger.info:(Ljava/lang/String;)V
+       439: getstatic     #338                // Field LOGGER:Ljava/util/logging/Logger;
+       442: aload         5
+       444: aload_0
+       445: getfield      #49                 // Field _heroSkillTree:Ljava/util/Map;
+       448: invokeinterface #602,  1          // InterfaceMethod java/util/Map.size:()I
+       453: invokedynamic #663,  0            // InvokeDynamic #15:makeConcatWithConstants:(Ljava/lang/String;I)Ljava/lang/String;
+       458: invokevirtual #648                // Method java/util/logging/Logger.info:(Ljava/lang/String;)V
+       461: getstatic     #338                // Field LOGGER:Ljava/util/logging/Logger;
+       464: aload         5
+       466: aload_0
+       467: getfield      #52                 // Field _gameMasterSkillTree:Ljava/util/Map;
+       470: invokeinterface #602,  1          // InterfaceMethod java/util/Map.size:()I
+       475: invokedynamic #664,  0            // InvokeDynamic #16:makeConcatWithConstants:(Ljava/lang/String;I)Ljava/lang/String;
+       480: invokevirtual #648                // Method java/util/logging/Logger.info:(Ljava/lang/String;)V
+       483: getstatic     #338                // Field LOGGER:Ljava/util/logging/Logger;
+       486: aload         5
+       488: aload_0
+       489: getfield      #55                 // Field _gameMasterAuraSkillTree:Ljava/util/Map;
+       492: invokeinterface #602,  1          // InterfaceMethod java/util/Map.size:()I
+       497: invokedynamic #665,  0            // InvokeDynamic #17:makeConcatWithConstants:(Ljava/lang/String;I)Ljava/lang/String;
+       502: invokevirtual #648                // Method java/util/logging/Logger.info:(Ljava/lang/String;)V
+       505: aload_0
+       506: getfield      #43                 // Field _commonSkillTree:Ljava/util/Map;
+       509: invokeinterface #602,  1          // InterfaceMethod java/util/Map.size:()I
+       514: istore        6
+       516: iload         6
+       518: ifle          536
+       521: getstatic     #338                // Field LOGGER:Ljava/util/logging/Logger;
+       524: aload         5
+       526: iload         6
+       528: invokedynamic #666,  0            // InvokeDynamic #18:makeConcatWithConstants:(Ljava/lang/String;I)Ljava/lang/String;
+       533: invokevirtual #648                // Method java/util/logging/Logger.info:(Ljava/lang/String;)V
+       536: return
+
+  public static org.l2jmobius.gameserver.data.xml.SkillTreeData getInstance();
+    Code:
+         0: getstatic     #667                // Field org/l2jmobius/gameserver/data/xml/SkillTreeData$SingletonHolder.INSTANCE:Lorg/l2jmobius/gameserver/data/xml/SkillTreeData;
+         3: areturn
+
+  private static boolean lambda$isGMSkill$1(int, org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn);
+    Code:
+         0: aload_1
+         1: invokevirtual #302                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillId:()I
+         4: iload_0
+         5: if_icmpne     12
+         8: iconst_1
+         9: goto          13
+        12: iconst_0
+        13: ireturn
+
+  private static boolean lambda$isGMSkill$0(int, org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn);
+    Code:
+         0: aload_1
+         1: invokevirtual #302                // Method org/l2jmobius/gameserver/mechanics/skill/holders/SkillLearn.getSkillId:()I
+         4: iload_0
+         5: if_icmpne     12
+         8: iconst_1
+         9: goto          13
+        12: iconst_0
+        13: ireturn
+}

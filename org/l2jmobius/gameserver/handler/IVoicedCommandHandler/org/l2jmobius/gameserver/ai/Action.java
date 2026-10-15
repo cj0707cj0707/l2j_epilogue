@@ -1,0 +1,26 @@
+package org.l2jmobius.gameserver.ai;
+
+public enum Action {
+   THINK,
+   ATTACKED,
+   AGGRESSION,
+   STUNNED,
+   PARALYZED,
+   SLEEPING,
+   ROOTED,
+   EVADED,
+   READY_TO_ACT,
+   USER_CMD,
+   ARRIVED,
+   ARRIVED_REVALIDATE,
+   ARRIVED_BLOCKED,
+   FORGET_OBJECT,
+   CANCEL,
+   DEATH,
+   FAKE_DEATH,
+   CONFUSED,
+   MUTED,
+   AFRAID,
+   FINISH_CASTING,
+   BETRAYED;
+}

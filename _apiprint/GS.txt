@@ -1,0 +1,706 @@
+Compiled from "GameServer.java"
+public class org.l2jmobius.gameserver.GameServer {
+  private static final java.util.logging.Logger LOGGER;
+
+  private static final long START_TIME;
+
+  private long _sectionStartTime;
+
+  private java.lang.String _previousSectionName;
+
+  public org.l2jmobius.gameserver.GameServer() throws java.lang.Exception;
+    Code:
+         0: aload_0
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: getstatic     #7                  // Field START_TIME:J
+         8: putfield      #13                 // Field _sectionStartTime:J
+        11: aload_0
+        12: aconst_null
+        13: putfield      #16                 // Field _previousSectionName:Ljava/lang/String;
+        16: invokestatic  #20                 // Method org/l2jmobius/commons/config/InterfaceConfig.load:()V
+        19: getstatic     #25                 // Field org/l2jmobius/commons/config/InterfaceConfig.ENABLE_GUI:Z
+        22: ifeq          41
+        25: getstatic     #29                 // Field java/lang/System.out:Ljava/io/PrintStream;
+        28: ldc           #35                 // String GameServer: Running in GUI mode.
+        30: invokevirtual #37                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+        33: new           #43                 // class org/l2jmobius/gameserver/ui/Gui
+        36: dup
+        37: invokespecial #45                 // Method org/l2jmobius/gameserver/ui/Gui."<init>":()V
+        40: pop
+        41: new           #46                 // class java/io/File
+        44: dup
+        45: ldc           #48                 // String .
+        47: ldc           #50                 // String log
+        49: invokespecial #52                 // Method java/io/File."<init>":(Ljava/lang/String;Ljava/lang/String;)V
+        52: astore_1
+        53: aload_1
+        54: invokevirtual #55                 // Method java/io/File.mkdir:()Z
+        57: pop
+        58: new           #59                 // class java/io/FileInputStream
+        61: dup
+        62: new           #46                 // class java/io/File
+        65: dup
+        66: ldc           #61                 // String ./log.cfg
+        68: invokespecial #63                 // Method java/io/File."<init>":(Ljava/lang/String;)V
+        71: invokespecial #65                 // Method java/io/FileInputStream."<init>":(Ljava/io/File;)V
+        74: astore_2
+        75: invokestatic  #68                 // Method java/util/logging/LogManager.getLogManager:()Ljava/util/logging/LogManager;
+        78: aload_2
+        79: invokevirtual #74                 // Method java/util/logging/LogManager.readConfiguration:(Ljava/io/InputStream;)V
+        82: aload_2
+        83: invokevirtual #78                 // Method java/io/InputStream.close:()V
+        86: goto          107
+        89: astore_3
+        90: aload_2
+        91: invokevirtual #78                 // Method java/io/InputStream.close:()V
+        94: goto          105
+        97: astore        4
+        99: aload_3
+       100: aload         4
+       102: invokevirtual #85                 // Method java/lang/Throwable.addSuppressed:(Ljava/lang/Throwable;)V
+       105: aload_3
+       106: athrow
+       107: invokestatic  #89                 // Method org/l2jmobius/gameserver/config/ConfigLoader.init:()V
+       110: aload_0
+       111: ldc           #94                 // String Database
+       113: invokevirtual #96                 // Method printSection:(Ljava/lang/String;)V
+       116: invokestatic  #99                 // Method org/l2jmobius/commons/database/DatabaseFactory.init:()V
+       119: aload_0
+       120: ldc           #102                // String ThreadPool
+       122: invokevirtual #96                 // Method printSection:(Ljava/lang/String;)V
+       125: invokestatic  #104                // Method org/l2jmobius/commons/threads/ThreadPool.init:()V
+       128: invokestatic  #107                // Method org/l2jmobius/gameserver/taskmanagers/GameTimeTaskManager.getInstance:()Lorg/l2jmobius/gameserver/taskmanagers/GameTimeTaskManager;
+       131: pop
+       132: aload_0
+       133: ldc           #113                // String IdManager
+       135: invokevirtual #96                 // Method printSection:(Ljava/lang/String;)V
+       138: invokestatic  #115                // Method org/l2jmobius/gameserver/managers/IdManager.getInstance:()Lorg/l2jmobius/gameserver/managers/IdManager;
+       141: pop
+       142: aload_0
+       143: ldc           #120                // String Scripting Engine
+       145: invokevirtual #96                 // Method printSection:(Ljava/lang/String;)V
+       148: invokestatic  #122                // Method org/l2jmobius/gameserver/mechanics/events/EventDispatcher.getInstance:()Lorg/l2jmobius/gameserver/mechanics/events/EventDispatcher;
+       151: pop
+       152: invokestatic  #127                // Method org/l2jmobius/gameserver/scripting/ScriptEngine.getInstance:()Lorg/l2jmobius/gameserver/scripting/ScriptEngine;
+       155: pop
+       156: aload_0
+       157: ldc           #132                // String World
+       159: invokevirtual #96                 // Method printSection:(Ljava/lang/String;)V
+       162: invokestatic  #134                // Method org/l2jmobius/gameserver/managers/InstanceManager.getInstance:()Lorg/l2jmobius/gameserver/managers/InstanceManager;
+       165: pop
+       166: invokestatic  #139                // Method org/l2jmobius/gameserver/entity/World.init:()V
+       169: invokestatic  #142                // Method org/l2jmobius/gameserver/data/xml/MapRegionData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/MapRegionData;
+       172: pop
+       173: invokestatic  #147                // Method org/l2jmobius/gameserver/data/sql/AnnouncementsTable.getInstance:()Lorg/l2jmobius/gameserver/data/sql/AnnouncementsTable;
+       176: pop
+       177: invokestatic  #152                // Method org/l2jmobius/gameserver/managers/GlobalVariablesManager.getInstance:()Lorg/l2jmobius/gameserver/managers/GlobalVariablesManager;
+       180: pop
+       181: aload_0
+       182: ldc           #157                // String Data
+       184: invokevirtual #96                 // Method printSection:(Ljava/lang/String;)V
+       187: invokestatic  #159                // Method org/l2jmobius/gameserver/data/xml/CategoryData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/CategoryData;
+       190: pop
+       191: invokestatic  #164                // Method org/l2jmobius/gameserver/data/xml/CubicData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/CubicData;
+       194: pop
+       195: invokestatic  #169                // Method org/l2jmobius/gameserver/data/xml/DynamicExpRateData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/DynamicExpRateData;
+       198: pop
+       199: aload_0
+       200: ldc           #174                // String Skills
+       202: invokevirtual #96                 // Method printSection:(Ljava/lang/String;)V
+       205: invokestatic  #176                // Method org/l2jmobius/gameserver/handler/EffectHandler.getInstance:()Lorg/l2jmobius/gameserver/handler/EffectHandler;
+       208: invokevirtual #181                // Method org/l2jmobius/gameserver/handler/EffectHandler.executeScript:()V
+       211: invokestatic  #184                // Method org/l2jmobius/gameserver/data/xml/EnchantSkillGroupsData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/EnchantSkillGroupsData;
+       214: pop
+       215: invokestatic  #189                // Method org/l2jmobius/gameserver/data/xml/SkillTreeData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/SkillTreeData;
+       218: pop
+       219: invokestatic  #194                // Method org/l2jmobius/gameserver/data/xml/SkillData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/SkillData;
+       222: pop
+       223: invokestatic  #199                // Method org/l2jmobius/gameserver/data/xml/PetSkillData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/PetSkillData;
+       226: pop
+       227: aload_0
+       228: ldc           #204                // String Items
+       230: invokevirtual #96                 // Method printSection:(Ljava/lang/String;)V
+       233: invokestatic  #206                // Method org/l2jmobius/gameserver/data/xml/ItemData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/ItemData;
+       236: pop
+       237: invokestatic  #211                // Method org/l2jmobius/gameserver/data/xml/EnchantItemGroupsData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/EnchantItemGroupsData;
+       240: pop
+       241: invokestatic  #216                // Method org/l2jmobius/gameserver/data/xml/EnchantItemData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/EnchantItemData;
+       244: pop
+       245: invokestatic  #221                // Method org/l2jmobius/gameserver/data/xml/EnchantItemOptionsData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/EnchantItemOptionsData;
+       248: pop
+       249: invokestatic  #226                // Method org/l2jmobius/gameserver/data/xml/ElementalAttributeData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/ElementalAttributeData;
+       252: pop
+       253: invokestatic  #231                // Method org/l2jmobius/gameserver/data/xml/OptionData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/OptionData;
+       256: pop
+       257: invokestatic  #236                // Method org/l2jmobius/gameserver/data/xml/EnchantItemHPBonusData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/EnchantItemHPBonusData;
+       260: pop
+       261: invokestatic  #241                // Method org/l2jmobius/gameserver/data/MerchantPriceConfigTable.getInstance:()Lorg/l2jmobius/gameserver/data/MerchantPriceConfigTable;
+       264: invokevirtual #246                // Method org/l2jmobius/gameserver/data/MerchantPriceConfigTable.loadInstances:()V
+       267: invokestatic  #249                // Method org/l2jmobius/gameserver/data/xml/BuyListData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/BuyListData;
+       270: pop
+       271: invokestatic  #254                // Method org/l2jmobius/gameserver/data/xml/MultisellData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/MultisellData;
+       274: pop
+       275: invokestatic  #259                // Method org/l2jmobius/gameserver/data/xml/RecipeData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/RecipeData;
+       278: pop
+       279: invokestatic  #264                // Method org/l2jmobius/gameserver/data/xml/ArmorSetData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/ArmorSetData;
+       282: pop
+       283: invokestatic  #269                // Method org/l2jmobius/gameserver/data/xml/FishData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/FishData;
+       286: pop
+       287: invokestatic  #274                // Method org/l2jmobius/gameserver/data/xml/FishingMonstersData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/FishingMonstersData;
+       290: pop
+       291: invokestatic  #279                // Method org/l2jmobius/gameserver/data/xml/FishingRodsData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/FishingRodsData;
+       294: pop
+       295: invokestatic  #284                // Method org/l2jmobius/gameserver/data/xml/HennaData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/HennaData;
+       298: pop
+       299: invokestatic  #289                // Method org/l2jmobius/gameserver/data/xml/PrimeShopData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/PrimeShopData;
+       302: pop
+       303: invokestatic  #294                // Method org/l2jmobius/gameserver/managers/PcCafePointsManager.getInstance:()Lorg/l2jmobius/gameserver/managers/PcCafePointsManager;
+       306: pop
+       307: invokestatic  #299                // Method org/l2jmobius/gameserver/taskmanagers/ItemLifeTimeTaskManager.getInstance:()Lorg/l2jmobius/gameserver/taskmanagers/ItemLifeTimeTaskManager;
+       310: pop
+       311: aload_0
+       312: ldc_w         #304                // String Characters
+       315: invokevirtual #96                 // Method printSection:(Ljava/lang/String;)V
+       318: invokestatic  #306                // Method org/l2jmobius/gameserver/data/xml/ClassListData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/ClassListData;
+       321: pop
+       322: invokestatic  #311                // Method org/l2jmobius/gameserver/data/xml/InitialEquipmentData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/InitialEquipmentData;
+       325: pop
+       326: invokestatic  #316                // Method org/l2jmobius/gameserver/data/xml/InitialShortcutData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/InitialShortcutData;
+       329: pop
+       330: invokestatic  #321                // Method org/l2jmobius/gameserver/data/xml/ExperienceData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/ExperienceData;
+       333: pop
+       334: invokestatic  #326                // Method org/l2jmobius/gameserver/data/xml/ExperienceLossData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/ExperienceLossData;
+       337: pop
+       338: invokestatic  #331                // Method org/l2jmobius/gameserver/data/xml/KarmaLossData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/KarmaLossData;
+       341: pop
+       342: invokestatic  #336                // Method org/l2jmobius/gameserver/data/xml/HitConditionBonusData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/HitConditionBonusData;
+       345: pop
+       346: invokestatic  #341                // Method org/l2jmobius/gameserver/data/xml/PlayerTemplateData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/PlayerTemplateData;
+       349: pop
+       350: invokestatic  #346                // Method org/l2jmobius/gameserver/data/sql/CharInfoTable.getInstance:()Lorg/l2jmobius/gameserver/data/sql/CharInfoTable;
+       353: pop
+       354: invokestatic  #351                // Method org/l2jmobius/gameserver/data/xml/AdminData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/AdminData;
+       357: pop
+       358: invokestatic  #356                // Method org/l2jmobius/gameserver/managers/RaidBossPointsManager.getInstance:()Lorg/l2jmobius/gameserver/managers/RaidBossPointsManager;
+       361: pop
+       362: invokestatic  #361                // Method org/l2jmobius/gameserver/data/xml/PetDataTable.getInstance:()Lorg/l2jmobius/gameserver/data/xml/PetDataTable;
+       365: pop
+       366: invokestatic  #366                // Method org/l2jmobius/gameserver/data/sql/CharSummonTable.getInstance:()Lorg/l2jmobius/gameserver/data/sql/CharSummonTable;
+       369: invokevirtual #371                // Method org/l2jmobius/gameserver/data/sql/CharSummonTable.init:()V
+       372: invokestatic  #372                // Method org/l2jmobius/gameserver/managers/CaptchaManager.getInstance:()Lorg/l2jmobius/gameserver/managers/CaptchaManager;
+       375: pop
+       376: getstatic     #377                // Field org/l2jmobius/gameserver/config/custom/PremiumSystemConfig.PREMIUM_SYSTEM_ENABLED:Z
+       379: ifeq          395
+       382: getstatic     #382                // Field LOGGER:Ljava/util/logging/Logger;
+       385: ldc_w         #386                // String PremiumManager: Premium system is enabled.
+       388: invokevirtual #388                // Method java/util/logging/Logger.info:(Ljava/lang/String;)V
+       391: invokestatic  #393                // Method org/l2jmobius/gameserver/managers/PremiumManager.getInstance:()Lorg/l2jmobius/gameserver/managers/PremiumManager;
+       394: pop
+       395: aload_0
+       396: ldc_w         #398                // String Clans
+       399: invokevirtual #96                 // Method printSection:(Ljava/lang/String;)V
+       402: invokestatic  #400                // Method org/l2jmobius/gameserver/data/sql/ClanTable.getInstance:()Lorg/l2jmobius/gameserver/data/sql/ClanTable;
+       405: pop
+       406: invokestatic  #405                // Method org/l2jmobius/gameserver/managers/CHSiegeManager.getInstance:()Lorg/l2jmobius/gameserver/managers/CHSiegeManager;
+       409: pop
+       410: invokestatic  #410                // Method org/l2jmobius/gameserver/data/sql/ClanHallTable.getInstance:()Lorg/l2jmobius/gameserver/data/sql/ClanHallTable;
+       413: pop
+       414: invokestatic  #415                // Method org/l2jmobius/gameserver/managers/ClanHallAuctionManager.getInstance:()Lorg/l2jmobius/gameserver/managers/ClanHallAuctionManager;
+       417: pop
+       418: aload_0
+       419: ldc_w         #420                // String Geodata
+       422: invokevirtual #96                 // Method printSection:(Ljava/lang/String;)V
+       425: invokestatic  #422                // Method org/l2jmobius/gameserver/geoengine/GeoEngine.getInstance:()Lorg/l2jmobius/gameserver/geoengine/GeoEngine;
+       428: pop
+       429: aload_0
+       430: ldc_w         #427                // String NPCs
+       433: invokevirtual #96                 // Method printSection:(Ljava/lang/String;)V
+       436: invokestatic  #429                // Method org/l2jmobius/gameserver/data/xml/DoorData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/DoorData;
+       439: pop
+       440: invokestatic  #434                // Method org/l2jmobius/gameserver/data/xml/FenceData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/FenceData;
+       443: pop
+       444: invokestatic  #439                // Method org/l2jmobius/gameserver/data/xml/SkillLearnData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/SkillLearnData;
+       447: pop
+       448: invokestatic  #444                // Method org/l2jmobius/gameserver/data/xml/NpcData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/NpcData;
+       451: pop
+       452: invokestatic  #449                // Method org/l2jmobius/gameserver/data/xml/LevelUpCrystalData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/LevelUpCrystalData;
+       455: pop
+       456: invokestatic  #454                // Method org/l2jmobius/gameserver/managers/FakePlayerChatManager.getInstance:()Lorg/l2jmobius/gameserver/managers/FakePlayerChatManager;
+       459: pop
+       460: invokestatic  #459                // Method org/l2jmobius/gameserver/managers/WalkingManager.getInstance:()Lorg/l2jmobius/gameserver/managers/WalkingManager;
+       463: pop
+       464: invokestatic  #464                // Method org/l2jmobius/gameserver/data/xml/StaticObjectData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/StaticObjectData;
+       467: pop
+       468: invokestatic  #469                // Method org/l2jmobius/gameserver/managers/ItemAuctionManager.getInstance:()Lorg/l2jmobius/gameserver/managers/ItemAuctionManager;
+       471: pop
+       472: invokestatic  #474                // Method org/l2jmobius/gameserver/managers/CastleManager.getInstance:()Lorg/l2jmobius/gameserver/managers/CastleManager;
+       475: invokevirtual #479                // Method org/l2jmobius/gameserver/managers/CastleManager.loadInstances:()V
+       478: invokestatic  #480                // Method org/l2jmobius/gameserver/data/SchemeBufferTable.getInstance:()Lorg/l2jmobius/gameserver/data/SchemeBufferTable;
+       481: pop
+       482: invokestatic  #485                // Method org/l2jmobius/gameserver/managers/ZoneManager.getInstance:()Lorg/l2jmobius/gameserver/managers/ZoneManager;
+       485: pop
+       486: invokestatic  #490                // Method org/l2jmobius/gameserver/managers/GrandBossManager.getInstance:()Lorg/l2jmobius/gameserver/managers/GrandBossManager;
+       489: invokevirtual #495                // Method org/l2jmobius/gameserver/managers/GrandBossManager.initZones:()V
+       492: invokestatic  #498                // Method org/l2jmobius/gameserver/managers/EventDropManager.getInstance:()Lorg/l2jmobius/gameserver/managers/EventDropManager;
+       495: pop
+       496: aload_0
+       497: ldc_w         #503                // String Olympiad
+       500: invokevirtual #96                 // Method printSection:(Ljava/lang/String;)V
+       503: invokestatic  #505                // Method org/l2jmobius/gameserver/mechanics/olympiad/Olympiad.getInstance:()Lorg/l2jmobius/gameserver/mechanics/olympiad/Olympiad;
+       506: pop
+       507: invokestatic  #510                // Method org/l2jmobius/gameserver/mechanics/olympiad/Hero.getInstance:()Lorg/l2jmobius/gameserver/mechanics/olympiad/Hero;
+       510: pop
+       511: aload_0
+       512: ldc_w         #515                // String Seven Signs
+       515: invokevirtual #96                 // Method printSection:(Ljava/lang/String;)V
+       518: invokestatic  #517                // Method org/l2jmobius/gameserver/mechanics/sevensigns/SevenSigns.getInstance:()Lorg/l2jmobius/gameserver/mechanics/sevensigns/SevenSigns;
+       521: pop
+       522: aload_0
+       523: ldc_w         #522                // String Cache
+       526: invokevirtual #96                 // Method printSection:(Ljava/lang/String;)V
+       529: invokestatic  #524                // Method org/l2jmobius/gameserver/cache/HtmCache.getInstance:()Lorg/l2jmobius/gameserver/cache/HtmCache;
+       532: pop
+       533: invokestatic  #529                // Method org/l2jmobius/gameserver/data/sql/CrestTable.getInstance:()Lorg/l2jmobius/gameserver/data/sql/CrestTable;
+       536: pop
+       537: invokestatic  #534                // Method org/l2jmobius/gameserver/data/xml/TeleporterData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/TeleporterData;
+       540: pop
+       541: invokestatic  #539                // Method org/l2jmobius/gameserver/entity/groups/matching/PartyMatchWaitingList.getInstance:()Lorg/l2jmobius/gameserver/entity/groups/matching/PartyMatchWaitingList;
+       544: pop
+       545: invokestatic  #544                // Method org/l2jmobius/gameserver/entity/groups/matching/PartyMatchRoomList.getInstance:()Lorg/l2jmobius/gameserver/entity/groups/matching/PartyMatchRoomList;
+       548: pop
+       549: invokestatic  #549                // Method org/l2jmobius/gameserver/managers/PetitionManager.getInstance:()Lorg/l2jmobius/gameserver/managers/PetitionManager;
+       552: pop
+       553: invokestatic  #554                // Method org/l2jmobius/gameserver/data/AugmentationData.getInstance:()Lorg/l2jmobius/gameserver/data/AugmentationData;
+       556: pop
+       557: invokestatic  #559                // Method org/l2jmobius/gameserver/managers/CursedWeaponsManager.getInstance:()Lorg/l2jmobius/gameserver/managers/CursedWeaponsManager;
+       560: pop
+       561: invokestatic  #564                // Method org/l2jmobius/gameserver/data/xml/TransformData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/TransformData;
+       564: pop
+       565: invokestatic  #569                // Method org/l2jmobius/gameserver/data/BotReportTable.getInstance:()Lorg/l2jmobius/gameserver/data/BotReportTable;
+       568: pop
+       569: getstatic     #574                // Field org/l2jmobius/gameserver/config/custom/SellBuffsConfig.SELLBUFF_ENABLED:Z
+       572: ifeq          579
+       575: invokestatic  #579                // Method org/l2jmobius/gameserver/managers/SellBuffsManager.getInstance:()Lorg/l2jmobius/gameserver/managers/SellBuffsManager;
+       578: pop
+       579: getstatic     #584                // Field org/l2jmobius/gameserver/config/custom/MultilingualSupportConfig.MULTILANG_ENABLE:Z
+       582: ifeq          596
+       585: invokestatic  #589                // Method org/l2jmobius/gameserver/network/SystemMessageId.loadLocalisations:()V
+       588: invokestatic  #594                // Method org/l2jmobius/gameserver/data/xml/SendMessageLocalisationData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/SendMessageLocalisationData;
+       591: pop
+       592: invokestatic  #599                // Method org/l2jmobius/gameserver/data/xml/NpcNameLocalisationData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/NpcNameLocalisationData;
+       595: pop
+       596: aload_0
+       597: ldc_w         #604                // String Scripts
+       600: invokevirtual #96                 // Method printSection:(Ljava/lang/String;)V
+       603: invokestatic  #606                // Method org/l2jmobius/gameserver/managers/ScriptManager.getInstance:()Lorg/l2jmobius/gameserver/managers/ScriptManager;
+       606: pop
+       607: invokestatic  #611                // Method org/l2jmobius/gameserver/managers/BoatManager.getInstance:()Lorg/l2jmobius/gameserver/managers/BoatManager;
+       610: pop
+       611: invokestatic  #616                // Method org/l2jmobius/gameserver/managers/AirShipManager.getInstance:()Lorg/l2jmobius/gameserver/managers/AirShipManager;
+       614: pop
+       615: invokestatic  #621                // Method org/l2jmobius/gameserver/managers/SeedOfDestructionManager.getInstance:()Lorg/l2jmobius/gameserver/managers/SeedOfDestructionManager;
+       618: pop
+       619: invokestatic  #626                // Method org/l2jmobius/gameserver/managers/SeedOfInfinityManager.getInstance:()Lorg/l2jmobius/gameserver/managers/SeedOfInfinityManager;
+       622: pop
+       623: getstatic     #382                // Field LOGGER:Ljava/util/logging/Logger;
+       626: ldc_w         #631                // String Loading server scripts...
+       629: invokevirtual #388                // Method java/util/logging/Logger.info:(Ljava/lang/String;)V
+       632: invokestatic  #127                // Method org/l2jmobius/gameserver/scripting/ScriptEngine.getInstance:()Lorg/l2jmobius/gameserver/scripting/ScriptEngine;
+       635: getstatic     #633                // Field org/l2jmobius/gameserver/scripting/ScriptEngine.MASTER_HANDLER_FILE:Ljava/nio/file/Path;
+       638: invokevirtual #637                // Method org/l2jmobius/gameserver/scripting/ScriptEngine.executeScript:(Ljava/nio/file/Path;)V
+       641: invokestatic  #127                // Method org/l2jmobius/gameserver/scripting/ScriptEngine.getInstance:()Lorg/l2jmobius/gameserver/scripting/ScriptEngine;
+       644: invokevirtual #640                // Method org/l2jmobius/gameserver/scripting/ScriptEngine.executeScriptList:()V
+       647: goto          664
+       650: astore_2
+       651: getstatic     #382                // Field LOGGER:Ljava/util/logging/Logger;
+       654: getstatic     #645                // Field java/util/logging/Level.WARNING:Ljava/util/logging/Level;
+       657: ldc_w         #651                // String Failed to execute script list!
+       660: aload_2
+       661: invokevirtual #653                // Method java/util/logging/Logger.log:(Ljava/util/logging/Level;Ljava/lang/String;Ljava/lang/Throwable;)V
+       664: invokestatic  #656                // Method org/l2jmobius/gameserver/data/xml/SpawnData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/SpawnData;
+       667: pop
+       668: invokestatic  #661                // Method org/l2jmobius/gameserver/managers/DayNightSpawnManager.getInstance:()Lorg/l2jmobius/gameserver/managers/DayNightSpawnManager;
+       671: invokevirtual #666                // Method org/l2jmobius/gameserver/managers/DayNightSpawnManager.trim:()Lorg/l2jmobius/gameserver/managers/DayNightSpawnManager;
+       674: invokevirtual #669                // Method org/l2jmobius/gameserver/managers/DayNightSpawnManager.notifyChangeMode:()V
+       677: invokestatic  #672                // Method org/l2jmobius/gameserver/managers/DimensionalRiftManager.getInstance:()Lorg/l2jmobius/gameserver/managers/DimensionalRiftManager;
+       680: pop
+       681: invokestatic  #677                // Method org/l2jmobius/gameserver/managers/RaidBossSpawnManager.getInstance:()Lorg/l2jmobius/gameserver/managers/RaidBossSpawnManager;
+       684: pop
+       685: aload_0
+       686: ldc_w         #682                // String Siege
+       689: invokevirtual #96                 // Method printSection:(Ljava/lang/String;)V
+       692: invokestatic  #684                // Method org/l2jmobius/gameserver/managers/SiegeManager.getInstance:()Lorg/l2jmobius/gameserver/managers/SiegeManager;
+       695: invokevirtual #689                // Method org/l2jmobius/gameserver/managers/SiegeManager.getSieges:()Ljava/util/List;
+       698: pop
+       699: invokestatic  #474                // Method org/l2jmobius/gameserver/managers/CastleManager.getInstance:()Lorg/l2jmobius/gameserver/managers/CastleManager;
+       702: invokevirtual #693                // Method org/l2jmobius/gameserver/managers/CastleManager.activateInstances:()V
+       705: invokestatic  #696                // Method org/l2jmobius/gameserver/managers/FortManager.getInstance:()Lorg/l2jmobius/gameserver/managers/FortManager;
+       708: invokevirtual #701                // Method org/l2jmobius/gameserver/managers/FortManager.loadInstances:()V
+       711: invokestatic  #696                // Method org/l2jmobius/gameserver/managers/FortManager.getInstance:()Lorg/l2jmobius/gameserver/managers/FortManager;
+       714: invokevirtual #702                // Method org/l2jmobius/gameserver/managers/FortManager.activateInstances:()V
+       717: invokestatic  #703                // Method org/l2jmobius/gameserver/managers/FortSiegeManager.getInstance:()Lorg/l2jmobius/gameserver/managers/FortSiegeManager;
+       720: pop
+       721: invokestatic  #708                // Method org/l2jmobius/gameserver/data/xml/SiegeScheduleData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/SiegeScheduleData;
+       724: pop
+       725: invokestatic  #241                // Method org/l2jmobius/gameserver/data/MerchantPriceConfigTable.getInstance:()Lorg/l2jmobius/gameserver/data/MerchantPriceConfigTable;
+       728: invokevirtual #713                // Method org/l2jmobius/gameserver/data/MerchantPriceConfigTable.updateReferences:()V
+       731: invokestatic  #716                // Method org/l2jmobius/gameserver/managers/TerritoryWarManager.getInstance:()Lorg/l2jmobius/gameserver/managers/TerritoryWarManager;
+       734: pop
+       735: invokestatic  #721                // Method org/l2jmobius/gameserver/managers/CastleManorManager.getInstance:()Lorg/l2jmobius/gameserver/managers/CastleManorManager;
+       738: pop
+       739: invokestatic  #726                // Method org/l2jmobius/gameserver/managers/MercTicketManager.getInstance:()Lorg/l2jmobius/gameserver/managers/MercTicketManager;
+       742: pop
+       743: invokestatic  #606                // Method org/l2jmobius/gameserver/managers/ScriptManager.getInstance:()Lorg/l2jmobius/gameserver/managers/ScriptManager;
+       746: invokevirtual #731                // Method org/l2jmobius/gameserver/managers/ScriptManager.report:()V
+       749: getstatic     #734                // Field org/l2jmobius/gameserver/config/GeneralConfig.SAVE_DROPPED_ITEM:Z
+       752: ifeq          759
+       755: invokestatic  #739                // Method org/l2jmobius/gameserver/managers/ItemsOnGroundManager.getInstance:()Lorg/l2jmobius/gameserver/managers/ItemsOnGroundManager;
+       758: pop
+       759: getstatic     #744                // Field org/l2jmobius/gameserver/config/GeneralConfig.AUTODESTROY_ITEM_AFTER:I
+       762: ifgt          771
+       765: getstatic     #748                // Field org/l2jmobius/gameserver/config/GeneralConfig.HERB_AUTO_DESTROY_TIME:I
+       768: ifle          775
+       771: invokestatic  #751                // Method org/l2jmobius/gameserver/taskmanagers/ItemsAutoDestroyTaskManager.getInstance:()Lorg/l2jmobius/gameserver/taskmanagers/ItemsAutoDestroyTaskManager;
+       774: pop
+       775: invokestatic  #756                // Method org/l2jmobius/gameserver/managers/games/MonsterRaceManager.getInstance:()Lorg/l2jmobius/gameserver/managers/games/MonsterRaceManager;
+       778: pop
+       779: invokestatic  #761                // Method org/l2jmobius/gameserver/managers/games/LotteryManager.getInstance:()Lorg/l2jmobius/gameserver/managers/games/LotteryManager;
+       782: pop
+       783: invokestatic  #517                // Method org/l2jmobius/gameserver/mechanics/sevensigns/SevenSigns.getInstance:()Lorg/l2jmobius/gameserver/mechanics/sevensigns/SevenSigns;
+       786: invokevirtual #766                // Method org/l2jmobius/gameserver/mechanics/sevensigns/SevenSigns.spawnSevenSignsNPC:()V
+       789: invokestatic  #769                // Method org/l2jmobius/gameserver/mechanics/sevensigns/SevenSignsFestival.getInstance:()Lorg/l2jmobius/gameserver/mechanics/sevensigns/SevenSignsFestival;
+       792: pop
+       793: invokestatic  #774                // Method org/l2jmobius/gameserver/entity/spawns/AutoSpawnHandler.getInstance:()Lorg/l2jmobius/gameserver/entity/spawns/AutoSpawnHandler;
+       796: pop
+       797: getstatic     #382                // Field LOGGER:Ljava/util/logging/Logger;
+       800: invokestatic  #774                // Method org/l2jmobius/gameserver/entity/spawns/AutoSpawnHandler.getInstance:()Lorg/l2jmobius/gameserver/entity/spawns/AutoSpawnHandler;
+       803: invokevirtual #779                // Method org/l2jmobius/gameserver/entity/spawns/AutoSpawnHandler.size:()I
+       806: invokedynamic #783,  0            // InvokeDynamic #0:makeConcatWithConstants:(I)Ljava/lang/String;
+       811: invokevirtual #388                // Method java/util/logging/Logger.info:(Ljava/lang/String;)V
+       814: getstatic     #787                // Field org/l2jmobius/gameserver/config/custom/WeddingConfig.ALLOW_WEDDING:Z
+       817: ifeq          824
+       820: invokestatic  #792                // Method org/l2jmobius/gameserver/managers/CoupleManager.getInstance:()Lorg/l2jmobius/gameserver/managers/CoupleManager;
+       823: pop
+       824: getstatic     #797                // Field org/l2jmobius/gameserver/config/GeneralConfig.ALT_FISH_CHAMPIONSHIP_ENABLED:Z
+       827: ifeq          834
+       830: invokestatic  #800                // Method org/l2jmobius/gameserver/managers/FishingChampionshipManager.getInstance:()Lorg/l2jmobius/gameserver/managers/FishingChampionshipManager;
+       833: pop
+       834: invokestatic  #805                // Method org/l2jmobius/gameserver/managers/games/KrateisCubeManager.getInstance:()Lorg/l2jmobius/gameserver/managers/games/KrateisCubeManager;
+       837: pop
+       838: invokestatic  #810                // Method org/l2jmobius/gameserver/managers/games/UndergroundColiseumManager.getInstance:()Lorg/l2jmobius/gameserver/managers/games/UndergroundColiseumManager;
+       841: pop
+       842: invokestatic  #815                // Method org/l2jmobius/gameserver/managers/DailyResetManager.getInstance:()Lorg/l2jmobius/gameserver/managers/DailyResetManager;
+       845: pop
+       846: invokestatic  #820                // Method org/l2jmobius/gameserver/managers/AntiFeedManager.getInstance:()Lorg/l2jmobius/gameserver/managers/AntiFeedManager;
+       849: iconst_0
+       850: invokevirtual #825                // Method org/l2jmobius/gameserver/managers/AntiFeedManager.registerEvent:(I)V
+       853: getstatic     #829                // Field org/l2jmobius/gameserver/config/custom/OfflinePlayConfig.ENABLE_OFFLINE_PLAY_COMMAND:Z
+       856: ifeq          866
+       859: invokestatic  #820                // Method org/l2jmobius/gameserver/managers/AntiFeedManager.getInstance:()Lorg/l2jmobius/gameserver/managers/AntiFeedManager;
+       862: iconst_4
+       863: invokevirtual #825                // Method org/l2jmobius/gameserver/managers/AntiFeedManager.registerEvent:(I)V
+       866: getstatic     #834                // Field org/l2jmobius/gameserver/config/GeneralConfig.ALLOW_MAIL:Z
+       869: ifeq          876
+       872: invokestatic  #837                // Method org/l2jmobius/gameserver/managers/MailManager.getInstance:()Lorg/l2jmobius/gameserver/managers/MailManager;
+       875: pop
+       876: getstatic     #842                // Field org/l2jmobius/gameserver/config/custom/CustomMailManagerConfig.CUSTOM_MAIL_MANAGER_ENABLED:Z
+       879: ifeq          886
+       882: invokestatic  #847                // Method org/l2jmobius/gameserver/managers/CustomMailManager.getInstance:()Lorg/l2jmobius/gameserver/managers/CustomMailManager;
+       885: pop
+       886: invokestatic  #122                // Method org/l2jmobius/gameserver/mechanics/events/EventDispatcher.getInstance:()Lorg/l2jmobius/gameserver/mechanics/events/EventDispatcher;
+       889: getstatic     #852                // Field org/l2jmobius/gameserver/mechanics/events/EventType.ON_SERVER_START:Lorg/l2jmobius/gameserver/mechanics/events/EventType;
+       892: invokevirtual #858                // Method org/l2jmobius/gameserver/mechanics/events/EventDispatcher.hasListener:(Lorg/l2jmobius/gameserver/mechanics/events/EventType;)Z
+       895: ifeq          915
+       898: invokestatic  #122                // Method org/l2jmobius/gameserver/mechanics/events/EventDispatcher.getInstance:()Lorg/l2jmobius/gameserver/mechanics/events/EventDispatcher;
+       901: new           #862                // class org/l2jmobius/gameserver/mechanics/events/holders/OnServerStart
+       904: dup
+       905: invokespecial #864                // Method org/l2jmobius/gameserver/mechanics/events/holders/OnServerStart."<init>":()V
+       908: iconst_0
+       909: anewarray     #865                // class org/l2jmobius/gameserver/mechanics/events/ListenersContainer
+       912: invokevirtual #867                // Method org/l2jmobius/gameserver/mechanics/events/EventDispatcher.notifyEventAsync:(Lorg/l2jmobius/gameserver/mechanics/events/holders/IBaseEvent;[Lorg/l2jmobius/gameserver/mechanics/events/ListenersContainer;)V
+       915: invokestatic  #871                // Method org/l2jmobius/gameserver/managers/PunishmentManager.getInstance:()Lorg/l2jmobius/gameserver/managers/PunishmentManager;
+       918: pop
+       919: invokestatic  #876                // Method java/lang/Runtime.getRuntime:()Ljava/lang/Runtime;
+       922: invokestatic  #882                // Method org/l2jmobius/gameserver/Shutdown.getInstance:()Lorg/l2jmobius/gameserver/Shutdown;
+       925: invokevirtual #887                // Method java/lang/Runtime.addShutdownHook:(Ljava/lang/Thread;)V
+       928: getstatic     #382                // Field LOGGER:Ljava/util/logging/Logger;
+       931: invokestatic  #115                // Method org/l2jmobius/gameserver/managers/IdManager.getInstance:()Lorg/l2jmobius/gameserver/managers/IdManager;
+       934: invokevirtual #891                // Method org/l2jmobius/gameserver/managers/IdManager.getAvailableIdCount:()I
+       937: invokedynamic #894,  0            // InvokeDynamic #1:makeConcatWithConstants:(I)Ljava/lang/String;
+       942: invokevirtual #388                // Method java/util/logging/Logger.info:(Ljava/lang/String;)V
+       945: getstatic     #895                // Field org/l2jmobius/gameserver/config/custom/OfflineTradeConfig.OFFLINE_TRADE_ENABLE:Z
+       948: ifne          957
+       951: getstatic     #900                // Field org/l2jmobius/gameserver/config/custom/OfflineTradeConfig.OFFLINE_CRAFT_ENABLE:Z
+       954: ifeq          969
+       957: getstatic     #903                // Field org/l2jmobius/gameserver/config/custom/OfflineTradeConfig.RESTORE_OFFLINERS:Z
+       960: ifeq          969
+       963: invokestatic  #906                // Method org/l2jmobius/gameserver/data/sql/OfflineTraderTable.getInstance:()Lorg/l2jmobius/gameserver/data/sql/OfflineTraderTable;
+       966: invokevirtual #911                // Method org/l2jmobius/gameserver/data/sql/OfflineTraderTable.restoreOfflineTraders:()V
+       969: getstatic     #829                // Field org/l2jmobius/gameserver/config/custom/OfflinePlayConfig.ENABLE_OFFLINE_PLAY_COMMAND:Z
+       972: ifeq          987
+       975: getstatic     #914                // Field org/l2jmobius/gameserver/config/custom/OfflinePlayConfig.RESTORE_AUTO_PLAY_OFFLINERS:Z
+       978: ifeq          987
+       981: invokestatic  #917                // Method org/l2jmobius/gameserver/data/sql/OfflinePlayTable.getInstance:()Lorg/l2jmobius/gameserver/data/sql/OfflinePlayTable;
+       984: invokevirtual #922                // Method org/l2jmobius/gameserver/data/sql/OfflinePlayTable.restoreOfflinePlayers:()V
+       987: getstatic     #925                // Field org/l2jmobius/gameserver/config/ServerConfig.SERVER_RESTART_SCHEDULE_ENABLED:Z
+       990: ifeq          997
+       993: invokestatic  #930                // Method org/l2jmobius/gameserver/managers/ServerRestartManager.getInstance:()Lorg/l2jmobius/gameserver/managers/ServerRestartManager;
+       996: pop
+       997: getstatic     #935                // Field org/l2jmobius/gameserver/config/ServerConfig.PRECAUTIONARY_RESTART_ENABLED:Z
+      1000: ifeq          1007
+      1003: invokestatic  #938                // Method org/l2jmobius/gameserver/managers/PrecautionaryRestartManager.getInstance:()Lorg/l2jmobius/gameserver/managers/PrecautionaryRestartManager;
+      1006: pop
+      1007: getstatic     #943                // Field org/l2jmobius/gameserver/config/ServerConfig.DEADLOCK_WATCHER:Z
+      1010: ifeq          1042
+      1013: new           #946                // class org/l2jmobius/gameserver/util/DeadlockWatcher
+      1016: dup
+      1017: getstatic     #948                // Field org/l2jmobius/gameserver/config/ServerConfig.DEADLOCK_CHECK_INTERVAL:I
+      1020: i2l
+      1021: invokestatic  #951                // Method java/time/Duration.ofSeconds:(J)Ljava/time/Duration;
+      1024: invokedynamic #957,  0            // InvokeDynamic #2:run:()Ljava/lang/Runnable;
+      1029: invokespecial #961                // Method org/l2jmobius/gameserver/util/DeadlockWatcher."<init>":(Ljava/time/Duration;Ljava/lang/Runnable;)V
+      1032: astore_2
+      1033: aload_2
+      1034: iconst_1
+      1035: invokevirtual #964                // Method org/l2jmobius/gameserver/util/DeadlockWatcher.setDaemon:(Z)V
+      1038: aload_2
+      1039: invokevirtual #968                // Method org/l2jmobius/gameserver/util/DeadlockWatcher.start:()V
+      1042: invokestatic  #971                // Method java/lang/System.gc:()V
+      1045: invokestatic  #876                // Method java/lang/Runtime.getRuntime:()Ljava/lang/Runtime;
+      1048: invokevirtual #974                // Method java/lang/Runtime.maxMemory:()J
+      1051: ldc2_w        #978                // long 1048576l
+      1054: ldiv
+      1055: lstore_2
+      1056: getstatic     #382                // Field LOGGER:Ljava/util/logging/Logger;
+      1059: bipush        6
+      1061: anewarray     #2                  // class java/lang/Object
+      1064: dup
+      1065: iconst_0
+      1066: aload_0
+      1067: invokevirtual #980                // Method java/lang/Object.getClass:()Ljava/lang/Class;
+      1070: invokevirtual #984                // Method java/lang/Class.getSimpleName:()Ljava/lang/String;
+      1073: aastore
+      1074: dup
+      1075: iconst_1
+      1076: ldc_w         #990                // String : Started, using
+      1079: aastore
+      1080: dup
+      1081: iconst_2
+      1082: aload_0
+      1083: invokevirtual #992                // Method getUsedMemoryMB:()J
+      1086: invokestatic  #995                // Method java/lang/Long.valueOf:(J)Ljava/lang/Long;
+      1089: aastore
+      1090: dup
+      1091: iconst_3
+      1092: ldc_w         #1001               // String  of
+      1095: aastore
+      1096: dup
+      1097: iconst_4
+      1098: lload_2
+      1099: invokestatic  #995                // Method java/lang/Long.valueOf:(J)Ljava/lang/Long;
+      1102: aastore
+      1103: dup
+      1104: iconst_5
+      1105: ldc_w         #1003               // String  MB total memory.
+      1108: aastore
+      1109: invokestatic  #1005               // Method org/l2jmobius/commons/util/StringUtil.concat:([Ljava/lang/Object;)Ljava/lang/String;
+      1112: invokevirtual #388                // Method java/util/logging/Logger.info:(Ljava/lang/String;)V
+      1115: getstatic     #382                // Field LOGGER:Ljava/util/logging/Logger;
+      1118: iconst_4
+      1119: anewarray     #2                  // class java/lang/Object
+      1122: dup
+      1123: iconst_0
+      1124: aload_0
+      1125: invokevirtual #980                // Method java/lang/Object.getClass:()Ljava/lang/Class;
+      1128: invokevirtual #984                // Method java/lang/Class.getSimpleName:()Ljava/lang/String;
+      1131: aastore
+      1132: dup
+      1133: iconst_1
+      1134: ldc_w         #1011               // String : Maximum number of connected players is
+      1137: aastore
+      1138: dup
+      1139: iconst_2
+      1140: getstatic     #1013               // Field org/l2jmobius/gameserver/config/ServerConfig.MAXIMUM_ONLINE_USERS:I
+      1143: invokestatic  #1016               // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+      1146: aastore
+      1147: dup
+      1148: iconst_3
+      1149: ldc           #48                 // String .
+      1151: aastore
+      1152: invokestatic  #1005               // Method org/l2jmobius/commons/util/StringUtil.concat:([Ljava/lang/Object;)Ljava/lang/String;
+      1155: invokevirtual #388                // Method java/util/logging/Logger.info:(Ljava/lang/String;)V
+      1158: getstatic     #382                // Field LOGGER:Ljava/util/logging/Logger;
+      1161: iconst_4
+      1162: anewarray     #2                  // class java/lang/Object
+      1165: dup
+      1166: iconst_0
+      1167: aload_0
+      1168: invokevirtual #980                // Method java/lang/Object.getClass:()Ljava/lang/Class;
+      1171: invokevirtual #984                // Method java/lang/Class.getSimpleName:()Ljava/lang/String;
+      1174: aastore
+      1175: dup
+      1176: iconst_1
+      1177: ldc_w         #1021               // String : Server loaded in
+      1180: aastore
+      1181: dup
+      1182: iconst_2
+      1183: invokestatic  #1023               // Method java/lang/System.currentTimeMillis:()J
+      1186: getstatic     #7                  // Field START_TIME:J
+      1189: lsub
+      1190: ldc2_w        #1026               // long 1000l
+      1193: ldiv
+      1194: invokestatic  #995                // Method java/lang/Long.valueOf:(J)Ljava/lang/Long;
+      1197: aastore
+      1198: dup
+      1199: iconst_3
+      1200: ldc_w         #1028               // String  seconds.
+      1203: aastore
+      1204: invokestatic  #1005               // Method org/l2jmobius/commons/util/StringUtil.concat:([Ljava/lang/Object;)Ljava/lang/String;
+      1207: invokevirtual #388                // Method java/util/logging/Logger.info:(Ljava/lang/String;)V
+      1210: new           #1030               // class org/l2jmobius/commons/network/ConnectionManager
+      1213: dup
+      1214: new           #1032               // class java/net/InetSocketAddress
+      1217: dup
+      1218: getstatic     #1034               // Field org/l2jmobius/gameserver/config/ServerConfig.PORT_GAME:I
+      1221: invokespecial #1037               // Method java/net/InetSocketAddress."<init>":(I)V
+      1224: invokedynamic #1039,  0           // InvokeDynamic #3:apply:()Ljava/util/function/Function;
+      1229: new           #1043               // class org/l2jmobius/gameserver/network/GamePacketHandler
+      1232: dup
+      1233: invokespecial #1045               // Method org/l2jmobius/gameserver/network/GamePacketHandler."<init>":()V
+      1236: invokespecial #1046               // Method org/l2jmobius/commons/network/ConnectionManager."<init>":(Ljava/net/InetSocketAddress;Ljava/util/function/Function;Lorg/l2jmobius/commons/network/packet/PacketHandler;)V
+      1239: pop
+      1240: invokestatic  #1049               // Method org/l2jmobius/gameserver/LoginServerThread.getInstance:()Lorg/l2jmobius/gameserver/LoginServerThread;
+      1243: invokevirtual #1054               // Method org/l2jmobius/gameserver/LoginServerThread.start:()V
+      1246: invokestatic  #1055               // Method java/awt/Toolkit.getDefaultToolkit:()Ljava/awt/Toolkit;
+      1249: invokevirtual #1061               // Method java/awt/Toolkit.beep:()V
+      1252: return
+      Exception table:
+         from    to  target type
+            75    82    89   Class java/lang/Throwable
+            90    94    97   Class java/lang/Throwable
+           623   647   650   Class java/lang/Exception
+
+  private void printSection(java.lang.String);
+    Code:
+         0: getstatic     #1064               // Field org/l2jmobius/gameserver/config/DevelopmentConfig.LOG_SERVER_LOAD_TIMES:Z
+         3: ifeq          80
+         6: invokestatic  #1023               // Method java/lang/System.currentTimeMillis:()J
+         9: lstore_2
+        10: lload_2
+        11: aload_0
+        12: getfield      #13                 // Field _sectionStartTime:J
+        15: lsub
+        16: lstore        4
+        18: aload_0
+        19: getfield      #16                 // Field _previousSectionName:Ljava/lang/String;
+        22: ifnull        70
+        25: getstatic     #382                // Field LOGGER:Ljava/util/logging/Logger;
+        28: iconst_5
+        29: anewarray     #1069               // class java/lang/String
+        32: dup
+        33: iconst_0
+        34: ldc_w         #1071               // String ...section [
+        37: aastore
+        38: dup
+        39: iconst_1
+        40: aload_0
+        41: getfield      #16                 // Field _previousSectionName:Ljava/lang/String;
+        44: aastore
+        45: dup
+        46: iconst_2
+        47: ldc_w         #1073               // String  ] loaded in
+        50: aastore
+        51: dup
+        52: iconst_3
+        53: lload         4
+        55: invokestatic  #1075               // Method org/l2jmobius/commons/time/TimeUtil.formatDuration:(J)Ljava/lang/String;
+        58: aastore
+        59: dup
+        60: iconst_4
+        61: ldc           #48                 // String .
+        63: aastore
+        64: invokestatic  #1081               // Method org/l2jmobius/commons/util/StringUtil.concat:([Ljava/lang/String;)Ljava/lang/String;
+        67: invokevirtual #388                // Method java/util/logging/Logger.info:(Ljava/lang/String;)V
+        70: aload_0
+        71: aload_1
+        72: putfield      #16                 // Field _previousSectionName:Ljava/lang/String;
+        75: aload_0
+        76: lload_2
+        77: putfield      #13                 // Field _sectionStartTime:J
+        80: new           #1084               // class java/lang/StringBuilder
+        83: dup
+        84: bipush        61
+        86: invokespecial #1086               // Method java/lang/StringBuilder."<init>":(I)V
+        89: astore_2
+        90: aload_2
+        91: ldc_w         #1087               // String =[
+        94: invokevirtual #1089               // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        97: aload_1
+        98: invokevirtual #1089               // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+       101: ldc_w         #1093               // String  ]
+       104: invokevirtual #1089               // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+       107: pop
+       108: aload_2
+       109: invokevirtual #1095               // Method java/lang/StringBuilder.length:()I
+       112: bipush        61
+       114: if_icmpge     128
+       117: aload_2
+       118: iconst_0
+       119: bipush        45
+       121: invokevirtual #1098               // Method java/lang/StringBuilder.insert:(IC)Ljava/lang/StringBuilder;
+       124: pop
+       125: goto          108
+       128: getstatic     #382                // Field LOGGER:Ljava/util/logging/Logger;
+       131: aload_2
+       132: invokevirtual #1102               // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+       135: invokevirtual #388                // Method java/util/logging/Logger.info:(Ljava/lang/String;)V
+       138: return
+
+  public long getUsedMemoryMB();
+    Code:
+         0: invokestatic  #876                // Method java/lang/Runtime.getRuntime:()Ljava/lang/Runtime;
+         3: invokevirtual #1105               // Method java/lang/Runtime.totalMemory:()J
+         6: invokestatic  #876                // Method java/lang/Runtime.getRuntime:()Ljava/lang/Runtime;
+         9: invokevirtual #1108               // Method java/lang/Runtime.freeMemory:()J
+        12: lsub
+        13: ldc2_w        #978                // long 1048576l
+        16: ldiv
+        17: lreturn
+
+  public static long getStartTime();
+    Code:
+         0: getstatic     #7                  // Field START_TIME:J
+         3: lreturn
+
+  public static void main(java.lang.String[]) throws java.lang.Exception;
+    Code:
+         0: new           #8                  // class org/l2jmobius/gameserver/GameServer
+         3: dup
+         4: invokespecial #1111               // Method "<init>":()V
+         7: pop
+         8: return
+
+  private static void lambda$new$0();
+    Code:
+         0: getstatic     #1112               // Field org/l2jmobius/gameserver/config/ServerConfig.RESTART_ON_DEADLOCK:Z
+         3: ifeq          22
+         6: ldc_w         #1115               // String Server has stability issues - restarting now.
+         9: invokestatic  #1117               // Method org/l2jmobius/gameserver/entity/World.broadcastToAllOnlinePlayers:(Ljava/lang/String;)V
+        12: invokestatic  #882                // Method org/l2jmobius/gameserver/Shutdown.getInstance:()Lorg/l2jmobius/gameserver/Shutdown;
+        15: aconst_null
+        16: bipush        60
+        18: iconst_1
+        19: invokevirtual #1120               // Method org/l2jmobius/gameserver/Shutdown.startShutdown:(Lorg/l2jmobius/gameserver/entity/actor/Player;IZ)V
+        22: return
+
+  static {};
+    Code:
+         0: ldc           #8                  // class org/l2jmobius/gameserver/GameServer
+         2: invokevirtual #1124               // Method java/lang/Class.getName:()Ljava/lang/String;
+         5: invokestatic  #1127               // Method java/util/logging/Logger.getLogger:(Ljava/lang/String;)Ljava/util/logging/Logger;
+         8: putstatic     #382                // Field LOGGER:Ljava/util/logging/Logger;
+        11: invokestatic  #1023               // Method java/lang/System.currentTimeMillis:()J
+        14: putstatic     #7                  // Field START_TIME:J
+        17: return
+}

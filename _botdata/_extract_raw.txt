@@ -1,0 +1,1562 @@
+﻿=== CLASS 88 Duelist (parent: Gladiator) ===
+194	1	GL1	P	SELF	CR-	Lucky
+190	37	GL74	A1	ONE	CR40	Fatal Strike
+775	1	GL81	A2	ONE	CR40	Weapon Blockade
+767	1	GL81	P	SELF	CR-	Expose Weak Point
+759	1	GL81	P		CR-	Archer's Will
+758	1	GL81	P		CR-	Fighter's Will
+757	1	GL82	P	SELF	CR-	Protection of Alignment
+756	1	GL82	P	SELF	CR-	Protection of Elemental
+755	1	GL82	P	SELF	CR-	Protection of Rune
+360	1	GL78	A2	SELF	CR-	Eye of Slayer
+359	1	GL77	A2	SELF	CR-	Eye of Hunter
+261	22	GL74	A1	ONE	CR40	Triple Sonic Slash
+919	1	GL83	A1	SELF	CR-	Maximum Focus Sonic
+148	2	GL32	P	SELF	CR-	Vital Force
+144	37	GL74	P	SELF	CR-	Dual Weapon Mastery
+340	1	GL77	T	SELF	CR-	Riposte Stance
+142	5	GL15	P	SELF	CR-	Armor Mastery
+141	3	GL15	P	SELF	CR-	Weapon Mastery
+1322	1	GL1	A1	SELF	CR-	Common Craft
+1320	9	GL70	P	SELF	CR-	Create Common Item
+330	1	GL77	P	SELF	CR-	Skill Mastery
+329	1	GL76	P	SELF	CR-	Health
+328	1	GL76	P	SELF	CR-	Wisdom
+917	1	GL81	A2	SELF	CR-	Final Secret
+424	3	GL74	T	SELF	CR-	War Frenzy
+121	1	GL28	A2	SELF	CR-	Battle Roar
+312	20	GL74	T	SELF	CR-	Vicious Stance
+297	2	GL72	A2	SELF	CR-	Duelist Spirit
+345	1	GL78	A1	ONE	CR600	Sonic Rage
+104	1	GL46	A2	SELF	CR-	Detect Plant Weakness
+100	15	GL36	A2	ONE	CR40	Stun Attack
+290	14	GL74	P	SELF	CR-	Final Frenzy
+287	3	GL62	A2	SELF	CR-	Lionheart
+88	1	GL58	A2	SELF	CR-	Detect Dragon Weakness
+87	1	GL40	A2	SELF	CR-	Detect Animal Weakness
+80	1	GL52	A2	SELF	CR-	Detect Beast Weakness
+78	2	GL43	A2	SELF	CR-	War Cry
+75	1	GL32	A2	SELF	CR-	Detect Insect Weakness
+458	1	GL80	A1	SELF	CR-	Symbol of Energy
+260	37	GL74	A2	ONE	CR40	Hammer Crush
+257	45	GL74	P	SELF	CR-	Sword/Blunt Weapon Mastery
+256	1	GL24	T	SELF	CR-	Accuracy
+255	15	GL36	A1	ONE	CR40	Power Smash
+451	2	GL68	A2	SELF	CR-	Sonic Move
+56	9	GL15	A1	ONE	CR700	Power Shot
+842	1	GL75	A2	SELF	CR-	Aura Bird - Owl
+841	1	GL75	A2	SELF	CR-	Aura Bird - Falcon
+245	15	GL36	A1	FRONT_AREA	CR40	Wild Sweep
+440	1	GL78	A1	SELF	CR-	Braveheart
+239	7	GL84	P	SELF	CR-	Expertise D
+430	1	GL78	P	SELF	CR-	Master of Combat
+231	50	GL74	P	SELF	CR-	Heavy Armor Mastery
+227	50	GL74	P	SELF	CR-	Light Armor Mastery
+226	1	GL5	T	SELF	CR-	Relax
+1405	4	GL76	P	SELF	CR-	Divine Inspiration
+216	8	GL36	P	SELF	CR-	Polearm Mastery
+16	9	GL15	A1	ONE	CR40	Mortal Blow
+212	8	GL74	P	SELF	CR-	Fast HP Recovery
+211	3	GL36	P	SELF	CR-	Boost HP
+9	34	GL74	A1	FRONT_AREA	CR40	Sonic Buster
+8	8	GL79	A1	SELF	CR-	Sonic Focus
+7	28	GL74	A1	AREA	CR500	Sonic Storm
+6	37	GL74	A1	ONE	CR600	Sonic Blaster
+5	31	GL74	A1	ONE	CR40	Double Sonic Slash
+3	9	GL15	A1	ONE	CR40	Power Strike
+442	1	GL79	A2	SELF	CR-	Sonic Barrier
+1	37	GL74	A1	ONE	CR40	Triple Slash
+
+=== CLASS 89 Dreadnought (parent: Warlord) ===
+194	1	GL1	P	SELF	CR-	Lucky
+755	1	GL82	P	SELF	CR-	Protection of Rune
+774	1	GL81	A2	AURA	CR-	Dread Pool
+181	1	GL55	A1	SELF	CR-	Revival
+767	1	GL81	P	SELF	CR-	Expose Weak Point
+759	1	GL81	P		CR-	Archer's Will
+758	1	GL81	P		CR-	Fighter's Will
+757	1	GL82	P	SELF	CR-	Protection of Alignment
+756	1	GL82	P	SELF	CR-	Protection of Elemental
+361	1	GL77	A2	AREA	CR500	Shock Blast
+360	1	GL78	A2	SELF	CR-	Eye of Slayer
+359	1	GL77	A2	SELF	CR-	Eye of Hunter
+430	1	GL78	P	SELF	CR-	Master of Combat
+347	1	GL78	A1	AURA	CR-	Earthquake
+148	2	GL32	P	SELF	CR-	Vital Force
+330	1	GL77	P	SELF	CR-	Skill Mastery
+142	5	GL15	P	SELF	CR-	Armor Mastery
+141	3	GL15	P	SELF	CR-	Weapon Mastery
+1322	1	GL1	A1	SELF	CR-	Common Craft
+1320	9	GL70	P	SELF	CR-	Create Common Item
+921	1	GL76	A1	ONE	CR80	Cursed Pierce
+920	37	GL74	A1	ONE	CR80	Power Crush
+328	1	GL76	P	SELF	CR-	Wisdom
+130	2	GL55	A2	SELF	CR-	Thrill Fight
+917	1	GL81	A2	SELF	CR-	Final Secret
+424	3	GL74	T	SELF	CR-	War Frenzy
+320	10	GL74	A1	FRONT_AREA	CR40	Wrath
+121	6	GL70	A2	SELF	CR-	Battle Roar
+317	5	GL74	T	SELF	CR-	Focus Attack
+116	14	GL74	A2	AURA	CR-	Howl
+312	20	GL74	T	SELF	CR-	Vicious Stance
+104	1	GL46	A2	SELF	CR-	Detect Plant Weakness
+100	15	GL36	A2	ONE	CR40	Stun Attack
+245	15	GL36	A1	FRONT_AREA	CR40	Wild Sweep
+290	14	GL74	P	SELF	CR-	Final Frenzy
+287	3	GL62	A2	SELF	CR-	Lionheart
+286	3	GL60	A2	AURA	CR-	Provoke
+88	1	GL58	A2	SELF	CR-	Detect Dragon Weakness
+87	1	GL40	A2	SELF	CR-	Detect Animal Weakness
+339	1	GL78	T	SELF	CR-	Parry Stance
+80	1	GL52	A2	SELF	CR-	Detect Beast Weakness
+78	1	GL20	A2	SELF	CR-	War Cry
+75	1	GL32	A2	SELF	CR-	Detect Insect Weakness
+457	1	GL80	A1	SELF	CR-	Symbol of Honor
+257	8	GL36	P	SELF	CR-	Sword/Blunt Weapon Mastery
+256	1	GL24	T	SELF	CR-	Accuracy
+452	5	GL72	A2	AURA	CR-	Shock Stomp
+56	9	GL15	A1	ONE	CR700	Power Shot
+842	1	GL75	A2	SELF	CR-	Aura Bird - Owl
+841	1	GL75	A2	SELF	CR-	Aura Bird - Falcon
+48	37	GL74	A2	AURA	CR-	Thunder Storm
+440	1	GL78	A1	SELF	CR-	Braveheart
+239	7	GL84	P	SELF	CR-	Expertise D
+329	1	GL76	P	SELF	CR-	Health
+36	37	GL74	A1	AURA	CR-	Whirlwind
+231	50	GL74	P	SELF	CR-	Heavy Armor Mastery
+227	50	GL74	P	SELF	CR-	Light Armor Mastery
+226	1	GL5	T	SELF	CR-	Relax
+422	3	GL74	T	SELF	CR-	Polearm Accuracy
+421	5	GL74	A2	SELF	CR-	Fell Swoop
+1405	4	GL76	P	SELF	CR-	Divine Inspiration
+255	15	GL36	A1	ONE	CR40	Power Smash
+216	45	GL74	P	SELF	CR-	Polearm Mastery
+16	9	GL15	A1	ONE	CR40	Mortal Blow
+212	8	GL74	P	SELF	CR-	Fast HP Recovery
+211	10	GL74	P	SELF	CR-	Boost HP
+3	9	GL15	A1	ONE	CR40	Power Strike
+
+=== CLASS 90 Phoenix Knight (parent: Paladin) ===
+196	1	GL43	T	SELF	CR-	Holy Blade
+194	1	GL1	P	SELF	CR-	Lucky
+784	1	GL81	A2	SELF	CR-	Spirit of Phoenix
+191	6	GL72	P	SELF	CR-	Focus Mind
+1320	9	GL70	P	SELF	CR-	Create Common Item
+44	3	GL62	A1	SELF	CR-	Remedy
+766	1	GL81	P	SELF	CR-	Sixth Sense
+368	1	GL77	A3	AURA	CR-	Vengeance
+760	1	GL81	A2	SELF	CR-	Anti Magic Armor
+759	1	GL81	P		CR-	Archer's Will
+758	1	GL81	P		CR-	Fighter's Will
+757	1	GL82	P	SELF	CR-	Protection of Alignment
+756	1	GL82	P	SELF	CR-	Protection of Elemental
+755	1	GL82	P	SELF	CR-	Protection of Rune
+353	1	GL77	A2	ONE	CR40	Shield Slam
+153	4	GL52	P	SELF	CR-	Shield Mastery
+147	51	GL74	P	SELF	CR-	Magic Resistance
+341	1	GL78	A2	ONE	CR40	Touch of Life
+142	5	GL15	P	SELF	CR-	Armor Mastery
+141	3	GL15	P	SELF	CR-	Weapon Mastery
+1322	1	GL1	A1	SELF	CR-	Common Craft
+335	1	GL76	T	SELF	CR-	Fortitude
+528	1	GL79	A2	PARTY	CR-	Shield of Faith
+527	1	GL79	A2	SELF	CR-	Iron Shield
+329	1	GL76	P	SELF	CR-	Health
+328	1	GL76	P	SELF	CR-	Wisdom
+916	4	GL72	A2	SELF	CR-	Shield Deflect Magic
+913	1	GL81	A2	SELF	CR-	Deflect Magic
+912	1	GL83	A1	SELF	CR-	Summon Imperial Phoenix
+318	1	GL46	T	SELF	CR-	Aegis Stance
+112	4	GL49	A2	SELF	CR-	Deflect Arrow
+322	6	GL74	T	SELF	CR-	Shield Fortress
+110	2	GL46	A2	SELF	CR-	Ultimate Defense
+785	1	GL81	A2	PARTY	CR-	Flame Icon
+97	11	GL74	A2	AREA	CR-	Sanctuary
+291	11	GL74	P	SELF	CR-	Final Fortress
+92	52	GL74	A2	ONE	CR40	Shield Stun
+82	3	GL58	A2	SELF	CR-	Majesty
+72	3	GL55	A2	SELF	CR-	Iron Will
+70	13	GL36	A1	ONE	CR600	Drain Health
+69	25	GL74	A1	ONE	CR600	Sacrifice
+262	37	GL74	A1	ONE	CR600	Holy Blessing
+429	1	GL78	P	SELF	CR-	Knighthood
+454	1	GL80	A1	SELF	CR-	Symbol of Defense
+56	9	GL15	A1	ONE	CR700	Power Shot
+842	1	GL75	A2	SELF	CR-	Aura Bird - Owl
+841	1	GL75	A2	SELF	CR-	Aura Bird - Falcon
+49	26	GL74	A1	ONE	CR400	Holy Strike
+45	9	GL36	A1	SELF	CR-	Divine Heal
+438	1	GL79	A2	SELF	CR-	Soul of the Phoenix
+239	7	GL84	P	SELF	CR-	Expertise D
+232	52	GL74	P	SELF	CR-	Heavy Armor Mastery
+226	1	GL5	T	SELF	CR-	Relax
+28	49	GL74	A2	ONE	CR800	Aggression
+350	1	GL78	A2	SELF	CR-	Physical Mirror
+1405	4	GL76	P	SELF	CR-	Divine Inspiration
+810	1	GL43	A2	SELF	CR-	Vanguard
+217	45	GL74	P	SELF	CR-	Sword/Blunt Weapon Mastery
+18	37	GL74	A2	AURA	CR-	Aura of Hate
+16	9	GL15	A1	ONE	CR40	Mortal Blow
+406	3	GL74	A2	SELF	CR-	Angelic Icon
+405	10	GL74	A1	ONE	CR150	Banish Undead
+404	5	GL74	A2	AURA	CR-	Mass Shackling
+403	10	GL74	A2	ONE	CR600	Shackle
+400	10	GL74	A2	ONE	CR40	Tribunal
+3	9	GL15	A1	ONE	CR40	Power Strike
+197	2	GL46	T	SELF	CR-	Holy Armor
+
+=== CLASS 91 Hell Knight (parent: Dark Avenger) ===
+283	7	GL74	A1	SELF	CR-	Summon Dark Panther
+761	1	GL81	A2	SELF	CR-	Seed of Revenge
+86	3	GL52	A2	SELF	CR-	Reflect Damage
+528	1	GL79	A2	PARTY	CR-	Shield of Faith
+350	1	GL78	A2	SELF	CR-	Physical Mirror
+82	3	GL58	A2	SELF	CR-	Majesty
+56	9	GL15	A1	ONE	CR700	Power Shot
+756	1	GL82	P	SELF	CR-	Protection of Elemental
+1322	1	GL1	A1	SELF	CR-	Common Craft
+342	1	GL78	A2	ONE	CR40	Touch of Death
+1320	9	GL70	P	SELF	CR-	Create Common Item
+429	1	GL78	P	SELF	CR-	Knighthood
+72	3	GL55	A2	SELF	CR-	Iron Will
+70	53	GL74	A1	ONE	CR600	Drain Health
+527	1	GL79	A2	SELF	CR-	Iron Shield
+335	1	GL76	T	SELF	CR-	Fortitude
+401	10	GL74	A2	ONE	CR40	Judgment
+65	13	GL74	A2	ONE	CR600	Horror
+153	4	GL52	P	SELF	CR-	Shield Mastery
+329	1	GL76	P	SELF	CR-	Health
+239	7	GL84	P	SELF	CR-	Expertise D
+759	1	GL81	P		CR-	Archer's Will
+147	51	GL74	P	SELF	CR-	Magic Resistance
+439	1	GL79	A2	SELF	CR-	Shield of Revenge
+92	52	GL74	A2	ONE	CR40	Shield Stun
+322	6	GL74	T	SELF	CR-	Shield Fortress
+232	52	GL74	P	SELF	CR-	Heavy Armor Mastery
+142	5	GL15	P	SELF	CR-	Armor Mastery
+141	3	GL15	P	SELF	CR-	Weapon Mastery
+763	1	GL81	A2	AURA	CR-	Hell Scream
+762	1	GL81	A2	AURA	CR-	Insane Crusher
+16	9	GL15	A1	ONE	CR40	Mortal Blow
+226	1	GL5	T	SELF	CR-	Relax
+403	10	GL74	A2	ONE	CR600	Shackle
+46	15	GL74	A1	CORPSE_MOB	CR400	Life Scavenge
+45	9	GL36	A1	SELF	CR-	Divine Heal
+758	1	GL81	P		CR-	Fighter's Will
+755	1	GL82	P	SELF	CR-	Protection of Rune
+842	1	GL75	A2	SELF	CR-	Aura Bird - Owl
+841	1	GL75	A2	SELF	CR-	Aura Bird - Falcon
+217	45	GL74	P	SELF	CR-	Sword/Blunt Weapon Mastery
+127	14	GL74	A2	ONE	CR600	Hamstring
+760	1	GL81	A2	SELF	CR-	Anti Magic Armor
+1405	4	GL76	P	SELF	CR-	Divine Inspiration
+757	1	GL82	P	SELF	CR-	Protection of Alignment
+28	49	GL74	A2	ONE	CR800	Aggression
+916	4	GL72	A2	SELF	CR-	Shield Deflect Magic
+766	1	GL81	P	SELF	CR-	Sixth Sense
+291	11	GL74	P	SELF	CR-	Final Fortress
+112	4	GL49	A2	SELF	CR-	Deflect Arrow
+110	2	GL46	A2	SELF	CR-	Ultimate Defense
+18	37	GL74	A2	AURA	CR-	Aura of Hate
+194	1	GL1	P	SELF	CR-	Lucky
+103	4	GL70	A2	AREA_CORPSE_MOB	CR400	Corpse Plague
+191	6	GL72	P	SELF	CR-	Focus Mind
+368	1	GL77	A3	AURA	CR-	Vengeance
+353	1	GL77	A2	ONE	CR40	Shield Slam
+811	1	GL43	A2	SELF	CR-	Vanguard
+454	1	GL80	A1	SELF	CR-	Symbol of Defense
+328	1	GL76	P	SELF	CR-	Wisdom
+450	10	GL74	A1	ONE	CR150	Banish Seraph
+3	9	GL15	A1	ONE	CR40	Power Strike
+913	1	GL81	A2	SELF	CR-	Deflect Magic
+
+=== CLASS 92 Sagittarius (parent: Hawkeye) ===
+415	3	GL74	A2	SELF	CR-	Spirit of Sagittarius
+173	1	GL20	P	SELF	CR-	Acrobatics
+171	8	GL74	P	SELF	CR-	Esprit
+169	2	GL43	P	SELF	CR-	Quick Step
+168	1	GL36	P	SELF	CR-	Boost Attack Speed
+256	1	GL24	T	SELF	CR-	Accuracy
+756	1	GL82	P	SELF	CR-	Protection of Elemental
+1322	1	GL1	A1	SELF	CR-	Common Craft
+431	1	GL78	P	SELF	CR-	Archery
+1320	9	GL70	P	SELF	CR-	Create Common Item
+24	31	GL74	A1	AREA	CR500	Burst Shot
+759	1	GL81	P		CR-	Archer's Will
+1405	4	GL76	P	SELF	CR-	Divine Inspiration
+334	1	GL78	T	SELF	CR-	Focus Skill Mastery
+330	1	GL77	P	SELF	CR-	Skill Mastery
+418	3	GL74	P	SELF	CR-	Quiver of Holding
+239	7	GL84	P	SELF	CR-	Expertise D
+416	3	GL74	A2	SELF	CR-	Blessing of Sagittarius
+148	8	GL72	P	SELF	CR-	Vital Force
+324	1	GL72	A1	SELF	CR-	Quiver of Arrow: Grade S
+56	24	GL36	A1	ONE	CR700	Power Shot
+233	47	GL74	P	SELF	CR-	Light Armor Mastery
+142	5	GL15	P	SELF	CR-	Armor Mastery
+141	3	GL15	P	SELF	CR-	Weapon Mastery
+771	1	GL81	A1	FRONT_AREA	CR900	Flame Hawk
+16	24	GL36	A1	ONE	CR40	Mortal Blow
+226	1	GL5	T	SELF	CR-	Relax
+225	3	GL55	P	SELF	CR-	Acrobatic Move
+313	8	GL74	A2	SELF	CR-	Snipe
+312	20	GL74	T	SELF	CR-	Vicious Stance
+354	1	GL77	A2	ONE	CR900	Hamstring Shot
+933	1	GL74	A1	SELF	CR-	Detection
+131	3	GL58	A2	SELF	CR-	Hawk Eye
+842	1	GL75	A2	SELF	CR-	Aura Bird - Owl
+841	1	GL75	A2	SELF	CR-	Aura Bird - Falcon
+758	1	GL81	P		CR-	Fighter's Will
+303	4	GL70	A2	SELF	CR-	Soul of Sagittarius
+946	1	GL81	P	SELF	CR-	Silent Mind
+924	1	GL81	CA1	ONE	CR900	Seven Arrow
+209	8	GL36	P	SELF	CR-	Dagger Mastery
+208	52	GL74	P	SELF	CR-	Bow Mastery
+757	1	GL82	P	SELF	CR-	Protection of Alignment
+27	5	GL36	A1	UNLOCKABLE	CR40	Unlock
+417	5	GL74	A1	SELF	CR-	Pain of Sagittarius
+137	1	GL28	P	SELF	CR-	Critical Chance
+113	2	GL40	P	SELF	CR-	Long Shot
+111	1	GL28	A2	SELF	CR-	Ultimate Evasion
+198	1	GL24	P	SELF	CR-	Boost Evasion
+19	37	GL74	A1	ONE	CR900	Double Shot
+343	1	GL76	A1	ONE	CR900	Lethal Shot
+195	1	GL20	P	SELF	CR-	Breath Boost
+194	1	GL1	P	SELF	CR-	Lucky
+193	2	GL32	P	SELF	CR-	Critical Power
+459	1	GL80	A1	SELF	CR-	Symbol of the Sniper
+328	1	GL76	P	SELF	CR-	Wisdom
+101	40	GL74	A2	ONE	CR900	Stunning Shot
+99	2	GL55	A2	SELF	CR-	Rapid Shot
+96	2	GL32	A2	ONE	CR40	Bleed
+323	1	GL66	A1	SELF	CR-	Quiver of Arrow: Grade A
+4	1	GL20	A2	SELF	CR-	Dash
+3	9	GL15	A1	ONE	CR40	Power Strike
+755	1	GL82	P	SELF	CR-	Protection of Rune
+535	1	GL79	P	SELF	CR-	Counter Mind
+534	1	GL79	P	SELF	CR-	Counter Dash
+
+=== CLASS 93 Adventurer (parent: Treasure Hunter) ===
+195	2	GL55	P	SELF	CR-	Breath Boost
+194	1	GL1	P	SELF	CR-	Lucky
+193	6	GL72	P	SELF	CR-	Critical Power
+759	1	GL81	P		CR-	Archer's Will
+768	1	GL81	A2	SELF	CR-	Exciting Adventure
+767	1	GL81	P	SELF	CR-	Expose Weak Point
+445	1	GL79	A2	SELF	CR-	Mirage
+173	2	GL55	P	SELF	CR-	Acrobatics
+171	8	GL74	P	SELF	CR-	Esprit
+169	2	GL43	P	SELF	CR-	Quick Step
+168	3	GL58	P	SELF	CR-	Boost Attack Speed
+758	1	GL81	P		CR-	Fighter's Will
+757	1	GL82	P	SELF	CR-	Protection of Alignment
+756	1	GL82	P	SELF	CR-	Protection of Elemental
+755	1	GL82	P	SELF	CR-	Protection of Rune
+358	1	GL77	A2	ONE	CR40	Bluff
+357	1	GL78	A2	SELF	CR-	Focus Power
+356	1	GL78	A2	SELF	CR-	Focus Chance
+148	8	GL72	P	SELF	CR-	Vital Force
+344	1	GL76	A1	ONE	CR40	Lethal Blow
+142	5	GL15	P	SELF	CR-	Armor Mastery
+820	1	GL74	P		CR-	Evasion Haste
+1322	1	GL1	A1	SELF	CR-	Common Craft
+1320	9	GL70	P	SELF	CR-	Create Common Item
+334	1	GL78	T	SELF	CR-	Focus Skill Mastery
+923	1	GL81	P	SELF	CR-	Dual Dagger Mastery
+922	1	GL81	A2	SELF	CR-	Hide
+330	1	GL77	P	SELF	CR-	Skill Mastery
+328	1	GL76	P	SELF	CR-	Wisdom
+766	1	GL81	P	SELF	CR-	Sixth Sense
+312	20	GL74	T	SELF	CR-	Vicious Stance
+113	1	GL20	P	SELF	CR-	Long Shot
+111	2	GL55	A2	SELF	CR-	Ultimate Evasion
+106	14	GL74	A2	ONE	CR500	Veil
+101	3	GL36	A2	ONE	CR900	Stunning Shot
+99	1	GL32	A2	SELF	CR-	Rapid Shot
+96	6	GL70	A2	ONE	CR40	Bleed
+460	1	GL80	A1	SELF	CR-	Symbol of the Assassin
+141	3	GL15	P	SELF	CR-	Weapon Mastery
+263	37	GL74	A1	ONE	CR40	Deadly Blow
+531	1	GL79	A2	ONE	CR40	Critical Wound
+60	1	GL40	T	SELF	CR-	Fake Death
+453	1	GL60	A1	SELF	CR-	Escape Shackle
+137	3	GL49	P	SELF	CR-	Critical Chance
+56	24	GL36	A1	ONE	CR700	Power Shot
+842	1	GL75	A2	SELF	CR-	Aura Bird - Owl
+841	1	GL75	A2	SELF	CR-	Aura Bird - Falcon
+51	1	GL52	A1	ONE	CR400	Lure
+12	14	GL74	A1	ONE	CR600	Switch
+208	15	GL36	P	SELF	CR-	Bow Mastery
+821	1	GL72	A1	ONE	CR600	Shadow Step
+256	1	GL24	T	SELF	CR-	Accuracy
+239	7	GL84	P	SELF	CR-	Expertise D
+432	1	GL78	P	SELF	CR-	Assassination
+233	47	GL74	P	SELF	CR-	Light Armor Mastery
+624	1	GL74	A1	ONE	CR400	Remove Trap
+623	1	GL74	A1	AURA	CR-	Find Trap
+30	37	GL74	A1	ONE	CR40	Backstab
+226	1	GL5	T	SELF	CR-	Relax
+225	3	GL55	P	SELF	CR-	Acrobatic Move
+27	14	GL72	A1	UNLOCKABLE	CR40	Unlock
+1405	4	GL76	P	SELF	CR-	Divine Inspiration
+419	4	GL74	A1	SELF	CR-	Summon Treasure Key
+221	1	GL40	T	SELF	CR-	Silent Move
+412	10	GL74	A2	ONE	CR150	Sand Bomb
+411	3	GL74	A2	SELF	CR-	Stealth
+16	24	GL36	A1	ONE	CR40	Mortal Blow
+409	10	GL74	A3	ONE	CR40	Critical Blow
+209	45	GL74	P	SELF	CR-	Dagger Mastery
+11	12	GL74	A1	ONE	CR400	Trick
+4	2	GL46	A2	SELF	CR-	Dash
+3	9	GL15	A1	ONE	CR40	Power Strike
+198	3	GL58	P	SELF	CR-	Boost Evasion
+
+=== CLASS 94 Archmage (parent: Sorcerer) ===
+1181	3	GL30	A1	AREA	CR500	Flame Strike
+194	1	GL1	P	SELF	CR-	Lucky
+1078	6	GL68	A2	ONE	CR400	Concentration
+1172	8	GL35	A1	ONE	CR150	Aura Burn
+1171	19	GL74	A1	AURA	CR-	Blazing Circle
+1169	14	GL74	A2	ONE	CR600	Curse Fear
+1168	3	GL30	A2	ONE	CR600	Curse: Poison
+1167	2	GL35	A2	AREA	CR500	Poisonous Cloud
+1164	5	GL35	A2	ONE	CR600	Curse: Weakness
+755	1	GL82	P	SELF	CR-	Protection of Rune
+1160	15	GL74	A2	ONE	CR600	Slow
+1157	1	GL25	A1	SELF	CR-	Body To Mind
+1220	8	GL35	A1	ONE	CR750	Blaze
+1151	2	GL35	A1	CORPSE_MOB	CR400	Corpse Life Drain
+756	1	GL82	P	SELF	CR-	Protection of Elemental
+164	3	GL48	P	SELF	CR-	Quick Recycle
+163	1	GL1	P	SELF	CR-	Spellcraft
+1147	6	GL25	A1	ONE	CR600	Vampiric Touch
+1144	1	GL35	A2	SERVITOR	CR400	Servitor Wind Walk
+1339	1	GL77	A2	ONE	CR900	Fire Vortex
+1338	1	GL78	A2	ONE	CR600	Arcane Chaos
+1532	1	GL81	A2	SELF	CR-	Enlightenment
+945	1	GL81	P	SELF	CR-	Magician's Will
+146	45	GL74	P	SELF	CR-	Anti Magic
+1127	12	GL35	A1	SERVITOR	CR600	Servitor Heal
+1126	6	GL35	A1	SERVITOR	CR400	Servitor Recharge
+1322	1	GL1	A1	SELF	CR-	Common Craft
+1320	9	GL70	P	SELF	CR-	Create Common Item
+925	1	GL76	P	SELF	CR-	Sigil Mastery
+331	1	GL77	P	SELF	CR-	Skill Mastery
+328	1	GL76	P	SELF	CR-	Wisdom
+1419	1	GL80	CA1	GROUND	CR900	Volcano
+1111	4	GL35	A1	SELF	CR-	Summon Kat the Cat
+118	1	GL1	P	SELF	CR-	Magician's Movement
+1297	6	GL74	P	SELF	CR-	Clear Mind
+1296	9	GL74	A1	AREA	CR500	Rain of Fire
+1492	1	GL81	A2	SELF	CR-	Flame Armor
+1292	1	GL72	A1	ONE	CR900	Elemental Assault
+1289	1	GL70	A2	ONE	CR900	Inferno
+1288	1	GL68	A1	ONE	CR900	Aura Symphony
+1285	1	GL66	A2	SELF	CR-	Seed of Fire
+1083	17	GL74	A2	ONE	CR900	Surrender To Fire
+1177	5	GL14	A1	ONE	CR600	Wind Strike
+1275	14	GL74	A1	ONE	CR400	Aura Bolt
+1274	4	GL35	A1	ONE	CR400	Energy Bolt
+1074	14	GL74	A2	ONE	CR900	Surrender To Wind
+285	27	GL74	P	SELF	CR-	Higher Mana Gain
+1072	5	GL70	A2	AREA	CR500	Sleeping Cloud
+1027	3	GL14	A1	PARTY	CR-	Group Heal
+1069	42	GL74	A2	ONE	CR600	Sleep
+1068	1	GL7	A2	ONE	CR400	Might
+1467	1	GL81	A2	AREA	CR600	Meteor
+337	1	GL78	T	SELF	CR-	Arcane Power
+1451	1	GL79	A1	ONE	CR900	Fire Vortex Buster
+1056	12	GL74	A1	ONE	CR600	Cancellation
+1040	1	GL7	A2	ONE	CR400	Shield
+842	1	GL75	A2	SELF	CR-	Aura Bird - Owl
+841	1	GL75	A2	SELF	CR-	Aura Bird - Falcon
+249	42	GL74	P	SELF	CR-	Weapon Mastery
+1233	4	GL74	A2	ONE	CR600	Decay
+1232	3	GL56	A2	ONE	CR400	Blazing Skin
+1231	28	GL74	A3	ONE	CR150	Aura Flare
+1230	28	GL74	A1	ONE	CR900	Prominence
+244	3	GL14	P	SELF	CR-	Armor Mastery
+1225	4	GL35	A1	SELF	CR-	Summon Mew the Cat
+239	7	GL84	P	SELF	CR-	Expertise D
+1222	1	GL35	A2	ONE	CR600	Curse Chaos
+433	1	GL78	P	SELF	CR-	Arcane Roar
+1417	5	GL74	A1	AURA	CR-	Aura Flash
+234	41	GL74	P	SELF	CR-	Robe Mastery
+1216	1	GL1	A1	SELF	CR-	Self Heal
+229	7	GL74	P	SELF	CR-	Fast Mana Recovery
+228	3	GL56	P	SELF	CR-	Fast Spell Casting
+1015	3	GL14	A1	ONE	CR600	Battle Heal
+1405	4	GL76	P	SELF	CR-	Divine Inspiration
+1012	1	GL7	A1	ONE	CR600	Cure Poison
+1011	6	GL14	A1	ONE	CR600	Heal
+214	1	GL1	P	SELF	CR-	Mana Recovery
+213	8	GL72	P	SELF	CR-	Boost Mana
+212	6	GL74	P	SELF	CR-	Fast HP Recovery
+1452	1	GL79	A2	ONE	CR900	Count of Fire
+757	1	GL82	P	SELF	CR-	Protection of Alignment
+1184	6	GL20	A2	ONE	CR600	Ice Bolt
+
+=== CLASS 95 Soultaker (parent: Necromancer) ===
+1181	3	GL30	A1	AREA	CR500	Flame Strike
+194	1	GL1	P	SELF	CR-	Lucky
+1177	5	GL14	A1	ONE	CR600	Wind Strike
+1172	8	GL35	A1	ONE	CR150	Aura Burn
+1170	13	GL74	A2	ONE	CR400	Anchor
+1169	14	GL74	A2	ONE	CR600	Curse Fear
+1168	7	GL72	A2	ONE	CR600	Curse: Poison
+1167	6	GL74	A2	AREA	CR500	Poisonous Cloud
+1345	1	GL78	A1	AURA	CR-	Mass Mage Bane
+1164	19	GL74	A2	ONE	CR600	Curse: Weakness
+1163	14	GL74	A2	ONE	CR600	Curse Discord
+755	1	GL82	P	SELF	CR-	Protection of Rune
+1160	1	GL35	A2	ONE	CR600	Slow
+1159	22	GL74	A1	ONE	CR900	Curse Death Link
+1157	5	GL66	A1	SELF	CR-	Body To Mind
+1156	13	GL74	A1	ONE	CR400	Forget
+1155	15	GL74	A1	AREA_CORPSE_MOB	CR400	Corpse Burst
+1154	6	GL70	A1	CORPSE_MOB	CR40	Summon Corrupted Man
+434	1	GL78	P	SELF	CR-	Necromancy
+1151	16	GL74	A1	CORPSE_MOB	CR400	Corpse Life Drain
+756	1	GL82	P	SELF	CR-	Protection of Elemental
+164	3	GL48	P	SELF	CR-	Quick Recycle
+163	1	GL1	P	SELF	CR-	Spellcraft
+1147	6	GL25	A1	ONE	CR600	Vampiric Touch
+1343	1	GL76	A2	ONE	CR900	Dark Vortex
+1144	1	GL35	A2	SERVITOR	CR400	Servitor Wind Walk
+945	1	GL81	P	SELF	CR-	Magician's Will
+1337	1	GL78	A2	ONE	CR600	Curse of Abyss
+1336	1	GL77	A2	ONE	CR600	Curse of Doom
+1532	1	GL81	A2	SELF	CR-	Enlightenment
+1334	7	GL74	A1	CORPSE_MOB	CR40	Summon Cursed Man
+1422	1	GL80	A1	GROUND	CR900	Day of Doom
+146	45	GL74	P	SELF	CR-	Anti Magic
+1129	7	GL74	A1	CORPSE_MOB	CR40	Summon Reanimated Man
+1127	12	GL35	A1	SERVITOR	CR600	Servitor Heal
+1126	6	GL35	A1	SERVITOR	CR400	Servitor Recharge
+1322	1	GL1	A1	SELF	CR-	Common Craft
+1320	9	GL70	P	SELF	CR-	Create Common Item
+925	1	GL76	P	SELF	CR-	Sigil Mastery
+1064	14	GL74	A2	ONE	CR600	Silence
+331	1	GL77	P	SELF	CR-	Skill Mastery
+329	1	GL76	P	SELF	CR-	Health
+328	1	GL76	P	SELF	CR-	Wisdom
+1381	5	GL74	A2	AREA	CR500	Mass Fear
+1111	4	GL35	A1	SELF	CR-	Summon Kat the Cat
+118	1	GL1	P	SELF	CR-	Magician's Movement
+1298	14	GL74	A2	AREA	CR500	Mass Slow
+249	42	GL74	P	SELF	CR-	Weapon Mastery
+1083	3	GL35	A2	ONE	CR900	Surrender To Fire
+1078	2	GL30	A2	ONE	CR400	Concentration
+1274	4	GL35	A1	ONE	CR400	Energy Bolt
+285	27	GL74	P	SELF	CR-	Higher Mana Gain
+1269	9	GL74	A2	ONE	CR600	Curse Disease
+1027	3	GL14	A1	PARTY	CR-	Group Heal
+1069	42	GL74	A2	ONE	CR600	Sleep
+1068	1	GL7	A2	ONE	CR400	Might
+1263	13	GL74	A2	ONE	CR900	Curse Gloom
+1262	5	GL70	T	SELF	CR-	Transfer Pain
+1148	13	GL74	A1	ONE	CR900	Death Spike
+1344	1	GL77	A1	AURA	CR-	Mass Warrior Bane
+337	1	GL78	T	SELF	CR-	Arcane Power
+1495	1	GL81	A2	AURA	CR-	Vampiric Mist
+1467	1	GL81	A2	AREA	CR600	Meteor
+1040	1	GL7	A2	ONE	CR400	Shield
+842	1	GL75	A2	SELF	CR-	Aura Bird - Owl
+841	1	GL75	A2	SELF	CR-	Aura Bird - Falcon
+1234	28	GL74	A1	ONE	CR900	Vampiric Claw
+244	3	GL14	P	SELF	CR-	Armor Mastery
+1423	1	GL80	CA1	GROUND	CR900	Gehenna
+1225	4	GL35	A1	SELF	CR-	Summon Mew the Cat
+239	7	GL84	P	SELF	CR-	Expertise D
+1222	15	GL74	A2	ONE	CR600	Curse Chaos
+1220	8	GL35	A1	ONE	CR750	Blaze
+234	41	GL74	P	SELF	CR-	Robe Mastery
+1216	1	GL1	A1	SELF	CR-	Self Heal
+229	7	GL74	P	SELF	CR-	Fast Mana Recovery
+228	3	GL56	P	SELF	CR-	Fast Spell Casting
+1015	3	GL14	A1	ONE	CR600	Battle Heal
+1405	4	GL76	P	SELF	CR-	Divine Inspiration
+1012	1	GL7	A1	ONE	CR600	Cure Poison
+1011	6	GL14	A1	ONE	CR600	Heal
+214	1	GL1	P	SELF	CR-	Mana Recovery
+213	8	GL72	P	SELF	CR-	Boost Mana
+212	6	GL74	P	SELF	CR-	Fast HP Recovery
+1387	3	GL74	A1	SELF	CR-	Summon Cursed Bones
+757	1	GL82	P	SELF	CR-	Protection of Alignment
+1382	5	GL74	A2	AREA	CR900	Mass Gloom
+1184	6	GL20	A2	ONE	CR600	Ice Bolt
+
+=== CLASS 99 Eva's Templar (parent: Temple Knight) ===
+787	1	GL81	A2	PARTY	CR40	Touch of Eva
+786	1	GL81	A2	SELF	CR-	Eva's Will
+194	1	GL1	P	SELF	CR-	Lucky
+191	6	GL72	P	SELF	CR-	Focus Mind
+779	1	GL80	A1	SELF	CR-	Summon Smart Cubic
+1320	9	GL70	P	SELF	CR-	Create Common Item
+766	1	GL81	P	SELF	CR-	Sixth Sense
+288	4	GL70	T	SELF	CR-	Guard Stance
+368	1	GL77	A3	AURA	CR-	Vengeance
+760	1	GL81	A2	SELF	CR-	Anti Magic Armor
+759	1	GL81	P		CR-	Archer's Will
+758	1	GL81	P		CR-	Fighter's Will
+757	1	GL82	P	SELF	CR-	Protection of Alignment
+756	1	GL82	P	SELF	CR-	Protection of Elemental
+755	1	GL82	P	SELF	CR-	Protection of Rune
+352	1	GL77	A2	ONE	CR40	Shield Bash
+351	1	GL78	A2	SELF	CR-	Magical Mirror
+153	4	GL52	P	SELF	CR-	Shield Mastery
+147	51	GL74	P	SELF	CR-	Magic Resistance
+341	1	GL78	A2	ONE	CR40	Touch of Life
+143	2	GL55	P	SELF	CR-	Cubic Mastery
+142	5	GL15	P	SELF	CR-	Armor Mastery
+141	3	GL15	P	SELF	CR-	Weapon Mastery
+1322	1	GL1	A1	SELF	CR-	Common Craft
+335	1	GL76	T	SELF	CR-	Fortitude
+528	1	GL79	A2	PARTY	CR-	Shield of Faith
+527	1	GL79	A2	SELF	CR-	Iron Shield
+329	1	GL76	P	SELF	CR-	Health
+328	1	GL76	P	SELF	CR-	Wisdom
+916	4	GL72	A2	SELF	CR-	Shield Deflect Magic
+322	6	GL74	T	SELF	CR-	Shield Fortress
+123	3	GL58	A2	SELF	CR-	Spirit Barrier
+316	1	GL60	P	SELF	CR-	Aegis
+112	4	GL49	A2	SELF	CR-	Deflect Arrow
+110	2	GL46	A2	SELF	CR-	Ultimate Defense
+107	9	GL74	A2	AREA	CR-	Holy Aura
+102	16	GL74	A2	ONE	CR600	Entangle
+291	11	GL74	P	SELF	CR-	Final Fortress
+91	2	GL20	A2	SELF	CR-	Defense Aura
+77	2	GL28	A2	SELF	CR-	Attack Aura
+67	7	GL72	A1	SELF	CR-	Summon Life Cubic
+61	3	GL62	A1	SELF	CR-	Cure Bleeding
+454	1	GL80	A1	SELF	CR-	Symbol of Defense
+58	55	GL74	A1	SELF	CR-	Elemental Heal
+56	9	GL15	A1	ONE	CR700	Power Shot
+449	4	GL74	A1	SELF	CR-	Summon Attractive Cubic
+842	1	GL75	A2	SELF	CR-	Aura Bird - Owl
+841	1	GL75	A2	SELF	CR-	Aura Bird - Falcon
+429	1	GL78	P	SELF	CR-	Knighthood
+239	7	GL84	P	SELF	CR-	Expertise D
+232	52	GL74	P	SELF	CR-	Heavy Armor Mastery
+230	2	GL52	A2	SELF	CR-	Sprint
+28	49	GL74	A2	ONE	CR800	Aggression
+1405	4	GL76	P	SELF	CR-	Divine Inspiration
+812	1	GL43	A2	SELF	CR-	Vanguard
+913	1	GL81	A2	SELF	CR-	Deflect Magic
+21	3	GL60	A1	SELF	CR-	Poison Recovery
+217	45	GL74	P	SELF	CR-	Sword/Blunt Weapon Mastery
+18	37	GL74	A2	AURA	CR-	Aura of Hate
+16	9	GL15	A1	ONE	CR40	Mortal Blow
+15	52	GL74	A1	ONE	CR600	Charm
+10	8	GL74	A1	SELF	CR-	Summon Storm Cubic
+402	10	GL74	A2	ONE	CR150	Arrest
+400	10	GL74	A2	ONE	CR40	Tribunal
+3	9	GL15	A1	ONE	CR40	Power Strike
+197	2	GL46	T	SELF	CR-	Holy Armor
+
+=== CLASS 101 Wind Rider (parent: Plains Walker) ===
+195	2	GL55	P	SELF	CR-	Breath Boost
+194	1	GL1	P	SELF	CR-	Lucky
+769	1	GL81	A2	SELF	CR-	Wind Riding
+767	1	GL81	P	SELF	CR-	Expose Weak Point
+766	1	GL81	P	SELF	CR-	Sixth Sense
+173	2	GL55	P	SELF	CR-	Acrobatics
+171	8	GL74	P	SELF	CR-	Esprit
+169	2	GL43	P	SELF	CR-	Quick Step
+759	1	GL81	P		CR-	Archer's Will
+758	1	GL81	P		CR-	Fighter's Will
+757	1	GL82	P	SELF	CR-	Protection of Alignment
+756	1	GL82	P	SELF	CR-	Protection of Elemental
+755	1	GL82	P	SELF	CR-	Protection of Rune
+358	1	GL77	A2	ONE	CR40	Bluff
+356	1	GL78	A2	SELF	CR-	Focus Chance
+355	1	GL78	A2	SELF	CR-	Focus Death
+344	1	GL76	A1	ONE	CR40	Lethal Blow
+142	5	GL15	P	SELF	CR-	Armor Mastery
+141	3	GL15	P	SELF	CR-	Weapon Mastery
+1322	1	GL1	A1	SELF	CR-	Common Craft
+1320	9	GL70	P	SELF	CR-	Create Common Item
+334	1	GL78	T	SELF	CR-	Focus Skill Mastery
+230	2	GL52	A2	SELF	CR-	Sprint
+923	1	GL81	P	SELF	CR-	Dual Dagger Mastery
+922	1	GL81	A2	SELF	CR-	Hide
+330	1	GL77	P	SELF	CR-	Skill Mastery
+328	1	GL76	P	SELF	CR-	Wisdom
+321	10	GL74	A3	ONE	CR40	Blinding Blow
+123	3	GL58	A2	SELF	CR-	Spirit Barrier
+312	20	GL74	T	SELF	CR-	Vicious Stance
+113	1	GL20	P	SELF	CR-	Long Shot
+111	2	GL55	A2	SELF	CR-	Ultimate Evasion
+102	16	GL74	A2	ONE	CR600	Entangle
+101	3	GL36	A2	ONE	CR900	Stunning Shot
+99	1	GL32	A2	SELF	CR-	Rapid Shot
+96	6	GL70	A2	ONE	CR40	Bleed
+91	2	GL20	A2	SELF	CR-	Defense Aura
+77	2	GL28	A2	SELF	CR-	Attack Aura
+460	1	GL80	A1	SELF	CR-	Symbol of the Assassin
+410	3	GL74	A2	SELF	CR-	Mortal Strike
+263	37	GL74	A1	ONE	CR40	Deadly Blow
+531	1	GL79	A2	ONE	CR40	Critical Wound
+61	3	GL62	A1	SELF	CR-	Cure Bleeding
+60	1	GL40	T	SELF	CR-	Fake Death
+453	1	GL60	A1	SELF	CR-	Escape Shackle
+137	4	GL58	P	SELF	CR-	Critical Chance
+56	24	GL36	A1	ONE	CR700	Power Shot
+842	1	GL75	A2	SELF	CR-	Aura Bird - Owl
+841	1	GL75	A2	SELF	CR-	Aura Bird - Falcon
+446	1	GL79	A2	SELF	CR-	Dodge
+51	1	GL52	A1	ONE	CR400	Lure
+12	14	GL74	A1	ONE	CR600	Switch
+821	1	GL40	A1	ONE	CR600	Shadow Step
+256	1	GL24	T	SELF	CR-	Accuracy
+239	7	GL84	P	SELF	CR-	Expertise D
+432	1	GL78	P	SELF	CR-	Assassination
+233	47	GL74	P	SELF	CR-	Light Armor Mastery
+624	1	GL74	A1	ONE	CR400	Remove Trap
+623	1	GL74	A1	AURA	CR-	Find Trap
+819	1	GL74	P		CR-	Evasion Chance
+30	37	GL74	A1	ONE	CR40	Backstab
+225	3	GL55	P	SELF	CR-	Acrobatic Move
+27	14	GL72	A1	UNLOCKABLE	CR40	Unlock
+1405	4	GL76	P	SELF	CR-	Divine Inspiration
+419	4	GL74	A1	SELF	CR-	Summon Treasure Key
+221	1	GL40	T	SELF	CR-	Silent Move
+21	3	GL60	A1	SELF	CR-	Poison Recovery
+412	10	GL74	A2	ONE	CR150	Sand Bomb
+16	24	GL36	A1	ONE	CR40	Mortal Blow
+15	52	GL74	A1	ONE	CR600	Charm
+58	55	GL74	A1	SELF	CR-	Elemental Heal
+209	45	GL74	P	SELF	CR-	Dagger Mastery
+208	15	GL36	P	SELF	CR-	Bow Mastery
+296	1	GL46	T	SELF	CR-	Chameleon Rest
+3	9	GL15	A1	ONE	CR40	Power Strike
+198	3	GL58	P	SELF	CR-	Boost Evasion
+
+=== CLASS 102 Moonlight Sentinel (parent: Silver Ranger) ===
+195	1	GL20	P	SELF	CR-	Breath Boost
+194	1	GL1	P	SELF	CR-	Lucky
+415	3	GL74	A2	SELF	CR-	Spirit of Sagittarius
+1322	1	GL1	A1	SELF	CR-	Common Craft
+413	8	GL74	A2	SELF	CR-	Rapid Fire
+173	1	GL20	P	SELF	CR-	Acrobatics
+369	1	GL78	A3	ONE	CR900	Evade Shot
+171	8	GL74	P	SELF	CR-	Esprit
+169	2	GL43	P	SELF	CR-	Quick Step
+759	1	GL81	P		CR-	Archer's Will
+758	1	GL81	P		CR-	Fighter's Will
+757	1	GL82	P	SELF	CR-	Protection of Alignment
+756	1	GL82	P	SELF	CR-	Protection of Elemental
+755	1	GL82	P	SELF	CR-	Protection of Rune
+334	1	GL78	T	SELF	CR-	Focus Skill Mastery
+946	1	GL81	P	SELF	CR-	Silent Mind
+354	1	GL77	A2	ONE	CR900	Hamstring Shot
+343	1	GL76	A1	ONE	CR900	Lethal Shot
+933	1	GL74	A1	SELF	CR-	Detection
+142	5	GL15	P	SELF	CR-	Armor Mastery
+141	3	GL15	P	SELF	CR-	Weapon Mastery
+534	1	GL79	P	SELF	CR-	Counter Dash
+533	1	GL79	P	SELF	CR-	Counter Rapid Shot
+1320	9	GL70	P	SELF	CR-	Create Common Item
+137	1	GL32	P	SELF	CR-	Critical Chance
+924	1	GL81	CA1	ONE	CR900	Seven Arrow
+330	1	GL77	P	SELF	CR-	Skill Mastery
+328	1	GL76	P	SELF	CR-	Wisdom
+324	1	GL72	A1	SELF	CR-	Quiver of Arrow: Grade S
+323	1	GL60	A1	SELF	CR-	Quiver of Arrow: Grade A
+123	3	GL58	A2	SELF	CR-	Spirit Barrier
+312	20	GL74	T	SELF	CR-	Vicious Stance
+113	2	GL40	P	SELF	CR-	Long Shot
+111	1	GL28	A2	SELF	CR-	Ultimate Evasion
+772	1	GL81	A1	AREA	CR600	Arrow Rain
+303	4	GL70	A2	SELF	CR-	Soul of Sagittarius
+102	16	GL74	A2	ONE	CR600	Entangle
+101	40	GL74	A2	ONE	CR900	Stunning Shot
+99	2	GL55	A2	SELF	CR-	Rapid Shot
+96	2	GL32	A2	ONE	CR40	Bleed
+91	2	GL20	A2	SELF	CR-	Defense Aura
+77	2	GL28	A2	SELF	CR-	Attack Aura
+459	1	GL80	A1	SELF	CR-	Symbol of the Sniper
+61	3	GL62	A1	SELF	CR-	Cure Bleeding
+256	1	GL24	T	SELF	CR-	Accuracy
+58	55	GL74	A1	SELF	CR-	Elemental Heal
+56	24	GL36	A1	ONE	CR700	Power Shot
+842	1	GL75	A2	SELF	CR-	Aura Bird - Owl
+841	1	GL75	A2	SELF	CR-	Aura Bird - Falcon
+239	7	GL84	P	SELF	CR-	Expertise D
+431	1	GL78	P	SELF	CR-	Archery
+233	47	GL74	P	SELF	CR-	Light Armor Mastery
+230	2	GL52	A2	SELF	CR-	Sprint
+225	3	GL55	P	SELF	CR-	Acrobatic Move
+27	5	GL36	A1	UNLOCKABLE	CR40	Unlock
+1405	4	GL76	P	SELF	CR-	Divine Inspiration
+24	31	GL74	A1	AREA	CR500	Burst Shot
+416	3	GL74	A2	SELF	CR-	Blessing of Sagittarius
+21	3	GL60	A1	SELF	CR-	Poison Recovery
+19	37	GL74	A1	ONE	CR900	Double Shot
+16	24	GL36	A1	ONE	CR40	Mortal Blow
+15	52	GL74	A1	ONE	CR600	Charm
+209	8	GL36	P	SELF	CR-	Dagger Mastery
+208	52	GL74	P	SELF	CR-	Bow Mastery
+3	9	GL15	A1	ONE	CR40	Power Strike
+198	1	GL24	P	SELF	CR-	Boost Evasion
+
+=== CLASS 103 Mystic Muse (parent: Spellsinger) ===
+1181	3	GL30	A1	AREA	CR500	Flame Strike
+194	1	GL1	P	SELF	CR-	Lucky
+1078	2	GL30	A2	ONE	CR400	Concentration
+1175	8	GL35	A1	ONE	CR750	Aqua Swirl
+1174	22	GL74	A1	FRONT_AREA	CR40	Frost Wall
+1172	8	GL35	A1	ONE	CR150	Aura Burn
+1169	14	GL74	A2	ONE	CR600	Curse Fear
+1164	19	GL74	A2	ONE	CR600	Curse: Weakness
+755	1	GL82	P	SELF	CR-	Protection of Rune
+757	1	GL82	P	SELF	CR-	Protection of Alignment
+756	1	GL82	P	SELF	CR-	Protection of Elemental
+164	3	GL48	P	SELF	CR-	Quick Recycle
+163	1	GL1	P	SELF	CR-	Spellcraft
+1145	1	GL35	A2	SERVITOR	CR400	Bright Servitor
+1340	1	GL77	A2	ONE	CR900	Ice Vortex
+945	1	GL81	P	SELF	CR-	Magician's Will
+1338	1	GL78	A2	ONE	CR600	Arcane Chaos
+1532	1	GL81	A2	SELF	CR-	Enlightenment
+146	45	GL74	P	SELF	CR-	Anti Magic
+1127	12	GL35	A1	SERVITOR	CR600	Servitor Heal
+1126	6	GL35	A1	SERVITOR	CR400	Servitor Recharge
+1322	1	GL1	A1	SELF	CR-	Common Craft
+1320	9	GL70	P	SELF	CR-	Create Common Item
+925	1	GL76	P	SELF	CR-	Sigil Mastery
+331	1	GL77	P	SELF	CR-	Skill Mastery
+1235	28	GL74	A1	ONE	CR900	Hydro Blast
+328	1	GL76	P	SELF	CR-	Wisdom
+1027	3	GL14	A1	PARTY	CR-	Group Heal
+118	1	GL1	P	SELF	CR-	Magician's Movement
+1237	17	GL74	A2	ONE	CR900	Ice Dagger
+1297	6	GL74	P	SELF	CR-	Clear Mind
+1493	1	GL81	A2	SELF	CR-	Frost Armor
+1295	9	GL74	A1	AREA	CR500	Aqua Splash
+1293	1	GL72	A1	ONE	CR900	Elemental Symphony
+1290	1	GL70	A2	ONE	CR900	Blizzard
+1288	1	GL68	A1	ONE	CR900	Aura Symphony
+1286	1	GL66	A2	SELF	CR-	Seed of Water
+1177	5	GL14	A1	ONE	CR600	Wind Strike
+1421	1	GL80	CA1	GROUND	CR900	Raging Waves
+1275	14	GL74	A1	ONE	CR400	Aura Bolt
+1274	4	GL35	A1	ONE	CR400	Energy Bolt
+1468	1	GL81	A2	AREA	CR600	Star Fall
+285	27	GL74	P	SELF	CR-	Higher Mana Gain
+1072	5	GL70	A2	AREA	CR500	Sleeping Cloud
+1071	14	GL74	A2	ONE	CR900	Surrender To Water
+1069	42	GL74	A2	ONE	CR600	Sleep
+1068	1	GL7	A2	ONE	CR400	Might
+1264	3	GL35	A1	ONE	CR750	Solar Spark
+1455	1	GL79	A2	ONE	CR900	Throne of Ice
+1454	1	GL79	A2	AURA	CR-	Diamond Dust
+1453	1	GL79	A1	ONE	CR900	Ice Vortex Crusher
+337	1	GL78	T	SELF	CR-	Arcane Power
+1056	12	GL74	A1	ONE	CR600	Cancellation
+1342	1	GL76	A2	ONE	CR900	Light Vortex
+1047	4	GL70	A2	SELF	CR-	Mana Regeneration
+1265	14	GL74	A1	ONE	CR900	Solar Flare
+1040	1	GL7	A2	ONE	CR400	Shield
+842	1	GL75	A2	SELF	CR-	Aura Bird - Owl
+841	1	GL75	A2	SELF	CR-	Aura Bird - Falcon
+249	42	GL74	P	SELF	CR-	Weapon Mastery
+1231	28	GL74	A3	ONE	CR150	Aura Flare
+244	3	GL14	P	SELF	CR-	Armor Mastery
+1238	3	GL56	A2	ONE	CR400	Freezing Skin
+1227	4	GL35	A1	SELF	CR-	Summon Mirage the Unicorn
+1226	4	GL35	A1	SELF	CR-	Summon Boxer the Unicorn
+239	7	GL84	P	SELF	CR-	Expertise D
+1223	15	GL74	A2	ONE	CR900	Surrender To Earth
+433	1	GL78	P	SELF	CR-	Arcane Roar
+1417	5	GL74	A1	AURA	CR-	Aura Flash
+234	41	GL74	P	SELF	CR-	Robe Mastery
+1216	1	GL1	A1	SELF	CR-	Self Heal
+229	7	GL74	P	SELF	CR-	Fast Mana Recovery
+228	3	GL56	P	SELF	CR-	Fast Spell Casting
+1015	3	GL14	A1	ONE	CR600	Battle Heal
+1405	4	GL76	P	SELF	CR-	Divine Inspiration
+1012	1	GL7	A1	ONE	CR600	Cure Poison
+1011	6	GL14	A1	ONE	CR600	Heal
+1206	5	GL35	A2	ONE	CR600	Wind Shackle
+1236	19	GL74	A2	ONE	CR900	Frost Bolt
+214	1	GL1	P	SELF	CR-	Mana Recovery
+213	8	GL72	P	SELF	CR-	Boost Mana
+212	6	GL74	P	SELF	CR-	Fast HP Recovery
+1184	6	GL20	A2	ONE	CR600	Ice Bolt
+1183	4	GL74	A2	ONE	CR600	Freezing Shackle
+1182	3	GL44	A2	ONE	CR400	Resist Aqua
+
+=== CLASS 106 Shillien Templar (parent: Shillien Knight) ===
+194	1	GL1	P	SELF	CR-	Lucky
+191	6	GL72	P	SELF	CR-	Focus Mind
+780	1	GL80	A1	SELF	CR-	Summon Smart Cubic
+1320	9	GL70	P	SELF	CR-	Create Common Item
+766	1	GL81	P	SELF	CR-	Sixth Sense
+368	1	GL77	A3	AURA	CR-	Vengeance
+760	1	GL81	A2	SELF	CR-	Anti Magic Armor
+759	1	GL81	P		CR-	Archer's Will
+758	1	GL81	P		CR-	Fighter's Will
+757	1	GL82	P	SELF	CR-	Protection of Alignment
+756	1	GL82	P	SELF	CR-	Protection of Elemental
+755	1	GL82	P	SELF	CR-	Protection of Rune
+352	1	GL77	A2	ONE	CR40	Shield Bash
+351	1	GL78	A2	SELF	CR-	Magical Mirror
+153	4	GL52	P	SELF	CR-	Shield Mastery
+147	51	GL74	P	SELF	CR-	Magic Resistance
+342	1	GL78	A2	ONE	CR40	Touch of Death
+143	2	GL55	P	SELF	CR-	Cubic Mastery
+142	5	GL15	P	SELF	CR-	Armor Mastery
+141	3	GL15	P	SELF	CR-	Weapon Mastery
+1322	1	GL1	A1	SELF	CR-	Common Craft
+335	1	GL76	T	SELF	CR-	Fortitude
+528	1	GL79	A2	PARTY	CR-	Shield of Faith
+527	1	GL79	A2	SELF	CR-	Iron Shield
+329	1	GL76	P	SELF	CR-	Health
+328	1	GL76	P	SELF	CR-	Wisdom
+129	5	GL74	A2	ONE	CR600	Poison
+916	4	GL72	A2	SELF	CR-	Shield Deflect Magic
+322	6	GL74	T	SELF	CR-	Shield Fortress
+122	15	GL74	A2	ONE	CR600	Hex
+316	1	GL60	P	SELF	CR-	Aegis
+913	1	GL81	A2	SELF	CR-	Deflect Magic
+115	17	GL74	A2	ONE	CR600	Power Break
+56	9	GL15	A1	ONE	CR700	Power Shot
+112	4	GL49	A2	SELF	CR-	Deflect Arrow
+110	2	GL46	A2	SELF	CR-	Ultimate Defense
+105	24	GL74	A2	ONE	CR600	Freezing Strike
+103	4	GL70	A2	AREA_CORPSE_MOB	CR400	Corpse Plague
+294	1	GL15	P	SELF	CR-	Shadow Sense
+291	11	GL74	P	SELF	CR-	Final Fortress
+289	15	GL74	A1	ONE	CR600	Life Leech
+288	4	GL70	T	SELF	CR-	Guard Stance
+70	53	GL74	A1	ONE	CR600	Drain Health
+279	5	GL74	A2	ONE	CR400	Lightning Strike
+278	6	GL72	A1	SELF	CR-	Summon Viper Cubic
+77	2	GL28	A2	SELF	CR-	Attack Aura
+91	2	GL20	A2	SELF	CR-	Defense Aura
+454	1	GL80	A1	SELF	CR-	Symbol of Defense
+450	10	GL74	A1	ONE	CR150	Banish Seraph
+842	1	GL75	A2	SELF	CR-	Aura Bird - Owl
+841	1	GL75	A2	SELF	CR-	Aura Bird - Falcon
+429	1	GL78	P	SELF	CR-	Knighthood
+239	7	GL84	P	SELF	CR-	Expertise D
+232	52	GL74	P	SELF	CR-	Heavy Armor Mastery
+33	8	GL74	A1	SELF	CR-	Summon Phantom Cubic
+28	49	GL74	A2	ONE	CR800	Aggression
+1405	4	GL76	P	SELF	CR-	Divine Inspiration
+813	1	GL43	A2	SELF	CR-	Vanguard
+22	7	GL72	A1	SELF	CR-	Summon Vampiric Cubic
+217	45	GL74	P	SELF	CR-	Sword/Blunt Weapon Mastery
+18	37	GL74	A2	AURA	CR-	Aura of Hate
+16	9	GL15	A1	ONE	CR40	Mortal Blow
+223	49	GL74	A2	ONE	CR40	Sting
+402	10	GL74	A2	ONE	CR150	Arrest
+401	10	GL74	A2	ONE	CR40	Judgment
+3	9	GL15	A1	ONE	CR40	Power Strike
+2	19	GL74	A1	ONE	CR600	Confusion
+789	1	GL81	A2	PARTY	CR-	Spirit of Shilen
+788	1	GL81	A2	SELF	CR-	Pain of Shilen
+
+=== CLASS 108 Ghost Hunter (parent: Abyss Walker) ===
+195	2	GL55	P	SELF	CR-	Breath Boost
+194	1	GL1	P	SELF	CR-	Lucky
+193	7	GL74	P	SELF	CR-	Critical Power
+770	1	GL81	A2	SELF	CR-	Ghost Walking
+767	1	GL81	P	SELF	CR-	Expose Weak Point
+766	1	GL81	P	SELF	CR-	Sixth Sense
+173	2	GL55	P	SELF	CR-	Acrobatics
+171	8	GL74	P	SELF	CR-	Esprit
+169	2	GL43	P	SELF	CR-	Quick Step
+759	1	GL81	P		CR-	Archer's Will
+758	1	GL81	P		CR-	Fighter's Will
+757	1	GL82	P	SELF	CR-	Protection of Alignment
+756	1	GL82	P	SELF	CR-	Protection of Elemental
+755	1	GL82	P	SELF	CR-	Protection of Rune
+358	1	GL77	A2	ONE	CR40	Bluff
+357	1	GL78	A2	SELF	CR-	Focus Power
+355	1	GL78	A2	SELF	CR-	Focus Death
+344	1	GL76	A1	ONE	CR40	Lethal Blow
+142	5	GL15	P	SELF	CR-	Armor Mastery
+141	3	GL15	P	SELF	CR-	Weapon Mastery
+1322	1	GL1	A1	SELF	CR-	Common Craft
+1320	9	GL70	P	SELF	CR-	Create Common Item
+334	1	GL78	T	SELF	CR-	Focus Skill Mastery
+923	1	GL81	P	SELF	CR-	Dual Dagger Mastery
+922	1	GL81	A2	SELF	CR-	Hide
+330	1	GL77	P	SELF	CR-	Skill Mastery
+328	1	GL76	P	SELF	CR-	Wisdom
+129	5	GL74	A2	ONE	CR600	Poison
+841	1	GL75	A2	SELF	CR-	Aura Bird - Falcon
+410	3	GL74	A2	SELF	CR-	Mortal Strike
+321	10	GL74	A3	ONE	CR40	Blinding Blow
+122	15	GL74	A2	ONE	CR600	Hex
+30	37	GL74	A1	ONE	CR40	Backstab
+115	17	GL74	A2	ONE	CR600	Power Break
+113	1	GL20	P	SELF	CR-	Long Shot
+111	2	GL55	A2	SELF	CR-	Ultimate Evasion
+106	14	GL74	A2	ONE	CR500	Veil
+105	24	GL74	A2	ONE	CR600	Freezing Strike
+101	3	GL36	A2	ONE	CR900	Stunning Shot
+99	1	GL32	A2	SELF	CR-	Rapid Shot
+294	1	GL15	P	SELF	CR-	Shadow Sense
+96	6	GL70	A2	ONE	CR40	Bleed
+91	2	GL20	A2	SELF	CR-	Defense Aura
+77	2	GL28	A2	SELF	CR-	Attack Aura
+460	1	GL80	A1	SELF	CR-	Symbol of the Assassin
+312	20	GL74	T	SELF	CR-	Vicious Stance
+70	53	GL74	A1	ONE	CR600	Drain Health
+263	37	GL74	A1	ONE	CR40	Deadly Blow
+531	1	GL79	A2	ONE	CR40	Critical Wound
+453	1	GL60	A1	SELF	CR-	Escape Shackle
+56	24	GL36	A1	ONE	CR700	Power Shot
+842	1	GL75	A2	SELF	CR-	Aura Bird - Owl
+447	1	GL79	A2	SELF	CR-	Counterattack
+51	1	GL52	A1	ONE	CR400	Lure
+208	15	GL36	P	SELF	CR-	Bow Mastery
+821	1	GL40	A1	ONE	CR600	Shadow Step
+256	1	GL24	T	SELF	CR-	Accuracy
+239	7	GL84	P	SELF	CR-	Expertise D
+432	1	GL78	P	SELF	CR-	Assassination
+233	47	GL74	P	SELF	CR-	Light Armor Mastery
+1405	4	GL76	P	SELF	CR-	Divine Inspiration
+624	1	GL74	A1	ONE	CR400	Remove Trap
+623	1	GL74	A1	AURA	CR-	Find Trap
+818	1	GL74	P		CR-	Evasion Counter
+225	3	GL55	P	SELF	CR-	Acrobatic Move
+27	14	GL72	A1	UNLOCKABLE	CR40	Unlock
+223	49	GL74	A2	ONE	CR40	Sting
+419	4	GL74	A1	SELF	CR-	Summon Treasure Key
+221	1	GL40	T	SELF	CR-	Silent Move
+412	10	GL74	A2	ONE	CR150	Sand Bomb
+16	24	GL36	A1	ONE	CR40	Mortal Blow
+209	45	GL74	P	SELF	CR-	Dagger Mastery
+11	12	GL74	A1	ONE	CR400	Trick
+3	9	GL15	A1	ONE	CR40	Power Strike
+2	19	GL74	A1	ONE	CR600	Confusion
+198	3	GL58	P	SELF	CR-	Boost Evasion
+
+=== CLASS 109 Ghost Sentinel (parent: Phantom Ranger) ===
+532	1	GL79	P	SELF	CR-	Counter Chance
+195	1	GL20	P	SELF	CR-	Breath Boost
+194	1	GL1	P	SELF	CR-	Lucky
+193	2	GL32	P	SELF	CR-	Critical Power
+773	1	GL81	A1	FRONT_AREA	CR900	Ghost Piercing
+173	1	GL20	P	SELF	CR-	Acrobatics
+369	1	GL78	A3	ONE	CR900	Evade Shot
+171	8	GL74	P	SELF	CR-	Esprit
+169	2	GL43	P	SELF	CR-	Quick Step
+759	1	GL81	P		CR-	Archer's Will
+758	1	GL81	P		CR-	Fighter's Will
+757	1	GL82	P	SELF	CR-	Protection of Alignment
+756	1	GL82	P	SELF	CR-	Protection of Elemental
+755	1	GL82	P	SELF	CR-	Protection of Rune
+946	1	GL81	P	SELF	CR-	Silent Mind
+354	1	GL77	A2	ONE	CR900	Hamstring Shot
+343	1	GL76	A1	ONE	CR900	Lethal Shot
+933	1	GL74	A1	SELF	CR-	Detection
+142	5	GL15	P	SELF	CR-	Armor Mastery
+141	3	GL15	P	SELF	CR-	Weapon Mastery
+1322	1	GL1	A1	SELF	CR-	Common Craft
+1320	9	GL70	P	SELF	CR-	Create Common Item
+334	1	GL78	T	SELF	CR-	Focus Skill Mastery
+924	1	GL81	CA1	ONE	CR900	Seven Arrow
+330	1	GL77	P	SELF	CR-	Skill Mastery
+328	1	GL76	P	SELF	CR-	Wisdom
+129	5	GL74	A2	ONE	CR600	Poison
+324	1	GL72	A1	SELF	CR-	Quiver of Arrow: Grade S
+323	1	GL60	A1	SELF	CR-	Quiver of Arrow: Grade A
+122	15	GL74	A2	ONE	CR600	Hex
+314	16	GL74	A1	ONE	CR900	Fatal Counter
+115	17	GL74	A2	ONE	CR600	Power Break
+113	2	GL40	P	SELF	CR-	Long Shot
+111	1	GL28	A2	SELF	CR-	Ultimate Evasion
+303	4	GL70	A2	SELF	CR-	Soul of Sagittarius
+105	24	GL74	A2	ONE	CR600	Freezing Strike
+101	40	GL74	A2	ONE	CR900	Stunning Shot
+99	2	GL55	A2	SELF	CR-	Rapid Shot
+294	1	GL15	P	SELF	CR-	Shadow Sense
+96	2	GL32	A2	ONE	CR40	Bleed
+91	2	GL20	A2	SELF	CR-	Defense Aura
+535	1	GL79	P	SELF	CR-	Counter Mind
+77	2	GL28	A2	SELF	CR-	Attack Aura
+312	20	GL74	T	SELF	CR-	Vicious Stance
+70	53	GL74	A1	ONE	CR600	Drain Health
+459	1	GL80	A1	SELF	CR-	Symbol of the Sniper
+256	1	GL24	T	SELF	CR-	Accuracy
+56	24	GL36	A1	ONE	CR700	Power Shot
+842	1	GL75	A2	SELF	CR-	Aura Bird - Owl
+841	1	GL75	A2	SELF	CR-	Aura Bird - Falcon
+239	7	GL84	P	SELF	CR-	Expertise D
+431	1	GL78	P	SELF	CR-	Archery
+233	47	GL74	P	SELF	CR-	Light Armor Mastery
+1405	4	GL76	P	SELF	CR-	Divine Inspiration
+225	3	GL55	P	SELF	CR-	Acrobatic Move
+27	5	GL36	A1	UNLOCKABLE	CR40	Unlock
+223	49	GL74	A2	ONE	CR40	Sting
+417	5	GL74	A1	SELF	CR-	Pain of Sagittarius
+415	3	GL74	A2	SELF	CR-	Spirit of Sagittarius
+414	8	GL74	A2	SELF	CR-	Dead Eye
+19	37	GL74	A1	ONE	CR900	Double Shot
+16	24	GL36	A1	ONE	CR40	Mortal Blow
+209	8	GL36	P	SELF	CR-	Dagger Mastery
+208	52	GL74	P	SELF	CR-	Bow Mastery
+3	9	GL15	A1	ONE	CR40	Power Strike
+2	19	GL74	A1	ONE	CR600	Confusion
+198	1	GL24	P	SELF	CR-	Boost Evasion
+
+=== CLASS 110 Storm Screamer (parent: Spellhowler) ===
+1181	3	GL30	A1	AREA	CR500	Flame Strike
+194	1	GL1	P	SELF	CR-	Lucky
+1178	8	GL35	A1	ONE	CR750	Twister
+1177	5	GL14	A1	ONE	CR600	Wind Strike
+1176	15	GL74	A1	AREA	CR500	Tempest
+755	1	GL82	P	SELF	CR-	Protection of Rune
+1172	8	GL35	A1	ONE	CR150	Aura Burn
+1169	14	GL74	A2	ONE	CR600	Curse Fear
+1168	7	GL72	A2	ONE	CR600	Curse: Poison
+1167	6	GL74	A2	AREA	CR500	Poisonous Cloud
+964	1	GL14	P	SELF	CR-	Children of Shilen
+1160	15	GL74	A2	ONE	CR600	Slow
+1159	22	GL74	A1	ONE	CR900	Curse Death Link
+1343	1	GL76	A2	ONE	CR900	Dark Vortex
+1157	5	GL66	A1	SELF	CR-	Body To Mind
+1468	1	GL81	A2	AREA	CR600	Star Fall
+1151	16	GL74	A1	CORPSE_MOB	CR400	Corpse Life Drain
+1341	1	GL77	A2	ONE	CR900	Wind Vortex
+164	3	GL48	P	SELF	CR-	Quick Recycle
+1148	13	GL74	A1	ONE	CR900	Death Spike
+1147	6	GL25	A1	ONE	CR600	Vampiric Touch
+1146	1	GL35	A2	SERVITOR	CR400	Mighty Servitor
+163	1	GL1	P	SELF	CR-	Spellcraft
+1266	3	GL35	A1	ONE	CR750	Shadow Spark
+945	1	GL81	P	SELF	CR-	Magician's Will
+1338	1	GL78	A2	ONE	CR600	Arcane Chaos
+1532	1	GL81	A2	SELF	CR-	Enlightenment
+146	45	GL74	P	SELF	CR-	Anti Magic
+1128	4	GL35	A1	SELF	CR-	Summon Shadow
+1127	12	GL35	A1	SERVITOR	CR600	Servitor Heal
+1126	6	GL35	A1	SERVITOR	CR400	Servitor Recharge
+1322	1	GL1	A1	SELF	CR-	Common Craft
+1320	9	GL70	P	SELF	CR-	Create Common Item
+925	1	GL76	P	SELF	CR-	Sigil Mastery
+1224	17	GL74	A2	ONE	CR900	Surrender To Poison
+331	1	GL77	P	SELF	CR-	Skill Mastery
+329	1	GL76	P	SELF	CR-	Health
+328	1	GL76	P	SELF	CR-	Wisdom
+118	1	GL1	P	SELF	CR-	Magician's Movement
+1297	6	GL74	P	SELF	CR-	Clear Mind
+1294	1	GL72	A1	ONE	CR900	Elemental Storm
+1291	1	GL70	A2	ONE	CR900	Demon Wind
+1288	1	GL68	A1	ONE	CR900	Aura Symphony
+1287	1	GL66	A2	SELF	CR-	Seed of Wind
+1078	2	GL30	A2	ONE	CR400	Concentration
+1074	14	GL74	A2	ONE	CR900	Surrender To Wind
+285	27	GL74	P	SELF	CR-	Higher Mana Gain
+1027	3	GL14	A1	PARTY	CR-	Group Heal
+1267	14	GL74	A1	ONE	CR900	Shadow Flare
+1069	42	GL74	A2	ONE	CR600	Sleep
+1068	1	GL7	A2	ONE	CR400	Might
+756	1	GL82	P	SELF	CR-	Protection of Elemental
+1064	14	GL74	A2	ONE	CR600	Silence
+1457	1	GL79	A2	SELF	CR-	Empowering Echo
+1456	1	GL79	A1	ONE	CR900	Wind Vortex Slug
+337	1	GL78	T	SELF	CR-	Arcane Power
+1458	1	GL79	A2	ONE	CR900	Throne of Wind
+1494	1	GL81	A2	SELF	CR-	Hurricane Armor
+1239	28	GL74	A1	ONE	CR900	Hurricane
+1040	1	GL7	A2	ONE	CR400	Shield
+842	1	GL75	A2	SELF	CR-	Aura Bird - Owl
+841	1	GL75	A2	SELF	CR-	Aura Bird - Falcon
+249	42	GL74	P	SELF	CR-	Weapon Mastery
+244	3	GL14	P	SELF	CR-	Armor Mastery
+1228	4	GL35	A1	SELF	CR-	Summon Silhouette
+239	7	GL84	P	SELF	CR-	Expertise D
+1420	1	GL80	CA1	GROUND	CR900	Cyclone
+1222	15	GL74	A2	ONE	CR600	Curse Chaos
+433	1	GL78	P	SELF	CR-	Arcane Roar
+1417	5	GL74	A1	AURA	CR-	Aura Flash
+234	41	GL74	P	SELF	CR-	Robe Mastery
+1216	1	GL1	A1	SELF	CR-	Self Heal
+229	7	GL74	P	SELF	CR-	Fast Mana Recovery
+228	3	GL56	P	SELF	CR-	Fast Spell Casting
+1015	3	GL14	A1	ONE	CR600	Battle Heal
+1405	4	GL76	P	SELF	CR-	Divine Inspiration
+1012	1	GL7	A1	ONE	CR600	Cure Poison
+1011	6	GL14	A1	ONE	CR600	Heal
+1206	5	GL35	A2	ONE	CR600	Wind Shackle
+214	1	GL1	P	SELF	CR-	Mana Recovery
+213	8	GL72	P	SELF	CR-	Boost Mana
+212	6	GL74	P	SELF	CR-	Fast HP Recovery
+1234	28	GL74	A1	ONE	CR900	Vampiric Claw
+757	1	GL82	P	SELF	CR-	Protection of Alignment
+1184	6	GL20	A2	ONE	CR600	Ice Bolt
+
+=== CLASS 113 Titan (parent: Destroyer) ===
+176	3	GL55	A2	SELF	CR-	Frenzy
+440	1	GL78	A1	SELF	CR-	Braveheart
+260	37	GL74	A2	ONE	CR40	Hammer Crush
+347	1	GL78	A1	AURA	CR-	Earthquake
+257	45	GL74	P	SELF	CR-	Sword/Blunt Weapon Mastery
+256	1	GL24	T	SELF	CR-	Accuracy
+255	15	GL36	A1	ONE	CR40	Power Smash
+1322	1	GL1	A1	SELF	CR-	Common Craft
+1320	9	GL70	P	SELF	CR-	Create Common Item
+339	1	GL78	T	SELF	CR-	Parry Stance
+1405	4	GL76	P	SELF	CR-	Divine Inspiration
+917	1	GL81	A2	SELF	CR-	Final Secret
+424	3	GL74	T	SELF	CR-	War Frenzy
+245	15	GL36	A1	FRONT_AREA	CR40	Wild Sweep
+422	3	GL74	T	SELF	CR-	Polearm Accuracy
+777	1	GL81	A1	FRONT_AREA	CR40	Demolition Impact
+420	3	GL74	A2	SELF	CR-	Zealot
+212	8	GL74	P	SELF	CR-	Fast HP Recovery
+329	1	GL76	P	SELF	CR-	Health
+239	7	GL84	P	SELF	CR-	Expertise D
+148	8	GL72	P	SELF	CR-	Vital Force
+767	1	GL81	P	SELF	CR-	Expose Weak Point
+231	50	GL74	P	SELF	CR-	Heavy Armor Mastery
+141	3	GL15	P	SELF	CR-	Weapon Mastery
+142	5	GL15	P	SELF	CR-	Armor Mastery
+139	3	GL52	A2	SELF	CR-	Guts
+227	50	GL74	P	SELF	CR-	Light Armor Mastery
+226	1	GL5	T	SELF	CR-	Relax
+759	1	GL81	P		CR-	Archer's Will
+758	1	GL81	P		CR-	Fighter's Will
+312	20	GL74	T	SELF	CR-	Vicious Stance
+456	1	GL80	A1	SELF	CR-	Symbol of Resistance
+755	1	GL82	P	SELF	CR-	Protection of Rune
+842	1	GL75	A2	SELF	CR-	Aura Bird - Owl
+841	1	GL75	A2	SELF	CR-	Aura Bird - Falcon
+216	45	GL74	P	SELF	CR-	Polearm Mastery
+430	1	GL78	P	SELF	CR-	Master of Combat
+36	37	GL74	A1	AURA	CR-	Whirlwind
+34	3	GL62	A1	SELF	CR-	Bandage
+211	10	GL74	P	SELF	CR-	Boost HP
+121	6	GL70	A2	SELF	CR-	Battle Roar
+757	1	GL82	P	SELF	CR-	Protection of Alignment
+29	9	GL15	A1	ONE	CR40	Iron Punch
+295	1	GL15	P	SELF	CR-	Iron Body
+134	1	GL1	P	SELF	CR-	Toughness
+293	20	GL74	P	SELF	CR-	Two-handed Weapon Mastery
+335	1	GL76	T	SELF	CR-	Fortitude
+423	3	GL74	A2	SELF	CR-	Dark Form
+756	1	GL82	P	SELF	CR-	Protection of Elemental
+287	3	GL62	A2	SELF	CR-	Lionheart
+330	1	GL77	P	SELF	CR-	Skill Mastery
+194	1	GL1	P	SELF	CR-	Lucky
+320	10	GL74	A1	FRONT_AREA	CR40	Wrath
+328	1	GL76	P	SELF	CR-	Wisdom
+190	37	GL74	A1	ONE	CR40	Fatal Strike
+100	15	GL36	A2	ONE	CR40	Stun Attack
+315	16	GL74	A1	ONE	CR40	Crush of Doom
+362	1	GL77	A2	ONE	CR40	Armor Crush
+94	2	GL55	A2	SELF	CR-	Rage
+3	9	GL15	A1	ONE	CR40	Power Strike
+536	1	GL79	A2	SELF	CR-	Over the Body
+
+=== CLASS 114 Grand Khavatari (parent: Tyrant) ===
+443	1	GL79	A2	SELF	CR-	Force Barrier
+441	1	GL78	A2	SELF	CR-	Force Meditation
+430	1	GL78	P	SELF	CR-	Master of Combat
+83	1	GL20	A2	SELF	CR-	Wolf Spirit Totem
+81	3	GL72	A1	ONE	CR40	Punch of Doom
+168	3	GL58	P	SELF	CR-	Boost Attack Speed
+756	1	GL82	P	SELF	CR-	Protection of Elemental
+76	1	GL28	A2	SELF	CR-	Bear Spirit Totem
+1320	9	GL70	P	SELF	CR-	Create Common Item
+340	1	GL77	T	SELF	CR-	Riposte Stance
+458	1	GL80	A1	SELF	CR-	Symbol of Energy
+1405	4	GL76	P	SELF	CR-	Divine Inspiration
+425	1	GL74	A2	SELF	CR-	Hawk Spirit Totem
+424	3	GL74	T	SELF	CR-	War Frenzy
+423	3	GL74	A2	SELF	CR-	Dark Form
+420	3	GL74	A2	SELF	CR-	Zealot
+17	34	GL74	A1	FRONT_AREA	CR40	Force Burst
+329	1	GL76	P	SELF	CR-	Health
+239	7	GL84	P	SELF	CR-	Expertise D
+281	37	GL74	A2	ONE	CR40	Soul Breaker
+759	1	GL81	P		CR-	Archer's Will
+233	47	GL74	P	SELF	CR-	Light Armor Mastery
+54	49	GL74	A1	ONE	CR600	Force Blaster
+142	5	GL15	P	SELF	CR-	Armor Mastery
+319	2	GL40	P	SELF	CR-	Agile Movement
+50	8	GL79	A1	SELF	CR-	Focused Force
+918	1	GL83	A1	SELF	CR-	Maximum Focus Force
+226	1	GL5	T	SELF	CR-	Relax
+328	1	GL76	P	SELF	CR-	Wisdom
+758	1	GL81	P		CR-	Fighter's Will
+134	1	GL1	P	SELF	CR-	Toughness
+222	1	GL43	T	SELF	CR-	Fury Fists
+755	1	GL82	P	SELF	CR-	Protection of Rune
+842	1	GL75	A2	SELF	CR-	Aura Bird - Owl
+841	1	GL75	A2	SELF	CR-	Aura Bird - Falcon
+141	3	GL15	P	SELF	CR-	Weapon Mastery
+35	28	GL74	A1	AREA	CR500	Force Storm
+298	1	GL62	A2	SELF	CR-	Rabbit Spirit Totem
+210	45	GL74	P	SELF	CR-	Fist Weapon Mastery
+120	15	GL36	A2	ONE	CR40	Stunning Fist
+757	1	GL82	P	SELF	CR-	Protection of Alignment
+29	24	GL36	A1	ONE	CR40	Iron Punch
+295	1	GL15	P	SELF	CR-	Iron Body
+917	1	GL81	A2	SELF	CR-	Final Secret
+461	2	GL66	A1	SELF	CR-	Break Duress
+292	1	GL68	A2	SELF	CR-	Bison Spirit Totem
+335	1	GL76	T	SELF	CR-	Fortitude
+767	1	GL81	P	SELF	CR-	Expose Weak Point
+109	1	GL46	A2	SELF	CR-	Ogre Spirit Totem
+330	1	GL77	P	SELF	CR-	Skill Mastery
+284	40	GL74	A1	ONE	CR40	Hurricane Assault
+194	1	GL1	P	SELF	CR-	Lucky
+282	1	GL40	A2	SELF	CR-	Puma Spirit Totem
+1322	1	GL1	A1	SELF	CR-	Common Craft
+280	37	GL74	A1	ONE	CR40	Burning Fist
+95	20	GL74	A2	ONE	CR40	Cripple
+3	9	GL15	A1	ONE	CR40	Power Strike
+346	1	GL78	A1	ONE	CR600	Raging Force
+776	1	GL81	A2	ONE	CR40	Force of Destruction
+
+=== CLASS 131 Doombringer (parent: Berserker) ===
+194	1	GL1	P	SELF	CR-	Lucky
+1320	9	GL70	P	SELF	CR-	Create Common Item
+767	1	GL81	P	SELF	CR-	Expose Weak Point
+759	1	GL81	P		CR-	Archer's Will
+758	1	GL81	P		CR-	Fighter's Will
+757	1	GL82	P	SELF	CR-	Protection of Alignment
+756	1	GL82	P	SELF	CR-	Protection of Elemental
+755	1	GL82	P	SELF	CR-	Protection of Rune
+948	1	GL83	A2	SELF	CR-	Eye for Eye
+1510	1	GL66	A1	ONE	CR600	Soul Cleanse
+939	1	GL78	A1	ONE	CR600	Soul Rage
+538	1	GL79	A2	SELF	CR-	Final Form
+526	1	GL78	A1	FRONT_AREA	CR40	Enuma Elish
+1322	1	GL1	A1	SELF	CR-	Common Craft
+335	1	GL76	T	SELF	CR-	Fortitude
+1514	1	GL58	A2	SELF	CR-	Soul Barrier
+330	1	GL77	P	SELF	CR-	Skill Mastery
+329	1	GL76	P	SELF	CR-	Health
+328	1	GL76	P	SELF	CR-	Wisdom
+917	1	GL81	A2	SELF	CR-	Final Secret
+841	1	GL75	A2	SELF	CR-	Aura Bird - Falcon
+503	3	GL64	A1	FRONT_AREA	CR40	Scorn
+502	5	GL72	A1	SELF	CR-	Life to Soul
+501	12	GL74	A2	ONE	CR600	Violent Temper
+500	2	GL52	T	SELF	CR-	True Berserker
+499	3	GL62	A2	SELF	CR-	Courage
+498	12	GL74	A1	ONE	CR40	Contagion
+497	16	GL74	A1	ONE	CR40	Crushing Pain
+496	31	GL74	A1	AURA	CR-	Slashing Blade
+495	10	GL74	DA2	FRONT_AREA	CR600	Blade Rush
+494	37	GL74	DA2	ONE	CR600	Shoulder Charge
+493	28	GL74	DA1	AREA	CR600	Storm Assault
+492	25	GL74	A1	AURA	CR-	Spread Wing
+1475	1	GL24	A1	ONE	CR600	Erase Mark
+1473	1	GL20	A1	SELF	CR-	Change Weapon
+485	7	GL74	A2	ONE	CR40	Disarm
+484	1	GL32	DA1	ONE	CR400	Rush
+483	2	GL52	A2	SELF	CR-	Sword Shield
+482	2	GL55	A2	SELF	CR-	Furious Soul
+481	2	GL43	T	SELF	CR-	Dark Armor
+480	1	GL36	T	SELF	CR-	Dark Blade
+479	1	GL28	T	SELF	CR-	Hard March
+478	15	GL36	A1	ONE	CR40	Double Thrust
+477	37	GL74	A1	ONE	CR40	Dark Smash
+476	15	GL36	A1	ONE	CR40	Dark Strike
+475	1	GL20	T	SELF	CR-	Strike Back
+474	8	GL36	P	SELF	CR-	Rapier Mastery
+472	45	GL74	P	SELF	CR-	Ancient Sword Mastery
+468	9	GL15	A1	ONE	CR40	Fallen Attack
+467	23	GL74	P	SELF	CR-	Soul Mastery
+466	55	GL74	P	SELF	CR-	Magic Immunity
+465	50	GL74	P	SELF	CR-	Light Armor Mastery
+464	5	GL15	P	SELF	CR-	Armor Mastery
+463	3	GL15	P	SELF	CR-	Weapon Mastery
+462	1	GL1	P	SELF	CR-	Guilted Body
+1445	3	GL36	A2	ONE	CR900	Surrender to the Unholy
+1435	2	GL32	A2	ONE	CR600	Death Mark
+1434	4	GL36	A1	AREA	CR500	Dark Explosion
+1433	10	GL36	A1	ONE	CR750	Abyssal Blaze
+1432	2	GL28	A2	SELF	CR-	Increase Power
+1431	6	GL15	A1	ONE	CR600	Fallen Arrow
+834	1	GL55	A2	PARTY	CR-	Blood Pact
+833	1	GL52	A1	SELF	CR-	Body Reconstruction
+832	1	GL43	P	SELF	CR-	Fast Recovery
+239	7	GL84	P	SELF	CR-	Expertise D
+626	4	GL66	P	SELF	CR-	Critical Sense
+625	1	GL46	A1	SELF	CR-	Soul Gathering
+842	1	GL75	A2	SELF	CR-	Aura Bird - Owl
+1405	4	GL76	P	SELF	CR-	Divine Inspiration
+840	1	GL75	A2	SELF	CR-	Final Flying Form
+794	1	GL79	A2	AURA	CR-	Mass Disarm
+793	1	GL78	DA2	FRONT_AREA	CR600	Rush Impact
+
+=== CLASS 133 Female Soul Hound (parent: Female Soul Breaker) ===
+1447	9	GL74	A2	ONE	CR400	Voice Bind
+194	1	GL1	P	SELF	CR-	Lucky
+463	3	GL15	P	SELF	CR-	Weapon Mastery
+767	1	GL81	P	SELF	CR-	Expose Weak Point
+766	1	GL81	P	SELF	CR-	Sixth Sense
+759	1	GL81	P		CR-	Archer's Will
+758	1	GL81	P		CR-	Fighter's Will
+757	1	GL82	P	SELF	CR-	Protection of Alignment
+756	1	GL82	P	SELF	CR-	Protection of Elemental
+755	1	GL82	P	SELF	CR-	Protection of Rune
+1512	1	GL77	A2	ONE	CR900	Soul Vortex
+1532	1	GL81	A2	SELF	CR-	Enlightenment
+939	1	GL78	A1	ONE	CR600	Soul Rage
+1529	7	GL74	A2	AREA	CR600	Soul Web
+1527	1	GL40	P	SELF	CR-	Expert Casting
+538	1	GL79	A2	SELF	CR-	Final Form
+1322	1	GL1	A1	SELF	CR-	Common Craft
+1320	9	GL70	P	SELF	CR-	Create Common Item
+1516	1	GL76	A1	ONE	CR750	Soul Strike
+328	1	GL76	P	SELF	CR-	Wisdom
+1513	1	GL79	A1	ONE	CR900	Soul Vortex Extinction
+330	1	GL77	P	SELF	CR-	Skill Mastery
+1511	8	GL74	A2	ONE	CR600	Curse of Life Flow
+1510	1	GL66	A1	ONE	CR600	Soul Cleanse
+514	2	GL36	A1	SELF	CR-	Fire Trap
+1475	3	GL66	A1	ONE	CR600	Erase Mark
+505	28	GL74	A1	ONE	CR40	Shining Edge
+504	37	GL74	A1	ONE	CR40	Triple Thrust
+502	5	GL72	A1	SELF	CR-	Life to Soul
+492	25	GL74	A1	AURA	CR-	Spread Wing
+490	1	GL32	A2	SELF	CR-	Fast Shot
+1474	1	GL43	P	SELF	CR-	Abyssal Power
+1473	1	GL20	A1	SELF	CR-	Change Weapon
+487	15	GL36	A1	ONE	CR500	Penetrating Shot
+486	1	GL24	P	SELF	CR-	Increase Range
+1469	1	GL78	A1	AREA	CR600	Leopold
+482	1	GL24	A2	SELF	CR-	Furious Soul
+481	2	GL43	T	SELF	CR-	Dark Armor
+480	1	GL36	T	SELF	CR-	Dark Blade
+479	1	GL24	T	SELF	CR-	Hard March
+478	15	GL36	A1	ONE	CR40	Double Thrust
+474	45	GL74	P	SELF	CR-	Rapier Mastery
+473	8	GL36	P	SELF	CR-	Crossbow Mastery
+471	3	GL36	A1	ONE	CR400	Defuse Trap
+470	3	GL36	A1	SELF	CR-	Detect Trap
+469	1	GL10	A2	SELF	CR-	Rapid Attack
+468	9	GL15	A1	ONE	CR40	Fallen Attack
+467	23	GL74	P	SELF	CR-	Soul Mastery
+466	55	GL74	P	SELF	CR-	Magic Immunity
+465	50	GL74	P	SELF	CR-	Light Armor Mastery
+464	5	GL15	P	SELF	CR-	Armor Mastery
+1448	1	GL60	A2	AURA	CR-	Blink
+462	1	GL1	P	SELF	CR-	Guilted Body
+1446	11	GL74	A2	ONE	CR400	Shadow Bind
+1445	18	GL74	A2	ONE	CR900	Surrender to the Unholy
+1444	1	GL49	A2	PARTY_MEMBER	CR400	Pride of Kamael
+1443	1	GL46	A2	PARTY_MEMBER	CR400	Dark Weapon
+1442	3	GL74	A2	ONE	CR400	Protection from Darkness
+1441	2	GL55	A2	SELF	CR-	Soul to Empower
+1440	5	GL72	A1	ONE	CR600	Steal Divinity
+1439	5	GL74	A1	ONE	CR600	Curse of Divinity
+1438	9	GL74	A1	AREA	CR500	Annihilation Circle
+1437	26	GL74	A2	FRONT_AREA	CR40	Dark Flame
+1436	30	GL74	A1	ONE	CR700	Soul of Pain
+1435	10	GL74	A2	ONE	CR600	Death Mark
+1434	4	GL36	A1	AREA	CR500	Dark Explosion
+1433	10	GL36	A1	ONE	CR750	Abyssal Blaze
+841	1	GL75	A2	SELF	CR-	Aura Bird - Falcon
+1431	6	GL15	A1	ONE	CR600	Fallen Arrow
+837	1	GL58	A2	SELF	CR-	Painkiller
+832	1	GL43	P	SELF	CR-	Fast Recovery
+239	7	GL84	P	SELF	CR-	Expertise D
+329	1	GL76	P	SELF	CR-	Health
+628	1	GL32	A1	SELF	CR-	Warp
+627	3	GL36	A2	ONE	CR200	Soul Shock
+626	4	GL66	P	SELF	CR-	Critical Sense
+625	1	GL46	A1	SELF	CR-	Soul Gathering
+842	1	GL75	A2	SELF	CR-	Aura Bird - Owl
+622	1	GL36	A2	SELF	CR-	Ultimate Escape
+1405	4	GL76	P	SELF	CR-	Divine Inspiration
+840	1	GL75	A2	SELF	CR-	Final Flying Form
+1515	1	GL80	A2	SELF	CR-	Lightning Barrier
+506	4	GL72	A1	ONE	CR40	Checkmate
+791	1	GL81	A2	AURA	CR-	Lightning Shock
+
+=== CLASS 134 Trickster (parent: Arbalester) ===
+194	1	GL1	P	SELF	CR-	Lucky
+766	1	GL81	P	SELF	CR-	Sixth Sense
+759	1	GL81	P		CR-	Archer's Will
+758	1	GL81	P		CR-	Fighter's Will
+757	1	GL82	P	SELF	CR-	Protection of Alignment
+756	1	GL82	P	SELF	CR-	Protection of Elemental
+755	1	GL82	P	SELF	CR-	Protection of Rune
+1510	1	GL66	A1	ONE	CR600	Soul Cleanse
+939	1	GL78	A1	ONE	CR600	Soul Rage
+538	1	GL79	A2	SELF	CR-	Final Form
+1322	1	GL1	A1	SELF	CR-	Common Craft
+1320	9	GL70	P	SELF	CR-	Create Common Item
+334	1	GL78	T	SELF	CR-	Focus Skill Mastery
+328	1	GL76	P	SELF	CR-	Wisdom
+1514	1	GL58	A2	SELF	CR-	Soul Barrier
+330	1	GL77	P	SELF	CR-	Skill Mastery
+329	1	GL76	P	SELF	CR-	Health
+525	6	GL74	A1	SELF	CR-	Decoy
+524	1	GL64	A1	SELF	CR-	Cure Dark Seed
+523	7	GL74	A2	ONE	CR40	Imbue Dark Seed
+522	4	GL70	A2	ONE	CR900	Real Target
+521	8	GL74	A2	SELF	CR-	Sharpshooting
+520	1	GL74	A1	SELF	CR-	Quiver of Bolts: S-Grade
+519	1	GL60	A1	SELF	CR-	Quiver of Bolts: A-Grade
+518	8	GL74	A1	SELF	CR-	Binding Trap
+517	5	GL72	A1	SELF	CR-	Flash Trap
+516	6	GL74	A1	SELF	CR-	Slow Trap
+515	6	GL72	A1	SELF	CR-	Poison Trap
+514	9	GL72	A1	SELF	CR-	Fire Trap
+513	1	GL62	A1	SELF	CR-	Create Dark Seed
+511	1	GL49	A1	ONE	CR400	Temptation
+510	5	GL74	A1	ONE	CR900	Deadly Roulette
+509	34	GL74	A2	ONE	CR900	Bleeding Shot
+508	31	GL74	A1	AREA	CR500	Rising Shot
+507	37	GL74	A1	ONE	CR900	Twin Shot
+1475	1	GL24	A1	ONE	CR600	Erase Mark
+502	5	GL72	A1	SELF	CR-	Life to Soul
+490	2	GL55	A2	SELF	CR-	Fast Shot
+489	1	GL40	A1	ONE	CR40	Shift Target
+1473	1	GL20	A1	SELF	CR-	Change Weapon
+487	15	GL36	A1	ONE	CR500	Penetrating Shot
+486	2	GL40	P	SELF	CR-	Increase Range
+1470	1	GL78	A2	PARTY	CR-	Prahnah
+482	1	GL24	A2	SELF	CR-	Furious Soul
+481	2	GL43	T	SELF	CR-	Dark Armor
+480	1	GL36	T	SELF	CR-	Dark Blade
+479	1	GL24	T	SELF	CR-	Hard March
+478	15	GL36	A1	ONE	CR40	Double Thrust
+474	8	GL36	P	SELF	CR-	Rapier Mastery
+473	45	GL74	P	SELF	CR-	Crossbow Mastery
+471	7	GL74	A1	ONE	CR400	Defuse Trap
+470	7	GL74	A1	SELF	CR-	Detect Trap
+469	1	GL10	A2	SELF	CR-	Rapid Attack
+468	9	GL15	A1	ONE	CR40	Fallen Attack
+467	23	GL74	P	SELF	CR-	Soul Mastery
+466	55	GL74	P	SELF	CR-	Magic Immunity
+465	50	GL74	P	SELF	CR-	Light Armor Mastery
+464	5	GL15	P	SELF	CR-	Armor Mastery
+463	3	GL15	P	SELF	CR-	Weapon Mastery
+462	1	GL1	P	SELF	CR-	Guilted Body
+1445	3	GL36	A2	ONE	CR900	Surrender to the Unholy
+1435	2	GL32	A2	ONE	CR600	Death Mark
+1434	4	GL36	A1	AREA	CR500	Dark Explosion
+1433	10	GL36	A1	ONE	CR750	Abyssal Blaze
+841	1	GL75	A2	SELF	CR-	Aura Bird - Falcon
+1431	6	GL15	A1	ONE	CR600	Fallen Arrow
+836	3	GL72	A1	SELF	CR-	Oblivion Trap
+835	4	GL74	A2	ONE	CR40	Imbue Seed of Destruction
+832	1	GL43	P	SELF	CR-	Fast Recovery
+239	7	GL84	P	SELF	CR-	Expertise D
+628	1	GL32	A1	SELF	CR-	Warp
+627	40	GL74	A2	ONE	CR200	Soul Shock
+626	4	GL66	P	SELF	CR-	Critical Sense
+625	1	GL46	A1	SELF	CR-	Soul Gathering
+842	1	GL75	A2	SELF	CR-	Aura Bird - Owl
+622	2	GL52	A2	SELF	CR-	Ultimate Escape
+621	1	GL43	A1	SELF	CR-	Create Special Bolt
+620	1	GL52	A1	SELF	CR-	Quiver of Bolts - Grade B
+1405	4	GL76	P	SELF	CR-	Divine Inspiration
+840	1	GL75	A2	SELF	CR-	Final Flying Form
+792	1	GL78	A2	ONE	CR600	Betrayal Mark
+790	1	GL81	A1	FRONT_AREA	CR900	Wild Shot
+

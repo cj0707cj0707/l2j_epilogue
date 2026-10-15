@@ -1,0 +1,16 @@
+Compiled from "ItemData.java"
+public class org.l2jmobius.gameserver.data.xml.ItemData {
+  protected org.l2jmobius.gameserver.data.xml.ItemData();
+  public void reload();
+  public org.l2jmobius.gameserver.entity.item.ItemTemplate getTemplate(int);
+  public java.util.Set<java.lang.Integer> getAllArmorsId();
+  public java.util.Collection<org.l2jmobius.gameserver.entity.item.Armor> getAllArmors();
+  public java.util.Set<java.lang.Integer> getAllWeaponsId();
+  public java.util.Collection<org.l2jmobius.gameserver.entity.item.Weapon> getAllWeapons();
+  public java.util.Set<java.lang.Integer> getAllEtcItemsId();
+  public java.util.Collection<org.l2jmobius.gameserver.entity.item.EtcItem> getAllEtcItems();
+  public org.l2jmobius.gameserver.entity.item.ItemTemplate[] getAllItems();
+  public int getArraySize();
+  public static org.l2jmobius.gameserver.data.xml.ItemData getInstance();
+  static {};
+}

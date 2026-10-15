@@ -1,0 +1,1764 @@
+Compiled from "GeoEngine.java"
+public class org.l2jmobius.gameserver.geoengine.GeoEngine {
+  private static final java.util.logging.Logger LOGGER;
+
+  public static final java.lang.String FILE_NAME_FORMAT;
+
+  private static final int ELEVATED_SEE_OVER_DISTANCE;
+
+  private static final int MAX_SEE_OVER_HEIGHT;
+
+  private static final int SPAWN_Z_DELTA_LIMIT;
+
+  private static final int WORLD_MIN_X;
+
+  private static final int WORLD_MIN_Y;
+
+  private static final int GEO_REGIONS_X;
+
+  private static final int GEO_REGIONS_Y;
+
+  private static final int GEO_REGIONS;
+
+  private static final int COORDINATE_SCALE;
+
+  private static final int COORDINATE_OFFSET;
+
+  private static final int HEIGHT_INCREASE_LIMIT;
+
+  private static final int SPAWN_HEIGHT_OFFSET;
+
+  private static final int PATH_CONTINUITY_TOLERANCE;
+
+  private static final java.util.concurrent.atomic.AtomicReferenceArray<org.l2jmobius.gameserver.geoengine.geodata.IRegion> REGIONS;
+
+  protected org.l2jmobius.gameserver.geoengine.GeoEngine();
+    Code:
+         0: aload_0
+         1: invokespecial #3                  // Method java/lang/Object."<init>":()V
+         4: iconst_0
+         5: istore_1
+         6: iload_1
+         7: sipush        1024
+        10: if_icmpge     29
+        13: getstatic     #9                  // Field REGIONS:Ljava/util/concurrent/atomic/AtomicReferenceArray;
+        16: iload_1
+        17: getstatic     #13                 // Field org/l2jmobius/gameserver/geoengine/geodata/regions/NullRegion.INSTANCE:Lorg/l2jmobius/gameserver/geoengine/geodata/regions/NullRegion;
+        20: invokevirtual #19                 // Method java/util/concurrent/atomic/AtomicReferenceArray.set:(ILjava/lang/Object;)V
+        23: iinc          1, 1
+        26: goto          6
+        29: iconst_0
+        30: istore_1
+        31: bipush        11
+        33: istore_2
+        34: iload_2
+        35: bipush        26
+        37: if_icmpgt     155
+        40: bipush        10
+        42: istore_3
+        43: iload_3
+        44: bipush        26
+        46: if_icmpgt     149
+        49: getstatic     #27                 // Field org/l2jmobius/gameserver/config/GeoEngineConfig.GEODATA_PATH:Ljava/nio/file/Path;
+        52: ldc           #33                 // String %d_%d.l2j
+        54: iconst_2
+        55: anewarray     #4                  // class java/lang/Object
+        58: dup
+        59: iconst_0
+        60: iload_2
+        61: invokestatic  #35                 // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+        64: aastore
+        65: dup
+        66: iconst_1
+        67: iload_3
+        68: invokestatic  #35                 // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+        71: aastore
+        72: invokestatic  #41                 // Method java/lang/String.format:(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+        75: invokeinterface #47,  2           // InterfaceMethod java/nio/file/Path.resolve:(Ljava/lang/String;)Ljava/nio/file/Path;
+        80: astore        4
+        82: aload         4
+        84: iconst_0
+        85: anewarray     #53                 // class java/nio/file/LinkOption
+        88: invokestatic  #55                 // Method java/nio/file/Files.exists:(Ljava/nio/file/Path;[Ljava/nio/file/LinkOption;)Z
+        91: ifeq          143
+        94: aload_0
+        95: aload         4
+        97: iload_2
+        98: iload_3
+        99: invokevirtual #61                 // Method loadRegion:(Ljava/nio/file/Path;II)V
+       102: iinc          1, 1
+       105: goto          143
+       108: astore        5
+       110: getstatic     #67                 // Field LOGGER:Ljava/util/logging/Logger;
+       113: getstatic     #71                 // Field java/util/logging/Level.WARNING:Ljava/util/logging/Level;
+       116: aload_0
+       117: invokevirtual #77                 // Method java/lang/Object.getClass:()Ljava/lang/Class;
+       120: invokevirtual #81                 // Method java/lang/Class.getSimpleName:()Ljava/lang/String;
+       123: aload         4
+       125: invokeinterface #87,  1           // InterfaceMethod java/nio/file/Path.getFileName:()Ljava/nio/file/Path;
+       130: invokestatic  #91                 // Method java/lang/String.valueOf:(Ljava/lang/Object;)Ljava/lang/String;
+       133: invokedynamic #94,  0             // InvokeDynamic #0:makeConcatWithConstants:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+       138: aload         5
+       140: invokevirtual #98                 // Method java/util/logging/Logger.log:(Ljava/util/logging/Level;Ljava/lang/String;Ljava/lang/Throwable;)V
+       143: iinc          3, 1
+       146: goto          43
+       149: iinc          2, 1
+       152: goto          34
+       155: goto          185
+       158: astore_2
+       159: getstatic     #67                 // Field LOGGER:Ljava/util/logging/Logger;
+       162: getstatic     #104                // Field java/util/logging/Level.SEVERE:Ljava/util/logging/Level;
+       165: aload_0
+       166: invokevirtual #77                 // Method java/lang/Object.getClass:()Ljava/lang/Class;
+       169: invokevirtual #81                 // Method java/lang/Class.getSimpleName:()Ljava/lang/String;
+       172: invokedynamic #107,  0            // InvokeDynamic #1:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+       177: aload_2
+       178: invokevirtual #98                 // Method java/util/logging/Logger.log:(Ljava/util/logging/Level;Ljava/lang/String;Ljava/lang/Throwable;)V
+       181: iconst_1
+       182: invokestatic  #110                // Method java/lang/System.exit:(I)V
+       185: getstatic     #67                 // Field LOGGER:Ljava/util/logging/Logger;
+       188: aload_0
+       189: invokevirtual #77                 // Method java/lang/Object.getClass:()Ljava/lang/Class;
+       192: invokevirtual #81                 // Method java/lang/Class.getSimpleName:()Ljava/lang/String;
+       195: iload_1
+       196: invokedynamic #116,  0            // InvokeDynamic #2:makeConcatWithConstants:(Ljava/lang/String;I)Ljava/lang/String;
+       201: invokevirtual #119                // Method java/util/logging/Logger.info:(Ljava/lang/String;)V
+       204: iload_1
+       205: ifne          236
+       208: getstatic     #123                // Field org/l2jmobius/gameserver/config/GeoEngineConfig.PATHFINDING:I
+       211: ifle          236
+       214: iconst_0
+       215: putstatic     #123                // Field org/l2jmobius/gameserver/config/GeoEngineConfig.PATHFINDING:I
+       218: getstatic     #67                 // Field LOGGER:Ljava/util/logging/Logger;
+       221: aload_0
+       222: invokevirtual #77                 // Method java/lang/Object.getClass:()Ljava/lang/Class;
+       225: invokevirtual #81                 // Method java/lang/Class.getSimpleName:()Ljava/lang/String;
+       228: invokedynamic #127,  0            // InvokeDynamic #3:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+       233: invokevirtual #119                // Method java/util/logging/Logger.info:(Ljava/lang/String;)V
+       236: return
+      Exception table:
+         from    to  target type
+            94   105   108   Class java/lang/Exception
+            31   155   158   Class java/lang/Exception
+
+  private void loadRegion(java.nio.file.Path, int, int) throws java.io.IOException;
+    Code:
+         0: iload_2
+         1: bipush        32
+         3: imul
+         4: iload_3
+         5: iadd
+         6: istore        4
+         8: new           #128                // class java/io/RandomAccessFile
+        11: dup
+        12: aload_1
+        13: invokeinterface #130,  1          // InterfaceMethod java/nio/file/Path.toFile:()Ljava/io/File;
+        18: ldc           #134                // String r
+        20: invokespecial #136                // Method java/io/RandomAccessFile."<init>":(Ljava/io/File;Ljava/lang/String;)V
+        23: astore        5
+        25: getstatic     #9                  // Field REGIONS:Ljava/util/concurrent/atomic/AtomicReferenceArray;
+        28: iload         4
+        30: new           #139                // class org/l2jmobius/gameserver/geoengine/geodata/regions/Region
+        33: dup
+        34: aload         5
+        36: invokevirtual #141                // Method java/io/RandomAccessFile.getChannel:()Ljava/nio/channels/FileChannel;
+        39: getstatic     #145                // Field java/nio/channels/FileChannel$MapMode.READ_ONLY:Ljava/nio/channels/FileChannel$MapMode;
+        42: lconst_0
+        43: aload         5
+        45: invokevirtual #151                // Method java/io/RandomAccessFile.length:()J
+        48: invokevirtual #155                // Method java/nio/channels/FileChannel.map:(Ljava/nio/channels/FileChannel$MapMode;JJ)Ljava/nio/MappedByteBuffer;
+        51: getstatic     #161                // Field java/nio/ByteOrder.LITTLE_ENDIAN:Ljava/nio/ByteOrder;
+        54: invokevirtual #167                // Method java/nio/MappedByteBuffer.order:(Ljava/nio/ByteOrder;)Ljava/nio/ByteBuffer;
+        57: invokespecial #173                // Method org/l2jmobius/gameserver/geoengine/geodata/regions/Region."<init>":(Ljava/nio/ByteBuffer;)V
+        60: invokevirtual #19                 // Method java/util/concurrent/atomic/AtomicReferenceArray.set:(ILjava/lang/Object;)V
+        63: aload         5
+        65: invokevirtual #176                // Method java/io/RandomAccessFile.close:()V
+        68: goto          93
+        71: astore        6
+        73: aload         5
+        75: invokevirtual #176                // Method java/io/RandomAccessFile.close:()V
+        78: goto          90
+        81: astore        7
+        83: aload         6
+        85: aload         7
+        87: invokevirtual #181                // Method java/lang/Throwable.addSuppressed:(Ljava/lang/Throwable;)V
+        90: aload         6
+        92: athrow
+        93: return
+      Exception table:
+         from    to  target type
+            25    63    71   Class java/lang/Throwable
+            73    78    81   Class java/lang/Throwable
+
+  public boolean reloadRegion(int, int);
+    Code:
+         0: getstatic     #27                 // Field org/l2jmobius/gameserver/config/GeoEngineConfig.GEODATA_PATH:Ljava/nio/file/Path;
+         3: ldc           #33                 // String %d_%d.l2j
+         5: iconst_2
+         6: anewarray     #4                  // class java/lang/Object
+         9: dup
+        10: iconst_0
+        11: iload_1
+        12: invokestatic  #35                 // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+        15: aastore
+        16: dup
+        17: iconst_1
+        18: iload_2
+        19: invokestatic  #35                 // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+        22: aastore
+        23: invokestatic  #41                 // Method java/lang/String.format:(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+        26: invokeinterface #47,  2           // InterfaceMethod java/nio/file/Path.resolve:(Ljava/lang/String;)Ljava/nio/file/Path;
+        31: astore_3
+        32: aload_3
+        33: iconst_0
+        34: anewarray     #53                 // class java/nio/file/LinkOption
+        37: invokestatic  #55                 // Method java/nio/file/Files.exists:(Ljava/nio/file/Path;[Ljava/nio/file/LinkOption;)Z
+        40: ifne          65
+        43: getstatic     #67                 // Field LOGGER:Ljava/util/logging/Logger;
+        46: aload_0
+        47: invokevirtual #77                 // Method java/lang/Object.getClass:()Ljava/lang/Class;
+        50: invokevirtual #81                 // Method java/lang/Class.getSimpleName:()Ljava/lang/String;
+        53: iload_1
+        54: iload_2
+        55: invokedynamic #185,  0            // InvokeDynamic #4:makeConcatWithConstants:(Ljava/lang/String;II)Ljava/lang/String;
+        60: invokevirtual #188                // Method java/util/logging/Logger.warning:(Ljava/lang/String;)V
+        63: iconst_0
+        64: ireturn
+        65: iload_1
+        66: bipush        32
+        68: imul
+        69: iload_2
+        70: iadd
+        71: istore        4
+        73: getstatic     #9                  // Field REGIONS:Ljava/util/concurrent/atomic/AtomicReferenceArray;
+        76: iload         4
+        78: invokevirtual #191                // Method java/util/concurrent/atomic/AtomicReferenceArray.get:(I)Ljava/lang/Object;
+        81: checkcast     #195                // class org/l2jmobius/gameserver/geoengine/geodata/IRegion
+        84: astore        5
+        86: aload         5
+        88: instanceof    #139                // class org/l2jmobius/gameserver/geoengine/geodata/regions/Region
+        91: ifeq          141
+        94: aload_3
+        95: invokestatic  #197                // Method java/nio/file/Files.readAllBytes:(Ljava/nio/file/Path;)[B
+        98: invokestatic  #201                // Method java/nio/ByteBuffer.wrap:([B)Ljava/nio/ByteBuffer;
+       101: getstatic     #161                // Field java/nio/ByteOrder.LITTLE_ENDIAN:Ljava/nio/ByteOrder;
+       104: invokevirtual #207                // Method java/nio/ByteBuffer.order:(Ljava/nio/ByteOrder;)Ljava/nio/ByteBuffer;
+       107: astore        6
+       109: aload         5
+       111: checkcast     #139                // class org/l2jmobius/gameserver/geoengine/geodata/regions/Region
+       114: aload         6
+       116: invokevirtual #208                // Method org/l2jmobius/gameserver/geoengine/geodata/regions/Region.load:(Ljava/nio/ByteBuffer;)V
+       119: getstatic     #67                 // Field LOGGER:Ljava/util/logging/Logger;
+       122: aload_0
+       123: invokevirtual #77                 // Method java/lang/Object.getClass:()Ljava/lang/Class;
+       126: invokevirtual #81                 // Method java/lang/Class.getSimpleName:()Ljava/lang/String;
+       129: iload_1
+       130: iload_2
+       131: invokedynamic #211,  0            // InvokeDynamic #5:makeConcatWithConstants:(Ljava/lang/String;II)Ljava/lang/String;
+       136: invokevirtual #119                // Method java/util/logging/Logger.info:(Ljava/lang/String;)V
+       139: iconst_1
+       140: ireturn
+       141: aload_0
+       142: aload_3
+       143: iload_1
+       144: iload_2
+       145: invokevirtual #61                 // Method loadRegion:(Ljava/nio/file/Path;II)V
+       148: getstatic     #67                 // Field LOGGER:Ljava/util/logging/Logger;
+       151: aload_0
+       152: invokevirtual #77                 // Method java/lang/Object.getClass:()Ljava/lang/Class;
+       155: invokevirtual #81                 // Method java/lang/Class.getSimpleName:()Ljava/lang/String;
+       158: iload_1
+       159: iload_2
+       160: invokedynamic #212,  0            // InvokeDynamic #6:makeConcatWithConstants:(Ljava/lang/String;II)Ljava/lang/String;
+       165: invokevirtual #119                // Method java/util/logging/Logger.info:(Ljava/lang/String;)V
+       168: iconst_1
+       169: ireturn
+       170: astore        5
+       172: getstatic     #67                 // Field LOGGER:Ljava/util/logging/Logger;
+       175: getstatic     #71                 // Field java/util/logging/Level.WARNING:Ljava/util/logging/Level;
+       178: aload_0
+       179: invokevirtual #77                 // Method java/lang/Object.getClass:()Ljava/lang/Class;
+       182: invokevirtual #81                 // Method java/lang/Class.getSimpleName:()Ljava/lang/String;
+       185: iload_1
+       186: iload_2
+       187: invokedynamic #213,  0            // InvokeDynamic #7:makeConcatWithConstants:(Ljava/lang/String;II)Ljava/lang/String;
+       192: aload         5
+       194: invokevirtual #98                 // Method java/util/logging/Logger.log:(Ljava/util/logging/Level;Ljava/lang/String;Ljava/lang/Throwable;)V
+       197: iconst_0
+       198: ireturn
+      Exception table:
+         from    to  target type
+            73   140   170   Class java/lang/Exception
+           141   169   170   Class java/lang/Exception
+
+  public void setRegion(int, int, org.l2jmobius.gameserver.geoengine.geodata.regions.Region);
+    Code:
+         0: iload_1
+         1: bipush        32
+         3: imul
+         4: iload_2
+         5: iadd
+         6: istore        4
+         8: getstatic     #9                  // Field REGIONS:Ljava/util/concurrent/atomic/AtomicReferenceArray;
+        11: iload         4
+        13: aload_3
+        14: invokevirtual #19                 // Method java/util/concurrent/atomic/AtomicReferenceArray.set:(ILjava/lang/Object;)V
+        17: return
+
+  public org.l2jmobius.gameserver.geoengine.geodata.IRegion getRegion(int, int);
+    Code:
+         0: getstatic     #9                  // Field REGIONS:Ljava/util/concurrent/atomic/AtomicReferenceArray;
+         3: iload_1
+         4: sipush        2048
+         7: idiv
+         8: bipush        32
+        10: imul
+        11: iload_2
+        12: sipush        2048
+        15: idiv
+        16: iadd
+        17: invokevirtual #191                // Method java/util/concurrent/atomic/AtomicReferenceArray.get:(I)Ljava/lang/Object;
+        20: checkcast     #195                // class org/l2jmobius/gameserver/geoengine/geodata/IRegion
+        23: areturn
+
+  public boolean hasGeoPos(int, int);
+    Code:
+         0: aload_0
+         1: iload_1
+         2: iload_2
+         3: invokevirtual #214                // Method getRegion:(II)Lorg/l2jmobius/gameserver/geoengine/geodata/IRegion;
+         6: invokeinterface #218,  1          // InterfaceMethod org/l2jmobius/gameserver/geoengine/geodata/IRegion.hasGeo:()Z
+        11: ireturn
+
+  public boolean checkNearestNswe(int, int, int, int);
+    Code:
+         0: aload_0
+         1: iload_1
+         2: iload_2
+         3: invokevirtual #214                // Method getRegion:(II)Lorg/l2jmobius/gameserver/geoengine/geodata/IRegion;
+         6: iload_1
+         7: iload_2
+         8: iload_3
+         9: iload         4
+        11: invokeinterface #222,  5          // InterfaceMethod org/l2jmobius/gameserver/geoengine/geodata/IRegion.checkNearestNswe:(IIII)Z
+        16: ireturn
+
+  public boolean checkNearestNsweAntiCornerCut(int, int, int, int);
+    Code:
+         0: iconst_1
+         1: istore        5
+         3: aload_0
+         4: iload_1
+         5: iload_2
+         6: invokevirtual #214                // Method getRegion:(II)Lorg/l2jmobius/gameserver/geoengine/geodata/IRegion;
+         9: astore        6
+        11: iload         4
+        13: bipush        9
+        15: iand
+        16: bipush        9
+        18: if_icmpne     61
+        21: aload         6
+        23: iload_1
+        24: iload_2
+        25: iconst_1
+        26: isub
+        27: iload_3
+        28: iconst_1
+        29: invokeinterface #222,  5          // InterfaceMethod org/l2jmobius/gameserver/geoengine/geodata/IRegion.checkNearestNswe:(IIII)Z
+        34: ifeq          58
+        37: aload         6
+        39: iload_1
+        40: iconst_1
+        41: iadd
+        42: iload_2
+        43: iload_3
+        44: bipush        8
+        46: invokeinterface #222,  5          // InterfaceMethod org/l2jmobius/gameserver/geoengine/geodata/IRegion.checkNearestNswe:(IIII)Z
+        51: ifeq          58
+        54: iconst_1
+        55: goto          59
+        58: iconst_0
+        59: istore        5
+        61: iload         5
+        63: ifeq          116
+        66: iload         4
+        68: bipush        10
+        70: iand
+        71: bipush        10
+        73: if_icmpne     116
+        76: aload         6
+        78: iload_1
+        79: iload_2
+        80: iconst_1
+        81: isub
+        82: iload_3
+        83: iconst_2
+        84: invokeinterface #222,  5          // InterfaceMethod org/l2jmobius/gameserver/geoengine/geodata/IRegion.checkNearestNswe:(IIII)Z
+        89: ifeq          113
+        92: aload         6
+        94: iload_1
+        95: iconst_1
+        96: isub
+        97: iload_2
+        98: iload_3
+        99: bipush        8
+       101: invokeinterface #222,  5          // InterfaceMethod org/l2jmobius/gameserver/geoengine/geodata/IRegion.checkNearestNswe:(IIII)Z
+       106: ifeq          113
+       109: iconst_1
+       110: goto          114
+       113: iconst_0
+       114: istore        5
+       116: iload         5
+       118: ifeq          168
+       121: iload         4
+       123: iconst_5
+       124: iand
+       125: iconst_5
+       126: if_icmpne     168
+       129: aload         6
+       131: iload_1
+       132: iload_2
+       133: iconst_1
+       134: iadd
+       135: iload_3
+       136: iconst_1
+       137: invokeinterface #222,  5          // InterfaceMethod org/l2jmobius/gameserver/geoengine/geodata/IRegion.checkNearestNswe:(IIII)Z
+       142: ifeq          165
+       145: aload         6
+       147: iload_1
+       148: iconst_1
+       149: iadd
+       150: iload_2
+       151: iload_3
+       152: iconst_4
+       153: invokeinterface #222,  5          // InterfaceMethod org/l2jmobius/gameserver/geoengine/geodata/IRegion.checkNearestNswe:(IIII)Z
+       158: ifeq          165
+       161: iconst_1
+       162: goto          166
+       165: iconst_0
+       166: istore        5
+       168: iload         5
+       170: ifeq          222
+       173: iload         4
+       175: bipush        6
+       177: iand
+       178: bipush        6
+       180: if_icmpne     222
+       183: aload         6
+       185: iload_1
+       186: iload_2
+       187: iconst_1
+       188: iadd
+       189: iload_3
+       190: iconst_2
+       191: invokeinterface #222,  5          // InterfaceMethod org/l2jmobius/gameserver/geoengine/geodata/IRegion.checkNearestNswe:(IIII)Z
+       196: ifeq          219
+       199: aload         6
+       201: iload_1
+       202: iconst_1
+       203: isub
+       204: iload_2
+       205: iload_3
+       206: iconst_4
+       207: invokeinterface #222,  5          // InterfaceMethod org/l2jmobius/gameserver/geoengine/geodata/IRegion.checkNearestNswe:(IIII)Z
+       212: ifeq          219
+       215: iconst_1
+       216: goto          220
+       219: iconst_0
+       220: istore        5
+       222: iload         5
+       224: ifeq          246
+       227: aload         6
+       229: iload_1
+       230: iload_2
+       231: iload_3
+       232: iload         4
+       234: invokeinterface #222,  5          // InterfaceMethod org/l2jmobius/gameserver/geoengine/geodata/IRegion.checkNearestNswe:(IIII)Z
+       239: ifeq          246
+       242: iconst_1
+       243: goto          247
+       246: iconst_0
+       247: ireturn
+
+  public void setNearestNswe(int, int, int, byte);
+    Code:
+         0: aload_0
+         1: iload_1
+         2: iload_2
+         3: invokevirtual #214                // Method getRegion:(II)Lorg/l2jmobius/gameserver/geoengine/geodata/IRegion;
+         6: iload_1
+         7: iload_2
+         8: iload_3
+         9: iload         4
+        11: invokeinterface #228,  5          // InterfaceMethod org/l2jmobius/gameserver/geoengine/geodata/IRegion.setNearestNswe:(IIIB)V
+        16: return
+
+  public void unsetNearestNswe(int, int, int, byte);
+    Code:
+         0: aload_0
+         1: iload_1
+         2: iload_2
+         3: invokevirtual #214                // Method getRegion:(II)Lorg/l2jmobius/gameserver/geoengine/geodata/IRegion;
+         6: iload_1
+         7: iload_2
+         8: iload_3
+         9: iload         4
+        11: invokeinterface #232,  5          // InterfaceMethod org/l2jmobius/gameserver/geoengine/geodata/IRegion.unsetNearestNswe:(IIIB)V
+        16: return
+
+  public int getNearestZ(int, int, int);
+    Code:
+         0: aload_0
+         1: iload_1
+         2: iload_2
+         3: invokevirtual #214                // Method getRegion:(II)Lorg/l2jmobius/gameserver/geoengine/geodata/IRegion;
+         6: iload_1
+         7: iload_2
+         8: iload_3
+         9: invokeinterface #235,  4          // InterfaceMethod org/l2jmobius/gameserver/geoengine/geodata/IRegion.getNearestZ:(III)I
+        14: ireturn
+
+  public int getNextLowerZ(int, int, int);
+    Code:
+         0: aload_0
+         1: iload_1
+         2: iload_2
+         3: invokevirtual #214                // Method getRegion:(II)Lorg/l2jmobius/gameserver/geoengine/geodata/IRegion;
+         6: iload_1
+         7: iload_2
+         8: iload_3
+         9: invokeinterface #239,  4          // InterfaceMethod org/l2jmobius/gameserver/geoengine/geodata/IRegion.getNextLowerZ:(III)I
+        14: ireturn
+
+  public int getNextHigherZ(int, int, int);
+    Code:
+         0: aload_0
+         1: iload_1
+         2: iload_2
+         3: invokevirtual #214                // Method getRegion:(II)Lorg/l2jmobius/gameserver/geoengine/geodata/IRegion;
+         6: iload_1
+         7: iload_2
+         8: iload_3
+         9: invokeinterface #242,  4          // InterfaceMethod org/l2jmobius/gameserver/geoengine/geodata/IRegion.getNextHigherZ:(III)I
+        14: ireturn
+
+  public static int getGeoX(int);
+    Code:
+         0: iload_0
+         1: ldc           #245                // int -655360
+         3: isub
+         4: bipush        16
+         6: idiv
+         7: ireturn
+
+  public static int getGeoY(int);
+    Code:
+         0: iload_0
+         1: ldc           #246                // int -589824
+         3: isub
+         4: bipush        16
+         6: idiv
+         7: ireturn
+
+  public static int getWorldX(int);
+    Code:
+         0: iload_0
+         1: bipush        16
+         3: imul
+         4: ldc           #245                // int -655360
+         6: iadd
+         7: bipush        8
+         9: iadd
+        10: ireturn
+
+  public static int getWorldY(int);
+    Code:
+         0: iload_0
+         1: bipush        16
+         3: imul
+         4: ldc           #246                // int -589824
+         6: iadd
+         7: bipush        8
+         9: iadd
+        10: ireturn
+
+  public int getHeight(int, int, int);
+    Code:
+         0: aload_0
+         1: iload_1
+         2: invokestatic  #247                // Method getGeoX:(I)I
+         5: iload_2
+         6: invokestatic  #251                // Method getGeoY:(I)I
+         9: iload_3
+        10: invokevirtual #254                // Method getNearestZ:(III)I
+        13: ireturn
+
+  public int getSpawnHeight(int, int, int);
+    Code:
+         0: iload_1
+         1: invokestatic  #247                // Method getGeoX:(I)I
+         4: istore        4
+         6: iload_2
+         7: invokestatic  #251                // Method getGeoY:(I)I
+        10: istore        5
+        12: aload_0
+        13: iload         4
+        15: iload         5
+        17: invokevirtual #255                // Method hasGeoPos:(II)Z
+        20: ifne          25
+        23: iload_3
+        24: ireturn
+        25: aload_0
+        26: iload         4
+        28: iload         5
+        30: iload_3
+        31: bipush        20
+        33: iadd
+        34: invokevirtual #259                // Method getNextLowerZ:(III)I
+        37: istore        6
+        39: iload         6
+        41: iload_3
+        42: isub
+        43: invokestatic  #260                // Method java/lang/Math.abs:(I)I
+        46: bipush        100
+        48: if_icmpgt     56
+        51: iload         6
+        53: goto          57
+        56: iload_3
+        57: ireturn
+
+  public int getSpawnHeight(org.l2jmobius.gameserver.entity.Location);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: invokevirtual #265                // Method org/l2jmobius/gameserver/entity/Location.getX:()I
+         5: aload_1
+         6: invokevirtual #271                // Method org/l2jmobius/gameserver/entity/Location.getY:()I
+         9: aload_1
+        10: invokevirtual #274                // Method org/l2jmobius/gameserver/entity/Location.getZ:()I
+        13: invokevirtual #277                // Method getSpawnHeight:(III)I
+        16: ireturn
+
+  public boolean canSeeTarget(org.l2jmobius.gameserver.entity.WorldObject, org.l2jmobius.gameserver.entity.WorldObject);
+    Code:
+         0: aload_2
+         1: ifnull        61
+         4: aload_2
+         5: invokevirtual #280                // Method org/l2jmobius/gameserver/entity/WorldObject.isDoor:()Z
+         8: ifne          57
+        11: aload_2
+        12: invokevirtual #285                // Method org/l2jmobius/gameserver/entity/WorldObject.isArtefact:()Z
+        15: ifne          57
+        18: aload_0
+        19: aload_1
+        20: invokevirtual #288                // Method org/l2jmobius/gameserver/entity/WorldObject.getX:()I
+        23: aload_1
+        24: invokevirtual #289                // Method org/l2jmobius/gameserver/entity/WorldObject.getY:()I
+        27: aload_1
+        28: invokevirtual #290                // Method org/l2jmobius/gameserver/entity/WorldObject.getZ:()I
+        31: aload_1
+        32: invokevirtual #291                // Method org/l2jmobius/gameserver/entity/WorldObject.getInstanceId:()I
+        35: aload_2
+        36: invokevirtual #288                // Method org/l2jmobius/gameserver/entity/WorldObject.getX:()I
+        39: aload_2
+        40: invokevirtual #289                // Method org/l2jmobius/gameserver/entity/WorldObject.getY:()I
+        43: aload_2
+        44: invokevirtual #290                // Method org/l2jmobius/gameserver/entity/WorldObject.getZ:()I
+        47: aload_2
+        48: invokevirtual #291                // Method org/l2jmobius/gameserver/entity/WorldObject.getInstanceId:()I
+        51: invokevirtual #294                // Method canSeeTarget:(IIIIIIII)Z
+        54: ifeq          61
+        57: iconst_1
+        58: goto          62
+        61: iconst_0
+        62: ireturn
+
+  public boolean canSeeTarget(org.l2jmobius.gameserver.entity.WorldObject, org.l2jmobius.gameserver.interfaces.ILocational);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: invokevirtual #288                // Method org/l2jmobius/gameserver/entity/WorldObject.getX:()I
+         5: aload_1
+         6: invokevirtual #289                // Method org/l2jmobius/gameserver/entity/WorldObject.getY:()I
+         9: aload_1
+        10: invokevirtual #290                // Method org/l2jmobius/gameserver/entity/WorldObject.getZ:()I
+        13: aload_2
+        14: invokeinterface #298,  1          // InterfaceMethod org/l2jmobius/gameserver/interfaces/ILocational.getX:()I
+        19: aload_2
+        20: invokeinterface #301,  1          // InterfaceMethod org/l2jmobius/gameserver/interfaces/ILocational.getY:()I
+        25: aload_2
+        26: invokeinterface #302,  1          // InterfaceMethod org/l2jmobius/gameserver/interfaces/ILocational.getZ:()I
+        31: aload_1
+        32: invokevirtual #291                // Method org/l2jmobius/gameserver/entity/WorldObject.getInstanceId:()I
+        35: invokevirtual #303                // Method canSeeTarget:(IIIIIII)Z
+        38: ireturn
+
+  public boolean canSeeTarget(int, int, int, int, int, int, int, int);
+    Code:
+         0: iload         4
+         2: iload         8
+         4: if_icmpne     29
+         7: aload_0
+         8: iload_1
+         9: iload_2
+        10: iload_3
+        11: iload         5
+        13: iload         6
+        15: iload         7
+        17: iload         4
+        19: invokevirtual #303                // Method canSeeTarget:(IIIIIII)Z
+        22: ifeq          29
+        25: iconst_1
+        26: goto          30
+        29: iconst_0
+        30: ireturn
+
+  public boolean canSeeTarget(int, int, int, int, int, int, int);
+    Code:
+         0: invokestatic  #306                // Method org/l2jmobius/gameserver/data/xml/DoorData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/DoorData;
+         3: iload_1
+         4: iload_2
+         5: iload_3
+         6: iload         4
+         8: iload         5
+        10: iload         6
+        12: iload         7
+        14: iconst_1
+        15: invokevirtual #312                // Method org/l2jmobius/gameserver/data/xml/DoorData.checkIfDoorsBetween:(IIIIIIIZ)Z
+        18: ifeq          23
+        21: iconst_0
+        22: ireturn
+        23: invokestatic  #316                // Method org/l2jmobius/gameserver/data/xml/FenceData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/FenceData;
+        26: iload_1
+        27: iload_2
+        28: iload_3
+        29: iload         4
+        31: iload         5
+        33: iload         6
+        35: iload         7
+        37: invokevirtual #321                // Method org/l2jmobius/gameserver/data/xml/FenceData.checkIfFenceBetween:(IIIIIII)Z
+        40: ifeq          45
+        43: iconst_0
+        44: ireturn
+        45: aload_0
+        46: iload_1
+        47: iload_2
+        48: iload_3
+        49: iload         4
+        51: iload         5
+        53: iload         6
+        55: invokevirtual #324                // Method canSeeTarget:(IIIIII)Z
+        58: ireturn
+
+  private int getLosGeoZ(int, int, int, int, int, int);
+    Code:
+         0: iload         6
+         2: bipush        8
+         4: iand
+         5: ifeq          15
+         8: iload         6
+        10: iconst_4
+        11: iand
+        12: ifne          29
+        15: iload         6
+        17: iconst_2
+        18: iand
+        19: ifeq          44
+        22: iload         6
+        24: iconst_1
+        25: iand
+        26: ifeq          44
+        29: new           #327                // class java/lang/RuntimeException
+        32: dup
+        33: iload         6
+        35: invokedynamic #329,  0            // InvokeDynamic #8:makeConcatWithConstants:(I)Ljava/lang/String;
+        40: invokespecial #332                // Method java/lang/RuntimeException."<init>":(Ljava/lang/String;)V
+        43: athrow
+        44: aload_0
+        45: iload_1
+        46: iload_2
+        47: iload_3
+        48: iload         6
+        50: invokevirtual #334                // Method checkNearestNsweAntiCornerCut:(IIII)Z
+        53: ifeq          68
+        56: aload_0
+        57: iload         4
+        59: iload         5
+        61: iload_3
+        62: invokevirtual #254                // Method getNearestZ:(III)I
+        65: goto          77
+        68: aload_0
+        69: iload         4
+        71: iload         5
+        73: iload_3
+        74: invokevirtual #337                // Method getNextHigherZ:(III)I
+        77: ireturn
+
+  public boolean canSeeTarget(int, int, int, int, int, int);
+    Code:
+         0: iload_1
+         1: invokestatic  #247                // Method getGeoX:(I)I
+         4: istore        7
+         6: iload_2
+         7: invokestatic  #251                // Method getGeoY:(I)I
+        10: istore        8
+        12: iload         4
+        14: invokestatic  #247                // Method getGeoX:(I)I
+        17: istore        9
+        19: iload         5
+        21: invokestatic  #251                // Method getGeoY:(I)I
+        24: istore        10
+        26: aload_0
+        27: iload         7
+        29: iload         8
+        31: iload_3
+        32: invokevirtual #254                // Method getNearestZ:(III)I
+        35: istore        11
+        37: aload_0
+        38: iload         9
+        40: iload         10
+        42: iload         6
+        44: invokevirtual #254                // Method getNearestZ:(III)I
+        47: istore        12
+        49: iload         7
+        51: iload         9
+        53: if_icmpne     87
+        56: iload         8
+        58: iload         10
+        60: if_icmpne     87
+        63: aload_0
+        64: iload         9
+        66: iload         10
+        68: invokevirtual #255                // Method hasGeoPos:(II)Z
+        71: ifeq          81
+        74: iload         11
+        76: iload         12
+        78: if_icmpne     85
+        81: iconst_1
+        82: goto          86
+        85: iconst_0
+        86: ireturn
+        87: iload_1
+        88: istore        13
+        90: iload_2
+        91: istore        14
+        93: iload         4
+        95: istore        15
+        97: iload         5
+        99: istore        16
+       101: iload         12
+       103: iload         11
+       105: if_icmple     168
+       108: iload         15
+       110: istore        17
+       112: iload         13
+       114: istore        15
+       116: iload         17
+       118: istore        13
+       120: iload         16
+       122: istore        17
+       124: iload         14
+       126: istore        16
+       128: iload         17
+       130: istore        14
+       132: iload         12
+       134: istore        17
+       136: iload         11
+       138: istore        12
+       140: iload         17
+       142: istore        11
+       144: iload         9
+       146: istore        17
+       148: iload         7
+       150: istore        9
+       152: iload         17
+       154: istore        7
+       156: iload         10
+       158: istore        17
+       160: iload         8
+       162: istore        10
+       164: iload         17
+       166: istore        8
+       168: new           #338                // class org/l2jmobius/gameserver/geoengine/util/GridLineIterator3D
+       171: dup
+       172: iload         7
+       174: iload         8
+       176: iload         11
+       178: iload         9
+       180: iload         10
+       182: iload         12
+       184: invokespecial #340                // Method org/l2jmobius/gameserver/geoengine/util/GridLineIterator3D."<init>":(IIIIII)V
+       187: astore        17
+       189: aload         17
+       191: invokevirtual #343                // Method org/l2jmobius/gameserver/geoengine/util/GridLineIterator3D.next:()Z
+       194: pop
+       195: aload         17
+       197: invokevirtual #346                // Method org/l2jmobius/gameserver/geoengine/util/GridLineIterator3D.x:()I
+       200: istore        18
+       202: aload         17
+       204: invokevirtual #349                // Method org/l2jmobius/gameserver/geoengine/util/GridLineIterator3D.y:()I
+       207: istore        19
+       209: aload         17
+       211: invokevirtual #352                // Method org/l2jmobius/gameserver/geoengine/util/GridLineIterator3D.z:()I
+       214: istore        20
+       216: iconst_0
+       217: istore        21
+       219: aload         17
+       221: invokevirtual #343                // Method org/l2jmobius/gameserver/geoengine/util/GridLineIterator3D.next:()Z
+       224: ifeq          794
+       227: aload         17
+       229: invokevirtual #346                // Method org/l2jmobius/gameserver/geoengine/util/GridLineIterator3D.x:()I
+       232: istore        22
+       234: aload         17
+       236: invokevirtual #349                // Method org/l2jmobius/gameserver/geoengine/util/GridLineIterator3D.y:()I
+       239: istore        23
+       241: iload         22
+       243: iload         18
+       245: if_icmpne     258
+       248: iload         23
+       250: iload         19
+       252: if_icmpne     258
+       255: goto          219
+       258: aload         17
+       260: invokevirtual #352                // Method org/l2jmobius/gameserver/geoengine/util/GridLineIterator3D.z:()I
+       263: istore        24
+       265: iload         20
+       267: istore        25
+       269: aload_0
+       270: iload         22
+       272: iload         23
+       274: invokevirtual #255                // Method hasGeoPos:(II)Z
+       277: ifeq          776
+       280: iload         18
+       282: iload         19
+       284: iload         22
+       286: iload         23
+       288: invokestatic  #355                // Method org/l2jmobius/gameserver/util/GeoUtils.computeNswe:(IIII)I
+       291: istore        26
+       293: aload_0
+       294: iload         18
+       296: iload         19
+       298: iload         20
+       300: iload         22
+       302: iload         23
+       304: iload         26
+       306: invokevirtual #361                // Method getLosGeoZ:(IIIIII)I
+       309: istore        25
+       311: iload         21
+       313: iconst_2
+       314: if_icmpge     325
+       317: iload         11
+       319: bipush        48
+       321: iadd
+       322: goto          330
+       325: iload         24
+       327: bipush        48
+       329: iadd
+       330: istore        27
+       332: iconst_0
+       333: istore        28
+       335: iload         25
+       337: iload         27
+       339: if_icmpgt     769
+       342: iload         26
+       344: bipush        9
+       346: iand
+       347: bipush        9
+       349: if_icmpne     449
+       352: aload_0
+       353: iload         18
+       355: iload         19
+       357: iload         20
+       359: iload         18
+       361: iload         19
+       363: iconst_1
+       364: isub
+       365: iconst_1
+       366: invokevirtual #361                // Method getLosGeoZ:(IIIIII)I
+       369: istore        29
+       371: aload_0
+       372: iload         18
+       374: iload         19
+       376: iload         20
+       378: iload         18
+       380: iconst_1
+       381: iadd
+       382: iload         19
+       384: bipush        8
+       386: invokevirtual #361                // Method getLosGeoZ:(IIIIII)I
+       389: istore        30
+       391: iload         29
+       393: iload         27
+       395: if_icmpgt     443
+       398: iload         30
+       400: iload         27
+       402: if_icmpgt     443
+       405: iload         29
+       407: aload_0
+       408: iload         18
+       410: iload         19
+       412: iconst_1
+       413: isub
+       414: iload         24
+       416: invokevirtual #254                // Method getNearestZ:(III)I
+       419: if_icmpgt     443
+       422: iload         30
+       424: aload_0
+       425: iload         18
+       427: iconst_1
+       428: iadd
+       429: iload         19
+       431: iload         24
+       433: invokevirtual #254                // Method getNearestZ:(III)I
+       436: if_icmpgt     443
+       439: iconst_1
+       440: goto          444
+       443: iconst_0
+       444: istore        28
+       446: goto          769
+       449: iload         26
+       451: bipush        10
+       453: iand
+       454: bipush        10
+       456: if_icmpne     556
+       459: aload_0
+       460: iload         18
+       462: iload         19
+       464: iload         20
+       466: iload         18
+       468: iload         19
+       470: iconst_1
+       471: isub
+       472: iconst_2
+       473: invokevirtual #361                // Method getLosGeoZ:(IIIIII)I
+       476: istore        29
+       478: aload_0
+       479: iload         18
+       481: iload         19
+       483: iload         20
+       485: iload         18
+       487: iconst_1
+       488: isub
+       489: iload         19
+       491: bipush        8
+       493: invokevirtual #361                // Method getLosGeoZ:(IIIIII)I
+       496: istore        30
+       498: iload         29
+       500: iload         27
+       502: if_icmpgt     550
+       505: iload         30
+       507: iload         27
+       509: if_icmpgt     550
+       512: iload         29
+       514: aload_0
+       515: iload         18
+       517: iload         19
+       519: iconst_1
+       520: isub
+       521: iload         24
+       523: invokevirtual #254                // Method getNearestZ:(III)I
+       526: if_icmpgt     550
+       529: iload         30
+       531: aload_0
+       532: iload         18
+       534: iconst_1
+       535: isub
+       536: iload         19
+       538: iload         24
+       540: invokevirtual #254                // Method getNearestZ:(III)I
+       543: if_icmpgt     550
+       546: iconst_1
+       547: goto          551
+       550: iconst_0
+       551: istore        28
+       553: goto          769
+       556: iload         26
+       558: iconst_5
+       559: iand
+       560: iconst_5
+       561: if_icmpne     660
+       564: aload_0
+       565: iload         18
+       567: iload         19
+       569: iload         20
+       571: iload         18
+       573: iload         19
+       575: iconst_1
+       576: iadd
+       577: iconst_1
+       578: invokevirtual #361                // Method getLosGeoZ:(IIIIII)I
+       581: istore        29
+       583: aload_0
+       584: iload         18
+       586: iload         19
+       588: iload         20
+       590: iload         18
+       592: iconst_1
+       593: iadd
+       594: iload         19
+       596: iconst_4
+       597: invokevirtual #361                // Method getLosGeoZ:(IIIIII)I
+       600: istore        30
+       602: iload         29
+       604: iload         27
+       606: if_icmpgt     654
+       609: iload         30
+       611: iload         27
+       613: if_icmpgt     654
+       616: iload         29
+       618: aload_0
+       619: iload         18
+       621: iload         19
+       623: iconst_1
+       624: iadd
+       625: iload         24
+       627: invokevirtual #254                // Method getNearestZ:(III)I
+       630: if_icmpgt     654
+       633: iload         30
+       635: aload_0
+       636: iload         18
+       638: iconst_1
+       639: iadd
+       640: iload         19
+       642: iload         24
+       644: invokevirtual #254                // Method getNearestZ:(III)I
+       647: if_icmpgt     654
+       650: iconst_1
+       651: goto          655
+       654: iconst_0
+       655: istore        28
+       657: goto          769
+       660: iload         26
+       662: bipush        6
+       664: iand
+       665: bipush        6
+       667: if_icmpne     766
+       670: aload_0
+       671: iload         18
+       673: iload         19
+       675: iload         20
+       677: iload         18
+       679: iload         19
+       681: iconst_1
+       682: iadd
+       683: iconst_2
+       684: invokevirtual #361                // Method getLosGeoZ:(IIIIII)I
+       687: istore        29
+       689: aload_0
+       690: iload         18
+       692: iload         19
+       694: iload         20
+       696: iload         18
+       698: iconst_1
+       699: isub
+       700: iload         19
+       702: iconst_4
+       703: invokevirtual #361                // Method getLosGeoZ:(IIIIII)I
+       706: istore        30
+       708: iload         29
+       710: iload         27
+       712: if_icmpgt     760
+       715: iload         30
+       717: iload         27
+       719: if_icmpgt     760
+       722: iload         29
+       724: aload_0
+       725: iload         18
+       727: iload         19
+       729: iconst_1
+       730: iadd
+       731: iload         24
+       733: invokevirtual #254                // Method getNearestZ:(III)I
+       736: if_icmpgt     760
+       739: iload         30
+       741: aload_0
+       742: iload         18
+       744: iconst_1
+       745: isub
+       746: iload         19
+       748: iload         24
+       750: invokevirtual #254                // Method getNearestZ:(III)I
+       753: if_icmpgt     760
+       756: iconst_1
+       757: goto          761
+       760: iconst_0
+       761: istore        28
+       763: goto          769
+       766: iconst_1
+       767: istore        28
+       769: iload         28
+       771: ifne          776
+       774: iconst_0
+       775: ireturn
+       776: iload         22
+       778: istore        18
+       780: iload         23
+       782: istore        19
+       784: iload         25
+       786: istore        20
+       788: iinc          21, 1
+       791: goto          219
+       794: iconst_1
+       795: ireturn
+
+  private boolean hasNeighbourLayerNear(int, int, int, int);
+    Code:
+         0: iconst_4
+         1: newarray       int
+         3: dup
+         4: iconst_0
+         5: iconst_1
+         6: iastore
+         7: dup
+         8: iconst_1
+         9: iconst_m1
+        10: iastore
+        11: dup
+        12: iconst_2
+        13: iconst_0
+        14: iastore
+        15: dup
+        16: iconst_3
+        17: iconst_0
+        18: iastore
+        19: astore        5
+        21: iconst_4
+        22: newarray       int
+        24: dup
+        25: iconst_0
+        26: iconst_0
+        27: iastore
+        28: dup
+        29: iconst_1
+        30: iconst_0
+        31: iastore
+        32: dup
+        33: iconst_2
+        34: iconst_1
+        35: iastore
+        36: dup
+        37: iconst_3
+        38: iconst_m1
+        39: iastore
+        40: astore        6
+        42: iconst_0
+        43: istore        7
+        45: iload         7
+        47: iconst_4
+        48: if_icmpge     107
+        51: iload_1
+        52: aload         5
+        54: iload         7
+        56: iaload
+        57: iadd
+        58: istore        8
+        60: iload_2
+        61: aload         6
+        63: iload         7
+        65: iaload
+        66: iadd
+        67: istore        9
+        69: aload_0
+        70: iload         8
+        72: iload         9
+        74: invokevirtual #255                // Method hasGeoPos:(II)Z
+        77: ifeq          101
+        80: aload_0
+        81: iload         8
+        83: iload         9
+        85: iload_3
+        86: invokevirtual #254                // Method getNearestZ:(III)I
+        89: iload_3
+        90: isub
+        91: invokestatic  #260                // Method java/lang/Math.abs:(I)I
+        94: iload         4
+        96: if_icmpgt     101
+        99: iconst_1
+       100: ireturn
+       101: iinc          7, 1
+       104: goto          45
+       107: iconst_0
+       108: ireturn
+
+  public org.l2jmobius.gameserver.entity.Location getValidLocation(org.l2jmobius.gameserver.interfaces.ILocational, org.l2jmobius.gameserver.interfaces.ILocational);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: invokeinterface #298,  1          // InterfaceMethod org/l2jmobius/gameserver/interfaces/ILocational.getX:()I
+         7: aload_1
+         8: invokeinterface #301,  1          // InterfaceMethod org/l2jmobius/gameserver/interfaces/ILocational.getY:()I
+        13: aload_1
+        14: invokeinterface #302,  1          // InterfaceMethod org/l2jmobius/gameserver/interfaces/ILocational.getZ:()I
+        19: aload_2
+        20: invokeinterface #298,  1          // InterfaceMethod org/l2jmobius/gameserver/interfaces/ILocational.getX:()I
+        25: aload_2
+        26: invokeinterface #301,  1          // InterfaceMethod org/l2jmobius/gameserver/interfaces/ILocational.getY:()I
+        31: aload_2
+        32: invokeinterface #302,  1          // InterfaceMethod org/l2jmobius/gameserver/interfaces/ILocational.getZ:()I
+        37: iconst_0
+        38: invokevirtual #365                // Method getValidLocation:(IIIIIII)Lorg/l2jmobius/gameserver/entity/Location;
+        41: areturn
+
+  public org.l2jmobius.gameserver.entity.Location getValidLocation(int, int, int, int, int, int, int);
+    Code:
+         0: iload_1
+         1: invokestatic  #247                // Method getGeoX:(I)I
+         4: istore        8
+         6: iload_2
+         7: invokestatic  #251                // Method getGeoY:(I)I
+        10: istore        9
+        12: aload_0
+        13: iload         8
+        15: iload         9
+        17: iload_3
+        18: invokevirtual #254                // Method getNearestZ:(III)I
+        21: istore        10
+        23: iload         4
+        25: invokestatic  #247                // Method getGeoX:(I)I
+        28: istore        11
+        30: iload         5
+        32: invokestatic  #251                // Method getGeoY:(I)I
+        35: istore        12
+        37: aload_0
+        38: iload         11
+        40: iload         12
+        42: iload         6
+        44: invokevirtual #254                // Method getNearestZ:(III)I
+        47: istore        13
+        49: invokestatic  #306                // Method org/l2jmobius/gameserver/data/xml/DoorData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/DoorData;
+        52: iload_1
+        53: iload_2
+        54: iload         10
+        56: iload         4
+        58: iload         5
+        60: iload         13
+        62: iload         7
+        64: iconst_0
+        65: invokevirtual #312                // Method org/l2jmobius/gameserver/data/xml/DoorData.checkIfDoorsBetween:(IIIIIIIZ)Z
+        68: ifeq          89
+        71: new           #266                // class org/l2jmobius/gameserver/entity/Location
+        74: dup
+        75: iload_1
+        76: iload_2
+        77: aload_0
+        78: iload_1
+        79: iload_2
+        80: iload         10
+        82: invokevirtual #369                // Method getHeight:(III)I
+        85: invokespecial #372                // Method org/l2jmobius/gameserver/entity/Location."<init>":(III)V
+        88: areturn
+        89: invokestatic  #316                // Method org/l2jmobius/gameserver/data/xml/FenceData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/FenceData;
+        92: iload_1
+        93: iload_2
+        94: iload         10
+        96: iload         4
+        98: iload         5
+       100: iload         13
+       102: iload         7
+       104: invokevirtual #321                // Method org/l2jmobius/gameserver/data/xml/FenceData.checkIfFenceBetween:(IIIIIII)Z
+       107: ifeq          128
+       110: new           #266                // class org/l2jmobius/gameserver/entity/Location
+       113: dup
+       114: iload_1
+       115: iload_2
+       116: aload_0
+       117: iload_1
+       118: iload_2
+       119: iload         10
+       121: invokevirtual #369                // Method getHeight:(III)I
+       124: invokespecial #372                // Method org/l2jmobius/gameserver/entity/Location."<init>":(III)V
+       127: areturn
+       128: new           #375                // class org/l2jmobius/gameserver/geoengine/util/GridLineIterator2D
+       131: dup
+       132: iload         8
+       134: iload         9
+       136: iload         11
+       138: iload         12
+       140: invokespecial #377                // Method org/l2jmobius/gameserver/geoengine/util/GridLineIterator2D."<init>":(IIII)V
+       143: astore        14
+       145: aload         14
+       147: invokevirtual #380                // Method org/l2jmobius/gameserver/geoengine/util/GridLineIterator2D.next:()Z
+       150: pop
+       151: aload         14
+       153: invokevirtual #381                // Method org/l2jmobius/gameserver/geoengine/util/GridLineIterator2D.x:()I
+       156: istore        15
+       158: aload         14
+       160: invokevirtual #382                // Method org/l2jmobius/gameserver/geoengine/util/GridLineIterator2D.y:()I
+       163: istore        16
+       165: iload         10
+       167: istore        17
+       169: aload         14
+       171: invokevirtual #380                // Method org/l2jmobius/gameserver/geoengine/util/GridLineIterator2D.next:()Z
+       174: ifeq          362
+       177: aload         14
+       179: invokevirtual #381                // Method org/l2jmobius/gameserver/geoengine/util/GridLineIterator2D.x:()I
+       182: istore        18
+       184: aload         14
+       186: invokevirtual #382                // Method org/l2jmobius/gameserver/geoengine/util/GridLineIterator2D.y:()I
+       189: istore        19
+       191: aload_0
+       192: iload         18
+       194: iload         19
+       196: iload         17
+       198: invokevirtual #254                // Method getNearestZ:(III)I
+       201: istore        20
+       203: iload         20
+       205: iload         17
+       207: isub
+       208: bipush        40
+       210: if_icmple     255
+       213: aload_0
+       214: iload         18
+       216: iload         19
+       218: iload         17
+       220: bipush        16
+       222: invokevirtual #383                // Method hasNeighbourLayerNear:(IIII)Z
+       225: ifne          248
+       228: new           #266                // class org/l2jmobius/gameserver/entity/Location
+       231: dup
+       232: iload         15
+       234: invokestatic  #386                // Method getWorldX:(I)I
+       237: iload         16
+       239: invokestatic  #389                // Method getWorldY:(I)I
+       242: iload         17
+       244: invokespecial #372                // Method org/l2jmobius/gameserver/entity/Location."<init>":(III)V
+       247: areturn
+       248: iload         17
+       250: istore        21
+       252: goto          259
+       255: iload         20
+       257: istore        21
+       259: aload_0
+       260: iload         15
+       262: iload         16
+       264: invokevirtual #255                // Method hasGeoPos:(II)Z
+       267: ifeq          347
+       270: aload_0
+       271: iload         18
+       273: iload         19
+       275: iload         21
+       277: invokevirtual #392                // Method isCompletelyBlocked:(III)Z
+       280: ifeq          303
+       283: new           #266                // class org/l2jmobius/gameserver/entity/Location
+       286: dup
+       287: iload         15
+       289: invokestatic  #386                // Method getWorldX:(I)I
+       292: iload         16
+       294: invokestatic  #389                // Method getWorldY:(I)I
+       297: iload         17
+       299: invokespecial #372                // Method org/l2jmobius/gameserver/entity/Location."<init>":(III)V
+       302: areturn
+       303: aload_0
+       304: iload         15
+       306: iload         16
+       308: iload         17
+       310: iload         15
+       312: iload         16
+       314: iload         18
+       316: iload         19
+       318: invokestatic  #355                // Method org/l2jmobius/gameserver/util/GeoUtils.computeNswe:(IIII)I
+       321: invokevirtual #334                // Method checkNearestNsweAntiCornerCut:(IIII)Z
+       324: ifne          347
+       327: new           #266                // class org/l2jmobius/gameserver/entity/Location
+       330: dup
+       331: iload         15
+       333: invokestatic  #386                // Method getWorldX:(I)I
+       336: iload         16
+       338: invokestatic  #389                // Method getWorldY:(I)I
+       341: iload         17
+       343: invokespecial #372                // Method org/l2jmobius/gameserver/entity/Location."<init>":(III)V
+       346: areturn
+       347: iload         18
+       349: istore        15
+       351: iload         19
+       353: istore        16
+       355: iload         21
+       357: istore        17
+       359: goto          169
+       362: aload_0
+       363: iload         15
+       365: iload         16
+       367: invokevirtual #255                // Method hasGeoPos:(II)Z
+       370: ifeq          394
+       373: iload         17
+       375: iload         13
+       377: if_icmpeq     394
+       380: new           #266                // class org/l2jmobius/gameserver/entity/Location
+       383: dup
+       384: iload_1
+       385: iload_2
+       386: iload         10
+       388: invokespecial #372                // Method org/l2jmobius/gameserver/entity/Location."<init>":(III)V
+       391: goto          407
+       394: new           #266                // class org/l2jmobius/gameserver/entity/Location
+       397: dup
+       398: iload         4
+       400: iload         5
+       402: iload         13
+       404: invokespecial #372                // Method org/l2jmobius/gameserver/entity/Location."<init>":(III)V
+       407: areturn
+
+  public boolean canMoveToTarget(int, int, int, int, int, int, int);
+    Code:
+         0: iload_1
+         1: invokestatic  #247                // Method getGeoX:(I)I
+         4: istore        8
+         6: iload_2
+         7: invokestatic  #251                // Method getGeoY:(I)I
+        10: istore        9
+        12: aload_0
+        13: iload         8
+        15: iload         9
+        17: iload_3
+        18: invokevirtual #254                // Method getNearestZ:(III)I
+        21: istore        10
+        23: iload         4
+        25: invokestatic  #247                // Method getGeoX:(I)I
+        28: istore        11
+        30: iload         5
+        32: invokestatic  #251                // Method getGeoY:(I)I
+        35: istore        12
+        37: aload_0
+        38: iload         11
+        40: iload         12
+        42: iload         6
+        44: invokevirtual #254                // Method getNearestZ:(III)I
+        47: istore        13
+        49: invokestatic  #306                // Method org/l2jmobius/gameserver/data/xml/DoorData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/DoorData;
+        52: iload_1
+        53: iload_2
+        54: iload         10
+        56: iload         4
+        58: iload         5
+        60: iload         13
+        62: iload         7
+        64: iconst_0
+        65: invokevirtual #312                // Method org/l2jmobius/gameserver/data/xml/DoorData.checkIfDoorsBetween:(IIIIIIIZ)Z
+        68: ifeq          73
+        71: iconst_0
+        72: ireturn
+        73: invokestatic  #316                // Method org/l2jmobius/gameserver/data/xml/FenceData.getInstance:()Lorg/l2jmobius/gameserver/data/xml/FenceData;
+        76: iload_1
+        77: iload_2
+        78: iload         10
+        80: iload         4
+        82: iload         5
+        84: iload         13
+        86: iload         7
+        88: invokevirtual #321                // Method org/l2jmobius/gameserver/data/xml/FenceData.checkIfFenceBetween:(IIIIIII)Z
+        91: ifeq          96
+        94: iconst_0
+        95: ireturn
+        96: new           #375                // class org/l2jmobius/gameserver/geoengine/util/GridLineIterator2D
+        99: dup
+       100: iload         8
+       102: iload         9
+       104: iload         11
+       106: iload         12
+       108: invokespecial #377                // Method org/l2jmobius/gameserver/geoengine/util/GridLineIterator2D."<init>":(IIII)V
+       111: astore        14
+       113: aload         14
+       115: invokevirtual #380                // Method org/l2jmobius/gameserver/geoengine/util/GridLineIterator2D.next:()Z
+       118: pop
+       119: aload         14
+       121: invokevirtual #381                // Method org/l2jmobius/gameserver/geoengine/util/GridLineIterator2D.x:()I
+       124: istore        15
+       126: aload         14
+       128: invokevirtual #382                // Method org/l2jmobius/gameserver/geoengine/util/GridLineIterator2D.y:()I
+       131: istore        16
+       133: iload         10
+       135: istore        17
+       137: aload         14
+       139: invokevirtual #380                // Method org/l2jmobius/gameserver/geoengine/util/GridLineIterator2D.next:()Z
+       142: ifeq          288
+       145: aload         14
+       147: invokevirtual #381                // Method org/l2jmobius/gameserver/geoengine/util/GridLineIterator2D.x:()I
+       150: istore        18
+       152: aload         14
+       154: invokevirtual #382                // Method org/l2jmobius/gameserver/geoengine/util/GridLineIterator2D.y:()I
+       157: istore        19
+       159: aload_0
+       160: iload         18
+       162: iload         19
+       164: iload         17
+       166: invokevirtual #254                // Method getNearestZ:(III)I
+       169: istore        20
+       171: iload         20
+       173: iload         17
+       175: isub
+       176: bipush        40
+       178: if_icmple     205
+       181: aload_0
+       182: iload         18
+       184: iload         19
+       186: iload         17
+       188: bipush        16
+       190: invokevirtual #383                // Method hasNeighbourLayerNear:(IIII)Z
+       193: ifne          198
+       196: iconst_0
+       197: ireturn
+       198: iload         17
+       200: istore        21
+       202: goto          209
+       205: iload         20
+       207: istore        21
+       209: aload_0
+       210: iload         15
+       212: iload         16
+       214: invokevirtual #255                // Method hasGeoPos:(II)Z
+       217: ifeq          273
+       220: iload         15
+       222: iload         16
+       224: iload         18
+       226: iload         19
+       228: invokestatic  #355                // Method org/l2jmobius/gameserver/util/GeoUtils.computeNswe:(IIII)I
+       231: istore        22
+       233: getstatic     #396                // Field org/l2jmobius/gameserver/config/GeoEngineConfig.AVOID_OBSTRUCTED_PATH_NODES:Z
+       236: ifeq          256
+       239: aload_0
+       240: iload         15
+       242: iload         16
+       244: iload         17
+       246: iload         22
+       248: invokevirtual #400                // Method checkNearestNswe:(IIII)Z
+       251: ifne          256
+       254: iconst_0
+       255: ireturn
+       256: aload_0
+       257: iload         15
+       259: iload         16
+       261: iload         17
+       263: iload         22
+       265: invokevirtual #334                // Method checkNearestNsweAntiCornerCut:(IIII)Z
+       268: ifne          273
+       271: iconst_0
+       272: ireturn
+       273: iload         18
+       275: istore        15
+       277: iload         19
+       279: istore        16
+       281: iload         21
+       283: istore        17
+       285: goto          137
+       288: aload_0
+       289: iload         15
+       291: iload         16
+       293: invokevirtual #255                // Method hasGeoPos:(II)Z
+       296: ifeq          306
+       299: iload         17
+       301: iload         13
+       303: if_icmpne     310
+       306: iconst_1
+       307: goto          311
+       310: iconst_0
+       311: ireturn
+
+  public boolean canMoveToTarget(org.l2jmobius.gameserver.interfaces.ILocational, int, int, int);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: invokeinterface #298,  1          // InterfaceMethod org/l2jmobius/gameserver/interfaces/ILocational.getX:()I
+         7: aload_1
+         8: invokeinterface #301,  1          // InterfaceMethod org/l2jmobius/gameserver/interfaces/ILocational.getY:()I
+        13: aload_1
+        14: invokeinterface #302,  1          // InterfaceMethod org/l2jmobius/gameserver/interfaces/ILocational.getZ:()I
+        19: iload_2
+        20: iload_3
+        21: iload         4
+        23: iconst_0
+        24: invokevirtual #401                // Method canMoveToTarget:(IIIIIII)Z
+        27: ireturn
+
+  public boolean canMoveToTarget(org.l2jmobius.gameserver.interfaces.ILocational, org.l2jmobius.gameserver.interfaces.ILocational);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: aload_2
+         3: invokeinterface #298,  1          // InterfaceMethod org/l2jmobius/gameserver/interfaces/ILocational.getX:()I
+         8: aload_2
+         9: invokeinterface #301,  1          // InterfaceMethod org/l2jmobius/gameserver/interfaces/ILocational.getY:()I
+        14: aload_2
+        15: invokeinterface #302,  1          // InterfaceMethod org/l2jmobius/gameserver/interfaces/ILocational.getZ:()I
+        20: invokevirtual #404                // Method canMoveToTarget:(Lorg/l2jmobius/gameserver/interfaces/ILocational;III)Z
+        23: ireturn
+
+  public boolean hasGeo(int, int);
+    Code:
+         0: aload_0
+         1: iload_1
+         2: invokestatic  #247                // Method getGeoX:(I)I
+         5: iload_2
+         6: invokestatic  #251                // Method getGeoY:(I)I
+         9: invokevirtual #255                // Method hasGeoPos:(II)Z
+        12: ireturn
+
+  public boolean isCompletelyBlocked(int, int, int);
+    Code:
+         0: getstatic     #123                // Field org/l2jmobius/gameserver/config/GeoEngineConfig.PATHFINDING:I
+         3: iconst_1
+         4: if_icmpge     9
+         7: iconst_0
+         8: ireturn
+         9: aload_0
+        10: iload_1
+        11: iload_2
+        12: invokevirtual #214                // Method getRegion:(II)Lorg/l2jmobius/gameserver/geoengine/geodata/IRegion;
+        15: astore        4
+        17: aload         4
+        19: ifnull        95
+        22: aload         4
+        24: invokeinterface #218,  1          // InterfaceMethod org/l2jmobius/gameserver/geoengine/geodata/IRegion.hasGeo:()Z
+        29: ifeq          93
+        32: aload         4
+        34: iload_1
+        35: iload_2
+        36: iload_3
+        37: bipush        8
+        39: invokeinterface #222,  5          // InterfaceMethod org/l2jmobius/gameserver/geoengine/geodata/IRegion.checkNearestNswe:(IIII)Z
+        44: ifne          93
+        47: aload         4
+        49: iload_1
+        50: iload_2
+        51: iload_3
+        52: iconst_4
+        53: invokeinterface #222,  5          // InterfaceMethod org/l2jmobius/gameserver/geoengine/geodata/IRegion.checkNearestNswe:(IIII)Z
+        58: ifne          93
+        61: aload         4
+        63: iload_1
+        64: iload_2
+        65: iload_3
+        66: iconst_1
+        67: invokeinterface #222,  5          // InterfaceMethod org/l2jmobius/gameserver/geoengine/geodata/IRegion.checkNearestNswe:(IIII)Z
+        72: ifne          93
+        75: aload         4
+        77: iload_1
+        78: iload_2
+        79: iload_3
+        80: iconst_2
+        81: invokeinterface #222,  5          // InterfaceMethod org/l2jmobius/gameserver/geoengine/geodata/IRegion.checkNearestNswe:(IIII)Z
+        86: ifne          93
+        89: iconst_1
+        90: goto          94
+        93: iconst_0
+        94: ireturn
+        95: iconst_1
+        96: ireturn
+
+  public static org.l2jmobius.gameserver.geoengine.GeoEngine getInstance();
+    Code:
+         0: getstatic     #407                // Field org/l2jmobius/gameserver/geoengine/GeoEngine$SingletonHolder.INSTANCE:Lorg/l2jmobius/gameserver/geoengine/GeoEngine;
+         3: areturn
+
+  static {};
+    Code:
+         0: ldc           #1                  // class org/l2jmobius/gameserver/geoengine/GeoEngine
+         2: invokevirtual #412                // Method java/lang/Class.getName:()Ljava/lang/String;
+         5: invokestatic  #415                // Method java/util/logging/Logger.getLogger:(Ljava/lang/String;)Ljava/util/logging/Logger;
+         8: putstatic     #67                 // Field LOGGER:Ljava/util/logging/Logger;
+        11: new           #20                 // class java/util/concurrent/atomic/AtomicReferenceArray
+        14: dup
+        15: sipush        1024
+        18: invokespecial #419                // Method java/util/concurrent/atomic/AtomicReferenceArray."<init>":(I)V
+        21: putstatic     #9                  // Field REGIONS:Ljava/util/concurrent/atomic/AtomicReferenceArray;
+        24: return
+}

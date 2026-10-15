@@ -1,0 +1,44 @@
+Compiled from "CreatureAI.java"
+public class org.l2jmobius.gameserver.ai.CreatureAI extends org.l2jmobius.gameserver.ai.AbstractAI {
+  protected static final int FEAR_RANGE;
+  public org.l2jmobius.gameserver.ai.CreatureAI(org.l2jmobius.gameserver.entity.actor.Creature);
+  public void notifyActionAttacked(org.l2jmobius.gameserver.entity.WorldObject);
+  public void setIntentionIdle();
+  public void setIntentionActive();
+  public void setIntentionRest();
+  public void setIntentionAttack(org.l2jmobius.gameserver.entity.WorldObject);
+  public void setIntentionCast(org.l2jmobius.gameserver.mechanics.skill.Skill, org.l2jmobius.gameserver.entity.WorldObject);
+  protected void changeIntentionToCast(org.l2jmobius.gameserver.mechanics.skill.Skill, org.l2jmobius.gameserver.entity.WorldObject);
+  public void setIntentionMoveTo(org.l2jmobius.gameserver.interfaces.ILocational);
+  public void setIntentionFollow(org.l2jmobius.gameserver.entity.WorldObject);
+  public void setIntentionPickUp(org.l2jmobius.gameserver.entity.WorldObject);
+  public void setIntentionInteract(org.l2jmobius.gameserver.entity.WorldObject);
+  public void notifyActionThink();
+  public void notifyActionAggression(org.l2jmobius.gameserver.entity.WorldObject, int);
+  public void notifyActionStunned();
+  public void notifyActionParalyzed();
+  public void notifyActionSleeping();
+  public void notifyActionRooted();
+  public void notifyActionConfused();
+  public void notifyActionMuted();
+  public void notifyActionEvaded(org.l2jmobius.gameserver.entity.WorldObject);
+  public void notifyActionReadyToAct();
+  public void notifyActionUserCmd(java.lang.Object, java.lang.Object);
+  public void notifyActionArrived();
+  public void notifyActionArrivedRevalidate();
+  public void notifyActionArrivedBlocked(org.l2jmobius.gameserver.entity.Location);
+  public void notifyActionForgetObject(org.l2jmobius.gameserver.entity.WorldObject);
+  public void notifyActionCancel();
+  public void notifyActionDeath();
+  public void notifyActionFakeDeath();
+  public void notifyActionFinishCasting();
+  public void notifyActionAfraid(org.l2jmobius.gameserver.entity.WorldObject, boolean);
+  protected boolean maybeMoveToPosition(org.l2jmobius.gameserver.interfaces.ILocational, int);
+  protected boolean maybeMoveToPawn(org.l2jmobius.gameserver.entity.WorldObject, int);
+  protected boolean checkTargetLostOrDead(org.l2jmobius.gameserver.entity.actor.Creature);
+  protected boolean checkTargetLost(org.l2jmobius.gameserver.entity.WorldObject);
+  public boolean canAura(org.l2jmobius.gameserver.mechanics.skill.Skill);
+  public boolean canAOE(org.l2jmobius.gameserver.mechanics.skill.Skill);
+  public boolean canParty(org.l2jmobius.gameserver.mechanics.skill.Skill);
+  public boolean isParty(org.l2jmobius.gameserver.mechanics.skill.Skill);
+}
