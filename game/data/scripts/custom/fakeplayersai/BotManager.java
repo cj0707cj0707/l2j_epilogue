@@ -341,22 +341,10 @@ public class BotManager
 
 	/**
 	 * Rush Impact requires its target to be at least this far away (datapack condition
-	 * "target mindistance=200"): THIS is the distance the berserker breaks by running
-	 * back to its spawn point before the next Rush Impact. Upper bound needs no constant:
-	 * the skill cast range is 600 and a cast initiated farther away walks into range.
+	 * "target mindistance=200"): a short bounded retreat can open this distance. The driver
+	 * approaches normally first, and requests a stationary cast only within the skill range.
 	 */
 	private static final int BERSERKER_RUSH_MIN_DISTANCE = 200;
-
-	/** When the bot is this close to its remembered spawn point, no more distance can be gained. */
-	private static final int BERSERKER_SPAWN_REACHED_DISTANCE = 100;
-
-	/**
-	 * The distance-breaking run is abandoned when the enemy keeps the pressure this close:
-	 * an opponent holding the bot at this range makes the run to the spawn point pointless
-	 * (the bot just takes free damage for the whole 2400 of the arena) - the bot turns and
-	 * fights instead, rushing again as soon as the distance opens.
-	 */
-	private static final int BERSERKER_RETREAT_BREAK_DISTANCE = 100;
 
 	/** Sword Shield is cast only while the bot's CP percent is below this value. */
 	private static final int BERSERKER_SWORD_SHIELD_CP_PERCENT = 70;
@@ -415,6 +403,9 @@ public class BotManager
 		boolean retreating = false;
 		/** Rush cycle counter (logs). */
 		int cycle = 0;
+		final BerserkerCycle movement = new BerserkerCycle();
+		long nextDecisionAt;
+
 
 		BerserkerState(int x, int y, int z, int game)
 		{
@@ -651,8 +642,8 @@ public class BotManager
 
 				// Berserker (Doombringer): the arena appearance point is remembered right at the
 				// pre-start moment (the bot is already ported and stands still until the fight
-				// starts) - it runs back to this point when breaking the distance for the next
-				// Rush Impact (see driveBerserker). Both auto engines are ALSO stopped here:
+				// starts) - it retains this point as match context, but retreats only a short local step
+				// when breaking distance for the next Rush Impact (see driveBerserker). Both auto engines are ALSO stopped here:
 				// the battle has to open with Rush Impact (admin rule "the rotation starts with
 				// the rush") - no autoattack and no rotation filler may fire before it; the
 				// driver re-arms the engines right after the rush lands (armBerserkerCombat).
@@ -1854,7 +1845,7 @@ public class BotManager
 				// Active olympiad matches use the shared predictive driver instead; casters
 				// and bows keep their hold ranges, melee cuts toward the bounded intercept.
 				boolean closingIn = false;
-				if (!target.asCreature().isAlikeDead() && !bot.isCastingNow() && target.asCreature().isAutoAttackable(bot))
+				if (!target.asCreature().isAlikeDead() && (!bot.isCastingNow() || (inOlympiad && bot.isOlympiadStart() && isKiterPreset(preset))) && target.asCreature().isAutoAttackable(bot))
 				{
 					final boolean caster = (preset != null) && preset.isCaster();
 					final double distToTarget = bot.calculateDistance2D(target);
@@ -2150,14 +2141,33 @@ public class BotManager
 					OlympiadChase.forget(bot.getObjectId());
 					continue;
 				}
-				// The berserker driver exclusively owns its phases. Its generic
-				// fallback uses prediction in combatTick, never this concurrent pass.
-				if (BERSERKER_STATES.containsKey(bot.getObjectId()))
+				final BotClassPreset preset = BotPresets.getPresetByClassId(getBotClassId(bot));
+				final BerserkerState state = BERSERKER_STATES.get(bot.getObjectId());
+				if (state != null)
 				{
-					OlympiadChase.forget(bot.getObjectId());
+					final Player enemy = getOlympiadOpponent(bot);
+					final int game = bot.getOlympiadGameId();
+					if ((enemy != null) && (state.gameId == game) && enemy.isInOlympiadMode() && enemy.isOlympiadStart()
+						&& !enemy.isAlikeDead() && !enemy.isTeleporting() && (enemy.getOlympiadGameId() == game)
+						&& (enemy.getInstanceId() == bot.getInstanceId()) && enemy.isAutoAttackable(bot)
+						&& (game >= 0) && (game < OLYMPIAD_STADIUM_CENTERS.length))
+					{
+						final int[] center = OLYMPIAD_STADIUM_CENTERS[game];
+						if ((bot.calculateDistance2D(center[0], center[1], center[2]) <= OLYMPIAD_ARENA_MAX_DISTANCE)
+							&& (enemy.calculateDistance2D(center[0], center[1], center[2]) <= OLYMPIAD_ARENA_MAX_DISTANCE))
+						{
+							if (!bot.isCastingNow())
+							{
+								bot.setTarget(enemy);
+							}
+							if (!driveBerserker(bot, preset, state, enemy))
+							{
+								moveForOlympiadChase(bot, CHASE_RANGE, true);
+							}
+						}
+					}
 					continue;
 				}
-				final BotClassPreset preset = BotPresets.getPresetByClassId(getBotClassId(bot));
 				final boolean ranged = ((preset != null) && preset.isCaster()) || isKiterPreset(preset);
 				moveForOlympiadChase(bot, ranged ? CASTER_HOLD_RANGE : CHASE_RANGE, !ranged);
 			}
@@ -2401,186 +2411,182 @@ public class BotManager
 		}
 	}
 
-	/**
-	 * The berserker duel algorithm (olympiad matches only). One rush cycle:
-	 * <ol>
-	 * <li><b>Rush Impact</b> (793) on the opponent - the cycle opener. The skill has no
-	 * reuse delay but its datapack condition requires the target to be at least 200 away
-	 * (and its cast range is 600); a cast initiated farther away walks into range first,
-	 * the skill itself dashes to the enemy. BOTH auto engines stay stopped while the rush
-	 * is pending: the auto-play engine's melee approach would close the distance below
-	 * 200, and the rotation engine's fillers kept re-queueing themselves over the queued
-	 * rush - with the engines armed the rush almost never went off. A leftover rotation
-	 * cast is aborted, the rush has priority (admin rule: the rotation starts with it).</li>
-	 * <li><b>Burst</b>: Disarm (485, only within 150 - admin rule "in melee") -> Enuma
-	 * Elish (526) -> Crushing Pain (497) -> Violent Temper (501, ONCE per battle, only
-	 * after a rush), in this order, each only when it is actually recharged (never waited
-	 * for, never cast during the retreat - they must not interfere with the distance
-	 * breaking).</li>
-	 * <li><b>Retreat</b>: as soon as Enuma Elish and Crushing Pain are resolved (cast, or
-	 * still on reuse), the bot runs toward its remembered olympiad spawn point until the
-	 * distance to the opponent allows Rush Impact again (>= 200). Both auto engines are
-	 * stopped for the run: no autoattack and no rotation casts can interrupt it.</li>
-	 * </ol>
-	 * Sword Shield (483) is cast at any phase, but only while CP is below 70% and the
-	 * opponent is not a mage (900 s reuse and the effect check keep it a rare button).
-	 * A bot cornered directly at its spawn point (no distance left to gain) fights on
-	 * and rushes as soon as the distance opens again.
-	 * @param bot the berserker bot (engines are kept armed by the caller's re-arm pass)
-	 * @param preset the class preset
-	 * @param state the per-match duel state
-	 * @param enemy the match opponent (alive and attackable)
-	 * @return true when the driver handled this tick (the generic chase/attack logic is skipped)
-	 */
+	/** Serialized phase driver. A requested rush is not a landed rush. */
 	private static boolean driveBerserker(Player bot, BotClassPreset preset, BerserkerState state, Creature enemy)
 	{
-		// Without Rush Impact there is no cycle (should not happen with the full class tree):
-		// fall back to the generic combat logic.
-		if (bot.getKnownSkill(BERSERKER_RUSH_IMPACT_ID) == null)
+		synchronized (state)
 		{
+			final long now = System.currentTimeMillis();
+			if (now < state.nextDecisionAt)
+			{
+				return true;
+			}
+			state.nextDecisionAt = now + 250;
+			return driveBerserkerStep(bot, preset, state, enemy, now);
+		}
+	}
+
+	private static boolean driveBerserkerStep(Player bot, BotClassPreset preset, BerserkerState state, Creature enemy, long now)
+	{
+		if (bot.isMovementDisabled() || bot.isOutOfControl() || bot.isAllSkillsDisabled())
+		{
+			return true; // CC is real: no aborting a cast or changing phase under control.
+		}
+		final Skill rush = bot.getKnownSkill(BERSERKER_RUSH_IMPACT_ID);
+		if (rush == null)
+		{
+			armBerserkerCombat(bot, preset, state);
 			return false;
 		}
-
 		final double dist = bot.calculateDistance2D(enemy);
-
-		// Sword Shield: only when CP dropped below 70% and the opponent is not a mage.
-		if (!enemy.isPlayer() || !enemy.asPlayer().isMageClass())
+		if (state.movement.rushPending())
 		{
-			if ((bot.getCurrentCpPercent() < BERSERKER_SWORD_SHIELD_CP_PERCENT)
-				&& !bot.getEffectList().isAffectedBySkill(BERSERKER_SWORD_SHIELD_ID)
-				&& castSkill(bot, BERSERKER_SWORD_SHIELD_ID))
+			final BerserkerCycle.RushStatus status = state.movement.pollRush(now, bot.isCastingNow(), dist, bot.getX(), bot.getY());
+			if (status == BerserkerCycle.RushStatus.WAIT)
 			{
-				LOGGER.info("FakePlayersAI: berserker " + bot.getName() + ": Sword Shield (CP " + bot.getCurrentCpPercent() + "%).");
+				return true; // Keep engines OFF until the rush actually finishes.
 			}
+			if (status == BerserkerCycle.RushStatus.TIMED_OUT)
+			{
+				final Skill current = bot.getCurrentSkill() != null ? bot.getCurrentSkill().getSkill() : null;
+				if ((current != null) && (current.getId() == BERSERKER_RUSH_IMPACT_ID))
+				{
+					bot.abortCast(); // Only the driver's own stuck rush; core sends cancellation.
+					bot.setQueuedSkill(null, false, false);
+				}
+			}
+			if (status == BerserkerCycle.RushStatus.LANDED)
+			{
+				state.cycle++;
+				LOGGER.info("FakePlayersAI: berserker " + bot.getName() + ": rush completed, cycle " + state.cycle + ".");
+			}
+			else
+			{
+				LOGGER.info("FakePlayersAI: berserker " + bot.getName() + ": rush not completed (" + status + "), returning to combat.");
+			}
+			state.rushDone = true;
+			state.disarmDone = state.enumaDone = state.crushingDone = false;
+			armBerserkerCombat(bot, preset, state);
+			return true;
+		}
+		if (bot.isCastingNow() || (bot.getAI().getIntention() == Intention.CAST))
+		{
+			return true; // Never queue a competing cast, or abort a real filler for a rush.
+		}
+
+		if ((!enemy.isPlayer() || !enemy.asPlayer().isMageClass())
+			&& (bot.getCurrentCpPercent() < BERSERKER_SWORD_SHIELD_CP_PERCENT)
+			&& !bot.getEffectList().isAffectedBySkill(BERSERKER_SWORD_SHIELD_ID)
+			&& castSkill(bot, BERSERKER_SWORD_SHIELD_ID))
+		{
+			return true; // Shield and rush cannot overwrite one another in one tick.
 		}
 
 		if (!state.rushDone)
 		{
-			if (dist < BERSERKER_RUSH_MIN_DISTANCE)
+			if ((dist >= 220) && canBerserkerCast(bot, BERSERKER_RUSH_IMPACT_ID) && state.movement.canRush(now))
 			{
-				if (!canBerserkerCast(bot, BERSERKER_RUSH_IMPACT_ID))
+				stopBerserkerEngines(bot, state);
+				if ((dist > rush.getCastRange()) || !GeoEngine.getInstance().canSeeTarget(bot, enemy)
+					|| !GeoEngine.getInstance().canMoveToTarget(bot.getX(), bot.getY(), bot.getZ(), enemy.getX(), enemy.getY(), enemy.getZ(), bot.getInstanceId()))
 				{
-					// Rush Impact cannot be used at all right now (e.g. MP is drained):
-					// breaking the distance would change nothing - fight on until it can.
-					state.retreating = false;
-					state.rushDone = true;
-					state.disarmDone = false;
-					state.enumaDone = false;
-					state.crushingDone = false;
-					armBerserkerCombat(bot, preset, state);
+					// Walk normally into range; do NOT start a fake long-range cast.
+					moveForOlympiadChase(bot, Math.max(220, rush.getCastRange() - 50), false);
 					return true;
 				}
-				if (bot.calculateDistance2D(state.spawnX, state.spawnY, state.spawnZ) > BERSERKER_SPAWN_REACHED_DISTANCE)
+				// CHARGE moves XYZ synchronously inside beginCast: capture BEFORE useMagic.
+				final int rushX = bot.getX();
+				final int rushY = bot.getY();
+				if (castSkill(bot, BERSERKER_RUSH_IMPACT_ID))
 				{
-					if (dist <= BERSERKER_RETREAT_BREAK_DISTANCE)
+					state.movement.requested(now, rushX, rushY);
+					return true;
+				}
+			}
+			else if ((dist < 220) && canBerserkerCast(bot, BERSERKER_RUSH_IMPACT_ID)
+				&& state.movement.canRetreat(now, dist))
+			{
+				final boolean firstRetreatStep = !state.retreating;
+				if (firstRetreatStep)
+				{
+					state.retreating = true;
+					state.movement.beginRetreat(now, dist);
+				}
+				if (!state.movement.retreatUnproductive(now, dist))
+				{
+					final Location point = berserkerRetreatPoint(bot, enemy);
+					if (point != null)
 					{
-						// The enemy keeps the melee pressure: running the whole arena to the
-						// spawn point would only take free damage (an equally fast opponent
-						// holds the distance closed) - abandon the run, turn and fight, rush
-						// again as soon as the distance opens.
-						state.retreating = false;
-						state.rushDone = true;
-						state.disarmDone = false;
-						state.enumaDone = false;
-						state.crushingDone = false;
-						armBerserkerCombat(bot, preset, state);
+						stopBerserkerEngines(bot, state);
+						if (firstRetreatStep || !bot.isMoving())
+						{
+							bot.getAI().setIntentionMoveTo(point);
+						}
 						return true;
 					}
-					// Too close for Rush Impact (its condition requires the target at 200+):
-					// break the distance toward the remembered spawn point. Both auto engines
-					// are stopped for the run - nothing (autoattack, rotation, Enuma Elish,
-					// Crushing Pain) may interrupt the distance breaking.
-					stopBerserkerEngines(bot, state);
-					if (!state.retreating)
-					{
-						state.retreating = true;
-						LOGGER.info("FakePlayersAI: berserker " + bot.getName() + ": breaking the distance toward the spawn point (dist " + (int) dist + ").");
-					}
-					bot.getAI().setIntentionMoveTo(new Location(state.spawnX, state.spawnY, state.spawnZ));
 				}
-				else
-				{
-					// Cornered right at the spawn point: no more distance can be gained - fight on.
-					state.retreating = false;
-					state.rushDone = true;
-					state.disarmDone = false;
-					state.enumaDone = false;
-					state.crushingDone = false;
-					armBerserkerCombat(bot, preset, state);
-					LOGGER.info("FakePlayersAI: berserker " + bot.getName() + ": cornered at the spawn point, fighting on.");
-				}
-				return true;
 			}
-
-			// The distance allows the rush (admin rule: the rotation starts with it). The
-			// driver OWNS the bot here: both auto engines stay stopped so the auto-play
-			// engine cannot assert the melee ATTACK intention (its approach closes the
-			// distance below the 200 the rush requires) and the rotation engine cannot
-			// keep the bot casting its fillers (each rotation cast also re-queued itself
-			// over the queued rush, which is why the rush almost never went off).
-			stopBerserkerEngines(bot, state);
-			if (bot.isCastingNow())
-			{
-				// A cast is going: either the rush itself (its walk into the 600 cast range
-				// and the 800 ms cast before the dash) - left alone - or a leftover rotation
-				// filler, which is aborted: the rush has priority over the fillers.
-				final Skill pendingSkill = (bot.getCurrentSkill() != null) ? bot.getCurrentSkill().getSkill() : null;
-				if ((pendingSkill != null) && (pendingSkill.getId() == BERSERKER_RUSH_IMPACT_ID))
-				{
-					return true; // the rush walk/cast is already going off
-				}
-				bot.abortCast();
-			}
-			if (castSkill(bot, BERSERKER_RUSH_IMPACT_ID))
-			{
-				state.cycle++;
-				state.rushDone = true;
-				state.disarmDone = false;
-				state.enumaDone = false;
-				state.crushingDone = false;
-				// The engines are re-armed right here: the burst phase (and its rotation
-				// fillers) runs while the rush cast is completing.
-				armBerserkerCombat(bot, preset, state);
-				LOGGER.info("FakePlayersAI: berserker " + bot.getName() + ": Rush Impact on " + enemy.getName() + " (cycle " + state.cycle + ").");
-				return true;
-			}
-			// The rush cannot start right now (e.g. MP): the generic approach/attack runs.
-			return false;
+			// Too close / unproductive retreat / failed or unavailable rush: fight,
+			// rather than running across the entire arena and taking free damage.
+			state.movement.endRetreat(now);
+			state.retreating = false;
+			state.rushDone = true;
+			state.disarmDone = state.enumaDone = state.crushingDone = false;
+			armBerserkerCombat(bot, preset, state);
 		}
 
-		// Burst: Disarm -> Enuma Elish -> Crushing Pain -> Violent Temper (once per battle),
-		// in order, each only when recharged. Disarm only in close range (admin rule).
 		armBerserkerCombat(bot, preset, state);
-		if (!bot.isCastingNow())
+		// castSkill pauses the filler engine only after a skill passes the range gates.
+		// Do not reset the rotation order every 250 ms while merely considering a cast.
+		if (!state.disarmDone && (dist <= BERSERKER_DISARM_MAX_DISTANCE) && castSkill(bot, BERSERKER_DISARM_ID))
 		{
-			if (!state.disarmDone && (dist <= BERSERKER_DISARM_MAX_DISTANCE) && castSkill(bot, BERSERKER_DISARM_ID))
-			{
-				state.disarmDone = true;
-			}
-			else if (!state.enumaDone && castSkill(bot, BERSERKER_ENUMA_ELISH_ID))
-			{
-				state.enumaDone = true;
-				LOGGER.info("FakePlayersAI: berserker " + bot.getName() + ": Enuma Elish on " + enemy.getName() + ".");
-			}
-			else if (!state.crushingDone && castSkill(bot, BERSERKER_CRUSHING_PAIN_ID))
-			{
-				state.crushingDone = true;
-			}
-			else if (!state.violentDone && (state.cycle >= 1) && castSkill(bot, BERSERKER_VIOLENT_TEMPER_ID))
-			{
-				state.violentDone = true;
-				LOGGER.info("FakePlayersAI: berserker " + bot.getName() + ": Violent Temper on " + enemy.getName() + " (1st use this battle).");
-			}
+			state.disarmDone = true;
+			return true;
 		}
-		// Retreat trigger: both big skills resolved - cast this cycle, or still on reuse
-		// (they are used only when recharged and never delay the distance breaking).
+		if (!state.enumaDone && castSkill(bot, BERSERKER_ENUMA_ELISH_ID))
+		{
+			state.enumaDone = true;
+			return true;
+		}
+		if (!state.crushingDone && castSkill(bot, BERSERKER_CRUSHING_PAIN_ID))
+		{
+			state.crushingDone = true;
+			return true;
+		}
+		if (!state.violentDone && (state.cycle > 0) && castSkill(bot, BERSERKER_VIOLENT_TEMPER_ID))
+		{
+			state.violentDone = true;
+			return true;
+		}
 		if (isBerserkerSkillResolved(bot, BERSERKER_ENUMA_ELISH_ID, state.enumaDone)
 			&& isBerserkerSkillResolved(bot, BERSERKER_CRUSHING_PAIN_ID, state.crushingDone))
 		{
-			state.rushDone = false; // the next tick opens the distance for the next Rush Impact
+			// Request another cycle only after the bounded retreat cooldown.
+			if (canBerserkerCast(bot, BERSERKER_RUSH_IMPACT_ID)
+				&& ((dist >= 220 && state.movement.canRush(now)) || state.movement.canRetreat(now, dist)))
+			{
+				state.rushDone = false;
+			}
 		}
-		// While the enemy is beyond strike range the generic chase keeps running on top.
+		AutoUseTaskManager.getInstance().startAutoUseTask(bot);
+		if (dist <= CHASE_RANGE && (bot.getAI().getIntention() != Intention.ATTACK))
+		{
+			bot.getAI().setIntentionAttack(enemy);
+		}
 		return dist <= CHASE_RANGE;
+	}
+
+	/** Short local retreat, never an unconditional run to the arena spawn point. */
+	private static Location berserkerRetreatPoint(Player bot, Creature enemy)
+	{
+		final Location point = kitePoint(bot, enemy, null, null);
+		final int game = bot.getOlympiadGameId();
+		if ((point == null) || (game < 0) || (game >= OLYMPIAD_STADIUM_CENTERS.length))
+		{
+			return null;
+		}
+		final int[] center = OLYMPIAD_STADIUM_CENTERS[game];
+		return Math.hypot((double) point.getX() - center[0], (double) point.getY() - center[1]) <= OLYMPIAD_ARENA_MAX_DISTANCE ? point : null;
 	}
 
 	/**
@@ -2599,18 +2605,28 @@ public class BotManager
 
 	/**
 	 * Casts one of the driver's skills through the regular player cast path (full reuse,
-	 * condition, MP, consumable and olympiad checks apply; a cast initiated out of range
-	 * walks into range first). The bot's target is already the enemy (or the skill is
+	 * condition, MP, consumable and olympiad checks apply; an out-of-range request
+	 * is rejected instead of creating a cast intention that walks across the arena). The bot's target is already the enemy (or the skill is
 	 * self-targeted), so no target juggling is needed.
 	 * @return true when the cast was initiated
 	 */
 	private static boolean castSkill(Player bot, int skillId)
 	{
-		if (!canBerserkerCast(bot, skillId))
+		if (bot.isCastingNow() || bot.isOutOfControl() || bot.isMovementDisabled()
+			|| (bot.getAI().getIntention() == Intention.CAST) || !canBerserkerCast(bot, skillId))
 		{
 			return false;
 		}
-		return bot.useMagic(bot.getKnownSkill(skillId), true, false);
+		final Skill skill = bot.getKnownSkill(skillId);
+		final WorldObject target = bot.getTarget();
+		if (skill.getCastRange() > 0 && ((target == null)
+			|| (bot.calculateDistance2D(target) > skill.getCastRange() + bot.getTemplate().getCollisionRadius())
+			|| !GeoEngine.getInstance().canSeeTarget(bot, target)))
+		{
+			return false;
+		}
+		AutoUseTaskManager.getInstance().stopAutoUseTask(bot);
+		return bot.useMagic(skill, true, true);
 	}
 
 	/**

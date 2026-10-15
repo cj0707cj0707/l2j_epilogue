@@ -48,8 +48,9 @@ STUBS = {
     }""",
     "geoengine.GeoEngine": """public class GeoEngine {
         private static final GeoEngine INSTANCE=new GeoEngine();
-        public static boolean blocked=false; public static int minAllowedY=-100000;
+        public static boolean blocked=false,visible=true; public static int minAllowedY=-100000;
         public static GeoEngine getInstance(){return INSTANCE;}
+        public boolean canSeeTarget(org.l2jmobius.gameserver.entity.actor.Player b,org.l2jmobius.gameserver.entity.actor.Player e){return visible;}
         public boolean canMoveToTarget(int x,int y,int z,int px,int py,int pz,int instance){return !blocked && py>=minAllowedY;}
     }""",
 }
@@ -66,7 +67,7 @@ public class OlympiadChaseTest {
         return OlympiadChase.intercept(bx,by,bs,ex,ey,0,dx,dy,es,hold);
     }
     static void update(Player b,Player e,int range,boolean attack){OlympiadChase.update(b,e,range,attack,0,0,2000);}
-    static Player bot(){OlympiadChase.forget(1);GeoEngine.blocked=false;GeoEngine.minAllowedY=-100000;return new Player(1,0,0);}
+    static Player bot(){OlympiadChase.forget(1);GeoEngine.blocked=false;GeoEngine.visible=true;GeoEngine.minAllowedY=-100000;return new Player(1,0,0);}
     static Player enemy(){return new Player(2,800,0);}
     static int stateCount()throws Exception {
         var f=OlympiadChase.class.getDeclaredField("STATES");f.setAccessible(true);return ((java.util.Map<?,?>)f.get(null)).size();
@@ -159,6 +160,20 @@ public class OlympiadChaseTest {
         check(stateCount()==0,"end of match clears state");
         b=bot();e=enemy();update(b,e,150,true);OlympiadChase.forget(b.id);
         check(stateCount()==0,"despawn cleanup clears state");
+
+        b=bot();e=enemy();e.x=400;update(b,e,500,false);e.x=530;update(b,e,500,false);
+        check(b.ai.moves==0,"range hysteresis prevents edge shuffling");
+        e.x=570;update(b,e,500,false);check(b.ai.moves==1,"range opens beyond hysteresis: pursue again");
+        b=bot();e=enemy();e.x=400;update(b,e,500,false);e.id=3;e.x=530;update(b,e,500,false);
+        check(b.ai.moves==1,"engagement hysteresis never leaks into another opponent");
+        b=bot();e=enemy();e.x=400;GeoEngine.visible=false;update(b,e,500,false);
+        check(b.ai.moves==1,"occluded opponent inside hold range still gets an approach");
+        b=bot();e=enemy();update(b,e,150,true);int initialX=b.dx;Thread.sleep(1550);update(b,e,150,true);
+        check(b.ai.moves==2 && b.dx<initialX && b.dy!=0,"no server progress for 1.5s triggers a checked sidestep");
+        b=bot();e=enemy();update(b,e,150,true);Thread.sleep(1550);b.casting=true;update(b,e,150,true);b.casting=false;update(b,e,150,true);
+        check(b.ai.moves==1 && b.dy==0,"cast time does not count as a stuck run");
+        OlympiadChase.forget(b.id);
+        for(String mapName:new String[]{"STATES","PROGRESS","ENGAGED"}){var f=OlympiadChase.class.getDeclaredField(mapName);f.setAccessible(true);check(((java.util.Map<?,?>)f.get(null)).isEmpty(),"all state cleaned: "+mapName);}
 
         java.util.Random random=new java.util.Random(15);
         for(int i=0;i<5000;i++){

@@ -20,6 +20,18 @@ public final class OlympiadChase
 	private static final double REPATH_DISTANCE = 40;
 	private static final long MIN_REPATH_NANOS = 250_000_000L;
 	private static final Map<Integer, ChaseState> STATES = new HashMap<>();
+	private static final Map<Integer, Progress> PROGRESS = new HashMap<>();
+	private static final Map<Integer, Engagement> ENGAGED = new HashMap<>();
+	private static final long STUCK_NANOS = 1_500_000_000L;
+
+	private record Engagement(int gameId, int enemyId)
+	{
+	}
+
+	private record Progress(int x, int y, long since)
+	{
+	}
+
 
 	private record ChaseState(int gameId, int enemyId, int x, int y, int z, long issuedAt)
 	{
@@ -33,6 +45,7 @@ public final class OlympiadChase
 	public static synchronized void update(Player bot, Player enemy, int holdRange, boolean attackInRange, int arenaX, int arenaY, double arenaRadius)
 	{
 		final int id = bot.getObjectId();
+		final long now = System.nanoTime();
 		if ((enemy == null) || (bot == enemy) || !bot.isInOlympiadMode() || !bot.isOlympiadStart()
 			|| !enemy.isInOlympiadMode() || !enemy.isOlympiadStart() || (bot.getOlympiadGameId() < 0)
 			|| (bot.getOlympiadGameId() != enemy.getOlympiadGameId()) || (bot.getInstanceId() != enemy.getInstanceId())
@@ -40,25 +53,34 @@ public final class OlympiadChase
 			|| !enemy.isAutoAttackable(bot) || !inside(bot.getX(), bot.getY(), arenaX, arenaY, arenaRadius)
 			|| !inside(enemy.getX(), enemy.getY(), arenaX, arenaY, arenaRadius))
 		{
-			STATES.remove(id);
+			forget(id);
 			return;
 		}
 
 		// Never replace a live/queued cast, fear/confusion movement, root, stun, etc.
 		if (bot.isCastingNow() || bot.isAttackingNow() || bot.isAllSkillsDisabled() || (bot.getAI().getIntention() == Intention.CAST) || bot.isMovementDisabled() || bot.isOutOfControl())
 		{
+			PROGRESS.remove(id); // A cast/CC pause must never count as being stuck.
 			return;
 		}
 		ChaseState previous = STATES.get(id);
 		if ((previous != null) && ((previous.gameId() != bot.getOlympiadGameId()) || (previous.enemyId() != enemy.getObjectId())))
 		{
-			STATES.remove(id);
+			forget(id);
 			previous = null;
 		}
 
-		if (bot.calculateDistance2D(enemy) <= holdRange)
+		final Engagement engaged = ENGAGED.get(id);
+		if ((engaged != null) && (engaged.gameId() != bot.getOlympiadGameId() || engaged.enemyId() != enemy.getObjectId()))
 		{
-			STATES.remove(id);
+			ENGAGED.remove(id);
+		}
+		final boolean visible = GeoEngine.getInstance().canSeeTarget(bot, enemy);
+		final double distanceToEnemy = bot.calculateDistance2D(enemy);
+		if (visible && ((distanceToEnemy <= holdRange) || (ENGAGED.containsKey(id) && distanceToEnemy <= holdRange + 60)))
+		{
+			forget(id);
+			ENGAGED.put(id, new Engagement(bot.getOlympiadGameId(), enemy.getObjectId())); // Range hysteresis: do not shuffle at 499/501 every tick.
 			// Stop only OUR old move, never a retreat or the core's attack/cast approach.
 			if ((previous != null) && (bot.getAI().getIntention() == Intention.MOVE_TO) && ownsMove(bot, previous))
 			{
@@ -74,13 +96,27 @@ public final class OlympiadChase
 			return;
 		}
 
+		ENGAGED.remove(id);
+
 		// Move a little inside the engagement threshold, avoiding a stop just outside it.
-		final int stopRange = Math.max(0, holdRange - 50);
+		final int stopRange = visible ? Math.max(0, holdRange - 50) : 50;
 		final boolean enemyMoving = enemy.isMoving() && !enemy.isMovementDisabled();
 		final Location predicted = intercept(bot.getX(), bot.getY(), bot.getMoveSpeed(), enemy.getX(), enemy.getY(), enemy.getZ(),
 			enemyMoving ? enemy.getXdestination() : enemy.getX(), enemyMoving ? enemy.getYdestination() : enemy.getY(),
 			enemyMoving ? enemy.getMoveSpeed() : 0, stopRange);
 		Location point = walkable(bot, predicted, arenaX, arenaY, arenaRadius) ? predicted : null;
+		final Progress progress = PROGRESS.get(id);
+		if ((progress == null) || Math.hypot((double) bot.getX() - progress.x(), (double) bot.getY() - progress.y()) >= 20)
+		{
+			PROGRESS.put(id, new Progress(bot.getX(), bot.getY(), now));
+		}
+		else if (bot.isMoving() && (previous != null) && ownsMove(bot, previous) && ((now - progress.since()) >= STUCK_NANOS))
+		{
+			// A short checked sidestep, not a teleport or a repeated run into the same wall.
+			point = sideStep(bot, predicted, arenaX, arenaY, arenaRadius);
+			PROGRESS.put(id, new Progress(bot.getX(), bot.getY(), now));
+		}
+
 		if (point == null)
 		{
 			// No shortcut through a wall: try the ordinary current-position approach.
@@ -91,10 +127,15 @@ public final class OlympiadChase
 				point = direct;
 			}
 		}
+		if (point == null && !visible)
+		{
+			// Same range is not enough behind a pillar: try a short checked flank.
+			point = sideStep(bot, predicted, arenaX, arenaY, arenaRadius);
+		}
 		if (point == null)
 		{
 			// Neither segment is safe. Stop only our route; leave normal pathfinding alone.
-			STATES.remove(id);
+			forget(id);
 			if ((previous != null) && (bot.getAI().getIntention() == Intention.MOVE_TO) && ownsMove(bot, previous))
 			{
 				bot.getAI().setIntentionIdle();
@@ -102,7 +143,6 @@ public final class OlympiadChase
 			return;
 		}
 
-		final long now = System.nanoTime();
 		if ((previous != null) && ((now - previous.issuedAt()) < MIN_REPATH_NANOS))
 		{
 			return;
@@ -114,6 +154,34 @@ public final class OlympiadChase
 			bot.getAI().setIntentionMoveTo(point);
 			STATES.put(id, new ChaseState(bot.getOlympiadGameId(), enemy.getObjectId(), point.getX(), point.getY(), point.getZ(), now));
 		}
+	}
+
+	private static Location sideStep(Player bot, Location toward, int arenaX, int arenaY, double radius)
+	{
+		final double dx = (double) toward.getX() - bot.getX();
+		final double dy = (double) toward.getY() - bot.getY();
+		final double distance = Math.hypot(dx, dy);
+		if (distance < 1)
+		{
+			return null;
+		}
+		Location best = null;
+		double bestDistance = Double.MAX_VALUE;
+		for (double angle : new double[] { Math.PI / 4, -Math.PI / 4, Math.PI / 2, -Math.PI / 2 })
+		{
+			final double ux = dx / distance;
+			final double uy = dy / distance;
+			final int x = bot.getX() + (int) Math.round(160 * (ux * Math.cos(angle) - uy * Math.sin(angle)));
+			final int y = bot.getY() + (int) Math.round(160 * (ux * Math.sin(angle) + uy * Math.cos(angle)));
+			final Location candidate = new Location(x, y, bot.getZ());
+			final double remaining = Math.hypot((double) toward.getX() - x, (double) toward.getY() - y);
+			if (remaining <= distance + 30 && remaining < bestDistance && walkable(bot, candidate, arenaX, arenaY, radius))
+			{
+				best = candidate;
+				bestDistance = remaining;
+			}
+		}
+		return best;
 	}
 
 	private static boolean ownsMove(Player bot, ChaseState state)
@@ -136,6 +204,8 @@ public final class OlympiadChase
 	public static synchronized void forget(int objectId)
 	{
 		STATES.remove(objectId);
+		PROGRESS.remove(objectId);
+		ENGAGED.remove(objectId);
 	}
 
 	/** Pure geometry, package-visible for repeatable tests without a GameServer/DB. */
