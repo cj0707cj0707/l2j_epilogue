@@ -1,0 +1,119 @@
+{
+  "base_commit": "7400c094f2c7a75a7d84e3398123c0d2e0fe04cb",
+  "backup_branch": "backup/bots-before-combat-fixes-2026-10-15",
+  "scope": "Repository bot scripts, bot configuration, tests and structure docs only. Not a live server/database backup.",
+  "files": [
+    {
+      "path": "game/config/Custom/FakePlayersAI.ini",
+      "sha256": "07ec5b21002f3887db3f5e74782797d0a4b0232c37a250323e49c2b25fbbf50f"
+    },
+    {
+      "path": "game/config/Custom/FakePlayersAIOverrides.ini",
+      "sha256": "cdb1da17e6de8d237411d44ed79d9b605f278c792256c6981651f72f20534fb3"
+    },
+    {
+      "path": "game/data/scripts/custom/fakeplayersai/BotClassPreset.java",
+      "sha256": "f6e416912a3a41b247926e784d640c41a9acbf8d5e6c61887887dfd5e4baf2fa"
+    },
+    {
+      "path": "game/data/scripts/custom/fakeplayersai/BotManager.java",
+      "sha256": "f9490ad463d6d4720e139377e28cd9a2e1b6bc4e5cdf51e69c0de1e75cdd38ba"
+    },
+    {
+      "path": "game/data/scripts/custom/fakeplayersai/BotPresets.java",
+      "sha256": "d0beea7fdf9fc1dfbfab9366915b59883e8fc879086bcba205c2cea0aadc6516"
+    },
+    {
+      "path": "game/data/scripts/custom/fakeplayersai/BotSettings.java",
+      "sha256": "7e048f28788eeb682d1ac916297cf81d2020bb601efb0f899dbb7427c3cb53eb"
+    },
+    {
+      "path": "game/data/scripts/custom/fakeplayersai/BotSpawner.java",
+      "sha256": "1d1acec65339ce355e90f6005c3d8811337e0cb12ff935e48bde39c4cf45e488"
+    },
+    {
+      "path": "game/data/scripts/custom/fakeplayersai/OlympiadChase.java",
+      "sha256": "8574cca0d52e57e188e4a3b2e6bfe71691a6d1d8800a6a54b66a2b68b80c4597"
+    },
+    {
+      "path": "game/data/scripts/custom/fakeplayersai/registry.properties",
+      "sha256": "062fc5a318b8d2344d768f543ca95781294483e4c47b855887af2854c656b14e"
+    },
+    {
+      "path": "structure/01-root-structure.md",
+      "sha256": "3647849331bbf808d00ca580b65a6e9c41d8129c3206ddbdf90793c85e9b4d56"
+    },
+    {
+      "path": "structure/02-launching.md",
+      "sha256": "cce39a56bc0e18d38767139e09510953ea6ed6f21669b6b44f0fd0bda0c50678"
+    },
+    {
+      "path": "structure/03-game-config.md",
+      "sha256": "eef366719c01d322e561bb9946844b1ed801183e41b74f942ec7e854b01ed85d"
+    },
+    {
+      "path": "structure/04-login-server.md",
+      "sha256": "ff987082c44b6393e8933147e17e3b5b8f6960df012dfb34b63a2b32076c52dd"
+    },
+    {
+      "path": "structure/05-datapack-data.md",
+      "sha256": "d02fd1746e37a0c8f19e34396d45d951523852dc8abdd8c8efc7a4959a2449a4"
+    },
+    {
+      "path": "structure/06-scripts-and-quests.md",
+      "sha256": "3b3a66936fb0083e9ada69acd987b2bb7e84506c815fe3111383ee2c8338fca0"
+    },
+    {
+      "path": "structure/07-database.md",
+      "sha256": "90315f1c31aca2a66858089f39e1af8f5239d9fd1892776de0e7e864200b145d"
+    },
+    {
+      "path": "structure/08-admin-and-mods.md",
+      "sha256": "1cea10d834dca6d81ddf127c88d6cb08a376c1e61c68fb66500983e49a51f108"
+    },
+    {
+      "path": "structure/09-fake-players-ai.md",
+      "sha256": "e032a87d70622283027cd729d7c570e8367cb7ba92522fb1af97d70ab867dae8"
+    },
+    {
+      "path": "structure/10-stun-visual-and-olympiad-ui.md",
+      "sha256": "eabed7227c9f420cd1aaddaf778ba92c4094c914f16e9fc345a6eaca749be31d"
+    },
+    {
+      "path": "structure/11-line-of-sight-fix.md",
+      "sha256": "449b6316281fa9a0e46a54b8200732d9e75f21fec19480d740e5995c8f0dfe91"
+    },
+    {
+      "path": "structure/12-blink-fix.md",
+      "sha256": "26f50da15d397e851ee9b188cb4d9896a602df1c6706d8d07307f64495bafee1"
+    },
+    {
+      "path": "structure/13-oly-remote-registration.md",
+      "sha256": "fd0193cc04663debd50e6d4ce62e3fd13cbac47c8037830450fb46d462873d33"
+    },
+    {
+      "path": "structure/14-bluff-turn.md",
+      "sha256": "725f70428f19c6242032ae147172c7e5d970ab079a5023176ab0ab533a732948"
+    },
+    {
+      "path": "structure/15-dominator-enlightenment.md",
+      "sha256": "055d071bde7a1cda10a063d29125523af7e927a2fb5ce42dad6a890c5d40e095"
+    },
+    {
+      "path": "structure/16-giran-adena-giver.md",
+      "sha256": "7e7e23f5afed883fbcb9e70d82994f9cb06d6791209c76a485843580b0e5b998"
+    },
+    {
+      "path": "structure/17-olympiad-predictive-chase.md",
+      "sha256": "2ff9199cca82b9ff5a0bac58205e8dc847ce2725b5f8da46979514c7c7e3244c"
+    },
+    {
+      "path": "structure/README.md",
+      "sha256": "9712bcfab8049e367440b03599a05dbae008d68b151c2eefef1e93b258640ab1"
+    },
+    {
+      "path": "tests/fakeplayersai/run_olympiad_chase_tests.py",
+      "sha256": "8b6ea3c54d1e155cbaed7118b16e82eea8d28419af8b7a1c63bc8a5ab5c219d7"
+    }
+  ]
+}

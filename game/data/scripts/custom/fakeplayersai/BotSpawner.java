@@ -38,7 +38,6 @@ import org.l2jmobius.gameserver.mechanics.skill.targets.TargetType;
 import org.l2jmobius.gameserver.mechanics.stats.Stat;
 import org.l2jmobius.gameserver.mechanics.stats.functions.FuncTemplate;
 import org.l2jmobius.gameserver.network.serverpackets.InventoryUpdate;
-import org.l2jmobius.gameserver.network.serverpackets.MagicSkillUse;
 
 /**
  * @author FakePlayersAI
@@ -666,7 +665,7 @@ public class BotSpawner
 		// set - but the landing goes through the full core success formula
 		// (Formulas.calcEffectSuccess: debuff immunity, basicProperty resist,
 		// trait/element mods), and the +30 Chance enchant maximizes the rate.
-		player.broadcastPacket(new MagicSkillUse(player, target, skill.getId(), skill.getLevel(), skill.getHitTime(), skill.getReuseDelay()));
+		// Instant effect: never announce a timed cast that the server is not executing.
 		skill.applyEffects(player, target);
 		// Start the skill's normal reuse delay (see the reuse gate above).
 		if (skill.getReuseDelay() > 0)
@@ -1636,7 +1635,6 @@ public class BotSpawner
 				continue;
 			}
 			// Same application style as the core's OlympiadGameTask.applyBuffs().
-			player.broadcastPacket(new MagicSkillUse(player, player, skill.getId(), skill.getLevel(), skill.getHitTime(), skill.getReuseDelay()));
 			skill.applyEffects(player, player);
 			applied++;
 		}
@@ -1841,7 +1839,6 @@ public class BotSpawner
 				continue;
 			}
 
-			player.broadcastPacket(new MagicSkillUse(player, player, skill.getId(), skill.getLevel(), skill.getHitTime(), skill.getReuseDelay()));
 			skill.applyEffects(player, player);
 			applied++;
 		}
@@ -1996,7 +1993,6 @@ public class BotSpawner
 				continue;
 			}
 
-			player.broadcastPacket(new MagicSkillUse(player, player, skill.getId(), skill.getLevel(), skill.getHitTime(), skill.getReuseDelay()));
 			skill.applyEffects(player, player);
 			applied++;
 		}
@@ -2043,7 +2039,6 @@ public class BotSpawner
 			return;
 		}
 
-		player.broadcastPacket(new MagicSkillUse(player, player, skill.getId(), skill.getLevel(), skill.getHitTime(), skill.getReuseDelay()));
 		skill.applyEffects(player, player);
 		LOGGER.info("FakePlayersAI: oly-openers " + player.getName() + ": " + skill.getName() + " (skill " + skill.getId() + ") applied 1 second after the gates.");
 	}
@@ -2146,7 +2141,6 @@ public class BotSpawner
 			return; // already up - nothing to apply
 		}
 
-		player.broadcastPacket(new MagicSkillUse(player, player, skill.getId(), skill.getLevel(), 0, 0));
 		skill.applyEffects(player, player);
 		LOGGER.info("FakePlayersAI: oly-openers " + player.getName() + ": " + skill.getName() + " (skill " + skill.getId() + ") applied.");
 	}

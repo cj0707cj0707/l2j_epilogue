@@ -47,6 +47,7 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 | [15-dominator-enlightenment.md](15-dominator-enlightenment.md) | Фикс 03.10.2026: Enlightenment у Dominator — «волшебный» вариант 1532 (+40% M.Atk) вместо «хилерского» 1533 (+10% M.Atk/+40% Heal), как у всех магических классов; то же в бот-пресете |
 | [16-giran-adena-giver.md](16-giran-adena-giver.md) | NPC Adena Giver в Гиране: 100 000 000 адены за нажатие, файлы, проверки и установка |
 | [17-olympiad-predictive-chase.md](17-olympiad-predictive-chase.md) | Олимпийские боты: чтение направления движения противника, прогноз перехвата и сокращение дистанции |
+| [18-bot-combat-fixes-and-rollback.md](18-bot-combat-fixes-and-rollback.md) | Исправление ложных кастов ботов, улучшения боя и резервная точка/порядок отката |
 
 ## Куда смотреть при типовых задачах
 
