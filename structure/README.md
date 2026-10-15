@@ -48,6 +48,7 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 | [16-giran-adena-giver.md](16-giran-adena-giver.md) | NPC Adena Giver в Гиране: 100 000 000 адены за нажатие, файлы, проверки и установка |
 | [17-olympiad-predictive-chase.md](17-olympiad-predictive-chase.md) | Олимпийские боты: чтение направления движения противника, прогноз перехвата и сокращение дистанции |
 | [18-bot-combat-fixes-and-rollback.md](18-bot-combat-fixes-and-rollback.md) | Исправление ложных кастов ботов, улучшения боя и резервная точка/порядок отката |
+| [19-pursuit-movement-ownership.md](19-pursuit-movement-ownership.md) | Перехват v2: конфликт CAST-подхода/автокаста, приоритет движения, диагностика, установка и отдельный откат |
 
 ## Куда смотреть при типовых задачах
 
@@ -64,7 +65,7 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 | Проблемы с БД, восстановление | `07-database.md` |
 | Аккаунты, баны, права | `08-admin-and-mods.md` |
 | Боты FakePlayersAI (спавн, ротации, олимпиада) | `09-fake-players-ai.md` |
-| Перехват убегающего противника ботами на олимпиаде | `17-olympiad-predictive-chase.md` |
+| Перехват убегающего противника ботами на олимпиаде | `17-olympiad-predictive-chase.md`; актуальный фикс/диагностика — `19-pursuit-movement-ownership.md` |
 | Визуальные эффекты (стан/звёзды), панель противника олимпиады | `10-stun-visual-and-olympiad-ui.md` |
 | Неработающие скиллы (Blink и т.п.) — что смотреть в цепочке каста | `12-blink-fix.md` |
 | Bluff / Blinding Blow не разворачивают противника | `14-bluff-turn.md` |

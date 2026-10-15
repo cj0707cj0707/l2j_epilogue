@@ -1278,8 +1278,8 @@ public class BotSpawner
 		player.addAutoSoulShot(BotPresets.getFighterShotId());
 		player.addAutoSoulShot(BLESSED_SPIRITSHOT_S);
 		
-		// Start both engines.
-		AutoPlayTaskManager.getInstance().startAutoPlay(player);
+		// AutoUse stays available for items; pursuit owns movement until combat range.
+		OlympiadChase.startAutoPlayUnlessPursuing(player);
 		AutoUseTaskManager.getInstance().startAutoUseTask(player);
 	}
 	
@@ -1287,6 +1287,7 @@ public class BotSpawner
 	{
 		// Reset the offline play marker first, so the stop calls below cannot touch
 		// the OfflinePlayTable (bots are never stored there).
+		OlympiadChase.forget(player.getObjectId());
 		player.setOfflinePlay(false);
 		player.getAutoUseSettings().setSelfCastOnly(false);
 		AutoPlayTaskManager.getInstance().stopAutoPlay(player);
@@ -1324,6 +1325,11 @@ public class BotSpawner
 		}
 
 		final Collection<Integer> autoBuffs = player.getAutoUseSettings().getAutoBuffs();
+		if (OlympiadChase.isPursuing(player.getObjectId()))
+		{
+			autoBuffs.clear(); // Do not create a new stationary cast during an intercept.
+			return;
+		}
 		final int[] desired = preset.getBuffs();
 
 		// Olympiad gates: the dagger evasion openers are opener-burst-only (never cast by the
@@ -1438,6 +1444,12 @@ public class BotSpawner
 		player.getAutoUseSettings().getAutoSkills().removeIf(id -> id == VENGEANCE_ID);
 
 		final Collection<Integer> autoBuffs = player.getAutoUseSettings().getAutoBuffs();
+
+		if (OlympiadChase.isPursuing(player.getObjectId()))
+		{
+			autoBuffs.clear();
+			return;
+		}
 
 		// Before the gates open: no defensive buffing (the general countdown rule).
 		// Already active effects are not cancelled - the rule forbids casting, not holding.

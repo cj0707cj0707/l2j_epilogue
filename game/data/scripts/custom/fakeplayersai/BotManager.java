@@ -510,7 +510,7 @@ public class BotManager
 		// of this session has finished yet - see olympiadPointsCatchUp().
 		ThreadPool.schedule(BotManager::olympiadPointsCatchUp, (SETTINGS.getSpawnDelaySeconds() + 70) * 1000L);
 
-		LOGGER.info("FakePlayersAI: initialized, " + SETTINGS.getBotCount() + " bots scheduled.");
+		LOGGER.info("FakePlayersAI: initialized, " + SETTINGS.getBotCount() + " bots scheduled; predictive-chase v2 (movement ownership).");
 	}
 
 	// ------------------------------------------------------------------
@@ -1013,7 +1013,7 @@ public class BotManager
 				// engines there (it stops them on purpose for the distance-breaking runs);
 				// the fast combat tick repairs them when needed.
 				if (!_combatPaused && (!bot.isAutoPlaying() || bot.getAutoUseSettings().getAutoSkills().isEmpty())
-					&& !BERSERKER_STATES.containsKey(bot.getObjectId()))
+					&& !BERSERKER_STATES.containsKey(bot.getObjectId()) && !OlympiadChase.isPursuing(bot.getObjectId()))
 				{
 					final BotClassPreset preset = BotPresets.getPresetByClassId(BOT_CLASSES.getOrDefault(bot.getObjectId(), bot.getPlayerClass().getId()));
 					if (preset != null)
@@ -1028,7 +1028,7 @@ public class BotManager
 					if ((_tickerCycle % 3) == 0)
 					{
 						final WorldObject t = bot.getTarget();
-						LOGGER.info("FakePlayersAI: oly-dbg " + bot.getName() + ": tgt=" + (t != null ? t.getName() : "null") + ", distToTgt=" + (t != null ? (int) bot.calculateDistance2D(t) : -1) + ", intent=" + bot.getAI().getIntention() + ", mv=" + bot.isMoving() + ", start=" + bot.isOlympiadStart() + ", gameId=" + bot.getOlympiadGameId() + ", pos=" + bot.getX() + "," + bot.getY());
+						LOGGER.info("FakePlayersAI: oly-dbg " + bot.getName() + ": tgt=" + (t != null ? t.getName() : "null") + ", distToTgt=" + (t != null ? (int) bot.calculateDistance2D(t) : -1) + ", intent=" + bot.getAI().getIntention() + ", mv=" + bot.isMoving() + ", start=" + bot.isOlympiadStart() + ", gameId=" + bot.getOlympiadGameId() + ", pos=" + bot.getX() + "," + bot.getY() + ", chase=" + OlympiadChase.describe(bot.getObjectId()) + ", autoPlay=" + bot.isAutoPlaying() + ", cast=" + bot.isCastingNow());
 					}
 					continue;
 				}
@@ -1634,7 +1634,7 @@ public class BotManager
 							armBerserkerCombat(bot, preset, berserkerState);
 						}
 					}
-					else if (!bot.isAutoPlaying() || bot.getAutoUseSettings().getAutoSkills().isEmpty())
+					else if (!OlympiadChase.isPursuing(bot.getObjectId()) && (!bot.isAutoPlaying() || bot.getAutoUseSettings().getAutoSkills().isEmpty()))
 					{
 						BotSpawner.applyAutoCombat(bot, preset);
 					}
@@ -1841,7 +1841,8 @@ public class BotManager
 				// olympiad alike) - the point is re-issued whenever the player has moved on
 				// from the previously issued one or the bot is standing still, so the bot
 				// never walks to a stale position. While the distance is being closed the
-				// auto skill rotation keeps firing; a casting bot is never interrupted.
+				// world auto skill rotation keeps firing; a casting bot is never interrupted.
+				// Olympiad pursuit instead leases movement and pauses NEW rotation casts.
 				// Active olympiad matches use the shared predictive driver instead; casters
 				// and bows keep their hold ranges, melee cuts toward the bounded intercept.
 				boolean closingIn = false;
@@ -1995,7 +1996,7 @@ public class BotManager
 					bot.getAI().setIntentionIdle();
 				}
 
-				if (!closingIn && ((preset == null) || !preset.isCaster()) && (intention != Intention.ATTACK) && (intention != Intention.CAST) && !bot.isMoving() && target.asCreature().isAutoAttackable(bot))
+				if (!closingIn && !OlympiadChase.isPursuing(bot.getObjectId()) && ((preset == null) || !preset.isCaster()) && (intention != Intention.ATTACK) && (intention != Intention.CAST) && !bot.isMoving() && target.asCreature().isAutoAttackable(bot))
 				{
 					bot.getAI().setIntentionAttack(target);
 				}
@@ -2112,7 +2113,7 @@ public class BotManager
 				final BotClassPreset preset = BotPresets.getPresetByClassId(getBotClassId(bot));
 				final boolean caster = (preset != null) && preset.isCaster();
 				final WorldObject currentTarget = bot.getTarget();
-				if (!caster && !bot.isCastingNow() && !bot.isMoving() && (currentTarget != null) && currentTarget.isCreature()
+				if (!caster && !OlympiadChase.isPursuing(bot.getObjectId()) && !bot.isCastingNow() && !bot.isMoving() && (currentTarget != null) && currentTarget.isCreature()
 					&& !currentTarget.asCreature().isAlikeDead() && currentTarget.asCreature().isAutoAttackable(bot))
 				{
 					final Intention intention = bot.getAI().getIntention();
@@ -2188,7 +2189,7 @@ public class BotManager
 			return;
 		}
 		final int[] center = OLYMPIAD_STADIUM_CENTERS[gameId];
-		OlympiadChase.update(bot, getOlympiadOpponent(bot), holdRange, attackInRange, center[0], center[1], OLYMPIAD_ARENA_MAX_DISTANCE);
+		OlympiadChase.update(bot, getOlympiadOpponent(bot), holdRange, attackInRange, center[0], center[1], OLYMPIAD_ARENA_MAX_DISTANCE, !BERSERKER_STATES.containsKey(bot.getObjectId()));
 	}
 
 	/**
@@ -2469,9 +2470,17 @@ public class BotManager
 			armBerserkerCombat(bot, preset, state);
 			return true;
 		}
-		if (bot.isCastingNow() || (bot.getAI().getIntention() == Intention.CAST))
+		if (bot.isCastingNow())
 		{
-			return true; // Never queue a competing cast, or abort a real filler for a rush.
+			return true; // Never abort a real filler for a rush.
+		}
+		if ((bot.getAI().getIntention() == Intention.CAST) && (dist > CHASE_RANGE))
+		{
+			// Filler useMagic can leave CAST while merely following an out-of-range foe.
+			// Give that non-casting approach back to the phase driver's movement.
+			stopBerserkerEngines(bot, state);
+			moveForOlympiadChase(bot, CHASE_RANGE, true);
+			return true;
 		}
 
 		if ((!enemy.isPlayer() || !enemy.asPlayer().isMageClass())
@@ -2532,10 +2541,12 @@ public class BotManager
 			state.retreating = false;
 			state.rushDone = true;
 			state.disarmDone = state.enumaDone = state.crushingDone = false;
-			armBerserkerCombat(bot, preset, state);
 		}
 
-		armBerserkerCombat(bot, preset, state);
+		if (dist <= CHASE_RANGE)
+		{
+			armBerserkerCombat(bot, preset, state);
+		}
 		// castSkill pauses the filler engine only after a skill passes the range gates.
 		// Do not reset the rotation order every 250 ms while merely considering a cast.
 		if (!state.disarmDone && (dist <= BERSERKER_DISARM_MAX_DISTANCE) && castSkill(bot, BERSERKER_DISARM_ID))
@@ -2568,8 +2579,16 @@ public class BotManager
 				state.rushDone = false;
 			}
 		}
+		if (dist > CHASE_RANGE)
+		{
+			// No in-range phase skill to cast: keep BOTH engines stopped for this
+			// approach. Re-arming every 250 ms would recreate the CAST-follow loop.
+			stopBerserkerEngines(bot, state);
+			moveForOlympiadChase(bot, CHASE_RANGE, true);
+			return true;
+		}
 		AutoUseTaskManager.getInstance().startAutoUseTask(bot);
-		if (dist <= CHASE_RANGE && (bot.getAI().getIntention() != Intention.ATTACK))
+		if (bot.getAI().getIntention() != Intention.ATTACK)
 		{
 			bot.getAI().setIntentionAttack(enemy);
 		}

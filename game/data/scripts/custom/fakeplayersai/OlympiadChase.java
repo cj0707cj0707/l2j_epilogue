@@ -12,6 +12,7 @@ import org.l2jmobius.gameserver.ai.Intention;
 import org.l2jmobius.gameserver.entity.Location;
 import org.l2jmobius.gameserver.entity.actor.Player;
 import org.l2jmobius.gameserver.geoengine.GeoEngine;
+import org.l2jmobius.gameserver.taskmanagers.AutoPlayTaskManager;
 
 public final class OlympiadChase
 {
@@ -22,6 +23,8 @@ public final class OlympiadChase
 	private static final Map<Integer, ChaseState> STATES = new HashMap<>();
 	private static final Map<Integer, Progress> PROGRESS = new HashMap<>();
 	private static final Map<Integer, Engagement> ENGAGED = new HashMap<>();
+	// IDs only: no Player references retained after a match/despawn.
+	private static final Map<Integer, Engagement> ENGINE_HOLDS = new HashMap<>();
 	private static final long STUCK_NANOS = 1_500_000_000L;
 
 	private record Engagement(int gameId, int enemyId)
@@ -44,6 +47,12 @@ public final class OlympiadChase
 	/** Serialized with the 2-second combat driver, so both callers share one route owner. */
 	public static synchronized void update(Player bot, Player enemy, int holdRange, boolean attackInRange, int arenaX, int arenaY, double arenaRadius)
 	{
+		update(bot, enemy, holdRange, attackInRange, arenaX, arenaY, arenaRadius, true);
+	}
+
+	/** The berserker phase driver owns its engines; shared pursuit must not restart them. */
+	public static synchronized void update(Player bot, Player enemy, int holdRange, boolean attackInRange, int arenaX, int arenaY, double arenaRadius, boolean manageEngines)
+	{
 		final int id = bot.getObjectId();
 		final long now = System.nanoTime();
 		if ((enemy == null) || (bot == enemy) || !bot.isInOlympiadMode() || !bot.isOlympiadStart()
@@ -57,12 +66,6 @@ public final class OlympiadChase
 			return;
 		}
 
-		// Never replace a live/queued cast, fear/confusion movement, root, stun, etc.
-		if (bot.isCastingNow() || bot.isAttackingNow() || bot.isAllSkillsDisabled() || (bot.getAI().getIntention() == Intention.CAST) || bot.isMovementDisabled() || bot.isOutOfControl())
-		{
-			PROGRESS.remove(id); // A cast/CC pause must never count as being stuck.
-			return;
-		}
 		ChaseState previous = STATES.get(id);
 		if ((previous != null) && ((previous.gameId() != bot.getOlympiadGameId()) || (previous.enemyId() != enemy.getObjectId())))
 		{
@@ -70,6 +73,12 @@ public final class OlympiadChase
 			previous = null;
 		}
 
+		final Engagement held = ENGINE_HOLDS.get(id);
+		if (!manageEngines || ((held != null) && (held.gameId() != bot.getOlympiadGameId() || held.enemyId() != enemy.getObjectId())))
+		{
+			// Drop the lease on a context change. Only a normal re-arm may start a new owner.
+			ENGINE_HOLDS.remove(id);
+		}
 		final Engagement engaged = ENGAGED.get(id);
 		if ((engaged != null) && (engaged.gameId() != bot.getOlympiadGameId() || engaged.enemyId() != enemy.getObjectId()))
 		{
@@ -79,10 +88,11 @@ public final class OlympiadChase
 		final double distanceToEnemy = bot.calculateDistance2D(enemy);
 		if (visible && ((distanceToEnemy <= holdRange) || (ENGAGED.containsKey(id) && distanceToEnemy <= holdRange + 60)))
 		{
+			releaseEngines(bot);
 			forget(id);
 			ENGAGED.put(id, new Engagement(bot.getOlympiadGameId(), enemy.getObjectId())); // Range hysteresis: do not shuffle at 499/501 every tick.
 			// Stop only OUR old move, never a retreat or the core's attack/cast approach.
-			if ((previous != null) && (bot.getAI().getIntention() == Intention.MOVE_TO) && ownsMove(bot, previous))
+			if (!busy(bot) && (previous != null) && (bot.getAI().getIntention() == Intention.MOVE_TO) && ownsMove(bot, previous))
 			{
 				if (attackInRange && (bot.getTarget() == enemy))
 				{
@@ -97,6 +107,24 @@ public final class OlympiadChase
 		}
 
 		ENGAGED.remove(id);
+		if (manageEngines && (ENGINE_HOLDS.containsKey(id) || bot.isAutoPlaying()))
+		{
+			ENGINE_HOLDS.put(id, new Engagement(bot.getOlympiadGameId(), enemy.getObjectId()));
+			// Removing from the pool is necessary: AutoPlay does NOT test isAutoPlaying().
+			// AutoUse remains registered for potions/items, but its offensive rotation tests it.
+			AutoPlayTaskManager.getInstance().stopAutoPlay(bot);
+			bot.setAutoPlaying(false);
+			// Self-buffs are processed even with autoPlay=false. Do not schedule new casts
+			// during pursuit; active effects and an already running real cast are untouched.
+			bot.getAutoUseSettings().getAutoBuffs().clear();
+		}
+		if (busy(bot))
+		{
+			PROGRESS.remove(id); // A real cast/CC pause must never count as being stuck.
+			return;
+		}
+		// CAST with !isCastingNow is PlayerAI's walk-into-range state, not a live cast.
+		// Normal MOVE_TO replaces that follow order without aborting/forging a cast.
 
 		// Move a little inside the engagement threshold, avoiding a stop just outside it.
 		final int stopRange = visible ? Math.max(0, holdRange - 50) : 50;
@@ -135,8 +163,9 @@ public final class OlympiadChase
 		if (point == null)
 		{
 			// Neither segment is safe. Stop only our route; leave normal pathfinding alone.
+			releaseEngines(bot);
 			forget(id);
-			if ((previous != null) && (bot.getAI().getIntention() == Intention.MOVE_TO) && ownsMove(bot, previous))
+			if (!busy(bot) && (previous != null) && (bot.getAI().getIntention() == Intention.MOVE_TO) && ownsMove(bot, previous))
 			{
 				bot.getAI().setIntentionIdle();
 			}
@@ -152,8 +181,50 @@ public final class OlympiadChase
 		if (changed || !bot.isMoving() || (previous != null && !ownsMove(bot, previous)))
 		{
 			bot.getAI().setIntentionMoveTo(point);
-			STATES.put(id, new ChaseState(bot.getOlympiadGameId(), enemy.getObjectId(), point.getX(), point.getY(), point.getZ(), now));
+			final ChaseState issued = new ChaseState(bot.getOlympiadGameId(), enemy.getObjectId(), point.getX(), point.getY(), point.getZ(), now);
+			if ((bot.getAI().getIntention() == Intention.MOVE_TO) && ownsMove(bot, issued))
+			{
+				STATES.put(id, issued); // Never cache a refused/saved intention as a running route.
+			}
+			else
+			{
+				STATES.remove(id);
+			}
 		}
+	}
+
+	private static boolean busy(Player bot)
+	{
+		return bot.isCastingNow() || bot.isAttackingNow() || bot.isAllSkillsDisabled() || bot.isMovementDisabled() || bot.isOutOfControl();
+	}
+
+	public static synchronized boolean isPursuing(int objectId)
+	{
+		return ENGINE_HOLDS.containsKey(objectId);
+	}
+
+	/** Called by setup/repair too: those paths must not overwrite a pursuit lease. */
+	public static synchronized void startAutoPlayUnlessPursuing(Player bot)
+	{
+		if (!ENGINE_HOLDS.containsKey(bot.getObjectId()))
+		{
+			AutoPlayTaskManager.getInstance().startAutoPlay(bot);
+		}
+	}
+
+	private static void releaseEngines(Player bot)
+	{
+		if (ENGINE_HOLDS.remove(bot.getObjectId()) != null)
+		{
+			AutoPlayTaskManager.getInstance().startAutoPlay(bot);
+		}
+	}
+
+	/** Compact state for the existing 30-second olympiad log, not per-tick spam. */
+	public static synchronized String describe(int objectId)
+	{
+		final ChaseState route = STATES.get(objectId);
+		return "v2:held=" + ENGINE_HOLDS.containsKey(objectId) + ",point=" + (route == null ? "none" : route.x() + ":" + route.y());
 	}
 
 	private static Location sideStep(Player bot, Location toward, int arenaX, int arenaY, double radius)
@@ -206,6 +277,7 @@ public final class OlympiadChase
 		STATES.remove(objectId);
 		PROGRESS.remove(objectId);
 		ENGAGED.remove(objectId);
+		ENGINE_HOLDS.remove(objectId); // No restart on death, teleport, despawn or invalid match.
 	}
 
 	/** Pure geometry, package-visible for repeatable tests without a GameServer/DB. */

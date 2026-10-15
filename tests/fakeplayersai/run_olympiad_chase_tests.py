@@ -23,7 +23,15 @@ STUBS = {
         public int id, x,y,z,dx,dy,dz,game=0,instance=0;
         public double speed=240;
         public boolean mode=true,start=true,dead,teleport,casting,disabled,outOfControl,moving,attacking,allDisabled;
-        public boolean attackable=true;
+        public boolean attackable=true,autoPlaying,rejectMove;
+        public int itemTicks,rotationTicks;
+        public final Settings settings=new Settings();
+        public static class Settings {
+            public final java.util.Collection<Integer> buffs=new java.util.concurrent.CopyOnWriteArrayList<>();
+            public java.util.Collection<Integer> getAutoBuffs(){return buffs;}
+        }
+        public Settings getAutoUseSettings(){return settings;}
+        public boolean isAutoPlaying(){return autoPlaying;} public void setAutoPlaying(boolean b){autoPlaying=b;}
         public Player target;
         public final AI ai=new AI();
         public Player(int id,int x,int y){this.id=id;this.x=x;this.y=y;}
@@ -41,10 +49,21 @@ STUBS = {
             public org.l2jmobius.gameserver.ai.Intention intention=org.l2jmobius.gameserver.ai.Intention.IDLE;
             public int moves=0,attacks=0,idles=0;
             public org.l2jmobius.gameserver.ai.Intention getIntention(){return intention;}
-            public void setIntentionMoveTo(org.l2jmobius.gameserver.entity.Location p){moves++;dx=p.getX();dy=p.getY();dz=p.getZ();moving=true;intention=org.l2jmobius.gameserver.ai.Intention.MOVE_TO;}
+            public void setIntentionMoveTo(org.l2jmobius.gameserver.entity.Location p){moves++;if(rejectMove)return;dx=p.getX();dy=p.getY();dz=p.getZ();moving=true;intention=org.l2jmobius.gameserver.ai.Intention.MOVE_TO;}
             public void setIntentionIdle(){idles++;moving=false;intention=org.l2jmobius.gameserver.ai.Intention.IDLE;}
             public void setIntentionAttack(Player p){attacks++;moving=false;intention=org.l2jmobius.gameserver.ai.Intention.ATTACK;}
         }
+    }""",
+    "taskmanagers.AutoPlayTaskManager": """public class AutoPlayTaskManager {
+        private static final AutoPlayTaskManager INSTANCE=new AutoPlayTaskManager();
+        public static final java.util.Set<org.l2jmobius.gameserver.entity.actor.Player> pool=new java.util.HashSet<>();
+        public static int starts,stops;
+        public static AutoPlayTaskManager getInstance(){return INSTANCE;}
+        public synchronized void startAutoPlay(org.l2jmobius.gameserver.entity.actor.Player p){if(pool.contains(p))return;starts++;p.setAutoPlaying(true);pool.add(p);}
+        public void stopAutoPlay(org.l2jmobius.gameserver.entity.actor.Player p){if(pool.remove(p)){stops++;p.setAutoPlaying(false);}}
+        // Mimic the retarget branch, which can replace an existing move. Like the core,
+        // the task checks pool membership, NOT isAutoPlaying(). No thread timing claim.
+        public void retargetTick(org.l2jmobius.gameserver.entity.actor.Player p){if(pool.contains(p)&&!p.casting&&p.target!=null)p.ai.setIntentionAttack(p.target);}
     }""",
     "geoengine.GeoEngine": """public class GeoEngine {
         private static final GeoEngine INSTANCE=new GeoEngine();
@@ -67,7 +86,7 @@ public class OlympiadChaseTest {
         return OlympiadChase.intercept(bx,by,bs,ex,ey,0,dx,dy,es,hold);
     }
     static void update(Player b,Player e,int range,boolean attack){OlympiadChase.update(b,e,range,attack,0,0,2000);}
-    static Player bot(){OlympiadChase.forget(1);GeoEngine.blocked=false;GeoEngine.visible=true;GeoEngine.minAllowedY=-100000;return new Player(1,0,0);}
+    static Player bot(){OlympiadChase.forget(1);GeoEngine.blocked=false;GeoEngine.visible=true;GeoEngine.minAllowedY=-100000;var p=new Player(1,0,0);org.l2jmobius.gameserver.taskmanagers.AutoPlayTaskManager.pool.clear();org.l2jmobius.gameserver.taskmanagers.AutoPlayTaskManager.getInstance().startAutoPlay(p);return p;}
     static Player enemy(){return new Player(2,800,0);}
     static int stateCount()throws Exception {
         var f=OlympiadChase.class.getDeclaredField("STATES");f.setAccessible(true);return ((java.util.Map<?,?>)f.get(null)).size();
@@ -130,7 +149,7 @@ public class OlympiadChaseTest {
         b.ai.setIntentionMoveTo(new Location(-300,0,0));e.x=400;
         update(b,e,500,false);check(b.ai.idles==0 && b.dx==-300,"never stop an unrelated kite retreat");
         b=bot();e=enemy();b.casting=true;update(b,e,150,true);check(b.ai.moves==0,"active cast untouched");
-        b=bot();e=enemy();b.ai.intention=Intention.CAST;update(b,e,150,true);check(b.ai.moves==0,"queued cast approach untouched");
+        b=bot();e=enemy();b.ai.intention=Intention.CAST;update(b,e,150,true);check(b.ai.moves==1 && b.ai.intention==Intention.MOVE_TO,"CAST walk-into-range is replaced, not mistaken for a live cast");
         b=bot();e=enemy();b.disabled=true;update(b,e,150,true);check(b.ai.moves==0,"root/stun/immobilization respected");
         b=bot();e=enemy();b.outOfControl=true;update(b,e,150,true);check(b.ai.moves==0,"fear/confusion respected");
         b=bot();e=enemy();b.attacking=true;update(b,e,150,true);check(b.ai.moves==0,"attack animation not replaced with a saved move");
@@ -173,7 +192,46 @@ public class OlympiadChaseTest {
         b=bot();e=enemy();update(b,e,150,true);Thread.sleep(1550);b.casting=true;update(b,e,150,true);b.casting=false;update(b,e,150,true);
         check(b.ai.moves==1 && b.dy==0,"cast time does not count as a stuck run");
         OlympiadChase.forget(b.id);
-        for(String mapName:new String[]{"STATES","PROGRESS","ENGAGED"}){var f=OlympiadChase.class.getDeclaredField(mapName);f.setAccessible(true);check(((java.util.Map<?,?>)f.get(null)).isEmpty(),"all state cleaned: "+mapName);}
+        for(String mapName:new String[]{"STATES","PROGRESS","ENGAGED","ENGINE_HOLDS"}){var f=OlympiadChase.class.getDeclaredField(mapName);f.setAccessible(true);check(((java.util.Map<?,?>)f.get(null)).isEmpty(),"all state cleaned: "+mapName);}
+
+        // Movement ownership, including setup/repair and intentional engine stops.
+        b=bot();e=enemy();b.target=e;b.settings.buffs.add(100);update(b,e,150,true);
+        check(OlympiadChase.isPursuing(b.id) && !b.autoPlaying,"far approach leases movement and pauses offensive rotation");
+        check(b.settings.buffs.isEmpty(),"pending self-buffs cleared, not active effects");
+        var tasks=org.l2jmobius.gameserver.taskmanagers.AutoPlayTaskManager.getInstance();
+        check(!org.l2jmobius.gameserver.taskmanagers.AutoPlayTaskManager.pool.contains(b),"must remove AutoPlay pool member, not just clear a flag");
+        int starts=org.l2jmobius.gameserver.taskmanagers.AutoPlayTaskManager.starts;
+        OlympiadChase.startAutoPlayUnlessPursuing(b);
+        check(!b.autoPlaying && starts==org.l2jmobius.gameserver.taskmanagers.AutoPlayTaskManager.starts,"setup cannot re-arm while pursuit owns movement");
+        tasks.retargetTick(b);check(b.ai.intention==Intention.MOVE_TO,"pooled retarget cannot overwrite leased intercept");
+        e.x=100;update(b,e,150,true);
+        check(b.autoPlaying && !OlympiadChase.isPursuing(b.id),"range reached releases rotation");
+        check(b.ai.intention==Intention.ATTACK,"range release returns melee attack");
+        starts=org.l2jmobius.gameserver.taskmanagers.AutoPlayTaskManager.starts;update(b,e,150,true);
+        check(starts==org.l2jmobius.gameserver.taskmanagers.AutoPlayTaskManager.starts,"release is idempotent");
+        b=bot();e=enemy();b.casting=true;update(b,e,150,true);
+        check(b.casting && b.ai.moves==0 && !b.autoPlaying,"live cast completes while NEW casts are gated");
+        b.casting=false;update(b,e,150,true);check(b.ai.moves==1,"intercept begins after real cast finishes");
+        b.casting=true;e.x=100;update(b,e,150,true);
+        check(b.casting && b.autoPlaying,"in-range lease releases even while real cast finishes");
+        b=bot();e=enemy();update(b,e,150,true);starts=org.l2jmobius.gameserver.taskmanagers.AutoPlayTaskManager.starts;
+        b.dead=true;update(b,e,150,true);
+        check(!OlympiadChase.isPursuing(b.id) && !b.autoPlaying && starts==org.l2jmobius.gameserver.taskmanagers.AutoPlayTaskManager.starts,"death drops lease without engine restart");
+        b=bot();e=enemy();update(b,e,150,true);b.teleport=true;update(b,e,150,true);
+        check(!OlympiadChase.isPursuing(b.id) && !b.autoPlaying,"teleport does not re-arm old pursuit");
+        b=bot();e=enemy();update(b,e,150,true);b.start=false;update(b,e,150,true);
+        check(!OlympiadChase.isPursuing(b.id) && !b.autoPlaying,"match end drops lease for normal lifecycle repair");
+        b=bot();e=enemy();update(b,e,150,true);GeoEngine.blocked=true;update(b,e,150,true);
+        check(b.autoPlaying && !OlympiadChase.isPursuing(b.id),"route failure restores normal combat engines");
+        b=bot();e=enemy();tasks.stopAutoPlay(b);OlympiadChase.update(b,e,150,true,0,0,2000,false);
+        check(!OlympiadChase.isPursuing(b.id) && !b.autoPlaying && b.ai.moves==1,"berserker engine ownership is not stolen");
+        e.x=100;OlympiadChase.update(b,e,150,true,0,0,2000,false);
+        check(!b.autoPlaying,"berserker intentional stop is not resumed at range");
+        b=bot();e=enemy();b.rejectMove=true;update(b,e,150,true);
+        check(stateCount()==0,"a refused MOVE_TO must not be recorded as accepted");
+        b.rejectMove=false;update(b,e,150,true);
+        check(stateCount()==1,"refused order is retried without a phantom throttle");
+        OlympiadChase.forget(b.id);check(!OlympiadChase.isPursuing(b.id),"despawn drops movement lease");
 
         java.util.Random random=new java.util.Random(15);
         for(int i=0;i<5000;i++){
@@ -217,8 +275,10 @@ public class Compile { public static void main(String[] args) {
             full = PACKAGE + name
             sources.append(write_java(tmp / "src", full, "package " + full.rsplit(".", 1)[0] + ";\n" + body))
         sources.append(write_java(tmp / "src", "custom.fakeplayersai.OlympiadChaseTest", TEST))
+        sources.append(ROOT / "tests/fakeplayersai/PursuitOwnershipRegression.java")
         subprocess.run(["java", str(launcher), "-d", str(tmp / "tests"), *map(str, sources), str(scripts / "OlympiadChase.java")], check=True)
         subprocess.run(["java", "-cp", str(tmp / "tests"), "custom.fakeplayersai.OlympiadChaseTest"], check=True)
+        subprocess.run(["java", "-cp", str(tmp / "tests"), "custom.fakeplayersai.PursuitOwnershipRegression"], check=True)
 
 
 if __name__ == "__main__":

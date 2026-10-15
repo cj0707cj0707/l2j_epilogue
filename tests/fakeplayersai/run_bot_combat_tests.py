@@ -18,7 +18,13 @@ def main():
     manager = (root / "game/data/scripts/custom/fakeplayersai/BotManager.java").read_text()
     assert "return bot.useMagic(skill, true, true);" in manager, "Driver must not create walk-into-range casts"
     assert "synchronized (state)" in manager, "Concurrent driver passes need phase serialization"
-    print("PASS: 5 source regression guards", flush=True)
+    assert "OlympiadChase.startAutoPlayUnlessPursuing(player);" in spawner
+    assert spawner.count("if (OlympiadChase.isPursuing(player.getObjectId()))") == 2, "Both self-buff sync paths must respect pursuit"
+    assert "OLYMPIAD_ARENA_MAX_DISTANCE, !BERSERKER_STATES.containsKey(bot.getObjectId())" in manager
+    assert "if ((bot.getAI().getIntention() == Intention.CAST) && (dist > CHASE_RANGE))" in manager
+    driver = manager.split("private static boolean driveBerserkerStep(", 1)[1].split("private static Location berserkerRetreatPoint(", 1)[0]
+    assert "stopBerserkerEngines(bot, state);\n\t\t\tmoveForOlympiadChase(bot, CHASE_RANGE, true);\n\t\t\treturn true;" in driver.rsplit("AutoUseTaskManager.getInstance().startAutoUseTask(bot);", 1)[0]
+    print("PASS: 10 source regression guards", flush=True)
     chase.main()
     with tempfile.TemporaryDirectory(prefix="berserker-cycle-") as tmp:
         tmp = Path(tmp)
