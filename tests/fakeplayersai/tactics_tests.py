@@ -25,7 +25,12 @@ def main():
     assert 'skill.isDebuff() || kind != TacticsPolicy.Kind.DAMAGE' in src
     assert 'canMoveToTarget(' in src and 'canSeeTarget(' in src
     assert 'MAX_BOTS = 2048' in src and 's.failures.size() >= 64' in src
-    print('PASS: tactical safety source guards', flush=True)
+    assert 'time - s.pendingAt < 750' not in src
+    assert 'TacticsPolicy.attemptResolved(s.sawCast, paid, time - s.pendingAt)' in src
+    assert 'TacticsPolicy.rangedStepAllowed(' in src and 's.offensiveActionsSinceStep = 0' in src
+    assert 's.moveUntil = time + 200' in src
+    assert 'BotManager::olympiadChaseTick, SETTINGS.getSpawnDelaySeconds() * 1000L, 100L' in (SCRIPTS / 'BotManager.java').read_text()
+    print('PASS: tactical safety source guards' , flush=True)
     with tempfile.TemporaryDirectory(prefix='tactics-tests-') as directory:
         tmp = Path(directory)
         launcher=tmp / "Compile.java"

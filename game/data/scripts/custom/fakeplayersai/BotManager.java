@@ -468,7 +468,7 @@ public class BotManager
 		
 		// Olympiad-only movement prediction: react to opponent turns/stops at 250 ms,
 		// without changing the pace of buffs, rotations, registration or world combat.
-		ThreadPool.scheduleAtFixedRate(BotManager::olympiadChaseTick, SETTINGS.getSpawnDelaySeconds() * 1000L, 250L);
+		ThreadPool.scheduleAtFixedRate(BotManager::olympiadChaseTick, SETTINGS.getSpawnDelaySeconds() * 1000L, 100L);
 
 		// Initial spawn at server start.
 		if (SETTINGS.isSpawnOnStart())
@@ -513,7 +513,7 @@ public class BotManager
 		// of this session has finished yet - see olympiadPointsCatchUp().
 		ThreadPool.schedule(BotManager::olympiadPointsCatchUp, (SETTINGS.getSpawnDelaySeconds() + 70) * 1000L);
 
-		LOGGER.info("FakePlayersAI: initialized, " + SETTINGS.getBotCount() + " bots scheduled; predictive-chase v2; Olympiad tactical suite v1.");
+		LOGGER.info("FakePlayersAI: initialized, " + SETTINGS.getBotCount() + " bots scheduled; predictive-chase v2; Olympiad tactical suite v2 (strong tempo/training prep).");
 	}
 
 	// ------------------------------------------------------------------

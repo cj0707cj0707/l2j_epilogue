@@ -1807,6 +1807,24 @@ public class BotSpawner
 		return result;
 	}
 
+    /** Same pre-start Olympiad baseline without setting fake Olympiad flags.
+     * Additive by explicit training request: never mass-strip human effects.
+     * No world profile, CoV, dances/songs or mid-fight refresh. */
+    public static void applyTrainingOlympiadBuffs(Player player, boolean caster)
+    {
+        if (player == null || player.isAlikeDead()) return;
+        applyOlympiadBuffs(player);
+        for (int[] buff : getOlympiadBuffs(caster))
+        {
+            if (player.getEffectList().isAffectedBySkill(buff[0])) continue;
+            Skill skill = SkillData.getInstance().getSkill(buff[0],buff[1]);
+            if (skill == null) { LOGGER.warning("Training Olympiad buff unavailable: " + buff[0] + "/" + buff[1]); continue; }
+            BuffInfo stacked = player.getEffectList().getBuffInfoByAbnormalType(skill.getAbnormalType());
+            if (stacked != null && stacked.getSkill().getId() != buff[0] && stacked.getSkill().getAbnormalLevel() >= skill.getAbnormalLevel()) continue;
+            skill.applyEffects(player, player);
+        }
+    }
+
 	/**
 	 * Keeps the buff profile of the character up at all times (world PvP in the Coliseum, waiting
 	 * for the olympiad, and during olympiad matches): warrior profile for non-casters, mage

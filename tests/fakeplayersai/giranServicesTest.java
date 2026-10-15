@@ -18,6 +18,14 @@ public final class giranServicesTest
         check(GiranServices.escape(null).equals(""));
         check(GiranServices.escape("<&\"test>").equals("&lt;&amp;&quot;test&gt;"));
         check(GiranServices.escape("Тренировка").equals("Тренировка"));
+        check(GiranServices.npcEvent(null)==null);
+        check(GiranServices.npcEvent("Script GiranServices start")==null);
+        check(GiranServices.npcEvent("GiranServiceX start")==null);
+        check(GiranServices.npcEvent("GiranService ")==null);
+        check(GiranServices.npcEvent("GiranService "+"x".repeat(101))==null);
+        check(GiranServices.npcEvent("GiranService start").equals("start"));
+        check(GiranServices.npcEvent("GiranService class 131").equals("class 131"));
+        check(GiranServices.npcEvent("GiranService   main  ").equals("main"));
         System.out.println("PASS: "+checks+" production preparation parser/HTML checks (no live NPC)");
     }
 }

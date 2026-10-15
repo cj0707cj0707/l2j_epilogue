@@ -292,4 +292,8 @@ UseItem 0 (выкл), RollDice 42, ItemPetSummon 16, HeroVoice 100, GlobalChat 5
 
 ## OlympiadTactics.ini — новый тактический пакет
 
-`game/config/Custom/OlympiadTactics.ini`: `Enabled=true` — новый тактический слой рейтинговых ботов; `DefaultDifficulty=experienced` (`normal/experienced/strong`); `TrainingEnabled=true` — допуск новых изолированных тренировок. Ручные изменения флагов требуют перезапуска; GM-сложность можно сохранить у Server Guide. Отключение новых тренировок не отключает recovery. Сложность не повышает характеристики. См. [20](20-olympiad-suite-and-giran-services.md), включая аварийное отключение/порядок отката.
+`game/config/Custom/OlympiadTactics.ini`: `Enabled=true` — новый тактический слой рейтинговых ботов; `DefaultDifficulty=strong` (`normal/experienced/strong`); `TrainingEnabled=true` — допуск новых изолированных тренировок. Ручные изменения флагов требуют перезапуска; GM-сложность можно сохранить у Server Guide. Отключение новых тренировок не отключает recovery. Сложность не повышает характеристики. См. [20](20-olympiad-suite-and-giran-services.md), включая аварийное отключение/порядок отката.
+
+### Актуализация темпа/подготовки
+
+По [документу21](21-strong-tempo-and-training-fixes.md): default strong с реакцией100ms, `TrainingPreparationSeconds=30` (30..60), сохраняется GM-настройкой. Общий120-секундный таймер штатной дуэли включает запуск и selfbuff-подготовку; это не120сек. чистого боя. Ручные изменения читать после перезапуска.

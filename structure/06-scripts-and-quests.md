@@ -150,3 +150,7 @@ public class Q00255_Tutorial extends Quest
 `custom/GiranServices/GiranServices.java` обслуживает четыре новых NPC (1008000–1011000 с шагом 1000), генерирует диалоги/справочник и регистрирует только удалённые `.training leave/status/report`. `Preparation.java` — ограниченные расходники и три комплекта существующих objectId, без копирования предметов.
 
 Новые классы `custom/fakeplayersai`: `BotTactics`, `TacticsPolicy`, `TacticalSettings`, `TrainingArena`, `CombatAnalytics`. Интеграция в `BotManager`, `BotSpawner`, `OlympiadChase`, `BerserkerCycle`. Не переносить тестовые Java в исполняемый scripts! Карта ответственности, NPC, реальные ограничения тренировочной дуэли/аналитики и инструкция/безопасный откат — [20](20-olympiad-suite-and-giran-services.md).
+
+### Исправление меню тренера и selfbuff-подготовка
+
+`GiranServices` теперь регистрирует прямой `IBypassHandler` с ключом `GiranService`: NPC берётся из проверенного HTML origin ядра, а не `Player.lastFolkNpc` старого ScriptLink. Legacy Script-события просят открыть меню заново, после переноса — только статус/чатовые команды без удалённых мутаций. `TrainingArena` использует синхронные отменяемые события ON_CREATURE_ATTACK/SKILL_USE для защищённой30-секундной selfbuff-фазы; общий `BotSpawner.applyTrainingOlympiadBuffs` выдаёт13+олимпийский профиль без ложных флагов. Точная карта и границы — [21](21-strong-tempo-and-training-fixes.md).

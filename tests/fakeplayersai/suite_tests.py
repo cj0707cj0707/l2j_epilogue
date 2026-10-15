@@ -45,6 +45,18 @@ assert 'if (p != null) recover(p); else cleanupBot(j);' in t
 npc=(DATA/'scripts/custom/GiranServices/GiranServices.java').read_text()
 assert 'npc.canInteract(p)' in npc and '&& p.isGM()' in npc and 'event.length()>100' in npc
 assert 'Olympiad.sendMatchList(p)' in npc
+assert 'BypassHandler.getInstance().registerHandler(new NpcCommands())' in npc
+assert 'handleNpcEvent(event,target.asNpc(),player)' in npc
+assert 'bypass -h Script GiranServices' not in npc
+assert 'bypass -h GiranService ' in npc
+assert 'if (!notice.isBlank()) p.sendMessage(notice);' in npc
+assert 'A noninteractive, origin-free status is safe' in npc
+spawner=(DATA/'scripts/custom/fakeplayersai/BotSpawner.java').read_text()
+training_buff=spawner.split('public static void applyTrainingOlympiadBuffs(')[1].split('public static void maintainFullBuffs(')[0]
+assert 'applyOlympiadBuffs(player);' in training_buff and 'getOlympiadBuffs(caster)' in training_buff
+assert 'setInOlympiadMode' not in training_buff and 'FULL_BUFFS_MAGE' not in training_buff
+assert 'DefaultDifficulty = strong' in (ROOT/'game/config/Custom/OlympiadTactics.ini').read_text()
+assert 'TrainingPreparationSeconds = 30' in (ROOT/'game/config/Custom/OlympiadTactics.ini').read_text()
 print('PASS: 4 NPC definitions + spawn XSD, unique IDs, training zone bounds and integration guards',flush=True)
 with tempfile.TemporaryDirectory(prefix='giran-tests-') as d:
     tmp=Path(d); launcher=tmp/'Compile.java'

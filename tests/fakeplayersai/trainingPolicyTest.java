@@ -33,8 +33,26 @@ public final class trainingPolicyTest
         check("&lt;bot&gt;&amp;&quot;&#39;".equals(CombatAnalytics.escape("<bot>&\"'")), "escape untrusted labels");
         check("".equals(CombatAnalytics.escape(null)), "null HTML safe");
         check(!TrainingArena.isParticipant(null) && !TrainingArena.isTrainingBot(null), "null guards");
-        check(TrainingArena.repeat(null).contains("unavailable"), "null repeat");
+        check(TrainingArena.repeat(null).contains("недоступен"), "null repeat");
         check(CombatAnalytics.report(null).contains("unavailable"), "null report");
+        check(TrainingArena.preparationSeconds(Integer.MIN_VALUE) == 30, "negative prep is clamped to minimum");
+        check(TrainingArena.preparationSeconds(0) == 30, "zero prep cannot bypass protection");
+        check(TrainingArena.preparationSeconds(29) == 30, "minimum prep 30 seconds");
+        check(TrainingArena.preparationSeconds(30) == 30, "default prep");
+        check(TrainingArena.preparationSeconds(45) == 45, "configured prep preserved");
+        check(TrainingArena.preparationSeconds(60) == 60, "maximum prep");
+        check(TrainingArena.preparationSeconds(Integer.MAX_VALUE) == 60, "prep bounded within core duel lifetime");
+        check(TrainingArena.remainingSeconds(31_000_000_000L, 1_000_000_000L) == 30, "full selfbuff window");
+        check(TrainingArena.remainingSeconds(31_000_000_000L, 1_000_000_001L) == 30, "countdown rounds up");
+        check(TrainingArena.remainingSeconds(31_000_000_000L, 30_999_999_999L) == 1, "last nanosecond still protected");
+        check(TrainingArena.remainingSeconds(31_000_000_000L, 31_000_000_000L) == 0, "release at deadline only");
+        check(TrainingArena.remainingSeconds(31_000_000_000L, 32_000_000_000L) == 0, "no negative countdown");
+        for (int mask = 0; mask < 32; mask++)
+        {
+            boolean human=(mask&1)!=0, preparing=(mask&2)!=0, stopping=(mask&4)!=0, negative=(mask&8)!=0, self=(mask&16)!=0;
+            check(TrainingArena.prepSkillAllowed(human, preparing, stopping, negative, self)
+                == (human && preparing && !stopping && !negative && self), "protected selfbuff admission truth table " + mask);
+        }
         // Exercise the exact production atomic journal writer/reader in the test's TEMP cwd.
         Path dir = Paths.get("data/training-arena-recovery"); Files.createDirectories(dir);
         Method save = TrainingArena.class.getDeclaredMethod("save", int.class, Properties.class); save.setAccessible(true);

@@ -31,7 +31,7 @@ public final class BotTactics
 	private static final int MAX_BOTS = 2048;
 	private static final long TTL_MS = 30 * 60_000L;
 	private static final Map<Integer, State> STATES = new LinkedHashMap<>(32, .75f, true);
-	private static TacticsPolicy.Difficulty defaultDifficulty = TacticsPolicy.Difficulty.EXPERIENCED;
+	private static TacticsPolicy.Difficulty defaultDifficulty = TacticsPolicy.Difficulty.STRONG;
 	private static long nextSweep;
 
 	private static final class Failure
@@ -46,7 +46,8 @@ public final class BotTactics
 		int hpBand = -1;
 		int trainingEnemy, trainingInstance, enemy, game = -1, instance, anchorX, anchorY, moveX, moveY;
 		boolean owned, enemyCasting;
-		int fleeingSamples;
+		int fleeingSamples, offensiveActionsSinceStep = 2;
+        boolean sawAttack;
 		long nextHabitSample;
 		double previousDistance = -1;
 		int pendingId;
@@ -184,7 +185,7 @@ public final class BotTactics
 			s.enemy = enemy.getObjectId(); s.game = game; s.instance = bot.getInstanceId();
 			s.anchorX = bot.getX(); s.anchorY = bot.getY(); s.observed = time;
 			s.nextDecision = time; s.nextStep = time; s.pendingId = 0; s.failures.clear(); s.enemyCasting = false; s.moveUntil = 0;
-			s.fleeingSamples = 0; s.previousDistance = -1; s.nextHabitSample = time;
+			s.fleeingSamples = 0; s.offensiveActionsSinceStep = 2; s.sawAttack = false; s.previousDistance = -1; s.nextHabitSample = time;
 		}
 		final int hpBand = bot.getCurrentHpPercent() < 35 ? 0 : bot.getCurrentHpPercent() < 65 ? 1 : 2;
 		if (hpBand != s.hpBand) { s.hpBand = hpBand; s.hpObserved = time; }
@@ -207,7 +208,13 @@ public final class BotTactics
 			if (bot.getAI().getIntention() == Intention.ATTACK) { bot.getAI().setIntentionIdle(); }
 			if (bot.isAttackingNow()) { bot.abortAttack(); }
 		}
-		if (bot.isAttackingNow()) { return !defenseOnly; }
+		if (bot.isAttackingNow())
+        {
+            if (!s.sawAttack) s.offensiveActionsSinceStep = Math.min(4,s.offensiveActionsSinceStep+1);
+            s.sawAttack = true;
+            return !defenseOnly;
+        }
+        s.sawAttack = false;
 		final double hp = bot.getCurrentHp() / Math.max(1, bot.getMaxHp());
 		if (time < s.nextDecision || !TacticsPolicy.reactionReady(difficulty(s), time, s.observed, hp < .35)) { return !defenseOnly; }
 		final boolean visible = GeoEngine.getInstance().canSeeTarget(bot, enemy);
@@ -265,7 +272,8 @@ public final class BotTactics
 		final boolean urgent = chosen == TacticsPolicy.Kind.HEAL || chosen == TacticsPolicy.Kind.DEFENSE
 			|| (chosen == TacticsPolicy.Kind.CONTROL && interruptReady && s.enemyCasting);
 		if (!defenseOnly && !urgent && time < s.moveUntil && bot.isMoving() && Math.hypot(bot.getXdestination() - s.moveX, bot.getYdestination() - s.moveY) < 40) { return true; }
-		if (!defenseOnly && !sleeping && !urgent && time >= s.nextStep && !window && step(bot, enemy, preset, s, time, distance, visible)) { return true; }
+		final boolean offenseReady = options.stream().anyMatch(o -> o.kind() == TacticsPolicy.Kind.DAMAGE || o.kind() == TacticsPolicy.Kind.CONTROL || o.kind() == TacticsPolicy.Kind.SLOW);
+        if (!defenseOnly && !sleeping && !urgent && time >= s.nextStep && !window && step(bot, enemy, preset, s, time, distance, visible, hp, offenseReady)) { return true; }
 		if (selected >= 0)
 		{
 			final Skill skill = skills.get(selected);
@@ -279,6 +287,8 @@ public final class BotTactics
 			if (accepted)
 			{
 				CombatAnalytics.tacticalRequest(bot.getObjectId(), chosen.name());
+                if (chosen == TacticsPolicy.Kind.DAMAGE || chosen == TacticsPolicy.Kind.CONTROL || chosen == TacticsPolicy.Kind.SLOW)
+                    s.offensiveActionsSinceStep = Math.min(4,s.offensiveActionsSinceStep+1);
 				s.pendingId = selected; s.pendingAt = time; s.pendingSelf = self; s.pendingDebuff = skill.isDebuff(); s.sawCast = bot.isCastingNow();
 			}
 			else { failure(s, selected, time); bot.setTarget(enemy); }
@@ -294,12 +304,12 @@ public final class BotTactics
 	{
 		if (s.pendingId == 0) { return; }
 		if (bot.isCastingNow()) { s.sawCast = true; return; }
-		if (time - s.pendingAt < 750) { return; }
 		final Skill skill = bot.getKnownSkill(s.pendingId);
 		final boolean paid = s.sawCast || bot.getCurrentMp() < s.pendingMp || bot.getCharges() > s.pendingCharges
 			|| (s.pendingSelf && bot.getCurrentHp() > s.pendingHp)
 			|| (skill != null && (bot.isSkillDisabled(skill) || active(s.pendingSelf ? bot : enemy, skill)));
-		final boolean landed = !s.pendingDebuff || skill != null && active(s.pendingSelf ? bot : enemy, skill);
+		if (!TacticsPolicy.attemptResolved(s.sawCast, paid, time - s.pendingAt)) { return; }
+        final boolean landed = !s.pendingDebuff || skill != null && active(s.pendingSelf ? bot : enemy, skill);
 		if (!paid || !landed) { failure(s, s.pendingId, time); }
 		else
 		{
@@ -367,7 +377,7 @@ public final class BotTactics
 	}
 
 	/** Short ordinary geodata-checked steps. No future positions, facing writes or teleports. */
-	private static boolean step(Player bot, Player enemy, BotClassPreset preset, State s, long time, double distance, boolean visible)
+	private static boolean step(Player bot, Player enemy, BotClassPreset preset, State s, long time, double distance, boolean visible, double hp, boolean offenseReady)
 	{
 		if (!visible || bot.isMovementDisabled() || bot.isAttackingNow() || Math.abs(bot.getZ() - enemy.getZ()) > 100 || distance < 1) { return false; }
 		double x, y;
@@ -379,11 +389,12 @@ public final class BotTactics
 			x = enemy.getX() - 85 * Math.cos(angle) - 70 * Math.sin(angle);
 			y = enemy.getY() - 85 * Math.sin(angle) + 70 * Math.cos(angle);
 		}
-		else if ((preset.isCaster() && distance < 240) || ((preset.getWeaponKind() == BotClassPreset.WeaponKind.BOW
-			|| preset.getWeaponKind() == BotClassPreset.WeaponKind.CROSSBOW) && distance < 180))
+		else if ((preset.isCaster() || preset.getWeaponKind() == BotClassPreset.WeaponKind.BOW || preset.getWeaponKind() == BotClassPreset.WeaponKind.CROSSBOW)
+            && TacticsPolicy.rangedStepAllowed(preset.isCaster(), !enemy.isMageClass() && enemy.getPhysicalAttackRange() < 250,
+                distance, hp, enemy.isSleeping() || enemy.isMovementDisabled() || enemy.isOutOfControl(), offenseReady, s.offensiveActionsSinceStep))
 		{
-			x = bot.getX() + 130 * (bot.getX() - enemy.getX()) / distance;
-			y = bot.getY() + 130 * (bot.getY() - enemy.getY()) / distance;
+			x = bot.getX() + 100 * (bot.getX() - enemy.getX()) / distance;
+			y = bot.getY() + 100 * (bot.getY() - enemy.getY()) / distance;
 		}
 		else { return false; } // Tanks/other melee maintain pressure via parent pursuit.
 		final double dx = x - bot.getX(), dy = y - bot.getY(), length = Math.hypot(dx, dy);
@@ -391,10 +402,11 @@ public final class BotTactics
 		final int px = (int) Math.round(x), py = (int) Math.round(y);
 		if (Math.hypot(px - s.anchorX, py - s.anchorY) > 1400 || !GeoEngine.getInstance().canMoveToTarget(bot.getX(), bot.getY(), bot.getZ(), px, py, bot.getZ(), bot.getInstanceId())) { s.nextStep = time + 1500; return false; }
 		bot.getAI().setIntentionMoveTo(new Location(px, py, bot.getZ()));
-		s.nextStep = time + 2000;
+		s.nextStep = time + (preset.getWeaponKind() == BotClassPreset.WeaponKind.DAGGER ? 2500 : 4500);
 		if (bot.getAI().getIntention() != Intention.MOVE_TO || !bot.isMoving()
 			|| Math.hypot(bot.getXdestination() - px, bot.getYdestination() - py) >= 40) { return false; }
-		s.moveX = px; s.moveY = py; s.moveUntil = time + 750;
+		s.moveX = px; s.moveY = py; s.moveUntil = time + 200;
+        s.offensiveActionsSinceStep = 0;
 		return true;
 	}
 }

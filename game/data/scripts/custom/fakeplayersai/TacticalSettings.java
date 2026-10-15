@@ -16,6 +16,7 @@ public final class TacticalSettings
     private static boolean initialized;
     private static volatile boolean enabled = true;
     private static volatile boolean trainingEnabled = true;
+    private static volatile int trainingPreparationSeconds = 30;
     private TacticalSettings() {}
     public static synchronized void init()
     {
@@ -28,12 +29,15 @@ public final class TacticalSettings
         }
         enabled = Boolean.parseBoolean(values.getProperty("Enabled", "true"));
         trainingEnabled = Boolean.parseBoolean(values.getProperty("TrainingEnabled", "true"));
-        String difficulty = values.getProperty("DefaultDifficulty", "experienced");
-        if (!validDifficulty(difficulty)) difficulty = "experienced";
+        try { trainingPreparationSeconds = Math.max(30, Math.min(60, Integer.parseInt(values.getProperty("TrainingPreparationSeconds", "30").trim()))); }
+        catch (NumberFormatException e) { trainingPreparationSeconds = 30; }
+        String difficulty = values.getProperty("DefaultDifficulty", "strong");
+        if (!validDifficulty(difficulty)) difficulty = "strong";
         BotTactics.setDefaultDifficulty(difficulty);
         initialized = true;
     }
     public static boolean isEnabled() { init(); return enabled; }
+    public static int getTrainingPreparationSeconds() { init(); return trainingPreparationSeconds; }
     public static boolean isTrainingEnabled() { init(); return trainingEnabled; }
     public static boolean validDifficulty(String value)
     {
@@ -46,6 +50,7 @@ public final class TacticalSettings
         Properties data = new Properties();
         data.setProperty("Enabled", Boolean.toString(enabled));
         data.setProperty("TrainingEnabled", Boolean.toString(trainingEnabled));
+        data.setProperty("TrainingPreparationSeconds", Integer.toString(trainingPreparationSeconds));
         data.setProperty("DefaultDifficulty", value);
         try
         {

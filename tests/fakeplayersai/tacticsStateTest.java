@@ -12,7 +12,7 @@ public final class tacticsStateTest
 	}
 	public static void main(String[] args) throws Exception
 	{
-		check(BotTactics.getDefaultDifficulty().equals("experienced"), "initial default");
+		check(BotTactics.getDefaultDifficulty().equals("strong"), "initial ranked default is strong");
 		BotTactics.setDefaultDifficulty("strong");
 		check(BotTactics.getDifficulty(77).equals("strong"), "missing state follows default");
 		BotTactics.setDifficulty(77, "normal");

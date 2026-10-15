@@ -7,7 +7,7 @@ final class TacticsPolicy
 {
 	enum Difficulty
 	{
-		NORMAL(850, .24, 45), EXPERIENCED(500, .10, 20), STRONG(250, .035, 8);
+		NORMAL(850, .24, 45), EXPERIENCED(500, .10, 20), STRONG(100, .035, 8);
 		final long reactionMs;
 		final double mistakeRate;
 		final double noise;
@@ -31,7 +31,7 @@ final class TacticsPolicy
 
 	static boolean reactionReady(Difficulty d, long now, long observedAt, boolean urgent)
 	{
-		return now - observedAt >= (urgent ? Math.max(250, d.reactionMs / 2) : d.reactionMs);
+		return now - observedAt >= (urgent ? Math.max(100, d.reactionMs / 2) : d.reactionMs);
 	}
 
 	/** All difficulties obey the exact same legality/sleep/resource gates. */
@@ -89,6 +89,23 @@ final class TacticsPolicy
 		if (kind == Kind.BUFF) return Math.max(1, score - 20);
 		return score;
 	}
+
+    /** Attack-first ranged policy. A healthy ranged bot with a ready offense
+     * does not sacrifice it for perpetual micro-kiting. No fleeing from casters/bows. */
+    static boolean rangedStepAllowed(boolean caster, boolean meleeThreat, double distance, double hp,
+        boolean enemyControlled, boolean offenseReady, int actionsSinceStep)
+    {
+        if (!meleeThreat || enemyControlled || distance >= (caster ? 145 : 110)) return false;
+        if (hp < .35 && distance < 100) return true;
+        if (offenseReady && (hp >= .65 || actionsSinceStep < 2)) return false;
+        return true;
+    }
+    static boolean attemptResolved(boolean sawCast, boolean paid, long elapsed)
+    {
+        // A real completed cast need not wait out an arbitrary 750ms lock.
+        // Unstarted requests get a short bounded grace, never a skill-speed hack.
+        return sawCast || paid || elapsed >= 350;
+    }
 
 	static long failureBackoff(int failures)
 	{

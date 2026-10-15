@@ -22,7 +22,9 @@ public final class tacticsPolicyTest
 			check(!reactionReady(d, 100, 100, false), "no zero-latency reaction");
 			check(!reactionReady(d, 100 + d.reactionMs - 1, 100, false), "wait full latency");
 			check(reactionReady(d, 100 + d.reactionMs, 100, false), "ready exact boundary");
-			check(!reactionReady(d, 349, 100, true), "urgent still at least tick latency");
+			long urgentDelay = Math.max(100,d.reactionMs/2);
+            check(!reactionReady(d, 100+urgentDelay-1, 100, true), "urgent retains configured minimum");
+            check(reactionReady(d, 100+urgentDelay, 100, true), "urgent exact boundary");
 			for (Kind k : Kind.values())
 			{
 				check(!allowed(k, false, true, true, false, false, true, true), "cooldown gate");
@@ -78,6 +80,21 @@ public final class tacticsPolicyTest
 		check(TacticsPolicy.adapt(92,TacticsPolicy.Kind.SLOW,true,false)==112,"fleeing memory raises slow preference");
         check(TacticsPolicy.adapt(62,TacticsPolicy.Kind.DAMAGE,true,true)==82,"fleeing memory raises legal movement charge");
         check(TacticsPolicy.adapt(-1,TacticsPolicy.Kind.BUFF,true,false)==-1,"habit never enables disallowed choice");
+        check(Difficulty.STRONG.reactionMs == 100, "strong uses 100ms observation cadence, not zero latency");
+        check(attemptResolved(true,false,10), "completed observed cast has no fake 750ms lock");
+        check(attemptResolved(false,true,100), "paid instant cast resumes next tick");
+        check(!attemptResolved(false,false,349), "unstarted request has bounded grace");
+        check(attemptResolved(false,false,350), "unstarted request releases on timeout");
+        check(!rangedStepAllowed(true,true,120,.9,false,true,3), "healthy caster attacks instead of stepping");
+        check(!rangedStepAllowed(false,true,90,.9,false,true,3), "healthy bow attacks instead of stepping");
+        check(!rangedStepAllowed(true,true,120,.6,false,true,1), "must attack between retreats");
+        check(rangedStepAllowed(true,true,120,.6,false,true,2), "bounded retreat after offensive sequence");
+        check(rangedStepAllowed(true,true,80,.2,false,true,0), "low HP pointblank emergency remains");
+        check(!rangedStepAllowed(true,false,80,.2,false,true,3), "do not kite casters or bows as melee");
+        check(!rangedStepAllowed(true,true,80,.2,true,true,3), "no retreat from already controlled enemy");
+        check(!rangedStepAllowed(true,true,145,.4,false,false,3), "caster range boundary");
+        check(!rangedStepAllowed(false,true,110,.4,false,false,3), "bow range boundary");
+        check(rangedStepAllowed(true,true,140,.9,false,false,0), "cooldown permits positioning without sacrificing ready offense");
         System.out.println("PASS: " + checks + " tactical policy assertions");
 	}
 }

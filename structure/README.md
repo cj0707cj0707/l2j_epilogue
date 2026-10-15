@@ -50,6 +50,7 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 | [18-bot-combat-fixes-and-rollback.md](18-bot-combat-fixes-and-rollback.md) | Исправление ложных кастов ботов, улучшения боя и резервная точка/порядок отката |
 | [19-pursuit-movement-ownership.md](19-pursuit-movement-ownership.md) | Перехват v2: конфликт CAST-подхода/автокаста, приоритет движения, диагностика, установка и отдельный откат |
 | [20-olympiad-suite-and-giran-services.md](20-olympiad-suite-and-giran-services.md) | Тактика/сложности, изолированные тренировки, аналитика, четыре NPC Гирана, инструкция, восстановление и безопасный откат |
+| [21-strong-tempo-and-training-fixes.md](21-strong-tempo-and-training-fixes.md) | Strong/100ms, атака вместо частого кайта, исправление NPC-кнопок, олимпийский бафф и30сек. на селфбафф |
 
 ## Куда смотреть при типовых задачах
 
