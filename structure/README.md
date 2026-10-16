@@ -28,10 +28,12 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 ## Последнее обновление
 
+[24. Тренировка: вход, подготовка, восстановление и возврат](24-training-preparation-location-and-return.md) — без порога ресурсов, очистка прежних эффектов, реальные селфкасты бота, финальный reset обоих, порт Гирана и устранение повторных остановок.
+
 [23. Ограниченное движение под страхом](23-bounded-fear-movement.md) — случайные короткие шаги вокруг места наложения; общий Fear handler, радиус100, установка и откат.
 
 
-[22. Навыки классов, усиления до старта, ворота и результаты тренировок](22-class-skills-openers-and-training-results.md) — карта файлов, установка, проверки и откат. Подготовка10сек, entry-only сброс откатов, единая заточка ботов.
+[22. Навыки классов, усиления до старта, ворота и результаты тренировок](22-class-skills-openers-and-training-results.md) — карта файлов, установка, проверки и откат. История предыдущего обновления; актуальный порядок тренировки — документ24.
 
 ## Состав документации
 
@@ -58,6 +60,10 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 | [19-pursuit-movement-ownership.md](19-pursuit-movement-ownership.md) | Перехват v2: конфликт CAST-подхода/автокаста, приоритет движения, диагностика, установка и отдельный откат |
 | [20-olympiad-suite-and-giran-services.md](20-olympiad-suite-and-giran-services.md) | Тактика/сложности, изолированные тренировки, аналитика, четыре NPC Гирана, инструкция, восстановление и безопасный откат |
 | [21-strong-tempo-and-training-fixes.md](21-strong-tempo-and-training-fixes.md) | Strong/100ms, атака вместо частого кайта, исправление NPC-кнопок, олимпийский бафф и30сек. на селфбафф |
+
+| [22-class-skills-openers-and-training-results.md](22-class-skills-openers-and-training-results.md) | Классовые навыки, предбоевые усиления, ворота и результаты; старые правила тренировки уточняет24 |
+| [23-bounded-fear-movement.md](23-bounded-fear-movement.md) | Короткие шаги страха вокруг исходной точки, общий handler и регрессии |
+| [24-training-preparation-location-and-return.md](24-training-preparation-location-and-return.md) | Актуальные правила/файлы тренировки, scoped PeaceZone, подготовка/восстановление, возврат без повторного стопа |
 
 ## Куда смотреть при типовых задачах
 

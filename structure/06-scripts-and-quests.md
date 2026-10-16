@@ -159,3 +159,8 @@ public class Q00255_Tutorial extends Quest
 ### Исправление меню тренера и selfbuff-подготовка
 
 `GiranServices` теперь регистрирует прямой `IBypassHandler` с ключом `GiranService`: NPC берётся из проверенного HTML origin ядра, а не `Player.lastFolkNpc` старого ScriptLink. Legacy Script-события просят открыть меню заново, после переноса — только статус/чатовые команды без удалённых мутаций. `TrainingArena` использует синхронные отменяемые события ON_CREATURE_ATTACK/SKILL_USE для защищённой30-секундной selfbuff-фазы; общий `BotSpawner.applyTrainingOlympiadBuffs` выдаёт13+олимпийский профиль без ложных флагов. Точная карта и границы — [21](21-strong-tempo-and-training-fixes.md).
+
+
+## Актуализация тренировок
+
+[24. Вход, подготовка, новая локация и возврат](24-training-preparation-location-and-return.md): `TrainingArena.java` управляет фазами и восстановлением обоих за1с до боя; `TrainingPeaceZones.java` сохраняет мирный порт обычного мира, исключая только авторизованную тренировочную копию; `BotSpawner.applyTrainingPreparationSelfBuffs` выполняет реальные подготовительные селфкасты. Порог HP/MP отменён, прежние эффекты снимаются при входе; повторные остановки человека после боя убраны.

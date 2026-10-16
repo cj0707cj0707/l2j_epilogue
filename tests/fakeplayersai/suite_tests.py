@@ -5,7 +5,7 @@ import os, subprocess, sys, tempfile
 from lxml import etree
 ROOT=Path(__file__).resolve().parents[2]
 DATA=ROOT/'game/data'
-for script in ('run_bot_combat_tests.py','tactics_tests.py','training_tests.py','run_olympiad_gate_tests.py','fear_tests.py'):
+for script in ('run_bot_combat_tests.py','tactics_tests.py','training_tests.py','run_olympiad_gate_tests.py','fear_tests.py','training_selfbuff_tests.py','run_training_peace_zones_tests.py'):
     subprocess.run([sys.executable,str(Path(__file__).with_name(script))],cwd=ROOT,check=True)
 for name,xsd in [('GiranServices.xml','spawns.xsd')]+[(f'GiranService{i}.xml','npcs.xsd') for i in (1008000,1009000,1010000,1011000)]:
     file=DATA/('spawns/Others' if xsd=='spawns.xsd' else 'stats/npcs/custom')/name
@@ -21,7 +21,9 @@ spawns=etree.parse(str(DATA/'spawns/Others/GiranServices.xml')).findall('.//npc'
 assert {int(n.get('id')) for n in spawns}==ids
 assert all(n.get('y')=='148613' and n.get('z')=='-3455' for n in spawns)
 # Conservative full bounding-box check, INCLUDING cylinder radius, not just centers.
-cx,cy,cz=630,179184,-3720
+cx,cy,cz=43409,188493,-3513
+expected_peace={"giran_port3","giran_port4"}
+found_peace=set()
 for file in (DATA/'zones').rglob('*.xml'):
     tree=etree.parse(str(file))
     if tree.getroot().get('enabled')=='false': continue
@@ -32,8 +34,11 @@ for file in (DATA/'zones').rglob('*.xml'):
         if not nodes: continue
         xs=[int(n.get('X')) for n in nodes]; ys=[int(n.get('Y')) for n in nodes]
         r=int(z.get('rad','0')) if z.get('shape')=='Cylinder' else 0
-        overlaps=not(max(xs)+r<cx-700 or min(xs)-r>cx+700 or max(ys)+r<cy-700 or min(ys)-r>cy+700)
+        overlaps=not(max(xs)+r<cx-1000 or min(xs)-r>cx+1000 or max(ys)+r<cy-1000 or min(ys)-r>cy+1000)
+        if overlaps and file.name=='peace.xml' and z.get('type')=='PeaceZone' and z.get('name') in expected_peace:
+            found_peace.add(z.get('name')); continue # only these have scoped instance membership adapters
         assert not overlaps, (file.name,z.get('name'),z.get('type'))
+assert found_peace==expected_peace, found_peace
 t=(DATA/'scripts/custom/fakeplayersai/TrainingArena.java').read_text()
 assert 's.duelRequested = true;' in t and t.index('s.duelRequested = true;')<t.index('DuelManager.getInstance().addDuel(')
 assert 'if (!reserveAccount())' in t and 'SELECT password, accessLevel FROM accounts WHERE login=?' in t
@@ -59,7 +64,9 @@ assert '"profile equal"' not in npc and 'Сравнительный профил
 assert '"profile","custom"); // legacy equal' in npc and 'return "custom";' in npc
 assert '10–60 сек.' in npc and '30–60' not in npc and 'Сброса откатов игрока нет' not in npc
 assert 'те же настройки снаряжения и заточки умений' in npc and 'Бот 85 уровня' in npc
-assert 'после подтверждённого входа на арену' in npc and 'не в конце боя' in npc
+assert 'За 1 сек. до боя обоим' in npc and 'не в конце боя' in npc
+assert 'Без минимального HP/CP/MP' in npc and 'При входе снимаются прежние эффекты' in npc
+assert '42705/188869/-3513' in npc and '44112/188116/-3513' in npc
 assert 'до остатка общего лимита 120 сек.' in npc and 'победа боту автоматически не присуждается' in npc
 assert 'approachWithMargin(BotTactics.tacticalApproachRange(b, p, preset))' in t
 assert 'BotTactics.allowsBasicAttack(b, preset)' in t and 'b.calculateDistance2D(p) <= range &&' in t

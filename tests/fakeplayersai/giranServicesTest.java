@@ -31,7 +31,10 @@ public final class giranServicesTest
         String trainingHelp = (String)help.get("training");
         check(trainingHelp.contains("10–60 сек.") && trainingHelp.contains("по умолчанию 10"));
         check(trainingHelp.contains("85 уровня") && trainingHelp.contains("настройками снаряжения и заточки умений"));
-        check(trainingHelp.contains("после подтверждённого входа") && trainingHelp.contains("не после боя"));
+        check(trainingHelp.contains("за 1 сек. до начала боя") && trainingHelp.contains("не после боя"));
+        check(trainingHelp.contains("без минимального HP/CP/MP") && trainingHelp.contains("бафы и дебафы снимаются"));
+        check(trainingHelp.contains("42705/188869/-3513") && trainingHelp.contains("44112/188116/-3513"));
+        check(trainingHelp.contains("кастует разрешённые классовые селфбафы") && trainingHelp.contains("1600"));
         check(trainingHelp.contains("до остатка общего лимита 120 сек.") && trainingHelp.contains("победа боту автоматически не присуждается"));
         check(!trainingHelp.contains("30–60") && !trainingHelp.contains("Сброса откатов игрока нет"));
         System.out.println("PASS: "+checks+" production preparation parser/HTML checks (no live NPC)");

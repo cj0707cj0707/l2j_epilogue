@@ -32,6 +32,7 @@ import org.l2jmobius.gameserver.mechanics.effects.AbstractEffect;
 import org.l2jmobius.gameserver.mechanics.skill.BuffInfo;
 import org.l2jmobius.gameserver.mechanics.skill.EffectScope;
 import org.l2jmobius.gameserver.mechanics.skill.Skill;
+import org.l2jmobius.gameserver.mechanics.skill.AbnormalType;
 import org.l2jmobius.gameserver.mechanics.skill.enums.SkillFinishType;
 import org.l2jmobius.gameserver.mechanics.skill.holders.EnchantSkillLearn;
 import org.l2jmobius.gameserver.mechanics.skill.targets.TargetType;
@@ -1853,8 +1854,8 @@ public class BotSpawner
 	}
 
     /** Same pre-start Olympiad baseline without setting fake Olympiad flags.
-     * Additive by explicit training request: never mass-strip human effects.
-     * No world profile, CoV, dances/songs or mid-fight refresh. */
+     * TrainingArena owns the explicitly requested entry effect wipe; this helper
+     * only supplies the baseline once, never a world profile or mid-fight refresh. */
     public static void applyTrainingOlympiadBuffs(Player player, boolean caster)
     {
         if (player == null || player.isAlikeDead()) return;
@@ -1869,6 +1870,57 @@ public class BotSpawner
             if (stacked != null && stacked.getSkill().getId() != buff[0] && stacked.getSkill().getAbnormalLevel() >= skill.getAbnormalLevel()) continue;
             skill.applyEffects(player, player);
         }
+    }
+
+    /**
+     * One real self-cast during the owning training preparation phase. Unlike the
+     * shared baseline and the short T-3 openers, class selfbuffs use normal cast
+     * time, resources, conditions and reuse. No auto engine owns this phase.
+     * Repeated pulses skip active effects and never interrupt a cast in progress.
+     */
+    public static boolean applyTrainingPreparationSelfBuffs(Player bot, BotClassPreset preset)
+    {
+        if (bot == null || preset == null || bot.getClient() != null || !bot.isOnline()
+            || !TrainingArena.isPreparingBot(bot) || bot.isAlikeDead() || bot.isCastingNow()
+            || bot.isCastingSimultaneouslyNow() || bot.isOutOfControl() || bot.isAllSkillsDisabled()) return false;
+        for (int id : preset.getBuffs())
+        {
+            Skill skill = bot.getKnownSkill(id);
+            if (!trainingPreparationSkillAllowed(skill) || isSelfBuffApplied(bot, id) || bot.isSkillDisabled(skill)) continue;
+            // A stronger/equal effect already occupying the same abnormal slot
+            // must not be replaced each pulse (e.g. baseline Blessed Body).
+            BuffInfo stacked = skill.getAbnormalType() == AbnormalType.NONE ? null
+                : bot.getEffectList().getBuffInfoByAbnormalType(skill.getAbnormalType());
+            if (stacked != null && stacked.getSkill().getId() != id
+                && stacked.getSkill().getAbnormalLevel() >= skill.getAbnormalLevel()) continue;
+            if (bot.getCurrentMp() < bot.getStat().getMpInitialConsume(skill) + bot.getStat().getMpConsume(skill)
+                || bot.getCurrentHp() <= skill.getHpConsume()
+                || !skill.isStatic() && (skill.isMagic() ? bot.isMuted() : bot.isPhysicalMuted())
+                || bot.getCharges() < skill.getChargeConsumeCount()
+                || skill.getItemConsumeCount() > 0 && bot.getInventory().getInventoryItemCount(skill.getItemConsumeId(), -1) < skill.getItemConsumeCount()
+                || !skill.checkCondition(bot, bot, false)) continue;
+            bot.setTarget(bot);
+            if (bot.useMagic(skill, true, true)) return true; // shift=true: never create a CAST approach.
+        }
+        return false;
+    }
+
+    static boolean trainingPreparationSkillAllowed(Skill skill)
+    {
+        if (skill == null || skill.isPassive() || skill.isBlockedInOlympiad() || skill.isDance()
+            || skill.isSuicideAttack() || skill.isDebuff() || skill.hasNegativeEffect() || skill.isDamage()
+            || skill.nextActionIsAttack() || isOpenerOnlySkill(skill.getId()) || isTankDefenseSkill(skill.getId())
+            || isChantOfVictoryFamily(skill.getId())) return false;
+        boolean enhancement = skill.isContinuous() || skill.isToggle() || isChargeBuilder(skill);
+        if (!enhancement && skill.hasEffects(EffectScope.GENERAL))
+            for (AbstractEffect effect : skill.getEffects(EffectScope.GENERAL))
+                if (effect != null && "FocusSouls".equals(effect.getName())) { enhancement = true; break; }
+        // Do not waste the short preparation on repeated heals, item crafting
+        // or HP->MP conversions; both resources are restored at the final lock.
+        if (!enhancement) return false;
+        // No party/area targets: the training listener permits the bot itself
+        // only, not a buff service for the opposing human or incidental actors.
+        return skill.getTargetType() == TargetType.SELF || skill.getTargetType() == TargetType.ONE;
     }
 
 	/**

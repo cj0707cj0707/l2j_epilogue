@@ -98,14 +98,14 @@ public final class trainingPolicyTest
         check(duel.checkEndDuelCondition() == DuelResult.TEAM_2_SURRENDER, "actual core: bot surrender team identity");
         field(bot, "_isOnline", false);
         check(duel.checkEndDuelCondition() == DuelResult.CANCELED, "actual core: disconnect cancels before surrender");
-        // Exercise actual core reset methods through production entry helper.
+        // Exercise actual core reset methods through production final-combat helper.
         Map<Integer,Long> disabled = new HashMap<>(); disabled.put(123, Long.MAX_VALUE);
         Map<Integer,Object> timestamps = new HashMap<>(); timestamps.put(123, null);
         Map<Integer,Object> itemReuse = new HashMap<>(); itemReuse.put(456, null);
         field(human, "_disabledSkills", disabled); field(human, "_reuseTimeStampsSkills", timestamps); field(human, "_reuseTimeStampsItems", itemReuse);
-        TrainingArena.resetEntryCooldowns(human);
-        check(disabled.isEmpty() && timestamps.isEmpty(), "entry reset clears actual disabled and skill reuse maps");
-        check(itemReuse.size() == 1, "entry reset preserves item reuse");
+        TrainingArena.resetCombatCooldowns(human);
+        check(disabled.isEmpty() && timestamps.isEmpty(), "final reset clears actual disabled and skill reuse maps");
+        check(itemReuse.size() == 1, "final reset preserves item reuse");
         human.setDuelState(Duel.DUELSTATE_NODUEL); bot.setDuelState(Duel.DUELSTATE_NODUEL);
         check(duel.getWinner() == null, "actual core: restored states erase winner getter");
         captureOnceContract(human, bot, duel);
@@ -135,6 +135,73 @@ public final class trainingPolicyTest
             check(TrainingArena.approachWithMargin(reach) == reach - 10, "approach inside effective learned range " + reach);
         Files.delete(file); initialized.setBoolean(null, false);
     }
+    private static void resetAndReturnContract() throws Exception
+    {
+        Player p = (Player)allocate(Player.class);
+        Field pending = Player.class.getDeclaredField("_startingDuel"); pending.setAccessible(true);
+        check(!TrainingArena.startingDuelPending(p, pending), "actual pending-duel flag false");
+        p.setStartingDuel();
+        check(TrainingArena.startingDuelPending(p, pending), "actual pending-duel flag blocks even with uninitialized/low resources");
+        check(TrainingArena.startingDuelPending(p, null) && TrainingArena.startingDuelPending(null, pending), "pending reflection missing/null fails closed");
+        Field wrong = Duel.class.getDeclaredField("_surrenderRequest"); wrong.setAccessible(true);
+        check(TrainingArena.startingDuelPending(p, wrong), "wrong reflection schema fails closed");
+        check(!TrainingArena.isPreparingBot(null) && !TrainingArena.isTrainingInstance(0) && !TrainingArena.isTrainingInstance(-1), "preparation/instance null guards");
+        Player bot = (Player)allocate(Player.class); field(p, "_objectId", 11); field(bot, "_objectId", 22);
+        Class<?> choiceClass=Class.forName("custom.fakeplayersai.TrainingArena$Choice");
+        Constructor<?> choiceCtor=choiceClass.getDeclaredConstructors()[0];choiceCtor.setAccessible(true);
+        Class<?> sessionClass=Class.forName("custom.fakeplayersai.TrainingArena$Session");
+        Constructor<?> sessionCtor=sessionClass.getDeclaredConstructors()[0];sessionCtor.setAccessible(true);
+        Object session=sessionCtor.newInstance(p,choiceCtor.newInstance(108,"normal","custom"),new Properties());field(session,"bot",bot);
+        Field sessionsField=TrainingArena.class.getDeclaredField("SESSIONS");sessionsField.setAccessible(true);
+        Field botsField=TrainingArena.class.getDeclaredField("BOTS");botsField.setAccessible(true);
+        @SuppressWarnings("unchecked") Map<Integer,Object> sessions=(Map<Integer,Object>)sessionsField.get(null);
+        @SuppressWarnings("unchecked") java.util.Set<Integer> bots=(java.util.Set<Integer>)botsField.get(null);
+        sessions.put(11,session);bots.add(22);
+        try
+        {
+            for(int mask=0;mask<32;mask++)
+            {
+                boolean preparing=(mask&1)!=0,active=(mask&2)!=0,stopping=(mask&4)!=0,finalizing=(mask&8)!=0,closed=(mask&16)!=0;
+                field(session,"preparationStarted",preparing);field(session,"active",active);field(session,"stopping",stopping);field(session,"finalizing",finalizing);field(session,"closed",closed);
+                check(TrainingArena.isPreparingBot(bot)==(preparing&&!active&&!stopping&&!finalizing&&!closed),"exact bot preparation authority " + mask);
+                check(!TrainingArena.isPreparingBot(p),"human never admitted to bot preparation helper " + mask);
+            }
+            field(session,"humanStopApplied",true);
+            Method stopOnce=TrainingArena.class.getDeclaredMethod("stopParticipantsOnce",sessionClass);stopOnce.setAccessible(true);
+            field(session,"bot",null); // repeated stop must not dereference or mutate either actor
+            stopOnce.invoke(null,session);stopOnce.invoke(null,session);
+            check((boolean)field(session,"humanStopApplied"),"stopping pulses return immediately after one owned human stop");
+        }
+        finally { sessions.remove(11);bots.remove(22); }
+        Method syncOnce=TrainingArena.class.getDeclaredMethod("synchronizeReturnOnce",Player.class,Properties.class);syncOnce.setAccessible(true);
+        Properties synced=new Properties();synced.setProperty("returnRequested","true");synced.setProperty("returnMotionSynced","true");
+        syncOnce.invoke(null,null,synced);syncOnce.invoke(null,null,synced);
+        check("true".equals(synced.getProperty("returnMotionSynced")),"repeated ACK/storage retries never dereference/mutate a returned actor");
+        org.l2jmobius.gameserver.ai.PlayerAI ai = (org.l2jmobius.gameserver.ai.PlayerAI)allocate(org.l2jmobius.gameserver.ai.PlayerAI.class);
+        field(ai, "_actor", p); field(p, "_ai", ai);
+        field(ai, "_savedIntention", org.l2jmobius.gameserver.ai.Intention.MOVE_TO);
+        field(ai, "_savedMoveTo", new org.l2jmobius.gameserver.entity.Location(1,2,3));
+        ai.setNextAction((org.l2jmobius.gameserver.ai.NextAction)allocate(org.l2jmobius.gameserver.ai.NextAction.class));
+        TrainingArena.cancelSavedActions(p); // real PlayerAI.cancel, no spawned actor/network/server
+        check(ai.getNextIntention() == null && field(ai, "_savedMoveTo") == null && ai.getNextAction() == null, "actual core CANCEL clears saved move and deferred action; Idle alone did not");
+        for (int mask=0; mask<64; mask++)
+        {
+            boolean online=(mask&1)!=0, teleport=(mask&2)!=0, arrived=(mask&4)!=0, moving=(mask&8)!=0, busy=(mask&16)!=0, controlled=(mask&32)!=0;
+            check(TrainingArena.returnMotionAllowed(online,teleport,arrived,moving,busy,controlled) == (online&&!teleport&&arrived&&!moving&&!busy&&!controlled), "ACK cleanup never stomps fresh player actions " + mask);
+        }
+        long deadline=10_000_000_000L, drain=9_100_000_000L;
+        for (long now : new long[]{8_999_999_999L,9_000_000_000L,9_099_999_999L,9_100_000_000L,10_000_000_000L,20_000_000_000L})
+            for (boolean casting : new boolean[]{false,true})
+                check(TrainingArena.finalSnapshotReady(now,deadline,drain,casting)==(!casting&&now>=drain&&now>=deadline-1_000_000_000L), "final snapshot waits for both casting drain and last1s boundary " + now + "/" + casting);
+        check(TrainingArena.inside(44112,188116) && TrainingArena.inside(42705,188869), "both exact requested spawns inside private arena");
+        double gap=Math.hypot(44112-42705,188116-188869);
+        check(gap<1600 && gap>1595, "exact requested separation remains just inside actual core1600 cancellation limit");
+        Method inside = TrainingArena.class.getDeclaredMethod("insideJournalArena", int.class,int.class,Properties.class); inside.setAccessible(true);
+        Properties journal=new Properties();
+        check((boolean)inside.invoke(null,630,179184,journal), "old Dion arena journal location retained across migration");
+        journal.setProperty("arenaX","43409");journal.setProperty("arenaY","188493");journal.setProperty("arenaRadius","1000");
+        check((boolean)inside.invoke(null,44112,188116,journal) && !(boolean)inside.invoke(null,630,179184,journal), "new journal records its exact arena bounds");
+    }
     public static void main(String[] args) throws Exception
     {
         check("normal".equals(TrainingArena.option(" Normal ", "normal", "experienced", "strong")), "difficulty normalization");
@@ -144,9 +211,9 @@ public final class trainingPolicyTest
         check(TrainingArena.option(null, "normal") == null, "no null choice default");
         check(TrainingArena.option("equal; DROP TABLE", "custom", "equal") == null, "untrusted selection rejected");
         check("equal".equals(TrainingArena.option(" equal ", "custom", "equal")), "equal profile accepted");
-        check(TrainingArena.inside(630, 179184), "arena center");
-        check(TrainingArena.inside(1280, 179184), "radius boundary");
-        check(!TrainingArena.inside(1281, 179184), "outside boundary");
+        check(TrainingArena.inside(43409, 188493), "arena center");
+        check(TrainingArena.inside(44409, 188493), "radius boundary");
+        check(!TrainingArena.inside(44410, 188493), "outside boundary");
         check(!TrainingArena.inside(Integer.MAX_VALUE, Integer.MIN_VALUE), "no coordinate overflow");
         for(int mask=0;mask<64;mask++)
         {
@@ -187,6 +254,7 @@ public final class trainingPolicyTest
         }
         actualCoreDefeatContract();
         settingsAndApproachContract();
+        resetAndReturnContract();
         for (DuelResult result : DuelResult.values())
         {
             int expected = switch (result) { case TEAM_1_WIN, TEAM_2_SURRENDER -> 11; case TEAM_2_WIN, TEAM_1_SURRENDER -> 22; default -> 0; };
