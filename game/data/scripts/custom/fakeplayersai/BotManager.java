@@ -33,6 +33,8 @@ import org.l2jmobius.gameserver.ai.Intention;
 import org.l2jmobius.gameserver.entity.zone.ZoneId;
 import org.l2jmobius.gameserver.geoengine.GeoEngine;
 import org.l2jmobius.gameserver.mechanics.effects.EffectType;
+import org.l2jmobius.gameserver.mechanics.effects.EffectFlag;
+import org.l2jmobius.gameserver.mechanics.skill.BuffInfo;
 import org.l2jmobius.gameserver.mechanics.events.Containers;
 import org.l2jmobius.gameserver.mechanics.events.EventType;
 import org.l2jmobius.gameserver.mechanics.events.holders.actor.player.OnPlayerLogin;
@@ -382,7 +384,11 @@ public class BotManager
 		int cycle = 0;
 		final BerserkerCycle movement = new BerserkerCycle();
 		long nextDecisionAt;
-
+		final RushStunLoop rushStun = new RushStunLoop();
+		boolean stunLoopMoving;
+		volatile boolean stunLoopReleasing;
+		long stunLoopMoveAt;
+		double stunLoopMoveDistance;
 
 		BerserkerState(int x, int y, int z, int game)
 		{
@@ -390,6 +396,54 @@ public class BotManager
 			spawnY = y;
 			spawnZ = z;
 			gameId = game;
+		}
+	}
+
+	/** Pure identity policy. Only a new applied effect observed after our own cast can
+	 * start a loop; replacements never silently extend the original stun window. */
+	private static final class RushStunLoop
+	{
+		static final int NONE = 0, ACTIVE = 1, ENDED = 2;
+		volatile Object original;
+		private Object target;
+		private Object before;
+		private boolean watching;
+		private long requestedAt;
+
+		void requested(Object enemy, Object previous, long now)
+		{
+			if (original != null) return; // Repeat damage does not change the tracked original.
+			target = enemy;
+			before = previous;
+			watching = true;
+			requestedAt = now;
+		}
+
+		int observe(Object enemy, Object applied, long now)
+		{
+			if (original != null)
+			{
+				if (target == enemy && original == applied) return ACTIVE;
+				original = null;
+				watching = false;
+				target = before = null;
+				return ENDED;
+			}
+			if (!watching) return NONE;
+			if (target != enemy || now < requestedAt || now - requestedAt > BerserkerCycle.RUSH_TIMEOUT_MS)
+			{
+				watching = false;
+				target = before = null;
+				return NONE;
+			}
+			if (applied != null && applied != before)
+			{
+				original = applied;
+				watching = false;
+				before = null;
+				return ACTIVE;
+			}
+			return NONE;
 		}
 	}
 
@@ -2271,6 +2325,7 @@ public class BotManager
 			return false;
 		}
 		final double dist = bot.calculateDistance2D(enemy);
+		if (driveOwnRushStunLoop(bot, preset, state, enemy, rush, now)) return true;
 		if (state.movement.rushPending())
 		{
 			final BerserkerCycle.RushStatus status = state.movement.pollRush(now, bot.isCastingNow(), dist, bot.getX(), bot.getY());
@@ -2344,8 +2399,10 @@ public class BotManager
 				// CHARGE moves XYZ synchronously inside beginCast: capture BEFORE useMagic.
 				final int rushX = bot.getX();
 				final int rushY = bot.getY();
+				final BuffInfo previousStun = ownRushStun(bot, enemy);
 				if (castSkill(bot, BERSERKER_RUSH_IMPACT_ID))
 				{
+					state.rushStun.requested(enemy, previousStun, now);
 					state.movement.requested(now, rushX, rushY);
 					return true;
 				}
@@ -2431,6 +2488,140 @@ public class BotManager
 			bot.getAI().setIntentionAttack(enemy);
 		}
 		return dist <= CHASE_RANGE;
+	}
+
+	/** Applied BuffInfo, not Skill.hasEffectType or an arbitrary target.isStunned(). */
+	private static boolean isOwnRushStun(Player bot, Creature enemy, BuffInfo info)
+	{
+		if (bot == null || enemy == null || info == null || info.getEffector() != bot || info.getEffected() != enemy || !info.isInUse()
+			|| info.isRemoved() || info.getSkill() == null || info.getSkill().getId() != BERSERKER_RUSH_IMPACT_ID) return false;
+		for (var effect : info.getEffects())
+		{
+			if (effect.getEffectType() == EffectType.STUN && (effect.getEffectFlags() & EffectFlag.STUNNED.getMask()) != 0) return true;
+		}
+		return false; // Damage-only/resisted Rush is not a stun, even when its template has Stun.
+	}
+
+	private static BuffInfo ownRushStun(Player bot, Creature enemy)
+	{
+		final BuffInfo info = enemy.getEffectList().getBuffInfoBySkillId(BERSERKER_RUSH_IMPACT_ID);
+		return isOwnRushStun(bot, enemy, info) && enemy.getEffectList().isAffected(EffectFlag.STUNNED)
+			&& enemy.getEffectList().getBuffInfoByAbnormalType(info.getSkill().getAbnormalType()) == info ? info : null;
+	}
+
+	/** High-priority ranked-only control lease, bounded by the exact original applied stun.
+	 * No synthetic status, effect timer edit, teleport, forced reuse, or filler-cast abort. */
+	private static boolean driveOwnRushStunLoop(Player bot, BotClassPreset preset, BerserkerState state, Creature enemy, Skill rush, long now)
+	{
+		if (preset == null || preset.getClassId() != CLASS_DOOMBRINGER || !enemy.isPlayer()
+			|| state.gameId != bot.getOlympiadGameId() || getOlympiadOpponent(bot) != enemy) return false;
+		final BuffInfo applied = ownRushStun(bot, enemy);
+		final int observation = state.rushStun.observe(enemy, applied, now);
+		if (observation == RushStunLoop.ENDED) state.stunLoopReleasing = true;
+		if (state.stunLoopReleasing)
+		{
+			if (bot.isCastingNow() || bot.isCastingSimultaneouslyNow()) return true; // The actual last charge is allowed to finish.
+			stopRushStunMove(bot, state);
+			state.stunLoopReleasing = false;
+			state.movement.pollRush(now, false, bot.calculateDistance2D(enemy), bot.getX(), bot.getY());
+			state.rushDone = true;
+			state.disarmDone = state.enumaDone = state.crushingDone = false;
+			armBerserkerCombat(bot, preset, state);
+			return false; // Original effect gone: ordinary phase driver resumes immediately.
+		}
+		if (observation != RushStunLoop.ACTIVE) return false;
+		// Force both pools off, even if an external maintenance call re-armed them.
+		AutoPlayTaskManager.getInstance().stopAutoPlay(bot);
+		AutoUseTaskManager.getInstance().stopAutoUseTask(bot);
+		state.enginesStopped = true;
+		if (bot.isCastingNow() || bot.isCastingSimultaneouslyNow()) return true;
+		bot.abortAttack();
+		bot.setQueuedSkill(null, false, false);
+		if (bot.getAI().getIntention() == Intention.ATTACK || bot.getAI().getIntention() == Intention.CAST)
+		{
+			bot.getAI().notifyActionCancel();
+			bot.getAI().setIntentionIdle();
+		}
+		if (bot.getTarget() != enemy) bot.setTarget(enemy);
+		final double distance = bot.calculateDistance2D(enemy);
+		if (distance < BERSERKER_RUSH_MIN_DISTANCE)
+		{
+			if (state.stunLoopMoving && now - state.stunLoopMoveAt < 1000 && bot.isMoving()) return true;
+			// A blocked/stalled retreat cannot become an unbounded run or cause a fake cast.
+			if (state.stunLoopMoving && now - state.stunLoopMoveAt >= 1000
+				&& distance - state.stunLoopMoveDistance < 20)
+			{
+				stopRushStunMove(bot, state);
+				return true;
+			}
+			final int game = bot.getOlympiadGameId();
+			if (game < 0 || game >= OLYMPIAD_STADIUM_CENTERS.length) return true;
+			final int[] center = OLYMPIAD_STADIUM_CENTERS[game];
+			for (Location point : rushStunRetreatCandidates(bot.getX(), bot.getY(), bot.getZ(), enemy.getX(), enemy.getY(), center[0], center[1], OLYMPIAD_ARENA_MAX_DISTANCE))
+			{
+				if (!GeoEngine.getInstance().canMoveToTarget(bot.getX(), bot.getY(), bot.getZ(), point.getX(), point.getY(), point.getZ(), bot.getInstanceId())) continue;
+				// Re-read the exact identity and official gate immediately before changing movement.
+				if (!OlympiadCombatGate.ready(bot) || ownRushStun(bot, enemy) != state.rushStun.original) return true;
+				state.stunLoopMoving = true;
+				state.stunLoopMoveAt = now;
+				state.stunLoopMoveDistance = distance;
+				bot.getAI().setIntentionMoveTo(point);
+				return true;
+			}
+			stopRushStunMove(bot, state);
+			return true;
+		}
+		stopRushStunMove(bot, state);
+		if (!rushStunRepeatAllowed(ownRushStun(bot, enemy) == state.rushStun.original, OlympiadCombatGate.ready(bot),
+			canBerserkerCast(bot, BERSERKER_RUSH_IMPACT_ID), bot.isCastingNow() || bot.isCastingSimultaneouslyNow() || bot.isMovementDisabled() || bot.isOutOfControl() || bot.isAllSkillsDisabled(),
+			bot.isDisarmed(), rush.isBlockedInOlympiad(), GeoEngine.getInstance().canSeeTarget(bot, enemy),
+			GeoEngine.getInstance().canMoveToTarget(bot.getX(), bot.getY(), bot.getZ(), enemy.getX(), enemy.getY(), enemy.getZ(), bot.getInstanceId()),
+			rush.checkCondition(bot, enemy, false), distance, rush.getCastRange(), Math.abs((double) bot.getZ() - enemy.getZ()))) return true;
+		castSkill(bot, BERSERKER_RUSH_IMPACT_ID); // Normal useMagic pays MP/reuse/conditions; no new stun lease.
+		return true;
+	}
+
+	/** Pure safety matrix shared by the real repeat branch and server-free regression tests.
+	 * canCast is the ordinary known-skill/reuse/MP/item/charge check, not a fake readiness flag. */
+	private static boolean rushStunRepeatAllowed(boolean sameOriginal, boolean gateReady, boolean canCast, boolean controlled,
+		boolean disarmed, boolean blocked, boolean visible, boolean walkable, boolean conditions, double distance, double castRange, double deltaZ)
+	{
+		return sameOriginal && gateReady && canCast && !controlled && !disarmed && !blocked && visible && walkable && conditions
+			&& Double.isFinite(distance) && Double.isFinite(castRange) && Double.isFinite(deltaZ)
+			&& distance >= BERSERKER_RUSH_MIN_DISTANCE && distance <= castRange && deltaZ < 150;
+	}
+
+	private static void stopRushStunMove(Player bot, BerserkerState state)
+	{
+		if (!state.stunLoopMoving) return;
+		if (!bot.isCastingNow() && !bot.isCastingSimultaneouslyNow() && bot.getAI().getIntention() == Intention.MOVE_TO)
+		{
+			bot.stopMove(null);
+			bot.getAI().setIntentionIdle();
+		}
+		state.stunLoopMoving = false;
+	}
+
+	/** Pure bounded geometry; callers must still validate server geodata and the live gate. */
+	private static List<Location> rushStunRetreatCandidates(int x, int y, int z, int enemyX, int enemyY, int centerX, int centerY, double arenaRadius)
+	{
+		final List<Location> result = new ArrayList<>();
+		final double distance = Math.hypot((double) x - enemyX, (double) y - enemyY);
+		if (distance >= BERSERKER_RUSH_MIN_DISTANCE || !Double.isFinite(arenaRadius) || arenaRadius <= 0) return result;
+		double dx = x - (double) enemyX, dy = y - (double) enemyY;
+		if (distance < 1) { dx = centerX - (double) x; dy = centerY - (double) y; }
+		final double length = Math.hypot(dx, dy);
+		if (length < 1) { dx = 1; dy = 0; } else { dx /= length; dy /= length; }
+		final double step = Math.min(240, Math.max(40, 220 - distance));
+		for (double angle : new double[] {0, Math.PI / 4, -Math.PI / 4, Math.PI / 2, -Math.PI / 2, Math.PI})
+		{
+			final int px = x + (int) Math.round((dx * Math.cos(angle) - dy * Math.sin(angle)) * step);
+			final int py = y + (int) Math.round((dx * Math.sin(angle) + dy * Math.cos(angle)) * step);
+			if (Math.hypot((double) px - enemyX, (double) py - enemyY) < BERSERKER_RUSH_MIN_DISTANCE
+				|| Math.hypot((double) px - centerX, (double) py - centerY) > arenaRadius) continue;
+			result.add(new Location(px, py, z));
+		}
+		return result;
 	}
 
 	/** Short local retreat, never an unconditional run to the arena spawn point. */
@@ -2540,6 +2731,7 @@ public class BotManager
 	 */
 	private static void armBerserkerCombat(Player bot, BotClassPreset preset, BerserkerState state)
 	{
+		if (state.rushStun.original != null || state.stunLoopReleasing) return;
 		if (!OlympiadCombatGate.ready(bot))
 		{
 			OlympiadCombatGate.hold(bot);

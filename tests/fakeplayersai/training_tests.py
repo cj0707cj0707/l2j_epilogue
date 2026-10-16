@@ -142,3 +142,9 @@ assert 'BotSpawner.applyTrainingClassBuffs(p, BotPresets.getPresetByClassId(p.ge
 assert 'p.getMaxHp() * trainingHpFraction(classId)' in t
 assert 'p.getMaxCp() * trainingCpFraction(classId)' in t
 assert 'p.setCurrentMp(p.getMaxMp());' in t
+
+arrival = t[t.index('if (!s.duelRequested)'):t.index('if (s.duel == null && p.isInDuel())')]
+assert arrival.index('if (p.isTeleporting() || b.isTeleporting()) return;') < arrival.index('restoreEntryResources(p); restoreEntryResources(b);') < arrival.index('if (!p.canDuel() || !b.canDuel())') < arrival.index('DuelManager.getInstance().addDuel(p, b, 0)')
+assert t.count('restoreEntryResources(p); restoreEntryResources(b);') == 1
+assert 'if (!s.entryHealed)' in arrival and arrival.index('restoreEntryResources(p); restoreEntryResources(b);') < arrival.index('s.entryHealed = true;')
+assert 'restoreEntryResources' not in prep and 'restoreEntryResources' not in t[t.index('private static void finish(Session s)'):]

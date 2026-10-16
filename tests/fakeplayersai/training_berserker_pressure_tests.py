@@ -23,7 +23,7 @@ def integration_guards(source):
     assert act.index('if (selected >= 0)')<act.index('if (trainingPressure) { return false; }')
     assert act.index('if (trainingPressure) { return false; }')<act.index('if (!defenseOnly && !offenseAvailable) { stopBasicAttack(bot); return true; }')
     assert '!trainingPressure && step(' in act
-    busy=act[act.index('if (trainingBerserker && (bot.isCastingNow()'):act.index('if (!defenseOnly && !allowsBasicAttack')]
+    busy=act[act.index('if (bot.isCastingNow() || bot.isCastingSimultaneouslyNow())'):act.index('if (!defenseOnly && !allowsBasicAttack')]
     assert 'return true;' in busy and 'stopBasicAttack' not in busy and 'setIntentionIdle' not in busy
     poll=source[source.index('private static void pollAttempt('):source.index('private static void failure(')]
     assert 'if (bot.isCastingNow() || bot.isCastingSimultaneouslyNow()) { s.sawCast = true; return; }' in poll

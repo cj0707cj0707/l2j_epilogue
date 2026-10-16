@@ -1725,6 +1725,11 @@ public class BotSpawner
         return id == 90 || id == 91 || id == 106;
     }
 
+    /** Strong immobile amplifiers: never overlap each other. Long weak buffs
+     * (e.g. Majesty/Iron Shield) must not suppress the requested UD->Vengeance chain. */
+    public static boolean isStrongTankDefenseSkill(int skillId)
+    { return skillId == 110 || skillId == VENGEANCE_ID || skillId == 760; }
+
     public static int[] getTacticalDefenses(Player player, Player enemy)
     {
         if (!isTacticalTank(player)) return new int[0];
@@ -1749,7 +1754,8 @@ public class BotSpawner
 		{
 			final int[] pool = enemy != null && enemy.isMageClass() ? TANK_DEFENSE_MAGIC : TANK_DEFENSE_PHYSICAL;
 			if (!containsId(pool, skill.getId())) return false;
-			for (int id : TANK_DEFENSE_ALL) if (player.isAffectedBySkill(id)) return false;
+			for (int id : TANK_DEFENSE_ALL)
+                if (player.isAffectedBySkill(id) && (!isStrongTankDefenseSkill(skill.getId()) || isStrongTankDefenseSkill(id))) return false;
 		}
 		return true;
 	}

@@ -106,7 +106,7 @@ public final class TrainingArena
         Player bot;
         Instance instance;
         Duel duel;
-        boolean duelRequested, closed, botDisposed, openersApplied, officialResultCaptured, finalSnapshotApplied, humanStopApplied;
+        boolean duelRequested, closed, botDisposed, openersApplied, officialResultCaptured, finalSnapshotApplied, humanStopApplied, entryHealed;
         volatile boolean active, stopping, preparationStarted, finalizing;
         String reason = "Training finished", officialReason;
         long nextAction, preparationUntil, finalDrainUntil, combatAt;
@@ -236,7 +236,7 @@ public final class TrainingArena
     {
         if (p == null) return "Персонаж недоступен. Перезайдите в игру.";
         Session s = SESSIONS.get(p.getObjectId());
-        if (s == null) return "Личная нерейтинговая тренировка: " + preparationSeconds(TacticalSettings.getTrainingPreparationSeconds()) + " сек. на селфбаф после запуска дуэли. При входе прежние эффекты очищаются. Оба участника получают 13 базовых бафов и олимпийский профиль класса; бот кастует разрешённые селфбафы во время подготовки. Общий лимит дуэли 120 сек., включая подготовку. Наград и очков нет. Бот 85 уровня использует те же настройки снаряжения и заточки умений, что и рейтинговые боты. Порога HP/MP/CP нет. Откаты обоих сбрасываются перед таймером селфбафов, не после него. За секунду до боя: Титан/кастетчик — 70% HP, 15% CP, 100% MP; остальные — 100%. И игрок, и бот своего класса получают: Титан — Frenzy и Zealot, кастетчик — Zealot. При выходе сброса нет.";
+        if (s == null) return "Личная нерейтинговая тренировка: " + preparationSeconds(TacticalSettings.getTrainingPreparationSeconds()) + " сек. на селфбаф после запуска дуэли. При входе прежние эффекты очищаются; сразу после подтверждённого телепорта HP/CP/MP обоих полностью восстанавливаются без исключения классов. Оба участника получают 13 базовых бафов и олимпийский профиль класса; бот кастует разрешённые селфбафы во время подготовки. Общий лимит дуэли 120 сек., включая подготовку. Наград и очков нет. Бот 85 уровня использует те же настройки снаряжения и заточки умений, что и рейтинговые боты. Порога HP/MP/CP нет. Откаты обоих сбрасываются перед таймером селфбафов, не после него. За секунду до боя: Титан/кастетчик — 70% HP, 15% CP, 100% MP; остальные — 100%. И игрок, и бот своего класса получают: Титан — Frenzy и Zealot, кастетчик — Zealot. При выходе сброса нет.";
         return (s.stopping ? "Выход: " : s.active ? "Бой: " : "Подготовка: ") + BotPresets.getPresetByClassId(s.choice.classId).getClassName() + ", " + s.choice.difficulty + ", " + s.choice.profile + ". Личная арена " + (s.instance == null ? "создаётся" : s.instance.getId()) + ". Без рейтинга и наград.";
     }
     public static String leave(Player p)
@@ -476,6 +476,19 @@ public final class TrainingArena
             {
                 s.stopping = true; s.reason = "Training location has a conflicting zone"; p.sendMessage("Арена пересекается с запретной зоной. Выполняется возврат; сообщите администратору."); finish(s); return;
             }
+            if (startingDuelPending(p, STARTING_DUEL) || startingDuelPending(b, STARTING_DUEL) || p.isInDuel() || b.isInDuel())
+            {
+                s.stopping = true; s.reason = "Another core duel began before entry heal";
+                finish(s); return; // quarantine foreign pending work; never heal underneath it.
+            }
+            if (!s.entryHealed)
+            {
+                // Acknowledged arena arrival, once only, before the real Duel
+                // snapshot. ALL classes and BOTH actors receive a full heal here.
+                restoreEntryResources(p); restoreEntryResources(b);
+                s.entryHealed = true;
+                p.sendMessage("Перенос завершён: HP/CP/MP игрока и бота полностью восстановлены для всех классов. Предбоевое восстановление позднее выполняется по классу.");
+            }
             // Real core validation AFTER neutral teleport and entry resources;
             // never fabricate its flags or let low HP mask a pending challenge.
             if (!p.canDuel() || !b.canDuel())
@@ -591,6 +604,7 @@ public final class TrainingArena
             b.setInvul(false); b.setImmobilized(false); b.enableAllSkills();
             CombatAnalytics.beginTraining(p, b, s.choice.difficulty + "/" + s.choice.profile);
             s.active = true;
+            BotTactics.beginCombat(b, p); // starts the +5s tank clock at actual combat, never countdown.
             p.sendMessage("Подготовка завершена. Бой начался! Наград, рейтинга и очков Олимпиады нет.");
         }
         if (now < s.nextAction) return;
@@ -631,6 +645,11 @@ public final class TrainingArena
     { return !casting && now >= drainUntil && now >= preparationUntil - 1_000_000_000L; }
     private static boolean castsRunning(Player p)
     { return p.isCastingNow() || p.isCastingSimultaneouslyNow(); }
+    private static void restoreEntryResources(Player p)
+    {
+        p.setCurrentHp(p.getMaxHp()); p.setCurrentMp(p.getMaxMp()); p.setCurrentCp(p.getMaxCp());
+        p.broadcastUserInfo();
+    }
     private static void restoreResources(Player p)
     {
         int classId = p.getPlayerClass().getId();

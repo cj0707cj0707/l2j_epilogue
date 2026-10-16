@@ -27,6 +27,18 @@ public class DebuffNoRefreshTest
         public EffectType getEffectType(){return type;}
         public boolean isInstant(){return instant;}
     }
+    static class InstantHit extends AbstractEffect
+    {
+        int hits;InstantHit(){super(null,null,Effect.named(),new StatSet());}
+        public boolean isInstant(){return true;}
+        public boolean calcSuccess(org.l2jmobius.gameserver.entity.actor.Creature a,org.l2jmobius.gameserver.entity.actor.Creature b,Skill s){return true;}
+        public void onStart(org.l2jmobius.gameserver.entity.actor.Creature a,org.l2jmobius.gameserver.entity.actor.Creature b,Skill s){hits++;}
+    }
+    static class ContinuousStun extends Effect
+    {
+        ContinuousStun(){super(EffectFlag.STUNNED.getMask(),EffectType.STUN);}
+        public boolean canStart(org.l2jmobius.gameserver.entity.actor.Creature a,org.l2jmobius.gameserver.entity.actor.Creature b,Skill s){return true;}
+    }
     static class Info extends BuffInfo
     {
         int starts,stops; Object statOwner;
@@ -100,6 +112,16 @@ public class DebuffNoRefreshTest
             check(next.starts==0&&next.stops==0,"rejected info must neither start nor exit");
             check(old.starts==1&&old.stops==0&&list.getDebuffs().peek()==old&&list.getDebuffs().size()==1,"preserve exact old info");
             check(old.getAbnormalTime()==5&&old.getPeriodStartTicks()==12345,"original duration and start ticks unchanged");
+        }
+        // Actual Skill.applyEffectScope: ALL damage+debuff skills retain their
+        // instant payload while the shared continuous admission rejects refresh.
+        for(int id:new int[]{260,362,793})
+        {
+            Info next=info(id,"STUN",flag(EffectFlag.STUNNED),EffectType.STUN,1);set(next,"_effects",new ArrayList<AbstractEffect>());
+            InstantHit hit=new InstantHit();next.getSkill().addEffect(EffectScope.GENERAL,hit);next.getSkill().addEffect(EffectScope.GENERAL,new ContinuousStun());
+            next.getSkill().applyEffectScope(EffectScope.GENERAL,next,true,true);list.add(next);
+            check(hit.hits==1,"instant hit retained for "+id);check(next.starts==0&&old.stops==0,"generic no refresh for "+id);
+            check(old.getAbnormalTime()==5&&old.getPeriodStartTicks()==12345,"original timer for "+id);
         }
         list.remove(SkillFinishType.REMOVED,old);Info fresh=info(260,"STUN",flag(EffectFlag.STUNNED),EffectType.STUN,2);list.add(fresh);
         check(fresh.starts==1&&list.getDebuffs().peek()==fresh,"available again after actual removal");

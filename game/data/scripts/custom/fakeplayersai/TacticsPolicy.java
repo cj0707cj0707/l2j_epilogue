@@ -214,6 +214,59 @@ final class TacticsPolicy
 		return authorized && armed && !blocked && !sleeping && !invulnerable && visible && attackable && !pendingCast;
 	}
 
+
+	static boolean meleeOpponent(boolean knownPreset, boolean casterPreset, boolean rangedWeapon, boolean mageClass, double attackRange)
+	{
+		return knownPreset ? !casterPreset && !rangedWeapon : !mageClass && attackRange < 250;
+	}
+	/** First actual combat tick, then real live-effect observations, not durations. */
+	static final class TankDefenseSequence
+	{
+		private long combatAt = -1;
+		private int lastStrong;
+		void reset(long time) { combatAt = time; lastStrong = 0; }
+		boolean due(long time) { return combatAt >= 0 && time - combatAt >= 5000; }
+		void observed(int id) { if (id == 110 || id == 368 || id == 760) { lastStrong = id; } }
+		int choose(List<Option> legal, long time, boolean strongActive)
+		{
+			if (!due(time) || strongActive) { return -1; }
+			int first = lastStrong == 110 ? 368 : 110;
+			int second = first == 110 ? 368 : 110;
+			for (int id : new int[] { first, second, 350, 439, 527, 112, 82, 86 })
+				for (Option option : legal) if (option.id == id) { return id; }
+			return -1;
+		}
+	}
+	/** Weak exact identity: never retain actors or adopt a replacement/refresh. */
+	static final class OriginalRushStun<T>
+	{
+		private java.lang.ref.WeakReference<T> original;
+		private long retreatAt = -1;
+		void clear() { original = null; retreatAt = -1; }
+		void begin(T effect) { if (effect != null) { original = new java.lang.ref.WeakReference<>(effect); retreatAt = -1; } }
+		boolean active(T current, boolean liveOwnRush)
+		{
+			if (current != null && original != null && original.get() == current && liveOwnRush) { return true; }
+			clear(); return false;
+		}
+		boolean retreatAllowed(long time, double distance)
+		{
+			if (distance >= 220) { retreatAt = -1; return true; }
+			if (retreatAt < 0) { retreatAt = time; }
+			return time - retreatAt < 2000;
+		}
+		static double stepLength(double distance) { return Math.min(160, Math.max(0, 260 - distance)); }
+		static double[] retreatPoint(double x, double y, double enemyX, double enemyY, int attempt)
+		{
+			final double distance = Math.hypot(x - enemyX, y - enemyY);
+			if (distance < 1 || attempt < 0 || attempt >= 5) { return null; }
+			final double angle = new double[] {0, Math.PI / 4, -Math.PI / 4, Math.PI / 2, -Math.PI / 2}[attempt];
+			final double dx = (x - enemyX) / distance, dy = (y - enemyY) / distance, length = stepLength(distance);
+			return new double[] { x + length * (dx * Math.cos(angle) - dy * Math.sin(angle)),
+				y + length * (dx * Math.sin(angle) + dy * Math.cos(angle)) };
+		}
+	}
+
 	static long failureBackoff(int failures)
 	{
 		return Math.min(8000, 500L << Math.min(4, Math.max(0, failures - 1)));

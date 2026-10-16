@@ -33,6 +33,7 @@ public final class giranServicesTest
         check(trainingHelp.contains("85 уровня") && trainingHelp.contains("настройками снаряжения и заточки умений"));
         check(trainingHelp.contains("за 1 сек. до начала боя") && trainingHelp.contains("не после боя"));
         check(trainingHelp.contains("Откаты обоих сбрасываются ДО таймера селфбафов"));
+        check(trainingHelp.contains("Сразу после подтверждённого телепорта HP/CP/MP игрока и бота полностью восстанавливаются"));
         check(trainingHelp.contains("70% HP, 15% CP, 100% MP") && trainingHelp.contains("И игрок, и бот своего класса"));
         check(trainingHelp.contains("Frenzy + Zealot") && trainingHelp.contains("кастетчик — Zealot"));
         check(trainingHelp.contains("без минимального HP/CP/MP") && trainingHelp.contains("бафы и дебафы снимаются"));

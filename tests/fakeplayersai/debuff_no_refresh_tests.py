@@ -58,3 +58,18 @@ for name in ('GameServer.vbs','GameServerWindow.vbs'):
  s=(R/'game'/name).read_text();assert s.index('patchExit = shell.Run')<s.index('command = path & "java "');assert 'WScript.Quit patchExit' in s
 s=(R/'game/GameServerTask.sh').read_text();assert s.index('InstallDebuffGuard.java')<s.index('while :; do') and '|| exit 1' in s
 print('PASS: supported launchers verify patch before starting GameServer')
+
+# XML audit of user's examples: all use the same actual category and have both
+# instant damage and a continuous Stun; there is no per-skill whitelist in guard.
+import xml.etree.ElementTree as ET
+examples={260:'PhysicalDamage',362:'PhysicalDamage',793:'PhysicalSoulDamage'}
+seen=set()
+for xml in (R/'game/data/stats/skills').glob('*.xml'):
+ for skill in ET.parse(xml).getroot().findall('skill'):
+  sid=int(skill.get('id','0'))
+  if sid not in examples:continue
+  assert any(e.text=='STUN' for e in skill.findall('.//abnormalType'))
+  names={e.get('name') for e in skill.findall('.//effect')}
+  assert 'Stun' in names and examples[sid] in names;seen.add(sid)
+assert seen==set(examples)
+print('PASS: real XML + core instant/continuous dispatch: Hammer Crush260, Armor Crush362, Rush Impact793')
