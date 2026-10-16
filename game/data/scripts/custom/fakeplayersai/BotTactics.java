@@ -420,8 +420,11 @@ public final class BotTactics
 			final boolean resource = resources(bot, skill) && (self || !weaponUnavailable(bot) || !skill.isPhysical());
 			final boolean conditions = resource && skill.checkCondition(bot, self ? bot : enemy, false);
 			if (skill.getFlyType() == FlyType.CHARGE && (bot.isMovementDisabled() || !GeoEngine.getInstance().canMoveToTarget(bot.getX(), bot.getY(), bot.getZ(), enemy.getX(), enemy.getY(), enemy.getZ(), bot.getInstanceId()))) { continue; }
-			if (!self && TacticsPolicy.allowed(kind, ready, true, visible, active, protectedSleep || enemy.isInvul(), conditions, interrupt)) { offenseAvailable = true; }
-			if (!TacticsPolicy.allowed(kind, ready, inRange, visible, active, protectedSleep || enemy.isInvul(), conditions, interrupt)) { continue; }
+			// During enemy invulnerability, DAMAGE-kind skills are still submitted (engine handles immunity).
+			// CC/slow kinds are suppressed — they cannot land on invulnerable targets anyway.
+			final boolean offBlocked = protectedSleep || (enemy.isInvul() && kind != TacticsPolicy.Kind.DAMAGE);
+			if (!self && TacticsPolicy.allowed(kind, ready, true, visible, active, offBlocked, conditions, interrupt)) { offenseAvailable = true; }
+			if (!TacticsPolicy.allowed(kind, ready, inRange, visible, active, offBlocked, conditions, interrupt)) { continue; }
 			// Actual Backstab/FatalBlow handlers own positional rules and the admin bot success roll.
 			final double base = timedPool ? 210 : cpSupport ? 145 : dominator && sleeping && sleepElapsed >= 5000 && direct ? 135 : kind == TacticsPolicy.Kind.DEFENSE
 				? TacticsPolicy.defenseScore(hp, cpRatio(bot), visible && defenseThreat(bot, enemy))
@@ -499,6 +502,8 @@ public final class BotTactics
 		// Every parent actual attack still requires LoS, including near obstacles.
 		if (TacticsPolicy.titanPursuit(preset.getClassId(), allowsBasicAttack(bot, preset), bot.isMovementDisabled() || bot.isOutOfControl() || bot.isAllSkillsDisabled() || bot.isDisabled(),
 			sleeping, enemy.isInvul(), enemy.isAutoAttackable(bot), bot.isCastingNow() || bot.isCastingSimultaneouslyNow() || s.pendingId != 0)) { return false; }
+		// During enemy invulnerability: melee/archer bots keep auto-attacking (engine handles immunity).
+		if (!defenseOnly && enemy.isInvul() && !preset.isCaster() && allowsBasicAttack(bot, preset)) { return false; }
 		// Parent may pursue when merely out of range, but may never autoattack a dagger.
 		if (!defenseOnly && !offenseAvailable) { stopBasicAttack(bot); return true; }
 		return false;
@@ -739,8 +744,8 @@ public final class BotTactics
 			x = enemy.getX() - 85 * Math.cos(angle) - 70 * Math.sin(angle);
 			y = enemy.getY() - 85 * Math.sin(angle) + 70 * Math.cos(angle);
 		}
-		else if ((preset.isCaster() || preset.getWeaponKind() == BotClassPreset.WeaponKind.BOW || preset.getWeaponKind() == BotClassPreset.WeaponKind.CROSSBOW)
-            && TacticsPolicy.rangedStepAllowed(preset.isCaster(), !enemy.isMageClass() && enemy.getPhysicalAttackRange() < 250,
+		else if ((preset.isCaster() || preset.getWeaponKind() == BotClassPreset.WeaponKind.BOW || preset.getWeaponKind() == BotClassPreset.WeaponKind.CROSSBOW || weaponUnavailable(bot))
+            && TacticsPolicy.rangedStepAllowed(preset.isCaster() || weaponUnavailable(bot), meleeOpponent(enemy),
                 distance, hp, enemy.isSleeping() || enemy.isMovementDisabled() || enemy.isOutOfControl(), offenseReady, s.offensiveActionsSinceStep))
 		{
 			x = bot.getX() + 100 * (bot.getX() - enemy.getX()) / distance;
@@ -754,7 +759,7 @@ public final class BotTactics
 		if (Math.hypot(px - s.anchorX, py - s.anchorY) > 1400 || !GeoEngine.getInstance().canMoveToTarget(bot.getX(), bot.getY(), bot.getZ(), px, py, bot.getZ(), bot.getInstanceId())) { s.nextStep = time + 1500; return false; }
 		stopBasicAttack(bot);
 		bot.getAI().setIntentionMoveTo(new Location(px, py, bot.getZ()));
-		s.nextStep = time + (recovery ? 600 : preset.getWeaponKind() == BotClassPreset.WeaponKind.DAGGER ? 2500 : 4500);
+		s.nextStep = time + (recovery || weaponUnavailable(bot) ? 600 : preset.getWeaponKind() == BotClassPreset.WeaponKind.DAGGER ? 2500 : 4500);
 		if (bot.getAI().getIntention() != Intention.MOVE_TO || !bot.isMoving()
 			|| Math.hypot(bot.getXdestination() - px, bot.getYdestination() - py) >= 40) { return false; }
 		s.moveX = px; s.moveY = py; s.moveUntil = time + (recovery ? 450 : 200);
