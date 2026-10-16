@@ -61,6 +61,7 @@ public final class BotTactics
 		final TacticsPolicy.OriginalRushStun<BuffInfo> rushLoop = new TacticsPolicy.OriginalRushStun<>();
 		long nextRushStep;
 		int rushAnchorX, rushAnchorY, rushMoveX, rushMoveY;
+		double rushDirectionX, rushDirectionY;
 		boolean rushMoving;
 		final TacticsPolicy.TrainingBerserker trainingBurst = new TacticsPolicy.TrainingBerserker();
 		long pendingAt;
@@ -288,7 +289,7 @@ public final class BotTactics
 			s.enemy = enemy.getObjectId(); s.game = game; s.instance = bot.getInstanceId();
 			s.anchorX = bot.getX(); s.anchorY = bot.getY(); s.observed = time;
 			s.trainingBurst.reset(); s.trainingBerserkerMode = false;
-			s.tankDefense.reset(time); s.rushLoop.clear(); s.nextRushStep = time; s.pendingRushLoop = false; s.rushMoving = false;
+			s.tankDefense.reset(time); s.rushLoop.clear(); s.nextRushStep = time; s.pendingRushLoop = false; s.rushMoving = false; s.rushDirectionX = 0; s.rushDirectionY = 0;
 			s.sleepObserved = -1; s.nextDecision = time; s.nextStep = time; s.pendingId = 0; s.failures.clear(); s.enemyCasting = false; s.moveUntil = 0;
 			s.fleeingSamples = 0; s.offensiveActionsSinceStep = 2; s.previousDistance = -1; s.nextHabitSample = time;
 		}
@@ -375,7 +376,7 @@ public final class BotTactics
 			if (trainingRushActive && skill.getId() != 793) { continue; }
 			final boolean timedPool = timedTank && BotSpawner.isTankDefenseSkill(skill.getId());
 			if (timedPool && !s.tankDefense.due(time)) { continue; }
-			if (trainingBerserker && !s.trainingBurst.allowsSkill(skill.getId(), distance, skills.containsKey(793))) { continue; }
+			if (trainingBerserker && !trainingRushActive && !s.trainingBurst.allowsSkill(skill.getId(), distance, skills.containsKey(793))) { continue; }
 			final TacticsPolicy.Kind detected = kind(skill);
 			final boolean direct = directDamage(skill);
 			final TacticsPolicy.Kind kind = dominator && sleeping && sleepElapsed >= 5000 && direct ? TacticsPolicy.Kind.DAMAGE : detected;
@@ -411,7 +412,9 @@ public final class BotTactics
 		}
 		final ThreadLocalRandom random = ThreadLocalRandom.current();
 		final int tankSelected = timedTank ? s.tankDefense.choose(options, time, activeStrong != 0) : -1;
-		final int selected = tankSelected >= 0 ? tankSelected : trainingBerserker
+		final int selected = tankSelected >= 0 ? tankSelected : trainingRushActive
+			? options.stream().anyMatch(option -> option.id() == 793) ? 793 : -1
+			: trainingBerserker
 			? s.trainingBurst.choose(options, distance, skills.containsKey(793), difficulty(s), random.nextDouble(), random.nextDouble())
 			: TacticsPolicy.select(options, difficulty(s), random.nextDouble(), random.nextDouble());
 		TacticsPolicy.Kind chosen = null;
@@ -439,6 +442,7 @@ public final class BotTactics
 			s.nextDecision = time + difficulty(s).reactionMs;
 			if (accepted)
 			{
+				if (trainingRushActive && selected == 793) { s.rushLoop.loopRequestAccepted(); }
 				CombatAnalytics.tacticalRequest(bot.getObjectId(), chosen.name());
                 if (chosen == TacticsPolicy.Kind.DAMAGE || chosen == TacticsPolicy.Kind.CONTROL || chosen == TacticsPolicy.Kind.SLOW)
                     s.offensiveActionsSinceStep = Math.min(4,s.offensiveActionsSinceStep+1);
@@ -491,11 +495,23 @@ public final class BotTactics
 		if (!TacticsPolicy.attemptResolved(s.sawCast, paid, time - s.pendingAt)) { return; }
         final boolean landed = !s.pendingDebuff || skill != null && active(s.pendingSelf ? bot : enemy, skill);
 		if (paid && s.pendingSelf && BotSpawner.isStrongTankDefenseSkill(s.pendingId)) { s.tankDefense.observed(s.pendingId); }
+		if (s.trainingBerserkerMode && s.pendingId == 793 && s.pendingRushLoop)
+		{
+			final BuffInfo original = ownRushStun(bot, enemy);
+			if (s.rushLoop.resolvedLoopLanding(original, original != null, paid,
+				Math.hypot(bot.getX() - s.pendingX, bot.getY() - s.pendingY), bot.calculateDistance2D(enemy)))
+			{
+				s.nextRushStep = time; // each real landing starts a fresh bounded retreat
+				s.rushDirectionX = s.pendingX - bot.getX(); s.rushDirectionY = s.pendingY - bot.getY();
+				s.rushMoving = false;
+			}
+		}
 		if (s.trainingBerserkerMode && s.pendingId == 793 && paid && !s.pendingRushLoop
 			&& Math.hypot(bot.getX() - s.pendingX, bot.getY() - s.pendingY) >= 100 && bot.calculateDistance2D(enemy) < 600)
 		{
 			final BuffInfo stun = ownRushStun(bot, enemy);
-			if (stun != null) { s.rushLoop.begin(stun); s.rushAnchorX = bot.getX(); s.rushAnchorY = bot.getY(); }
+			if (stun != null) { s.rushLoop.begin(stun); s.rushAnchorX = bot.getX(); s.rushAnchorY = bot.getY();
+				s.rushDirectionX = s.pendingX - bot.getX(); s.rushDirectionY = s.pendingY - bot.getY(); }
 		}
 		if (s.trainingBerserkerMode)
 			s.trainingBurst.resolved(s.pendingId, paid, Math.hypot(bot.getX() - s.pendingX, bot.getY() - s.pendingY), bot.calculateDistance2D(enemy));
@@ -533,17 +549,17 @@ public final class BotTactics
 		final BuffInfo stun = ownRushStun(bot, enemy);
 		if (!s.rushLoop.active(stun, stun != null)) { stopRushMovement(bot, s); return -1; }
 		if (!java.util.Arrays.stream(preset.getRotation()).anyMatch(id -> id == 793) || bot.getKnownSkill(793) == null
-			|| !visible || distance < 1 || distance > 600 || Math.abs(bot.getZ() - enemy.getZ()) > 100)
-		{ s.rushLoop.clear(); stopRushMovement(bot, s); return -1; }
+			|| !visible || distance > 600 || Math.abs(bot.getZ() - enemy.getZ()) > 100)
+		{ s.rushLoop.retryRetreat(time); stopRushMovement(bot, s); stopBasicAttack(bot); return -2; }
 		if (enemy.isSleeping() || enemy.isInvul()) { stopRushMovement(bot, s); stopBasicAttack(bot); return -2; }
-		if (!s.rushLoop.retreatAllowed(time, distance)) { s.rushLoop.clear(); stopRushMovement(bot, s); return -1; }
+		if (!s.rushLoop.retreatAllowed(time, distance)) { stopRushMovement(bot, s); stopBasicAttack(bot); return -2; }
 		if (distance >= 220) { stopRushMovement(bot, s); return 793; } // all real skill gates still run in act
 		stopBasicAttack(bot);
 		if (bot.isMovementDisabled() || time < s.nextRushStep) { return -2; }
 		s.nextRushStep = time + 250;
-		for (int attempt = 0; attempt < 5; attempt++)
+		for (int attempt = 0; attempt < 8; attempt++)
 		{
-			final double[] point = TacticsPolicy.OriginalRushStun.retreatPoint(bot.getX(), bot.getY(), enemy.getX(), enemy.getY(), attempt);
+			final double[] point = TacticsPolicy.OriginalRushStun.retreatPoint(bot.getX(), bot.getY(), enemy.getX(), enemy.getY(), attempt, s.rushDirectionX, s.rushDirectionY);
 			if (point == null) { continue; }
 			final int x = (int)Math.round(point[0]), y = (int)Math.round(point[1]);
 			if (!TrainingArena.inside(x, y) || Math.hypot(x - enemy.getX(), y - enemy.getY()) > 1600
@@ -554,7 +570,7 @@ public final class BotTactics
 			s.rushMoveX = x; s.rushMoveY = y; s.rushMoving = true;
 			return -2;
 		}
-		s.rushLoop.clear(); stopRushMovement(bot, s); return -1;
+		s.rushLoop.retryRetreat(time); stopRushMovement(bot, s); return -2;
 	}
 
 	private static void failure(State s, int id, long time)

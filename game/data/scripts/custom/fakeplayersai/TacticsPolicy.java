@@ -241,9 +241,25 @@ final class TacticsPolicy
 	static final class OriginalRushStun<T>
 	{
 		private java.lang.ref.WeakReference<T> original;
-		private long retreatAt = -1;
-		void clear() { original = null; retreatAt = -1; }
-		void begin(T effect) { if (effect != null) { original = new java.lang.ref.WeakReference<>(effect); retreatAt = -1; } }
+		private long retreatAt = -1, retryAt;
+		private boolean awaitingLanding;
+		void clear() { original = null; retreatAt = -1; retryAt = 0; awaitingLanding = false; }
+		void begin(T effect) { if (effect != null) { original = new java.lang.ref.WeakReference<>(effect); retreatAt = -1; retryAt = 0; awaitingLanding = false; } }
+		void loopRequestAccepted()
+		{
+			if (original != null && original.get() != null) { awaitingLanding = true; retreatAt = -1; }
+		}
+		boolean resolvedLoopLanding(T current, boolean liveOwnRush, boolean executed, double travel, double distance)
+		{
+			if (!active(current, liveOwnRush)) { return false; }
+			final boolean requested = awaitingLanding;
+			awaitingLanding = false;
+			if (!requested || !executed || travel < 100 || distance >= 600) { return false; }
+			// Rearm movement ONLY. Keep the exact original weak effect and its lifetime.
+			retreatAt = -1; retryAt = 0;
+			return true;
+		}
+		void retryRetreat(long time) { retreatAt = -1; retryAt = time + 750; }
 		boolean active(T current, boolean liveOwnRush)
 		{
 			if (current != null && original != null && original.get() == current && liveOwnRush) { return true; }
@@ -251,17 +267,31 @@ final class TacticsPolicy
 		}
 		boolean retreatAllowed(long time, double distance)
 		{
-			if (distance >= 220) { retreatAt = -1; return true; }
+			if (awaitingLanding) { return true; } // actual casting/landing is not retreat time
+			if (distance >= 220) { retreatAt = -1; retryAt = 0; return true; }
+			if (time < retryAt) { return false; }
 			if (retreatAt < 0) { retreatAt = time; }
-			return time - retreatAt < 2000;
+			if (time - retreatAt >= 2000) { retryRetreat(time); return false; }
+			return true;
 		}
 		static double stepLength(double distance) { return Math.min(160, Math.max(0, 260 - distance)); }
 		static double[] retreatPoint(double x, double y, double enemyX, double enemyY, int attempt)
 		{
+			return retreatPoint(x, y, enemyX, enemyY, attempt, 1, 0);
+		}
+		static double[] retreatPoint(double x, double y, double enemyX, double enemyY, int attempt, double previousX, double previousY)
+		{
 			final double distance = Math.hypot(x - enemyX, y - enemyY);
-			if (distance < 1 || attempt < 0 || attempt >= 5) { return null; }
-			final double angle = new double[] {0, Math.PI / 4, -Math.PI / 4, Math.PI / 2, -Math.PI / 2}[attempt];
-			final double dx = (x - enemyX) / distance, dy = (y - enemyY) / distance, length = stepLength(distance);
+			if (attempt < 0 || attempt >= 8) { return null; }
+			final double angle = new double[] {0, Math.PI / 4, -Math.PI / 4, Math.PI / 2, -Math.PI / 2,
+				3 * Math.PI / 4, -3 * Math.PI / 4, Math.PI}[attempt];
+			// Core CHARGE places the actor at EXACT target coordinates. Reuse the
+			// genuine precharge direction for an ordinary walk; never write heading/XYZ.
+			double dx = distance < 1 ? previousX : x - enemyX, dy = distance < 1 ? previousY : y - enemyY;
+			double norm = Math.hypot(dx, dy);
+			if (norm < 1) { dx = 1; dy = 0; norm = 1; }
+			dx /= norm; dy /= norm;
+			final double length = stepLength(distance);
 			return new double[] { x + length * (dx * Math.cos(angle) - dy * Math.sin(angle)),
 				y + length * (dx * Math.sin(angle) + dy * Math.cos(angle)) };
 		}
