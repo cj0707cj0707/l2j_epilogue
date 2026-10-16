@@ -54,7 +54,9 @@ public final class BotTactics
 		int pendingId;
 		boolean pendingSelf, pendingDebuff, sawCast;
 		double pendingMp, pendingHp;
-		int pendingCharges;
+		int pendingCharges, pendingX, pendingY;
+		boolean trainingBerserkerMode;
+		final TacticsPolicy.TrainingBerserker trainingBurst = new TacticsPolicy.TrainingBerserker();
 		long pendingAt;
 		final Map<Integer, Failure> failures = new LinkedHashMap<>(16, .75f, true);
 	}
@@ -153,10 +155,14 @@ public final class BotTactics
 			|| preset.getWeaponKind() == BotClassPreset.WeaponKind.CROSSBOW;
 		final State s = STATES.get(bot.getObjectId());
 		final long time = now();
+		final boolean trainingBerserker = preset.getClassId() == 131 && !bot.isInOlympiadMode() && s != null
+			&& s.trainingEnemy == enemy.getObjectId() && s.trainingInstance == bot.getInstanceId();
+		final boolean primaryRush = bot.getKnownSkill(793) != null && java.util.Arrays.stream(preset.getRotation()).anyMatch(id -> id == 793);
 		double reach = -1, directReach = -1;
 		for (int id : preset.getRotation())
 		{
 			final Skill skill = bot.getKnownSkill(id);
+			if (trainingBerserker && !s.trainingBurst.allowsSkill(id, bot.calculateDistance2D(enemy), primaryRush)) { continue; }
 			if (skill == null || BotSpawner.isOpenerOnlySkill(id) || skill.isPassive() || skill.isToggle() || skill.isSuicideAttack()
 				|| skill.hasEffectType(EffectType.TELEPORT, EffectType.TELEPORT_TO_TARGET)) { continue; }
 			final TacticsPolicy.Kind kind = kind(skill);
@@ -266,6 +272,7 @@ public final class BotTactics
 		{
 			s.enemy = enemy.getObjectId(); s.game = game; s.instance = bot.getInstanceId();
 			s.anchorX = bot.getX(); s.anchorY = bot.getY(); s.observed = time;
+			s.trainingBurst.reset(); s.trainingBerserkerMode = false;
 			s.sleepObserved = -1; s.nextDecision = time; s.nextStep = time; s.pendingId = 0; s.failures.clear(); s.enemyCasting = false; s.moveUntil = 0;
 			s.fleeingSamples = 0; s.offensiveActionsSinceStep = 2; s.previousDistance = -1; s.nextHabitSample = time;
 		}
@@ -280,8 +287,21 @@ public final class BotTactics
 
 	private static boolean act(Player bot, Player enemy, BotClassPreset preset, State s, long time, boolean defenseOnly)
 	{
+		final boolean trainingBerserker = !defenseOnly && preset.getClassId() == 131 && !bot.isInOlympiadMode()
+			&& s.trainingEnemy == enemy.getObjectId() && s.trainingInstance == bot.getInstanceId();
+		s.trainingBerserkerMode = trainingBerserker;
+		if (trainingBerserker && (bot.isCastingNow() || bot.isCastingSimultaneouslyNow()))
+		{
+			pollAttempt(bot, enemy, s, time);
+			return true; // never Idle, cancel an attack, or retarget during a real cast
+		}
 		if (!defenseOnly && !allowsBasicAttack(bot, preset)) { stopBasicAttack(bot); }
 		pollAttempt(bot, enemy, s, time);
+		if (trainingBerserker && (bot.isOutOfControl() || bot.isAllSkillsDisabled() || s.pendingId != 0))
+		{
+			stopBasicAttack(bot); // no auto continuation under cast/CC; never abort a cast
+			return true;
+		}
 		s.sleepObserved = TacticsPolicy.observeSleep(s.sleepObserved, enemy.isSleeping(), time);
 		// Real casts and CC are never aborted or replaced, including by urgent heals.
 		if (bot.isCastingNow() || bot.isOutOfControl() || bot.isAllSkillsDisabled()) { return !defenseOnly; }
@@ -329,6 +349,7 @@ public final class BotTactics
 		for (Skill skill : skills.values())
 		{
 			if (BotSpawner.isOpenerOnlySkill(skill.getId())) { continue; } // training as well as ranked
+			if (trainingBerserker && !s.trainingBurst.allowsSkill(skill.getId(), distance, skills.containsKey(793))) { continue; }
 			final TacticsPolicy.Kind detected = kind(skill);
 			final boolean direct = directDamage(skill);
 			final TacticsPolicy.Kind kind = dominator && sleeping && sleepElapsed >= 5000 && direct ? TacticsPolicy.Kind.DAMAGE : detected;
@@ -363,14 +384,19 @@ public final class BotTactics
 			if (score > 0) { options.add(new TacticsPolicy.Option(skill.getId(), kind, score)); }
 		}
 		final ThreadLocalRandom random = ThreadLocalRandom.current();
-		final int selected = TacticsPolicy.select(options, difficulty(s), random.nextDouble(), random.nextDouble());
+		final int selected = trainingBerserker
+			? s.trainingBurst.choose(options, distance, skills.containsKey(793), difficulty(s), random.nextDouble(), random.nextDouble())
+			: TacticsPolicy.select(options, difficulty(s), random.nextDouble(), random.nextDouble());
 		TacticsPolicy.Kind chosen = null;
 		for (TacticsPolicy.Option o : options) { if (o.id() == selected) { chosen = o.kind(); break; } }
 		final boolean urgent = chosen == TacticsPolicy.Kind.HEAL || chosen == TacticsPolicy.Kind.DEFENSE
 			|| (chosen == TacticsPolicy.Kind.CONTROL && interruptReady && s.enemyCasting);
 		if (!defenseOnly && !urgent && time < s.moveUntil && bot.isMoving() && Math.hypot(bot.getXdestination() - s.moveX, bot.getYdestination() - s.moveY) < 40) { return true; }
 		final boolean offenseReady = options.stream().anyMatch(o -> o.kind() == TacticsPolicy.Kind.DAMAGE || o.kind() == TacticsPolicy.Kind.CONTROL || o.kind() == TacticsPolicy.Kind.SLOW);
-        if (!defenseOnly && (!sleeping || dominator) && !urgent && time >= s.nextStep && step(bot, enemy, preset, s, time, distance, visible, hp, offenseReady, offenseAvailable)) { return true; }
+		final boolean trainingPressure = TacticsPolicy.trainingBerserkerPressure(trainingBerserker,
+			allowsBasicAttack(bot, preset), bot.isMovementDisabled() || bot.isOutOfControl() || bot.isAllSkillsDisabled() || bot.isDisabled(),
+			sleeping, enemy.isInvul(), visible, enemy.isAutoAttackable(bot), bot.isCastingNow() || bot.isCastingSimultaneouslyNow() || s.pendingId != 0);
+        if (!defenseOnly && (!sleeping || dominator) && !urgent && time >= s.nextStep && !trainingPressure && step(bot, enemy, preset, s, time, distance, visible, hp, offenseReady, offenseAvailable)) { return true; }
 		if (selected >= 0)
 		{
 			final Skill skill = skills.get(selected);
@@ -380,6 +406,7 @@ public final class BotTactics
 			stopBasicAttack(bot); // end auto loop before requesting an ordinary cast
 			bot.setTarget(self ? bot : enemy);
 			s.pendingMp = bot.getCurrentMp(); s.pendingHp = bot.getCurrentHp(); s.pendingCharges = bot.getCharges();
+			s.pendingX = bot.getX(); s.pendingY = bot.getY();
 			final boolean accepted = bot.useMagic(skill, true, true); // shiftPressed: NEVER walk into range.
 			s.nextDecision = time + difficulty(s).reactionMs;
 			if (accepted)
@@ -395,6 +422,10 @@ public final class BotTactics
 		}
 		if (sleeping && !defenseOnly && (!dominator || !offenseAvailable)) { return true; }
 		if (!defenseOnly && time < s.moveUntil && bot.isMoving() && Math.hypot(bot.getXdestination() - s.moveX, bot.getYdestination() - s.moveY) < 40) { return true; }
+		// Training 131 has no auto engines to resume after its burst. Yield normal
+		// armed pressure/pursuit only AFTER every ready in-range skill was considered.
+		// A stunned FOE is a damage window, not a reason for this bot to stand idle.
+		if (trainingPressure) { return false; }
 		// Parent may pursue when merely out of range, but may never autoattack a dagger.
 		if (!defenseOnly && !offenseAvailable) { stopBasicAttack(bot); return true; }
 		return false;
@@ -415,13 +446,15 @@ public final class BotTactics
 	private static void pollAttempt(Player bot, Player enemy, State s, long time)
 	{
 		if (s.pendingId == 0) { return; }
-		if (bot.isCastingNow()) { s.sawCast = true; return; }
+		if (bot.isCastingNow() || bot.isCastingSimultaneouslyNow()) { s.sawCast = true; return; }
 		final Skill skill = bot.getKnownSkill(s.pendingId);
 		final boolean paid = s.sawCast || bot.getCurrentMp() < s.pendingMp || bot.getCharges() > s.pendingCharges
 			|| (s.pendingSelf && bot.getCurrentHp() > s.pendingHp)
 			|| (skill != null && (bot.isSkillDisabled(skill) || active(s.pendingSelf ? bot : enemy, skill)));
 		if (!TacticsPolicy.attemptResolved(s.sawCast, paid, time - s.pendingAt)) { return; }
         final boolean landed = !s.pendingDebuff || skill != null && active(s.pendingSelf ? bot : enemy, skill);
+		if (s.trainingBerserkerMode)
+			s.trainingBurst.resolved(s.pendingId, paid, Math.hypot(bot.getX() - s.pendingX, bot.getY() - s.pendingY), bot.calculateDistance2D(enemy));
 		if (!paid || !landed) { failure(s, s.pendingId, time); }
 		else
 		{

@@ -594,7 +594,12 @@ public final class TrainingArena
             int range = approachWithMargin(BotTactics.tacticalApproachRange(b, p, preset));
             b.setTarget(p);
             boolean basicAttack = BotTactics.allowsBasicAttack(b, preset);
-            OlympiadChase.updateTraining(b, p, range, basicAttack, CX, CY, RADIUS);
+            // Training 131 casts at 40+collision. Chase's attack hysteresis
+            // (+60) may otherwise retain ENGAGED outside both this strict
+            // manual attack gate and skill range, with no old route to resume.
+            // Let pursuit reach the exact range; THIS caller owns its autoattack.
+            boolean chaseAttack = basicAttack && preset.getClassId() != 131;
+            OlympiadChase.updateTraining(b, p, range, chaseAttack, CX, CY, RADIUS);
             if (basicAttack && !b.isAttackingOrCastingNow() && !b.isMovementDisabled() && !p.isSleeping()
                 && p.isAutoAttackable(b) && b.calculateDistance2D(p) <= range && GeoEngine.getInstance().canSeeTarget(b, p))
                 b.getAI().setIntentionAttack(p);

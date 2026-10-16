@@ -61,7 +61,8 @@ assert 'if (s.humanStopApplied) return;' in t and 's.humanStopApplied = true;' i
 assert 'if (!s.active) s.player.setImmobilized(false);' in t, 'release only training-owned prep hold'
 
 assert 'BotTactics.allowsBasicAttack(b, preset)' in t and 'if (basicAttack &&' in t
-assert 'OlympiadChase.updateTraining(b, p, range, basicAttack,' in t, 'dagger/disarm fallback cannot autoattack'
+assert 'boolean chaseAttack = basicAttack && preset.getClassId() != 131;' in t, 'training131 must reach strict skill range without attack hysteresis'
+assert 'OlympiadChase.updateTraining(b, p, range, chaseAttack,' in t, 'dagger/disarm fallback cannot autoattack'
 assert t.count('BotSpawner.applyPreCombatOpeners(') == 1, 'exactly one explicit training opener call site'
 assert t.index('s.openersApplied = true;') < t.index('BotSpawner.applyPreCombatOpeners(') < t.index('s.active = true')
 assert 'Math.max(s.preparationUntil, System.nanoTime() + 3_000_000_000L)' in t

@@ -164,6 +164,56 @@ final class TacticsPolicy
 		};
 	}
 
+
+	/** Training owns no ranked phase engines. Only already-legal options enter
+	 * this small ordered burst; real cooldowns/conditions remain authoritative. */
+	static final class TrainingBerserker
+	{
+		private boolean rushed, violentUsed;
+
+		void reset() { rushed = false; violentUsed = false; }
+		boolean allowsSkill(int id, double distance, boolean primaryRush)
+		{
+			return switch (id)
+			{
+				case 494, 484, 493, 495 -> !primaryRush; // competing min-distance charge chains
+				case 793 -> distance >= 200;
+				case 485 -> distance <= 150; // ALSO requires actual 40+collision cast range
+				case 501 -> rushed && !violentUsed;
+				default -> true; // preserve every other effective override, never inject skills
+			};
+		}
+		void resolved(int id, boolean executed, double rushTravel, double distance)
+		{
+			if (!executed) { return; }
+			if (id == 793 && rushTravel >= 100 && distance < 600) { rushed = true; }
+			// A real resisted cast still consumes the once-per-battle attempt.
+			if (id == 501 && rushed) { violentUsed = true; }
+		}
+		int choose(List<Option> legal, double distance, boolean primaryRush, Difficulty difficulty, double mistake, double choice)
+		{
+			final List<Option> eligible = new java.util.ArrayList<>();
+			Option emergency = null;
+			for (Option option : legal)
+			{
+				if (!allowsSkill(option.id, distance, primaryRush)) { continue; }
+				eligible.add(option);
+				if ((option.kind == Kind.HEAL || option.kind == Kind.DEFENSE) && option.score >= 130
+					&& (emergency == null || option.score > emergency.score)) { emergency = option; }
+			}
+			if (emergency != null) { return emergency.id; }
+			for (int id : new int[] {793, 485, 526, 497, 501, 498, 477, 1435})
+				for (Option option : eligible) if (option.id == id) { return id; }
+			// Non-default explicit overrides remain available through the usual policy.
+			return select(eligible, difficulty, mistake, choice);
+		}
+	}
+	static boolean trainingBerserkerPressure(boolean authorized, boolean armed, boolean blocked,
+		boolean sleeping, boolean invulnerable, boolean visible, boolean attackable, boolean pendingCast)
+	{
+		return authorized && armed && !blocked && !sleeping && !invulnerable && visible && attackable && !pendingCast;
+	}
+
 	static long failureBackoff(int failures)
 	{
 		return Math.min(8000, 500L << Math.min(4, Math.max(0, failures - 1)));

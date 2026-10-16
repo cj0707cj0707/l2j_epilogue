@@ -244,6 +244,19 @@ public class OlympiadChaseTest {
         check(b.ai.moves==0,"unregistered training pair cannot move an actor");
         b.client=new Object();boolean rejected=false;try{OlympiadChase.registerTrainingPair(b,e);}catch(IllegalArgumentException ex){rejected=true;}
         check(rejected,"client-backed human can never register as chase bot");
+        // Reproduce training131 post-burst deadband, then the scoped caller fix.
+        b=bot();e=enemy();b.mode=e.mode=false;b.instance=e.instance=11;b.target=e;e.x=35;
+        tasks.stopAutoPlay(b);OlympiadChase.registerTrainingPair(b,e);
+        OlympiadChase.updateTraining(b,e,40,true,0,0,2000);e.x=80;
+        OlympiadChase.updateTraining(b,e,40,true,0,0,2000);
+        check(b.ai.moves==0 && b.ai.attacks==0,"REPRODUCED training attack hysteresis: no old route and outside manual melee gate");
+        OlympiadChase.updateTraining(b,e,40,false,0,0,2000);
+        check(b.ai.moves==1 && b.dx==80,"training131 strict caller flag resumes approach inside actual skill radius");
+        e.x=30;OlympiadChase.updateTraining(b,e,40,false,0,0,2000);
+        // TrainingArena, not Chase, owns the final legal manual basic-attack request.
+        if(b.calculateDistance2D(e)<=40)b.ai.setIntentionAttack(e);
+        check(b.ai.attacks==1 && b.ai.intention==Intention.ATTACK && !b.autoPlaying,"manual pressure resumes in strict range without an auto engine");
+        OlympiadChase.unregisterTrainingPair(b.id);
         b=bot();e=enemy();update(b,e,150,true);BotTactics.owned=true;e.x=100;update(b,e,150,true);
         check(!b.autoPlaying,"range release cannot rearm AutoPlay over tactical owner");
         OlympiadChase.startAutoPlayUnlessPursuing(b);check(!b.autoPlaying,"setup respects tactical owner too");BotTactics.owned=false;
