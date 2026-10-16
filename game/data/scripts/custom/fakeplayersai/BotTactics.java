@@ -57,6 +57,8 @@ public final class BotTactics
 		double pendingMp, pendingHp;
 		int pendingCharges, pendingX, pendingY;
 		boolean trainingBerserkerMode, pendingRushLoop;
+		int arenaCenterX, arenaCenterY;
+		boolean hasArenaCenter;
 		final TacticsPolicy.TankDefenseSequence tankDefense = new TacticsPolicy.TankDefenseSequence();
 		final TacticsPolicy.DominatorCpWeave dominatorCp = new TacticsPolicy.DominatorCpWeave();
 		final TacticsPolicy.OriginalRushStun<BuffInfo> rushLoop = new TacticsPolicy.OriginalRushStun<>();
@@ -291,6 +293,9 @@ public final class BotTactics
 		{
 			s.enemy = enemy.getObjectId(); s.game = game; s.instance = bot.getInstanceId();
 			s.anchorX = bot.getX(); s.anchorY = bot.getY(); s.observed = time;
+			s.arenaCenterX = game >= 0 ? (bot.getX() + enemy.getX()) / 2 : 0;
+			s.arenaCenterY = game >= 0 ? (bot.getY() + enemy.getY()) / 2 : 0;
+			s.hasArenaCenter = game >= 0;
 			s.trainingBurst.reset(); s.trainingBerserkerMode = false; s.dominatorCp.reset();
 			s.tankDefense.reset(time); s.rushLoop.clear(); s.nextRushStep = time; s.pendingRushLoop = false; s.rushMoving = false; s.rushDirectionX = 0; s.rushDirectionY = 0;
 			s.sleepObserved = -1; s.nextDecision = time; s.nextStep = time; s.pendingId = 0; s.failures.clear(); s.enemyCasting = false; s.moveUntil = 0;
@@ -739,7 +744,8 @@ public final class BotTactics
                 distance, hp, enemy.isSleeping() || enemy.isMovementDisabled() || enemy.isOutOfControl(), offenseReady, s.offensiveActionsSinceStep))
 		{
 			x = bot.getX() + 100 * (bot.getX() - enemy.getX()) / distance;
-			y = bot.getY() + 100 * (bot.getY() - enemy.getY()) / distance;
+				y = bot.getY() + 100 * (bot.getY() - enemy.getY()) / distance;
+				if (bot.isInOlympiadMode() && s.hasArenaCenter && Math.hypot(x - s.arenaCenterX, y - s.arenaCenterY) > 450) { s.nextStep = time + 1500; return false; }
 		}
 		else { return false; } // Tanks/other melee maintain pressure via parent pursuit.
 		final double dx = x - bot.getX(), dy = y - bot.getY(), length = Math.hypot(dx, dy);
