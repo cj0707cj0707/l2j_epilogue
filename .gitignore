@@ -1,2 +1,7 @@
 # Runtime recovery journals and reserved-account ownership proof; never publish.
 /game/data/training-arena-recovery/
+
+# Verified local core-patch backup and installer lock
+libs/GameServer.jar.pre-debuff-no-refresh-*
+libs/.debuff-guard-install.lock
+libs/.debuff-build-*/

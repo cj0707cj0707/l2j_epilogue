@@ -33,6 +33,15 @@ Loop
 file.Close
 Set file = Nothing
 
+
+'Install/verify the hash-pinned core guard BEFORE starting GameServer. Fail closed.
+patchCommand = Chr(34) & path & "java" & Chr(34) & " -cp " & Chr(34) & "../libs/*" & Chr(34) & " core-patches/debuff-no-refresh/InstallDebuffGuard.java ../libs/GameServer.jar core-patches/debuff-no-refresh/DebuffCategoryGuard.java"
+patchExit = shell.Run(patchCommand, 1, True)
+If patchExit <> 0 Then
+    MsgBox "Debuff guard installation failed. GameServer was NOT started. Use Java 25 JDK; see structure/28-debuff-category-no-refresh.md. Run the installer in a console for details.", vbOKOnly + vbCritical, "Game Server"
+    WScript.Quit patchExit
+End If
+
 'Generate command.
 command = path & "java " & parameters & " -jar ../libs/GameServer.jar"
 If window = 1 Then

@@ -4,6 +4,9 @@
 #  0 normal shutdown
 #  2 reboot attempt
 
+# Install/verify before launch; do not run an unpatched or unknown core.
+java -cp "../libs/*" core-patches/debuff-no-refresh/InstallDebuffGuard.java ../libs/GameServer.jar core-patches/debuff-no-refresh/DebuffCategoryGuard.java || exit 1
+
 while :; do
 	[ -f log/java0.log.0 ] && mv log/java0.log.0 "log/`date +%Y-%m-%d_%H-%M-%S`_java.log"
 	[ -f log/stdout.log ] && mv log/stdout.log "log/`date +%Y-%m-%d_%H-%M-%S`_stdout.log"
