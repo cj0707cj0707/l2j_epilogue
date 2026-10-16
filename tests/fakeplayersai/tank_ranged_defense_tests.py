@@ -36,7 +36,7 @@ import java.util.*;
 class BotSpawner {
 static int checks; static void check(boolean b){checks++;if(!b)throw new AssertionError("check "+checks);}
 static final int VENGEANCE_ID=368;
-static final int[] TANK_DEFENSE_PHYSICAL={368,110,350,439,527,112,82,86},TANK_DEFENSE_MAGIC={760,913,351,72,916},TANK_DEFENSE_ALL={110,368,760,350,439,527,112,82,86,913,351,72,916};
+static final int[] TANK_DEFENSE_PHYSICAL={368,110,350,439,527,112,82,86},TANK_DEFENSE_MAGIC={368,760,913,351,72,916},TANK_DEFENSE_ALL={110,368,760,350,439,527,112,82,86,913,351,72,916};
 enum EffectScope {GENERAL,SELF,PVP} enum TargetType {SELF,ONE,AURA,PARTY}
 record AbstractEffect(String name){String getName(){return name;}}
 static class Skill {
@@ -67,7 +67,7 @@ static class BotPresets {static Map<Integer,BotClassPreset> all=new HashMap<>();
 static class BotManager {static int getBotClassId(Player p){return p.cid;}}
 static boolean isTacticalTank(Player p){return p!=null&&(p.cid==90||p.cid==91||p.cid==106);}
 static boolean containsId(int[] a,int id){return Arrays.stream(a).anyMatch(x->x==id);}static boolean isTankDefenseSkill(int id){return containsId(TANK_DEFENSE_ALL,id);}
-static boolean isOpenerOnlySkill(int id){return false;}static boolean isChantOfVictoryFamily(int id){return false;}static boolean isLongSelfBuff(Player p,int id){return false;}
+static boolean isOpenerOnlySkill(int id){return false;}static boolean isChantOfVictoryFamily(int id){return false;}static boolean isOlympiadChantBanned(Player p,int id){return false;}static boolean isLongSelfBuff(Player p,int id){return false;}
 '''+ '\n'.join(parts)+'''
 static int legacyCandidate(Player player,BotClassPreset preset,WorldObject opponent,int[] desiredPool,boolean activeMatch){
 '''+candidate+'''return candidate;}
@@ -82,12 +82,13 @@ public static void main(String[]args){
   Skill ud=new Skill(110),vengeance=new Skill(368).effect(EffectScope.SELF,"ImmobileBuff"),armor=new Skill(760).effect(EffectScope.GENERAL,"Buff"),weak=new Skill(350).effect(EffectScope.GENERAL,"Buff");
   vengeance.target=TargetType.AURA;
   for(Skill sk:new Skill[]{ud,vengeance,armor,weak})tank.known.put(sk.id,sk);
-  for(Skill sk:new Skill[]{ud,vengeance}){check(tankMovementDefenseAllowed(enemy,sk)==!ranged);check(tacticalSkillAllowed(tank,enemy,sk,true)==!ranged);}
+  check(tankMovementDefenseAllowed(enemy,ud)==!ranged);check(tacticalSkillAllowed(tank,enemy,ud,true)==!ranged);
+  check(tankMovementDefenseAllowed(enemy,vengeance));check(tacticalSkillAllowed(tank,enemy,vengeance,true));
   check(tankMovementDefenseAllowed(enemy,armor));check(tankMovementDefenseAllowed(enemy,weak));
   if(enemy.mage)check(tacticalSkillAllowed(tank,enemy,armor,true));
-  int[] defenses=getTacticalDefenses(tank,enemy);if(ranged){check(!containsId(defenses,110));check(!containsId(defenses,368));}else if(!enemy.mage){check(containsId(defenses,110));check(containsId(defenses,368));}
+  int[] defenses=getTacticalDefenses(tank,enemy);if(ranged){check(!containsId(defenses,110));check(containsId(defenses,368));}else if(!enemy.mage){check(containsId(defenses,110));check(containsId(defenses,368));}
   int chosen=legacyCandidate(tank,BotPresets.all.get(tankId),enemy,enemy.mage?TANK_DEFENSE_MAGIC:TANK_DEFENSE_PHYSICAL,ranked);
-  check(chosen==(enemy.mage?760:ranged?350:368));
+  check(chosen==368); // Explicit all-opponent Vengeance; UD remains ranged-vetoed.
   for(EffectScope scope:EffectScope.values()){
    Skill root=new Skill(900).effect(scope,"Root"),immobile=new Skill(901).effect(scope,"ImmobileBuff");
    check(tacticalSkillAllowed(tank,enemy,root,true)==!ranged);check(tacticalSkillAllowed(tank,enemy,immobile,true)==!ranged);
@@ -98,13 +99,14 @@ public static void main(String[]args){
   tank.auto.skills.addAll(List.of(110,368,403,900));tank.auto.buffs.addAll(List.of(110,368,350,760,900));tank.active.add(368);
   pruneRangedTankSupports(tank,enemy);
   check(tank.active.contains(368));check(tank.auto.skills.contains(403));check(tank.auto.buffs.containsAll(List.of(350,760)));
-  for(int id:new int[]{110,368,900}){check(tank.auto.skills.contains(id)==!ranged);check(tank.auto.buffs.contains(id)==!ranged);}
+  check(tank.auto.skills.contains(368)&&tank.auto.buffs.contains(368));
+  for(int id:new int[]{110,900}){check(tank.auto.skills.contains(id)==!ranged);check(tank.auto.buffs.contains(id)==!ranged);}
   // Non-tanks are unaffected; target hostility/root casts were not blocked above.
   Player fighter=new Player(131);check(tacticalSkillAllowed(fighter,enemy,customSelf,true));
  }
  Player tank=new Player(90),bow=new Player(201);tank.known.put(110,new Skill(110));tank.known.put(368,new Skill(368));
  BotClassPreset preset=BotPresets.all.get(90);preset.override=true;preset.rotation=new int[]{110,368};preset.buffs=new int[]{110,368};
- check(getTacticalDefenses(tank,bow).length==0);check(!tacticalSkillAllowed(tank,bow,tank.known.get(110),true));
+ check(Arrays.equals(getTacticalDefenses(tank,bow),new int[]{368}));check(!tacticalSkillAllowed(tank,bow,tank.known.get(110),true));
  Player melee=new Player(203);check(Arrays.equals(getTacticalDefenses(tank,melee),new int[]{368,110}));check(legacyCandidate(tank,preset,melee,TANK_DEFENSE_PHYSICAL,false)==368);
  check(!isMovementRestrictingTankSupport(null));check(!isMovementRestrictingTankSupport(new Skill(700)));check(!isMovementRestrictingTankSupport(new Skill(701).effect(EffectScope.GENERAL,"Buff")));
  System.out.println("PASS: "+checks+" exact-production ranged role/skill gate/defense-list/legacy candidate/override pruning checks (inert actors, not live combat)");

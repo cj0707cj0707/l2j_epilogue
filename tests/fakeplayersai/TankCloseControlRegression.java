@@ -86,7 +86,7 @@ public final class TankCloseControlRegression
             {
                 boolean self=candidate.kind()==Kind.DEFENSE;
                 if(!tankClosingSkillAllowed(needsApproach,self,candidate.kind(),!self)) continue;
-                if(self&&!tankSupportAllowed(needsApproach,true)) continue;
+                if(self&&!tankSupportAllowed(needsApproach,candidate.id()!=368)) continue; // New explicit Vengeance exception, UD still deferred.
                 if(!allowed(candidate.kind(),true,true,visible,false,false,true,true)) continue;
                 legal.add(candidate); if(!self) legalStuns.add(candidate.id());
             }
@@ -94,9 +94,9 @@ public final class TankCloseControlRegression
             int chosen=tankActionChoice(legal,legalStuns,List.of(),List.of(),defense,true);
             if(!visible)
             {
-                check(legal.isEmpty(),"ranked="+ranked+" near30 blind removes due368/110 AND blindstun before any selection");
-                check(defense==-1&&chosen==-1,"ranked="+ranked+" due immobile defenses cannot precede blind pursuit");
-                check(tankPursuit(true,true,false,false,false,true,false),"ranked="+ranked+" combined nearblind selection falls through to movement-only pursuit");
+                check(legal.size()==1&&legal.get(0).id()==368,"ranked="+ranked+" near30 blind allows explicit Vengeance exception but removes UD and blindstun");
+                check(defense==368&&chosen==368,"ranked="+ranked+" explicit Vengeance exception may precede pursuit; actual offense still needs LoS");
+                check(tankPursuit(true,true,false,false,false,true,false),"ranked="+ranked+" movement-only pursuit remains available if no legal Vengeance");
             }
             else
             {

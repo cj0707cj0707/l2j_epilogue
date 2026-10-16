@@ -58,6 +58,7 @@ public final class BotTactics
 		int pendingCharges, pendingX, pendingY;
 		boolean trainingBerserkerMode, pendingRushLoop;
 		final TacticsPolicy.TankDefenseSequence tankDefense = new TacticsPolicy.TankDefenseSequence();
+		final TacticsPolicy.DominatorCpWeave dominatorCp = new TacticsPolicy.DominatorCpWeave();
 		final TacticsPolicy.OriginalRushStun<BuffInfo> rushLoop = new TacticsPolicy.OriginalRushStun<>();
 		long nextRushStep;
 		int rushAnchorX, rushAnchorY, rushMoveX, rushMoveY;
@@ -290,7 +291,7 @@ public final class BotTactics
 		{
 			s.enemy = enemy.getObjectId(); s.game = game; s.instance = bot.getInstanceId();
 			s.anchorX = bot.getX(); s.anchorY = bot.getY(); s.observed = time;
-			s.trainingBurst.reset(); s.trainingBerserkerMode = false;
+			s.trainingBurst.reset(); s.trainingBerserkerMode = false; s.dominatorCp.reset();
 			s.tankDefense.reset(time); s.rushLoop.clear(); s.nextRushStep = time; s.pendingRushLoop = false; s.rushMoving = false; s.rushDirectionX = 0; s.rushDirectionY = 0;
 			s.sleepObserved = -1; s.nextDecision = time; s.nextStep = time; s.pendingId = 0; s.failures.clear(); s.enemyCasting = false; s.moveUntil = 0;
 			s.fleeingSamples = 0; s.offensiveActionsSinceStep = 2; s.previousDistance = -1; s.nextHabitSample = time;
@@ -363,6 +364,7 @@ public final class BotTactics
 		for (int id : BotSpawner.getTacticalRotation(bot, enemy)) { final Skill skill = bot.getKnownSkill(id); if (skill != null) { skills.put(id, skill); } }
 		for (int id : preset.getBuffs()) { final Skill skill = bot.getKnownSkill(id); if (skill != null) { skills.put(id, skill); } }
 		for (int id : BotSpawner.getTacticalDefenses(bot, enemy)) { final Skill skill = bot.getKnownSkill(id); if (skill != null) { skills.put(id, skill); } }
+		for (int id : BotSpawner.getTacticalCpSupport(bot, enemy)) { final Skill skill = bot.getKnownSkill(id); if (skill != null) { skills.put(id, skill); } }
 		int chargeDemand = 4;
 		for (Skill skill : skills.values())
 		{
@@ -386,6 +388,12 @@ public final class BotTactics
 			final TacticsPolicy.Kind kind = dominator && sleeping && sleepElapsed >= 5000 && direct ? TacticsPolicy.Kind.DAMAGE : detected;
 			if (kind == null || (defenseOnly && kind != TacticsPolicy.Kind.HEAL && kind != TacticsPolicy.Kind.DEFENSE)) { continue; }
 			final boolean self = self(kind);
+			// PARTY_CLAN may include a same-clan/party opponent. Never heal/buff them;
+			// query ordinary targets without changing the target or skill implementation.
+			if (self && (skill.getId() == 1305 || skill.getId() == 1414)
+				&& !TacticsPolicy.selfOnlyTargets(bot, skill.getTargetList(bot, false, bot))) { continue; }
+			final boolean cpSupport = dominator && kind == TacticsPolicy.Kind.HEAL && TacticsPolicy.dominatorCpSkill(skill.getId()) && skill.hasEffectType(EffectType.CPHEAL);
+			if (cpSupport && !TacticsPolicy.dominatorCpNeeded(cpRatio(bot))) { continue; }
 			final boolean tankStun = tank && !self && skill.hasEffectType(EffectType.STUN);
 			final boolean tankRoot = tank && !self && skill.hasEffectType(EffectType.ROOT);
 			if (tank && !TacticsPolicy.tankClosingSkillAllowed(tankClosing, self, kind, tankStun || tankRoot)) { continue; }
@@ -410,7 +418,7 @@ public final class BotTactics
 			if (!self && TacticsPolicy.allowed(kind, ready, true, visible, active, protectedSleep || enemy.isInvul(), conditions, interrupt)) { offenseAvailable = true; }
 			if (!TacticsPolicy.allowed(kind, ready, inRange, visible, active, protectedSleep || enemy.isInvul(), conditions, interrupt)) { continue; }
 			// Actual Backstab/FatalBlow handlers own positional rules and the admin bot success roll.
-			final double base = timedPool ? 210 : dominator && sleeping && sleepElapsed >= 5000 && direct ? 135 : kind == TacticsPolicy.Kind.DEFENSE
+			final double base = timedPool ? 210 : cpSupport ? 145 : dominator && sleeping && sleepElapsed >= 5000 && direct ? 135 : kind == TacticsPolicy.Kind.DEFENSE
 				? TacticsPolicy.defenseScore(hp, cpRatio(bot), visible && defenseThreat(bot, enemy))
 				: kind == TacticsPolicy.Kind.HEAL && skill.hasEffectType(EffectType.CPHEAL) && !skill.hasEffectType(EffectType.HEAL)
 					? TacticsPolicy.score(kind, new TacticsPolicy.Context(cpRatio(bot), context.enemyHp(), distance, sleeping, s.enemyCasting, interruptReady, context.enemyMoving(), window, context.needsCharges()))
@@ -429,7 +437,8 @@ public final class BotTactics
 		final int tankSelected = timedTank ? s.tankDefense.choose(options, time, activeStrong != 0) : -1;
 		final int tankChoice = tank ? TacticsPolicy.tankActionChoice(options, tankStuns, tankRoots, tankMelee, tankSelected,
 			!enemy.isMovementDisabled() && !enemy.isOutOfControl()) : -1;
-		final int selected = tankChoice >= 0 ? tankChoice : trainingRushActive
+		final int cpChoice = dominator ? s.dominatorCp.choose(options, cpRatio(bot)) : -1;
+		final int selected = cpChoice >= 0 ? cpChoice : tankChoice >= 0 ? tankChoice : trainingRushActive
 			? options.stream().anyMatch(option -> option.id() == 793) ? 793 : -1
 			: trainingBerserker
 			? s.trainingBurst.choose(options, distance, skills.containsKey(793), difficulty(s), random.nextDouble(), random.nextDouble())
@@ -480,6 +489,10 @@ public final class BotTactics
 		// A controlled target does not turn a tank into a stationary ranged drain caster.
 		// Without LoS this yields MOVEMENT ONLY, including near pillars; parent attack gates retain LoS.
 		if (TacticsPolicy.tankPursuit(tank, allowsBasicAttack(bot, preset), bot.isMovementDisabled() || bot.isOutOfControl() || bot.isAllSkillsDisabled() || bot.isDisabled(),
+			sleeping, enemy.isInvul(), enemy.isAutoAttackable(bot), bot.isCastingNow() || bot.isCastingSimultaneouslyNow() || s.pendingId != 0)) { return false; }
+		// Titan keeps armed pursuit after ready skills; blind yield is movement ONLY.
+		// Every parent actual attack still requires LoS, including near obstacles.
+		if (TacticsPolicy.titanPursuit(preset.getClassId(), allowsBasicAttack(bot, preset), bot.isMovementDisabled() || bot.isOutOfControl() || bot.isAllSkillsDisabled() || bot.isDisabled(),
 			sleeping, enemy.isInvul(), enemy.isAutoAttackable(bot), bot.isCastingNow() || bot.isCastingSimultaneouslyNow() || s.pendingId != 0)) { return false; }
 		// Parent may pursue when merely out of range, but may never autoattack a dagger.
 		if (!defenseOnly && !offenseAvailable) { stopBasicAttack(bot); return true; }
@@ -542,6 +555,11 @@ public final class BotTactics
 		{
 			s.failures.remove(s.pendingId);
 			if (skill != null && kind(skill) == TacticsPolicy.Kind.CONTROL) CombatAnalytics.controlEffectObserved(bot.getObjectId());
+		}
+		if (skill != null)
+		{
+			final TacticsPolicy.Kind resolvedKind = kind(skill);
+			s.dominatorCp.resolved(s.pendingId, paid, resolvedKind == TacticsPolicy.Kind.DAMAGE || resolvedKind == TacticsPolicy.Kind.CONTROL || resolvedKind == TacticsPolicy.Kind.SLOW);
 		}
 		s.pendingId = 0;
 		bot.setTarget(enemy);
@@ -621,8 +639,10 @@ public final class BotTactics
 	}
 	private static boolean immobilizingSupport(Skill skill)
 	{
-		// Slow-enchanted UD/Vengeance must not park a closing tank either.
-		if (skill.getId() == 110 || skill.getId() == 368) { return true; }
+		// Explicit user AI-permission exception, NOT a change to real Vengeance effects.
+		if (skill.getId() == 368) { return false; }
+		// Ultimate Defense and other actual immobilizing support still defer approach.
+		if (skill.getId() == 110) { return true; }
 		for (EffectScope scope : new EffectScope[] { EffectScope.GENERAL, EffectScope.SELF, EffectScope.PVP })
 		{
 			final var effects = skill.getEffects(scope);
@@ -633,7 +653,7 @@ public final class BotTactics
 	}
 	private static boolean supportedTarget(Skill skill, boolean self)
 	{
-		if (self) { return skill.getId() == 368 && skill.getTargetType() == TargetType.AURA || skill.getTargetType() == TargetType.SELF || skill.getTargetType() == TargetType.ONE
+		if (self) { return (skill.getId() == 1305 || skill.getId() == 1414) && skill.getTargetType() == TargetType.PARTY_CLAN || skill.getId() == 368 && skill.getTargetType() == TargetType.AURA || skill.getTargetType() == TargetType.SELF || skill.getTargetType() == TargetType.ONE
 			|| skill.getTargetType() == TargetType.PARTY || skill.getTargetType() == TargetType.CLAN
 			|| skill.getTargetType() == TargetType.PARTY_MEMBER; }
 		return skill.getTargetType() == TargetType.ONE || skill.getTargetType() == TargetType.AREA
@@ -698,6 +718,7 @@ public final class BotTactics
 		if (!visible || bot.isMovementDisabled() || Math.abs(bot.getZ() - enemy.getZ()) > 100 || distance < 1) { return false; }
 		double x, y;
 		final boolean recovery = TacticsPolicy.tankRecoveryAllowed(TacticsPolicy.tankClass(preset.getClassId()), weaponUnavailable(bot))
+			&& TacticsPolicy.titanRecoveryAllowed(preset.getClassId(), weaponUnavailable(bot))
 			&& TacticsPolicy.recoveryStepAllowed(weaponUnavailable(bot), offenseAvailable, offenseReady,
 			distance, TacticsPolicy.recoveryEnemyControlled(preset.getClassId() == 115, enemy.isSleeping(), enemy.isMovementDisabled(), enemy.isOutOfControl()));
 		if (recovery)

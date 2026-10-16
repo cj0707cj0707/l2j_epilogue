@@ -23,8 +23,8 @@ assert [v.strip() for v in clean.split(',') if v.strip()][:2]==['VENGEANCE_ID','
 assert 'attackInRange && !closeControlTank && BotTactics.allowsBasicAttack(bot, preset)' in ranked
 assert 'preset.getClassId() != 131 && !closeControlTank' in fallback
 assert 'if (basicAttack && !b.isAttackingOrCastingNow()' in fallback,'caller must retain guarded ordinary tank attack'
-assert '(!inOlympiad || !isTankBot(bot) || GeoEngine.getInstance().canSeeTarget(bot, target))' in manager,'main ranked tank fallback must not attack blindly'
-assert '(isTankBot(bot) && !GeoEngine.getInstance().canSeeTarget(bot, target))' in manager,'main tank route must also handle blocked LoS at close distance'
+assert '(!inOlympiad || (!isTankBot(bot) && getBotClassId(bot) != 113) || GeoEngine.getInstance().canSeeTarget(bot, target))' in manager,'main ranked tank fallback must not attack blindly'
+assert '((isTankBot(bot) || getBotClassId(bot) == 113) && !GeoEngine.getInstance().canSeeTarget(bot, target))' in manager,'main tank route must also handle blocked LoS at close distance'
 text='''import java.util.*;
 public class TankChaseWiringRegression {
  static int checks, attacks;static boolean captured,ready=true,sight=true;static int held;static Player foe=new Player();
@@ -55,7 +55,7 @@ public class TankChaseWiringRegression {
   // The original branch demonstrably admits a +60 no-route dead band when attackInRange=true.
   check(rangeHolds(60,40,true,true),"baseline engaged60/hold40 retains no-route band");
   check(!rangeHolds(60,40,false,true),"strict caller must keep pursuing beyond actual40 range");
-  for(int id:new int[]{90,91,106})for(boolean basic:new boolean[]{false,true}){
+  for(int id:new int[]{90,91,106,113})for(boolean basic:new boolean[]{false,true}){
    Player bot=new Player();bot.id=id;BotTactics.basic=basic;
    captured=true;held=-1;moveForOlympiadChase(bot,500,true);
    check(!captured,"ranked tank disables attack hysteresis id="+id);check(held==40,"ranked uses actual close envelope, not500");
@@ -73,7 +73,7 @@ public class TankChaseWiringRegression {
    attacks=0;training(bot,foe,new BotClassPreset(id));check(captured==(id!=131),"training previous131-only exception preserved id="+id);
   }
   sight=false;BotTactics.basic=true;
-  for(int id:new int[]{90,91,106})for(double distance:new double[]{30,60}){
+  for(int id:new int[]{90,91,106,113})for(double distance:new double[]{30,60}){
    Player bot=new Player();bot.id=id;bot.distance=distance;attacks=0;
    training(bot,foe,new BotClassPreset(id));check(attacks==0,"blocked sight never permits training manual hit, near or far");
    check(!captured,"blocked-sight tank remains strict movement-only");

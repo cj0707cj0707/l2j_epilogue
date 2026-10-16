@@ -218,6 +218,42 @@ public class BotSpawner
 		return containsId(CHANT_OF_VICTORY_FAMILY, skillId);
 	}
 
+
+    /** Explicit Dominator-only exception to the otherwise unchanged CoV-family ban. */
+    private static boolean isDominatorVictory(Player player, int skillId)
+    {
+        return player != null && skillId == 1414 && player.getPlayerClass().getId() == 115
+            && player.getKnownSkill(1414) != null;
+    }
+
+    // The global family identity/profile filter remains unchanged for all other classes/skills.
+    private static boolean isOlympiadChantBanned(Player player, int skillId)
+    {
+        return isChantOfVictoryFamily(skillId) && !isDominatorVictory(player, skillId);
+    }
+
+    private static boolean dominatorPresetAllows(Player player, int skillId)
+    {
+        if (player == null || player.getPlayerClass().getId() != 115) return false;
+        final BotClassPreset preset = BotPresets.getPresetByClassId(115);
+        return preset == null || (!preset.hasBuffsOverride() && !preset.hasRotationOverride())
+            || containsId(preset.getBuffs(), skillId) || containsId(preset.getRotation(), skillId);
+    }
+
+    /** Learned/enhanced class buff; preparation baseline only, never a free combat re-buff. */
+    private static void applyDominatorArenaBuff(Player player)
+    {
+        if (isDominatorVictory(player, 1414) && dominatorPresetAllows(player, 1414)) applyOpeningSelfBuff(player, 1414);
+    }
+
+    /** Extra default CP choices, not an AutoUse healing loop or an invented skill grant. */
+    public static int[] getTacticalCpSupport(Player player, Player enemy)
+    {
+        if (player == null || player.getPlayerClass().getId() != 115) return new int[0];
+        return java.util.stream.IntStream.of(1305, 1306)
+            .filter(id -> player.getKnownSkill(id) != null && dominatorPresetAllows(player, id)).toArray();
+    }
+
 	/**
 	 * Builds an olympiad buff profile from a full profile: drops every Chant of
 	 * Victory family buff (CoV and its analogs) and every dance/song entry.
@@ -382,7 +418,8 @@ public class BotSpawner
 	 */
 	private static final int[] TANK_DEFENSE_MAGIC =
 	{
-		760, // Anti Magic Armor (30 s, 900 s reuse - massive M.Def, immobile)
+        VENGEANCE_ID, // All opponents, including mages (explicit rotation rule).
+		760, // Anti Magic Armor (30 s, 900 s reuse - massive M.Def, ordinary Buff)
 		913, // Deflect Magic (20 min, 3 s reuse - magic resist)
 		351, // Magical Mirror (5 min, 150 s reuse - reflects magic/debuffs)
 		72, // Iron Will (20 min, 3 s reuse - M.Def up)
@@ -1388,7 +1425,7 @@ public class BotSpawner
 		autoBuffs.removeIf(skillId -> !containsId(desired, skillId)
 			|| isSelfBuffApplied(player, skillId)
 			|| (inOlympiad && isOpenerOnlySkill(skillId))
-			|| (inOlympiad && isChantOfVictoryFamily(skillId))
+			|| (inOlympiad && isOlympiadChantBanned(player, skillId))
 			|| (activeMatch && isLongSelfBuff(player, skillId))
 			|| (tankBot && isTankDefenseSkill(skillId)));
 
@@ -1400,7 +1437,7 @@ public class BotSpawner
 			// The olympiad ban of the Chant of Victory family wins over the preset (and
 			// any //bot override): the family is never re-added to the auto-buff list
 			// while the bot is inside an olympiad match.
-			if (inOlympiad && isChantOfVictoryFamily(skillId))
+			if (inOlympiad && isOlympiadChantBanned(player, skillId))
 			{
 				continue;
 			}
@@ -1575,7 +1612,7 @@ public class BotSpawner
 	private static boolean isLongSelfBuff(Player player, int skillId)
 	{
 		final Skill skill = player.getKnownSkill(skillId);
-		return (skill != null) && (skill.getAbnormalTime() > OLYMPIAD_MAX_SELFBUFF_SECONDS);
+		return (skill != null) && !isDominatorVictory(player, skillId) && (skill.getAbnormalTime() > OLYMPIAD_MAX_SELFBUFF_SECONDS);
 	}
 
 	/**
@@ -1700,7 +1737,7 @@ public class BotSpawner
 		int removed = 0;
 		for (int skillId : CHANT_OF_VICTORY_FAMILY)
 		{
-			if (player.getEffectList().isAffectedBySkill(skillId))
+			if (isOlympiadChantBanned(player, skillId) && player.getEffectList().isAffectedBySkill(skillId))
 			{
 				player.getEffectList().stopSkillEffects(SkillFinishType.REMOVED, skillId);
 				removed++;
@@ -1770,6 +1807,7 @@ public class BotSpawner
 
     private static boolean tankMovementDefenseAllowed(WorldObject opponent, Skill skill)
     {
+        if (skill != null && skill.getId() == VENGEANCE_ID) return true; // explicit all-opponent AI permission
         return !isRangedTankOpponent(opponent) || !isMovementRestrictingTankSupport(skill);
     }
 
@@ -1803,7 +1841,7 @@ public class BotSpawner
         if (isOpenerOnlySkill(skill.getId())) return false; // opening enhancements never belong to a live tactical rotation
 		if (player.isInOlympiadMode())
 		{
-			if (!player.isOlympiadStart() || isChantOfVictoryFamily(skill.getId()) || skill.isDance()
+			if (!player.isOlympiadStart() || isOlympiadChantBanned(player, skill.getId()) || skill.isDance()
 				|| (self && isLongSelfBuff(player, skill.getId()))) return false;
 		}
 		if (isTacticalTank(player) && self && !tankMovementDefenseAllowed(enemy, skill)) return false;
@@ -1844,8 +1882,8 @@ public class BotSpawner
 		}
 
 		final AutoUseSettingsHolder aus = player.getAutoUseSettings();
-		aus.getAutoBuffs().removeIf(BotSpawner::isChantOfVictoryFamily);
-		aus.getAutoSkills().removeIf(BotSpawner::isChantOfVictoryFamily);
+		aus.getAutoBuffs().removeIf(id -> isOlympiadChantBanned(player, id));
+		aus.getAutoSkills().removeIf(id -> isOlympiadChantBanned(player, id));
         aus.getAutoBuffs().removeIf(BotSpawner::isOpenerOnlySkill);
         aus.getAutoSkills().removeIf(BotSpawner::isOpenerOnlySkill);
 		aus.getAutoBuffs().removeIf(id -> isDanceOrSong(player, id));
@@ -1933,6 +1971,7 @@ public class BotSpawner
             if (stacked != null && stacked.getSkill().getId() != buff[0] && stacked.getSkill().getAbnormalLevel() >= skill.getAbnormalLevel()) continue;
             skill.applyEffects(player, player);
         }
+        applyDominatorArenaBuff(player);
     }
 
     /** Explicit training-only bonus requested for the two Orc fighter presets.
@@ -2079,6 +2118,8 @@ public class BotSpawner
 			skill.applyEffects(player, player);
 			applied++;
 		}
+
+        if (olympiad && !activeMatch) applyDominatorArenaBuff(player);
 
 		if (applied > 0)
 		{

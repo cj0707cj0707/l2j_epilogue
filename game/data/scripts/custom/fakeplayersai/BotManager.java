@@ -1732,7 +1732,7 @@ public class BotManager
 							CHASE_POINTS.remove(bot.getObjectId());
 						}
 					}
-					else if (olympiadFight && ((distToTarget > offenseRange) || (isTankBot(bot) && !GeoEngine.getInstance().canSeeTarget(bot, target))))
+					else if (olympiadFight && ((distToTarget > offenseRange) || ((isTankBot(bot) || getBotClassId(bot) == 113) && !GeoEngine.getInstance().canSeeTarget(bot, target))))
 					{
 						moveForOlympiadChase(bot, CHASE_RANGE, true);
 						closingIn = true;
@@ -1779,7 +1779,7 @@ public class BotManager
 					bot.getAI().setIntentionIdle();
 				}
 
-				if (!closingIn && (!inOlympiad || !isTankBot(bot) || GeoEngine.getInstance().canSeeTarget(bot, target)) && !OlympiadChase.isPursuing(bot.getObjectId()) && BotTactics.allowsBasicAttack(bot, preset) && (!inOlympiad || OlympiadCombatGate.ready(bot)) && (intention != Intention.ATTACK) && (intention != Intention.CAST) && !bot.isMoving() && target.asCreature().isAutoAttackable(bot))
+				if (!closingIn && (!inOlympiad || (!isTankBot(bot) && getBotClassId(bot) != 113) || GeoEngine.getInstance().canSeeTarget(bot, target)) && !OlympiadChase.isPursuing(bot.getObjectId()) && BotTactics.allowsBasicAttack(bot, preset) && (!inOlympiad || OlympiadCombatGate.ready(bot)) && (intention != Intention.ATTACK) && (intention != Intention.CAST) && !bot.isMoving() && target.asCreature().isAutoAttackable(bot))
 				{
 					bot.getAI().setIntentionAttack(target);
 				}
@@ -2006,9 +2006,9 @@ public class BotManager
 		final int approach = attackInRange || preset == null || preset.getClassId() != CLASS_DOOMBRINGER
 			? Math.max(0, reach - 10) : Math.max(0, Math.min(holdRange, reach) - 10);
 		final int[] center = OLYMPIAD_STADIUM_CENTERS[gameId];
-		// Tanks must reach their real close-control envelope. Chase's +60 attack
+		// Tanks and Titan must reach their real melee envelope. Chase's +60 attack
 		// hysteresis can otherwise retain ENGAGED without a live route or strike.
-		final boolean closeControlTank = preset != null && (preset.getClassId() == 90 || preset.getClassId() == 91 || preset.getClassId() == 106);
+		final boolean closeControlTank = preset != null && (preset.getClassId() == 90 || preset.getClassId() == 91 || preset.getClassId() == 106 || preset.getClassId() == 113);
 		OlympiadChase.update(bot, enemy, approach, attackInRange && !closeControlTank && BotTactics.allowsBasicAttack(bot, preset),
 			center[0], center[1], OLYMPIAD_ARENA_MAX_DISTANCE, !BERSERKER_STATES.containsKey(bot.getObjectId()));
 	}

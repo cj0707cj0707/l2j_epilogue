@@ -360,7 +360,7 @@ public class BotPresets
 				// Enlightenment of the Dominator is the WIZARD variant (1532, +40% M.Atk),
 				// the same buff every other caster class learns (datapack change 03.10.2026:
 				// the Dominator left the Healer variant 1533, +10% M.Atk +40% Heal).
-				337, 1532
+				1414, 337, 1532
 			});
 		// Doombringer (Kamael) wears LIGHT: Vesper heavy/robe sets and shields carry the
 		// condition races="HUMAN,ELF,DARK_ELF,ORC,DWARF" (no Kamael) in the datapack, and the

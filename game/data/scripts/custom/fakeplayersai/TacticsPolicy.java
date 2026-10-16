@@ -177,6 +177,48 @@ final class TacticsPolicy
 		if (freeFoe && (stuns.contains(offense) || roots.contains(offense))) { return offense; }
 		return defense >= 0 ? defense : offense;
 	}
+	static boolean selfOnlyTargets(Object caster, List<?> targets)
+	{
+		if (caster == null || targets == null || targets.isEmpty()) { return false; }
+		for (Object target : targets) if (target != caster) { return false; }
+		return true;
+	}
+	static boolean dominatorCpSkill(int id) { return id == 1305 || id == 1306; }
+	static boolean dominatorCpNeeded(double ratio) { return Double.isFinite(ratio) && ratio >= 0 && ratio < .50; }
+	/** One real CP cast may be woven between available attacks, not a permanent heal loop. */
+	static final class DominatorCpWeave
+	{
+		private boolean owesAttack;
+		void reset() { owesAttack = false; }
+		void resolved(int id, boolean executed, boolean offensive)
+		{
+			if (!executed) { return; }
+			if (dominatorCpSkill(id)) { owesAttack = true; }
+			else if (offensive) { owesAttack = false; }
+		}
+		int choose(List<Option> legal, double cp)
+		{
+			// Never displace an ordinary life-saving HP heal.
+			for (Option option : legal)
+				if (option.kind == Kind.HEAL && !dominatorCpSkill(option.id) && option.score >= 150) { return option.id; }
+			if (owesAttack)
+			{
+				for (Kind priority : new Kind[] { Kind.DAMAGE, Kind.CONTROL, Kind.SLOW })
+					for (Option option : legal) if (option.kind == priority) { return option.id; }
+			}
+			if (!dominatorCpNeeded(cp)) { return -1; }
+			// Honor is the shorter real cast; Ritual remains a genuine legal fallback.
+			for (int id : new int[] { 1305, 1306 })
+				for (Option option : legal) if (option.id == id && option.kind == Kind.HEAL) { return id; }
+			return -1;
+		}
+	}
+	static boolean titanRecoveryAllowed(int classId, boolean disarmed) { return classId != 113 || disarmed; }
+	static boolean titanPursuit(int classId, boolean armed, boolean blocked, boolean sleeping,
+		boolean invulnerable, boolean attackable, boolean pendingCast)
+	{
+		return classId == 113 && armed && !blocked && !sleeping && !invulnerable && attackable && !pendingCast;
+	}
 	static boolean recoveryStepAllowed(boolean disarmed, boolean offenseAvailable, boolean offenseReady, double distance, boolean enemyControlled)
 	{
 		return !enemyControlled && distance > 1 && distance < 350 && (disarmed || !offenseAvailable && !offenseReady);
