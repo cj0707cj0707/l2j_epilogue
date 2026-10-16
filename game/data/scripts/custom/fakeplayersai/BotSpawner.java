@@ -365,8 +365,8 @@ public class BotSpawner
 	 */
 	private static final int[] TANK_DEFENSE_PHYSICAL =
 	{
-		110, // Ultimate Defense (30 s, 900 s reuse - massive P.Def, immobile)
-		VENGEANCE_ID, // Vengeance (30 s, 900 s reuse - taunt + huge P.Def/M.Def, immobile)
+		VENGEANCE_ID, // Vengeance FIRST (30 s, 900 s reuse - taunt + huge P.Def/M.Def, immobile)
+		110, // Ultimate Defense SECOND (30 s, 900 s reuse - massive P.Def, immobile)
 		350, // Physical Mirror (5 min, 150 s reuse - reflects physical attacks/debuffs)
 		439, // Shield of Revenge (5 min, 150 s reuse - counter/block shield stance)
 		527, // Iron Shield (20 min, 150 s reuse - triggered block on damage received)
@@ -1426,7 +1426,7 @@ public class BotSpawner
 	 * <li><b>By the opponent's class</b>: a mage opponent gets the magic-defense group
 	 * ({@link #TANK_DEFENSE_MAGIC}: Anti Magic Armor, Deflect Magic, Magical Mirror,
 	 * Iron Will, Shield Deflect Magic), a warrior opponent the physical-defense group
-	 * ({@link #TANK_DEFENSE_PHYSICAL}: Ultimate Defense, Vengeance, Physical Mirror,
+	 * ({@link #TANK_DEFENSE_PHYSICAL}: Vengeance, Ultimate Defense, Physical Mirror,
 	 * Shield of Revenge, Iron Shield, Deflect Arrow, Majesty, Reflect Damage). When the
 	 * active buff belongs to the WRONG group, it is removed and the right group's
 	 * highest-priority skill is queued instead. Priority = the array order: the big
@@ -1725,8 +1725,8 @@ public class BotSpawner
         return id == 90 || id == 91 || id == 106;
     }
 
-    /** Strong immobile amplifiers: never overlap each other. Long weak buffs
-     * (e.g. Majesty/Iron Shield) must not suppress the requested UD->Vengeance chain. */
+    /** Strong amplifiers: never overlap each other (UD/Vengeance may immobilize). Long weak buffs
+     * (e.g. Majesty/Iron Shield) must not suppress the requested Vengeance->UD chain. */
     public static boolean isStrongTankDefenseSkill(int skillId)
     { return skillId == 110 || skillId == VENGEANCE_ID || skillId == 760; }
 

@@ -61,7 +61,8 @@ assert 'if (s.humanStopApplied) return;' in t and 's.humanStopApplied = true;' i
 assert 'if (!s.active) s.player.setImmobilized(false);' in t, 'release only training-owned prep hold'
 
 assert 'BotTactics.allowsBasicAttack(b, preset)' in t and 'if (basicAttack &&' in t
-assert 'boolean chaseAttack = basicAttack && preset.getClassId() != 131;' in t, 'training131 must reach strict skill range without attack hysteresis'
+assert 'boolean chaseAttack = basicAttack && preset.getClassId() != 131 && !closeControlTank;' in t, 'training131 AND tanks must reach strict skill range without attack hysteresis'
+assert 'boolean closeControlTank = preset.getClassId() == 90 || preset.getClassId() == 91 || preset.getClassId() == 106;' in t, 'strict tank routing remains scoped to current tank classes'
 assert 'OlympiadChase.updateTraining(b, p, range, chaseAttack,' in t, 'dagger/disarm fallback cannot autoattack'
 assert t.count('BotSpawner.applyPreCombatOpeners(') == 1, 'exactly one explicit training opener call site'
 assert t.index('s.openersApplied = true;') < t.index('BotSpawner.applyPreCombatOpeners(') < t.index('s.active = true')

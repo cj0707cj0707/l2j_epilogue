@@ -114,7 +114,7 @@ final class TacticsPolicy
 
 	static double defensePriority(int id)
 	{
-		return switch (id) { case 110,760 -> 20; case 368 -> 12; case 916 -> 8; default -> 0; };
+		return switch (id) { case 368 -> 24; case 110,760 -> 20; case 916 -> 8; default -> 0; };
 	}
 
 	/** Only Dominator gets a bounded curse phase, then damage to break sleep. */
@@ -137,6 +137,45 @@ final class TacticsPolicy
 	static int boundedApproachRange(double reach)
 	{
 		return (int)Math.max(20,Math.min(1000,Math.floor(reach)));
+	}
+	static boolean tankClass(int classId) { return classId == 90 || classId == 91 || classId == 106; }
+	/** Actual tank Shield Stun/Bash cast40, not their effect400 or drain600.
+	 * Movement envelope deliberately does not expand when all close skills cool down. */
+	static int tankApproachRange(double physicalRange, double collision)
+	{
+		return boundedApproachRange(Math.min(40, Math.max(0, physicalRange)) + Math.max(0, collision));
+	}
+	static boolean tankClosingSkillAllowed(boolean closing, boolean self, Kind kind, boolean catchControl)
+	{
+		return !closing || (self ? kind == Kind.HEAL || kind == Kind.DEFENSE : catchControl);
+	}
+	static boolean tankSupportAllowed(boolean closing, boolean immobilizing)
+	{
+		return !closing || !immobilizing;
+	}
+	static boolean tankRecoveryAllowed(boolean tank, boolean disarmed) { return !tank || disarmed; }
+	/** Pursuit yield ONLY, never permission to cast or attack without LoS.
+	 * Chase may need a geodata route even when a near target is behind a pillar. */
+	static boolean tankPursuit(boolean tank, boolean armed, boolean blocked, boolean sleeping,
+		boolean invulnerable, boolean attackable, boolean pendingCast)
+	{
+		return tank && armed && !blocked && !sleeping && !invulnerable && attackable && !pendingCast;
+	}
+
+	/** These subsets contain ONLY already-legal effective options, never learned-skill injection. */
+	static int tankOffenseChoice(List<Option> legal, List<Integer> stuns, List<Integer> roots, List<Integer> melee)
+	{
+		for (Option option : legal) if (option.kind == Kind.HEAL && option.score >= 130) { return option.id; }
+		for (List<Integer> priority : List.of(stuns, roots, melee))
+			for (Option option : legal) if (priority.contains(option.id)) { return option.id; }
+		return -1;
+	}
+	static int tankActionChoice(List<Option> legal, List<Integer> stuns, List<Integer> roots, List<Integer> melee, int defense, boolean freeFoe)
+	{
+		final int offense = tankOffenseChoice(legal, stuns, roots, melee);
+		for (Option option : legal) if (option.id == offense && option.kind == Kind.HEAL && option.score >= 130) { return offense; }
+		if (freeFoe && (stuns.contains(offense) || roots.contains(offense))) { return offense; }
+		return defense >= 0 ? defense : offense;
 	}
 	static boolean recoveryStepAllowed(boolean disarmed, boolean offenseAvailable, boolean offenseReady, double distance, boolean enemyControlled)
 	{
@@ -230,7 +269,7 @@ final class TacticsPolicy
 		int choose(List<Option> legal, long time, boolean strongActive)
 		{
 			if (!due(time) || strongActive) { return -1; }
-			int first = lastStrong == 110 ? 368 : 110;
+			int first = lastStrong == 368 ? 110 : 368;
 			int second = first == 110 ? 368 : 110;
 			for (int id : new int[] { first, second, 350, 439, 527, 112, 82, 86 })
 				for (Option option : legal) if (option.id == id) { return id; }

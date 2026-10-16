@@ -158,6 +158,8 @@ public final class BotTactics
 	public static synchronized int tacticalApproachRange(Player bot, Player enemy, BotClassPreset preset)
 	{
 		if (bot == null || enemy == null || preset == null) { return 40; }
+		if (TacticsPolicy.tankClass(preset.getClassId()))
+			return TacticsPolicy.tankApproachRange(bot.getPhysicalAttackRange(), bot.getTemplate().getCollisionRadius());
 		final boolean ranged = preset.isCaster() || preset.getWeaponKind() == BotClassPreset.WeaponKind.BOW
 			|| preset.getWeaponKind() == BotClassPreset.WeaponKind.CROSSBOW;
 		final State s = STATES.get(bot.getObjectId());
@@ -338,8 +340,9 @@ public final class BotTactics
 		if (time < s.nextDecision || !TacticsPolicy.reactionReady(difficulty(s), time, s.observed, hp < .35)) { return !defenseOnly; }
 		final boolean visible = GeoEngine.getInstance().canSeeTarget(bot, enemy);
 		final double distance = bot.calculateDistance2D(enemy);
-		final boolean timedTank = (preset.getClassId() == 90 || preset.getClassId() == 91 || preset.getClassId() == 106)
-			&& meleeOpponent(enemy);
+		final boolean tank = TacticsPolicy.tankClass(preset.getClassId());
+		final boolean timedTank = tank;
+		final boolean tankClosing = tank && (!visible || distance > TacticsPolicy.tankApproachRange(bot.getPhysicalAttackRange(), bot.getTemplate().getCollisionRadius()));
 		final int activeStrong = bot.isAffectedBySkill(110) ? 110 : bot.isAffectedBySkill(368) ? 368 : bot.isAffectedBySkill(760) ? 760 : 0;
 		if (timedTank) { s.tankDefense.observed(activeStrong); }
 		final int rushAction = trainingBerserker ? trainingRushAction(bot, enemy, preset, s, time, distance, visible) : -1;
@@ -369,6 +372,7 @@ public final class BotTactics
 		final TacticsPolicy.Context context = new TacticsPolicy.Context(hp, visible ? enemy.getCurrentHp() / Math.max(1, enemy.getMaxHp()) : 1,
 			distance, sleeping, s.enemyCasting, interruptReady, visible && enemy.isMoving(), window, bot.getCharges() < chargeDemand);
 		final List<TacticsPolicy.Option> options = new ArrayList<>();
+		final List<Integer> tankStuns = new ArrayList<>(), tankRoots = new ArrayList<>(), tankMelee = new ArrayList<>();
 		boolean offenseAvailable = false;
 		for (Skill skill : skills.values())
 		{
@@ -382,6 +386,11 @@ public final class BotTactics
 			final TacticsPolicy.Kind kind = dominator && sleeping && sleepElapsed >= 5000 && direct ? TacticsPolicy.Kind.DAMAGE : detected;
 			if (kind == null || (defenseOnly && kind != TacticsPolicy.Kind.HEAL && kind != TacticsPolicy.Kind.DEFENSE)) { continue; }
 			final boolean self = self(kind);
+			final boolean tankStun = tank && !self && skill.hasEffectType(EffectType.STUN);
+			final boolean tankRoot = tank && !self && skill.hasEffectType(EffectType.ROOT);
+			if (tank && !TacticsPolicy.tankClosingSkillAllowed(tankClosing, self, kind, tankStun || tankRoot)) { continue; }
+			if (tank && self && !TacticsPolicy.tankSupportAllowed(tankClosing, immobilizingSupport(skill))) { continue; }
+			if (tankStun && enemy.isStunned() || tankRoot && enemy.isMovementDisabled()) { continue; }
 			if (!self && !TacticsPolicy.sleepOffenseAllowed(dominator, sleeping, sleepElapsed, direct, skill.getId() == 1097 || skill.getId() == 1069)) { continue; }
 			final boolean protectedSleep = sleeping && !dominator;
 			if (!BotSpawner.tacticalSkillAllowed(bot, enemy, skill, self)) { continue; }
@@ -408,11 +417,19 @@ public final class BotTactics
 					: TacticsPolicy.score(kind, context);
 			final double prioritized = base > 0 && kind == TacticsPolicy.Kind.DEFENSE ? base + TacticsPolicy.defensePriority(skill.getId()) : base;
 			final double score = TacticsPolicy.adapt(prioritized, kind, s.fleeingSamples >= 3, skill.getFlyType() == FlyType.CHARGE);
-			if (score > 0) { options.add(new TacticsPolicy.Option(skill.getId(), kind, score)); }
+			if (score > 0)
+			{
+				options.add(new TacticsPolicy.Option(skill.getId(), kind, score));
+				if (tankStun) { tankStuns.add(skill.getId()); }
+				else if (tankRoot) { tankRoots.add(skill.getId()); }
+				else if (tank && !self && direct && skill.isPhysical()) { tankMelee.add(skill.getId()); }
+			}
 		}
 		final ThreadLocalRandom random = ThreadLocalRandom.current();
 		final int tankSelected = timedTank ? s.tankDefense.choose(options, time, activeStrong != 0) : -1;
-		final int selected = tankSelected >= 0 ? tankSelected : trainingRushActive
+		final int tankChoice = tank ? TacticsPolicy.tankActionChoice(options, tankStuns, tankRoots, tankMelee, tankSelected,
+			!enemy.isMovementDisabled() && !enemy.isOutOfControl()) : -1;
+		final int selected = tankChoice >= 0 ? tankChoice : trainingRushActive
 			? options.stream().anyMatch(option -> option.id() == 793) ? 793 : -1
 			: trainingBerserker
 			? s.trainingBurst.choose(options, distance, skills.containsKey(793), difficulty(s), random.nextDouble(), random.nextDouble())
@@ -459,6 +476,11 @@ public final class BotTactics
 		// armed pressure/pursuit only AFTER every ready in-range skill was considered.
 		// A stunned FOE is a damage window, not a reason for this bot to stand idle.
 		if (trainingPressure) { return false; }
+		// Armed tanks keep closing/pressuring even when their short skills are on reuse.
+		// A controlled target does not turn a tank into a stationary ranged drain caster.
+		// Without LoS this yields MOVEMENT ONLY, including near pillars; parent attack gates retain LoS.
+		if (TacticsPolicy.tankPursuit(tank, allowsBasicAttack(bot, preset), bot.isMovementDisabled() || bot.isOutOfControl() || bot.isAllSkillsDisabled() || bot.isDisabled(),
+			sleeping, enemy.isInvul(), enemy.isAutoAttackable(bot), bot.isCastingNow() || bot.isCastingSimultaneouslyNow() || s.pendingId != 0)) { return false; }
 		// Parent may pursue when merely out of range, but may never autoattack a dagger.
 		if (!defenseOnly && !offenseAvailable) { stopBasicAttack(bot); return true; }
 		return false;
@@ -597,6 +619,18 @@ public final class BotTactics
 	{
 		return kind == TacticsPolicy.Kind.HEAL || kind == TacticsPolicy.Kind.DEFENSE || kind == TacticsPolicy.Kind.BUFF || kind == TacticsPolicy.Kind.CHARGE;
 	}
+	private static boolean immobilizingSupport(Skill skill)
+	{
+		// Slow-enchanted UD/Vengeance must not park a closing tank either.
+		if (skill.getId() == 110 || skill.getId() == 368) { return true; }
+		for (EffectScope scope : new EffectScope[] { EffectScope.GENERAL, EffectScope.SELF, EffectScope.PVP })
+		{
+			final var effects = skill.getEffects(scope);
+			if (effects != null) for (var effect : effects)
+				if ("ImmobileBuff".equals(effect.getName()) || "Root".equals(effect.getName())) { return true; }
+		}
+		return false;
+	}
 	private static boolean supportedTarget(Skill skill, boolean self)
 	{
 		if (self) { return skill.getId() == 368 && skill.getTargetType() == TargetType.AURA || skill.getTargetType() == TargetType.SELF || skill.getTargetType() == TargetType.ONE
@@ -663,7 +697,8 @@ public final class BotTactics
 	{
 		if (!visible || bot.isMovementDisabled() || Math.abs(bot.getZ() - enemy.getZ()) > 100 || distance < 1) { return false; }
 		double x, y;
-		final boolean recovery = TacticsPolicy.recoveryStepAllowed(weaponUnavailable(bot), offenseAvailable, offenseReady,
+		final boolean recovery = TacticsPolicy.tankRecoveryAllowed(TacticsPolicy.tankClass(preset.getClassId()), weaponUnavailable(bot))
+			&& TacticsPolicy.recoveryStepAllowed(weaponUnavailable(bot), offenseAvailable, offenseReady,
 			distance, TacticsPolicy.recoveryEnemyControlled(preset.getClassId() == 115, enemy.isSleeping(), enemy.isMovementDisabled(), enemy.isOutOfControl()));
 		if (recovery)
 		{

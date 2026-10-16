@@ -37,20 +37,20 @@ public final class TankDefenseRushIdentityRegression
         check(tank.choose(all,100000,false)==-1,"uninitialized clock never casts defense during prep");
         tank.reset(10000);
         for (long time:new long[]{10000,10001,12500,14999}) check(tank.choose(all,time,false)==-1,"no weak or strong defense before exact combat+5: "+time);
-        check(tank.choose(all,15000,false)==110,"UD first exactly+5 regardless HP/CP/randomness");
-        check(tank.choose(all,15000,true)==-1,"no second strong while original UD live");
-        tank.observed(110);
-        check(tank.choose(all,15001,true)==-1,"active UD not refreshed even if timer/reuse reset");
-        check(tank.choose(all,15001,false)==368,"early cancel/dispel/steal immediately advances to Vengeance; no duration wait");
+        check(tank.choose(all,15000,false)==368,"Vengeance first exactly+5 regardless HP/CP/randomness");
+        check(tank.choose(all,15000,true)==-1,"no second strong while original Vengeance live");
         tank.observed(368);
-        check(tank.choose(all,15002,true)==-1,"active Vengeance blocks UD even if UD available again");
-        check(tank.choose(List.of(option(350),option(110)),15002,false)==110,"next available strong wins before weak after Vengeance ends");
+        check(tank.choose(all,15001,true)==-1,"active Vengeance not refreshed even if timer/reuse reset");
+        check(tank.choose(all,15001,false)==110,"early cancel/dispel/steal immediately advances to UD; no duration wait");
+        tank.observed(110);
+        check(tank.choose(all,15002,true)==-1,"active UD blocks Vengeance even if Vengeance available again");
+        check(tank.choose(List.of(option(350),option(368)),15002,false)==368,"next available strong wins before weak after UD ends");
         check(tank.choose(List.of(option(439),option(350)),15002,false)==350,"weak physical pool fallback only when no strong is legal");
         check(tank.choose(List.of(option(368)),15002,false)==368,"learned/effective override only368 does not inject110");
         check(tank.choose(List.of(),15002,false)==-1,"no learned/resource/condition eligible defense never invented");
         tank.reset(20000);
         check(tank.choose(all,24999,false)==-1,"new pair resets clock rather than reusing prior match age");
-        check(tank.choose(all,25000,false)==110,"new pair resets deterministic sequence");
+        check(tank.choose(all,25000,false)==368,"new pair resets deterministic sequence");
         for (boolean active:new boolean[]{false,true}) for (long elapsed:new long[]{0,4999,5000,30000})
             check(tank.due(20000+elapsed)==(elapsed>=5000),"clock independent of nominal effect duration and active="+active);
         check(!meleeOpponent(true,false,true,false,40),"known disarmed bow still archer, not melee");

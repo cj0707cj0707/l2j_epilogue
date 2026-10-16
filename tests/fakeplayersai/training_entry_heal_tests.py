@@ -21,7 +21,7 @@ class TrainingEntryHealRegression {
 static int checks; static void check(boolean b){checks++;if(!b)throw new AssertionError("check "+checks);}
 static int VENGEANCE_ID=368;
 static int[] TANK_DEFENSE_ALL={110,368,760,350,439,527,112,82,86,913,351,72,916};
-static int[] TANK_DEFENSE_PHYSICAL={110,368,350,439,527,112,82,86},TANK_DEFENSE_MAGIC={760,913,351,72,916};
+static int[] TANK_DEFENSE_PHYSICAL={368,110,350,439,527,112,82,86},TANK_DEFENSE_MAGIC={760,913,351,72,916};
 static class Player {
  int cid,broadcasts;boolean bot,olympiad,started=true,mage,tank=true;double hp,mp,cp,maxHp=1000,maxMp=800,maxCp=600;Set<Integer> active=new HashSet<>();
  double getMaxHp(){return maxHp;}double getMaxMp(){return maxMp;}double getMaxCp(){return maxCp;}
