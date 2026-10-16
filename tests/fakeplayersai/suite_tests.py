@@ -5,7 +5,7 @@ import os, subprocess, sys, tempfile
 from lxml import etree
 ROOT=Path(__file__).resolve().parents[2]
 DATA=ROOT/'game/data'
-for script in ('run_bot_combat_tests.py','tactics_tests.py','training_tests.py','run_olympiad_gate_tests.py'):
+for script in ('run_bot_combat_tests.py','tactics_tests.py','training_tests.py','run_olympiad_gate_tests.py','fear_tests.py'):
     subprocess.run([sys.executable,str(Path(__file__).with_name(script))],cwd=ROOT,check=True)
 for name,xsd in [('GiranServices.xml','spawns.xsd')]+[(f'GiranService{i}.xml','npcs.xsd') for i in (1008000,1009000,1010000,1011000)]:
     file=DATA/('spawns/Others' if xsd=='spawns.xsd' else 'stats/npcs/custom')/name
