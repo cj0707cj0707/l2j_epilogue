@@ -49,7 +49,7 @@ assert 'BotSpawner.applyTrainingPreparationSelfBuffs(' in prep
 assert prep.index('if (!s.finalizing)') < prep.index('BotSpawner.applyTrainingPreparationSelfBuffs(')
 assert 'boolean casting = castsRunning(p) || castsRunning(b);' in prep
 assert 'if (!finalSnapshotReady(phaseNow, s.preparationUntil, s.finalDrainUntil, casting)) return;' in prep
-assert prep.index('s.finalSnapshotApplied = true;') < prep.index('restoreForCombat(p); restoreForCombat(b);') < prep.index('s.combatAt = System.nanoTime() + 1_000_000_000L;') < prep.index('s.active = true')
+assert prep.index('s.finalSnapshotApplied = true;') < prep.index('restoreResources(p); restoreResources(b);') < prep.index('s.combatAt = System.nanoTime() + 1_000_000_000L;') < prep.index('s.active = true')
 for forbidden in ('stop(p)', 'stop(b)', 'abortCast(', 'setIntentionIdle(', 'p.stopMove(', 'p.setTarget('):
     assert forbidden not in prep, 'no periodic prep cast interruption or AI stomp: ' + forbidden
 assert 'System.nanoTime() < s.combatAt || castsRunning(p) || castsRunning(b)' in prep
@@ -78,7 +78,12 @@ assert 'resultLabel(b.training, own.id, winnerId, reason)' in a
 
 assert 'resetEntryCooldowns' not in t and 'entryCooldownReset' not in t
 assert 'p.resetDisabledSkills();' in t and 'p.resetTimeStamps();' in t and 'p.sendPacket(new SkillCoolTime(p));' in t
-assert 'getItemReuseTimeStamps' not in t and 'restoreForCombat' not in t[t.index('private static void finish(Session s)'):], 'no final/entry/return cooldown reset'
+assert 'getItemReuseTimeStamps' not in t and 'resetPreparationCooldowns' not in t[t.index('private static void finish(Session s)'):], 'no return cooldown reset'
+assert t.count('resetPreparationCooldowns(p); resetPreparationCooldowns(b);') == 1, 'exactly one both-participant prep reset call site'
+assert t.index('resetPreparationCooldowns(p); resetPreparationCooldowns(b);') < t.index('p.enableAllSkills(); b.enableAllSkills(); // both') < t.index('s.preparationUntil = System.nanoTime()')
+assert 'resetPreparationCooldowns' not in prep and 'restoreForCombat' not in t, 'no second reset after selfbuffs'
+assert t.count('BotSpawner.applyTrainingClassBuffs(') == 1
+assert t.index('s.openersApplied = true;') < t.index('BotSpawner.applyTrainingClassBuffs(') < t.index('BotSpawner.applyPreCombatOpeners(') < t.index('s.active = true')
 assert 'ON_CREATURE_TELEPORTED' in t and 'returnAcknowledged' in t
 assert 'p.getAI().notifyActionCancel();' in t and 'p.getAI().setNextAction(null);' in t
 assert 'j.setProperty("returnMotionSynced", "true"); save(p.getObjectId(), j);' in t

@@ -1872,6 +1872,28 @@ public class BotSpawner
         }
     }
 
+    /** Explicit training-only bonus requested for the two Orc fighter presets.
+     * Apply the bot's learned/enhanced effects in the owning T-3 opener window.
+     * This is a supplied buff, not an illegal full-HP cast: no HP manipulation,
+     * condition/XML edits, invented skill levels or repeated combat refresh. */
+    public static void applyTrainingClassBuffs(Player bot, BotClassPreset preset)
+    {
+        if (bot == null || preset == null || bot.getClient() != null || !bot.isOnline()
+            || bot.isAlikeDead() || !TrainingArena.isTrainingBot(bot)
+            || bot.getPlayerClass().getId() != preset.getClassId()) return;
+        for (int id : trainingClassBuffIds(preset.getClassId())) applyOpeningSelfBuff(bot, id);
+    }
+
+    static int[] trainingClassBuffIds(int classId)
+    {
+        return switch (classId)
+        {
+            case 113 -> new int[] {176, 420}; // Titan: Frenzy + Zealot
+            case 114 -> new int[] {420}; // Grand Khavatari: Zealot, never Frenzy
+            default -> new int[0];
+        };
+    }
+
     /**
      * One real self-cast during the owning training preparation phase. Unlike the
      * shared baseline and the short T-3 openers, class selfbuffs use normal cast

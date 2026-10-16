@@ -56,8 +56,9 @@ import org.l2jmobius.gameserver.geoengine.GeoEngine;
  * Entry explicitly strips prior effects and fills resources BEFORE core snapshots.
  * No resource admission minimum; all nonresource core exclusions remain enforced.
  * Human/bot safe selfcasts are admitted during prep, never during the final lock.
- * After casts drain, both resources and skill cooldown maps reset ONCE, followed
- * by a fresh protected 1s interval before combat. No reset/strip on return.
+ * Both skill cooldown maps reset ONCE before selfbuff preparation starts.
+ * After casts drain, only resources refill, followed by a protected 1s interval.
+ * No reset/strip on return; skills used during preparation keep normal reuse.
  * Every bot uses the server's ranked level85 gear/skill-enchant settings.
  * Recovery journal is flushed before Player.create AND before any human teleport.
  * Keep journals on failed cleanup; init/login/reaper retry. No database migrations.
@@ -235,7 +236,7 @@ public final class TrainingArena
     {
         if (p == null) return "Персонаж недоступен. Перезайдите в игру.";
         Session s = SESSIONS.get(p.getObjectId());
-        if (s == null) return "Личная нерейтинговая тренировка: " + preparationSeconds(TacticalSettings.getTrainingPreparationSeconds()) + " сек. на селфбаф после запуска дуэли. При входе прежние эффекты очищаются. Оба участника получают 13 базовых бафов и олимпийский профиль класса; бот кастует разрешённые селфбафы во время подготовки. Общий лимит дуэли 120 сек., включая подготовку. Наград и очков нет. Бот 85 уровня использует те же настройки снаряжения и заточки умений, что и рейтинговые боты. Порога HP/MP/CP нет. За секунду до боя оба полностью восстанавливают HP/MP/CP и откаты умений; при выходе сброса нет.";
+        if (s == null) return "Личная нерейтинговая тренировка: " + preparationSeconds(TacticalSettings.getTrainingPreparationSeconds()) + " сек. на селфбаф после запуска дуэли. При входе прежние эффекты очищаются. Оба участника получают 13 базовых бафов и олимпийский профиль класса; бот кастует разрешённые селфбафы во время подготовки. Общий лимит дуэли 120 сек., включая подготовку. Наград и очков нет. Бот 85 уровня использует те же настройки снаряжения и заточки умений, что и рейтинговые боты. Порога HP/MP/CP нет. Откаты обоих сбрасываются перед таймером селфбафов, не после него. За секунду до боя восстанавливаются только HP/MP/CP. Титан получает Frenzy и Zealot, кастетчик — Zealot. При выходе сброса нет.";
         return (s.stopping ? "Выход: " : s.active ? "Бой: " : "Подготовка: ") + BotPresets.getPresetByClassId(s.choice.classId).getClassName() + ", " + s.choice.difficulty + ", " + s.choice.profile + ". Личная арена " + (s.instance == null ? "создаётся" : s.instance.getId()) + ". Без рейтинга и наград.";
     }
     public static String leave(Player p)
@@ -515,11 +516,14 @@ public final class TrainingArena
             BotClassPreset humanPreset = BotPresets.getPresetByClassId(p.getPlayerClass().getId());
             BotSpawner.applyTrainingOlympiadBuffs(p, humanPreset != null ? humanPreset.isCaster() : p.isMageClass());
             BotSpawner.applyTrainingOlympiadBuffs(b, BotPresets.getPresetByClassId(s.choice.classId).isCaster());
+            // Ready BEFORE the player is invited to selfbuff, not at the end.
+            // Keep the cooldowns of skills actually used during this preparation.
+            resetPreparationCooldowns(p); resetPreparationCooldowns(b);
             p.enableAllSkills(); b.enableAllSkills(); // both may cast safe self-only skills; inventory stays locked.
             // Start AFTER buff work and skill unlock: a slow application never shortens prep.
             s.preparationUntil = System.nanoTime() + preparationSeconds(TacticalSettings.getTrainingPreparationSeconds()) * 1_000_000_000L;
             s.preparationStarted = true;
-            p.sendMessage("Выданы 13 базовых бафов и олимпийский профиль класса. Прежние эффекты очищены при входе. Подготовка: оба могут бафать себя, атаковать нельзя. Перед боем — полное восстановление ресурсов и откатов, затем защищённая 1 секунда.");
+            p.sendMessage("Выданы 13 базовых бафов и олимпийский профиль класса. Откаты обоих сброшены ДО таймера селфбафов. Подготовка: бафайте себя, атаковать нельзя. Перед боем — полное восстановление HP/MP/CP без повторного сброса откатов, затем защищённая 1 секунда.");
         }
         if (!p.isInDuel() || !b.isInDuel() || s.duel.getFinished() || p.getDuelState() != Duel.DUELSTATE_DUELLING || b.getDuelState() != Duel.DUELSTATE_DUELLING)
         {
@@ -553,6 +557,7 @@ public final class TrainingArena
             if (openerWindow(s.openersApplied, s.stopping, s.active, remaining, casting))
             {
                 s.openersApplied = true;
+                BotSpawner.applyTrainingClassBuffs(b, BotPresets.getPresetByClassId(s.choice.classId));
                 BotSpawner.applyPreCombatOpeners(b, BotPresets.getPresetByClassId(s.choice.classId));
                 s.preparationUntil = Math.max(s.preparationUntil, System.nanoTime() + 3_000_000_000L);
                 remaining = remainingSeconds(s.preparationUntil, System.nanoTime());
@@ -571,12 +576,13 @@ public final class TrainingArena
             {
                 if (!finalSnapshotReady(phaseNow, s.preparationUntil, s.finalDrainUntil, casting)) return;
                 // Both casts have drained; disable new skills under the final
-                // event gate, then ONE snapshot/reset, not at entry or return.
+                // event gate, then refill resources ONLY. Preparation casts
+                // retain their ordinary reuse: no second skill cooldown reset.
                 p.disableAllSkills(); b.disableAllSkills();
                 s.finalSnapshotApplied = true;
-                restoreForCombat(p); restoreForCombat(b);
+                restoreResources(p); restoreResources(b);
                 s.combatAt = System.nanoTime() + 1_000_000_000L;
-                p.sendMessage("HP/MP/CP и откаты обоих восстановлены. Бой через 1 секунду.");
+                p.sendMessage("HP/MP/CP обоих восстановлены. Бой через 1 секунду. Откаты использованных селфбафов сохраняются.");
                 return;
             }
             if (System.nanoTime() < s.combatAt || castsRunning(p) || castsRunning(b)) return;
@@ -629,9 +635,7 @@ public final class TrainingArena
         p.setCurrentHp(p.getMaxHp()); p.setCurrentMp(p.getMaxMp()); p.setCurrentCp(p.getMaxCp());
         p.broadcastUserInfo();
     }
-    private static void restoreForCombat(Player p)
-    { restoreResources(p); resetCombatCooldowns(p); }
-    static void resetCombatCooldowns(Player p)
+    static void resetPreparationCooldowns(Player p)
     {
         // Actual core APIs clear separate skill disabled/reuse maps. Item reuse,
         // active effects and skill levels are intentionally untouched.

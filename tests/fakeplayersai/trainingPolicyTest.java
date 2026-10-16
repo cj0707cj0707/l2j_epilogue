@@ -98,14 +98,14 @@ public final class trainingPolicyTest
         check(duel.checkEndDuelCondition() == DuelResult.TEAM_2_SURRENDER, "actual core: bot surrender team identity");
         field(bot, "_isOnline", false);
         check(duel.checkEndDuelCondition() == DuelResult.CANCELED, "actual core: disconnect cancels before surrender");
-        // Exercise actual core reset methods through production final-combat helper.
+        // Exercise actual core reset methods through production pre-selfbuff helper.
         Map<Integer,Long> disabled = new HashMap<>(); disabled.put(123, Long.MAX_VALUE);
         Map<Integer,Object> timestamps = new HashMap<>(); timestamps.put(123, null);
         Map<Integer,Object> itemReuse = new HashMap<>(); itemReuse.put(456, null);
         field(human, "_disabledSkills", disabled); field(human, "_reuseTimeStampsSkills", timestamps); field(human, "_reuseTimeStampsItems", itemReuse);
-        TrainingArena.resetCombatCooldowns(human);
-        check(disabled.isEmpty() && timestamps.isEmpty(), "final reset clears actual disabled and skill reuse maps");
-        check(itemReuse.size() == 1, "final reset preserves item reuse");
+        TrainingArena.resetPreparationCooldowns(human);
+        check(disabled.isEmpty() && timestamps.isEmpty(), "preparation reset clears actual disabled and skill reuse maps");
+        check(itemReuse.size() == 1, "preparation reset preserves item reuse");
         human.setDuelState(Duel.DUELSTATE_NODUEL); bot.setDuelState(Duel.DUELSTATE_NODUEL);
         check(duel.getWinner() == null, "actual core: restored states erase winner getter");
         captureOnceContract(human, bot, duel);

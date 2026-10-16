@@ -69,3 +69,48 @@ public static void main(String[] args){
 '''
     source=tmp/'TrainingSelfBuffPulse.java'; source.write_text(fixture)
     subprocess.run(['java',str(source)],cwd=tmp,check=True)
+    # Verbatim production grant/selection/known-skill application with actor doubles.
+    # This checks authorization, idempotence and learned levels, NOT live stat math.
+    grant=method('public static void applyTrainingClassBuffs(')
+    ids=method('static int[] trainingClassBuffIds(')
+    application=method('private static void applyOpeningSelfBuff(')
+    assert 'getKnownSkill(skillId)' in application and 'skill.applyEffects(player, player);' in application
+    for text in (grant,ids,application):
+        for forbidden in ('setCurrentHp(', 'addSkill(', 'getMaxLevel(', 'useMagic(', 'MagicSkillUse(', 'resetTimeStamps('):
+            assert forbidden not in text, forbidden
+    class_fixture='''
+import java.util.*;
+public class TrainingOrcBuffGrant {
+static int checks; static void check(boolean b){checks++;if(!b)throw new AssertionError("check "+checks);}
+static java.util.logging.Logger LOGGER=java.util.logging.Logger.getLogger("isolatedGrant");
+static class Skill {
+ int id,level; Skill(int i,int l){id=i;level=l;} int getId(){return id;} String getName(){return "Skill"+id;}
+ void applyEffects(Player p,Player target){check(p==target);p.active.add(id);p.applied.add(this);}
+}
+static class Player {
+ int cid; boolean human,online=true,dead,training=true; double hp=1000;
+ Map<Integer,Skill> known=new HashMap<>();Set<Integer> active=new HashSet<>();List<Skill> applied=new ArrayList<>();
+ Player(int c){cid=c;known.put(176,new Skill(176,3));known.put(420,new Skill(420,1030));}
+ Object getClient(){return human?this:null;} boolean isOnline(){return online;} boolean isAlikeDead(){return dead;}
+ String getName(){return "TrainingBot";} PlayerClass getPlayerClass(){return new PlayerClass(cid);} Skill getKnownSkill(int id){return known.get(id);}
+ Effects getEffectList(){return new Effects(active);}
+}
+record PlayerClass(int id){int getId(){return id;}}
+record Effects(Set<Integer> active){boolean isAffectedBySkill(int id){return active.contains(id);}}
+record BotClassPreset(int cid){int getClassId(){return cid;}}
+static class TrainingArena{static boolean isTrainingBot(Player p){return p.training;}}
+''' + grant + '\n' + ids + '\n' + application + '''
+public static void main(String[] args){
+ LOGGER.setLevel(java.util.logging.Level.OFF);
+ BotClassPreset titan=new BotClassPreset(113), gk=new BotClassPreset(114);
+ Player p=new Player(113);applyTrainingClassBuffs(p,titan);check(p.active.equals(Set.of(176,420)));check(p.applied.size()==2);check(p.applied.get(0)==p.known.get(176)&&p.applied.get(1)==p.known.get(420));check(p.applied.get(1).level==1030&&p.hp==1000);applyTrainingClassBuffs(p,titan);check(p.applied.size()==2);
+ p=new Player(114);applyTrainingClassBuffs(p,gk);check(p.active.equals(Set.of(420)));check(p.applied.size()==1&&p.applied.get(0).level==1030);
+ for(int gate=0;gate<5;gate++){p=new Player(113);switch(gate){case 0:p.human=true;break;case 1:p.training=false;break;case 2:p.dead=true;break;case 3:p.online=false;break;default:p.cid=114;}applyTrainingClassBuffs(p,titan);check(p.applied.isEmpty());}
+ p=new Player(113);p.known.remove(176);applyTrainingClassBuffs(p,titan);check(p.active.equals(Set.of(420)));check(!p.known.containsKey(176));
+ p=new Player(113);applyTrainingClassBuffs(p,null);check(p.applied.isEmpty());applyTrainingClassBuffs(null,titan);
+ for(int cid:new int[]{88,90,91,92,93,94,95,101,102,103,106,108,109,110,115,131}){p=new Player(cid);applyTrainingClassBuffs(p,new BotClassPreset(cid));check(p.applied.isEmpty());}
+ System.out.println("PASS: "+checks+" isolated verbatim-production Orc buff grant checks; no live effect simulation");
+}}
+'''
+    source=tmp/'TrainingOrcBuffGrant.java'; source.write_text(class_fixture)
+    subprocess.run(['java',str(source)],cwd=tmp,check=True)

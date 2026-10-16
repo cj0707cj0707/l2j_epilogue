@@ -32,6 +32,8 @@ public final class giranServicesTest
         check(trainingHelp.contains("10–60 сек.") && trainingHelp.contains("по умолчанию 10"));
         check(trainingHelp.contains("85 уровня") && trainingHelp.contains("настройками снаряжения и заточки умений"));
         check(trainingHelp.contains("за 1 сек. до начала боя") && trainingHelp.contains("не после боя"));
+        check(trainingHelp.contains("Откаты обоих сбрасываются ДО таймера селфбафов"));
+        check(trainingHelp.contains("Frenzy + Zealot") && trainingHelp.contains("кастетчик — Zealot"));
         check(trainingHelp.contains("без минимального HP/CP/MP") && trainingHelp.contains("бафы и дебафы снимаются"));
         check(trainingHelp.contains("42705/188869/-3513") && trainingHelp.contains("44112/188116/-3513"));
         check(trainingHelp.contains("кастует разрешённые классовые селфбафы") && trainingHelp.contains("1600"));

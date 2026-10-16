@@ -28,6 +28,8 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 ## Последнее обновление
 
+[26. Откаты до таймера селфбафов и тренировочные Frenzy/Zealot](26-training-prep-cooldowns-and-orc-buffs.md) — ранний reset обоих; финальная секунда восстанавливает только ресурсы.
+
 [25. Берсеркер: простой после Rush Impact на тренировке](25-training-berserker-post-rush.md) — отличие от олимпийского драйвера, серия навыков и обычное давление между откатами.
 
 [24. Тренировка: вход, подготовка, восстановление и возврат](24-training-preparation-location-and-return.md) — без порога ресурсов, очистка прежних эффектов, реальные селфкасты бота, финальный reset обоих, порт Гирана и устранение повторных остановок.
@@ -66,6 +68,7 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 | [23-bounded-fear-movement.md](23-bounded-fear-movement.md) | Короткие шаги страха вокруг исходной точки, общий handler и регрессии |
 | [24-training-preparation-location-and-return.md](24-training-preparation-location-and-return.md) | Актуальные правила/файлы тренировки, scoped PeaceZone, подготовка/восстановление, возврат без повторного стопа |
 | [25-training-berserker-post-rush.md](25-training-berserker-post-rush.md) | Берсеркер на тренировке: приоритет серии после Rush и устранение простоя |
+| [26-training-prep-cooldowns-and-orc-buffs.md](26-training-prep-cooldowns-and-orc-buffs.md) | Сброс откатов до подготовки, тренировочные бафы Titan/Grand Khavatari |
 
 ## Куда смотреть при типовых задачах
 

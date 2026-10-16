@@ -40,6 +40,13 @@ public final class trainingSelfBuffTest
             check(BotSpawner.trainingPreparationSkillAllowed(s));
         }
         check(!BotSpawner.applyTrainingPreparationSelfBuffs(null,null));
+        check(java.util.Arrays.equals(BotSpawner.trainingClassBuffIds(113),new int[]{176,420}));
+        check(java.util.Arrays.equals(BotSpawner.trainingClassBuffIds(114),new int[]{420}));
+        for(int cid:new int[]{88,90,91,92,93,94,95,101,102,103,106,108,109,110,115,131,-1,0})
+            check(BotSpawner.trainingClassBuffIds(cid).length==0);
+        int[] isolated=BotSpawner.trainingClassBuffIds(113); isolated[0]=0;
+        check(BotSpawner.trainingClassBuffIds(113)[0]==176);
+        BotSpawner.applyTrainingClassBuffs(null,null);
         System.out.println("PASS: "+checks+" production training selfbuff eligibility checks (real Skill API; no live actors)");
     }
 }
