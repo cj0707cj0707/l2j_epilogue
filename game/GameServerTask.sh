@@ -4,8 +4,11 @@
 #  0 normal shutdown
 #  2 reboot attempt
 
+cd -- "$(dirname -- "$0")" || exit 1
+mkdir -p log || exit 1
+
 # Install/verify before launch; do not run an unpatched or unknown core.
-java -cp "../libs/*" core-patches/debuff-no-refresh/InstallDebuffGuard.java ../libs/GameServer.jar core-patches/debuff-no-refresh/DebuffCategoryGuard.java || exit 1
+{ java -version; java --class-path "." -Dfile.encoding=UTF-8 core-patches/debuff-no-refresh/InstallDebuffGuard.java ../libs/GameServer.jar core-patches/debuff-no-refresh/DebuffCategoryGuard.java; } > log/debuff-guard-install.log 2>&1 || { cat log/debuff-guard-install.log >&2; exit 1; }
 
 while :; do
 	[ -f log/java0.log.0 ] && mv log/java0.log.0 "log/`date +%Y-%m-%d_%H-%M-%S`_java.log"

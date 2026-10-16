@@ -42,6 +42,7 @@
 |---|---|
 | `game/core-patches/debuff-no-refresh/DebuffCategoryGuard.java` | Общая политика категорий по реальным эффектам/флагам/слотам, без собственного таймера и кэша целей |
 | `game/core-patches/debuff-no-refresh/InstallDebuffGuard.java` | Проверка совместимости, минимальное преобразование classfile, резерв, атомарная установка и повторная проверка |
+| `game/InstallDebuffGuard.cmd` | Общая Windows-команда установки без целевого JAR в application classpath; сохраняет версию Java, диагностику и код возврата |
 | `game/GameServer.vbs`, `game/GameServerWindow.vbs` | Проверка/установка перед запуском Windows GameServer |
 | `game/GameServerTask.sh` | Та же обязательная проверка перед Unix-циклом запуска |
 | `tests/fakeplayersai/DebuffNoRefreshTest.java` | Настоящий пропатченный EffectList/Skill с изолированными фикстурами, идентичность таймера, категории и конкуренция |
@@ -50,6 +51,8 @@
 
 ## Установка
 
+Актуальное исправление Windows-запуска и журнал ошибок: [документ30](30-debuff-installer-windows-startup.md). Защита категорий остаётся обязательной; запуск без неё не используется как обход ошибки.
+
 1. Завершить тренировки/возвраты и остановить GameServer.
 2. Обновить репозиторий целиком, включая новые `game/core-patches/` и изменённые загрузчики.
 3. Требуется **Java25 JDK**, не урезанная JRE: установщик использует компилятор и стандартный Class-File API. Библиотеки сервера не скачиваются из интернета.
@@ -57,7 +60,7 @@
 5. Если сервер запускается ИНЫМ способом (панель, собственный BAT, прямой `java -jar`), сначала в каталоге `game` при остановленном сервере выполнить:
 
 ```bat
-java -cp "../libs/*" core-patches/debuff-no-refresh/InstallDebuffGuard.java ../libs/GameServer.jar core-patches/debuff-no-refresh/DebuffCategoryGuard.java
+java --class-path "." core-patches/debuff-no-refresh/InstallDebuffGuard.java ../libs/GameServer.jar core-patches/debuff-no-refresh/DebuffCategoryGuard.java
 ```
 
 Прямой запуск старого JAR в обход новых загрузчиков/установщика **не включает правило**. Успех установки помечается строкой `Installed debuff category guard v1` или `Debuff category guard v1 verified; already installed.`

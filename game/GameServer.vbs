@@ -1,17 +1,12 @@
-'Get Java path.
-Dim path
 Set shell = WScript.CreateObject("WScript.Shell")
-path = shell.Environment.Item("JAVA_HOME")
-If path = "" Then
-	MsgBox "Could not find JAVA_HOME environment variable!", vbOKOnly, "Game Server"
-Else
-	If InStr(path, "\bin") = 0 Then
-		path = path + "\bin\"
-	Else
-		path = path + "\"
-	End If
-	path = Replace(path, "\\", "\")
-	path = Replace(path, "Program Files", "Progra~1")
+Set fs = CreateObject("Scripting.FileSystemObject")
+shell.CurrentDirectory = fs.GetParentFolderName(WScript.ScriptFullName)
+Dim javaExe, javaHome
+javaHome = shell.Environment("PROCESS").Item("JAVA_HOME")
+javaExe = "java"
+If javaHome <> "" Then
+    javaExe = fs.BuildPath(javaHome, "bin\java.exe")
+    If Not fs.FileExists(javaExe) Then javaExe = fs.BuildPath(javaHome, "java.exe")
 End If
 
 'Load java.cfg parameters.
@@ -35,15 +30,23 @@ Set file = Nothing
 
 
 'Install/verify the hash-pinned core guard BEFORE starting GameServer. Fail closed.
-patchCommand = Chr(34) & path & "java" & Chr(34) & " -cp " & Chr(34) & "../libs/*" & Chr(34) & " core-patches/debuff-no-refresh/InstallDebuffGuard.java ../libs/GameServer.jar core-patches/debuff-no-refresh/DebuffCategoryGuard.java"
-patchExit = shell.Run(patchCommand, 1, True)
+patchCommand = "cmd.exe /d /c " & Chr(34) & Chr(34) & fs.BuildPath(shell.CurrentDirectory, "InstallDebuffGuard.cmd") & Chr(34) & Chr(34)
+patchExit = shell.Run(patchCommand, 0, True)
 If patchExit <> 0 Then
-    MsgBox "Debuff guard installation failed. GameServer was NOT started. Use Java 25 JDK; see structure/28-debuff-category-no-refresh.md. Run the installer in a console for details.", vbOKOnly + vbCritical, "Game Server"
+    logPath = fs.BuildPath(shell.CurrentDirectory, "log\debuff-guard-install.log")
+    detail = ""
+    If fs.FileExists(logPath) Then
+        Set logFile = fs.OpenTextFile(logPath, 1)
+        detail = logFile.ReadAll()
+        logFile.Close
+        detail = Right(detail, 2200)
+    End If
+    MsgBox "Debuff guard installation failed. GameServer was NOT started." & vbCrLf & "Exit code: " & patchExit & vbCrLf & "Full log: " & logPath & vbCrLf & vbCrLf & detail, vbOKOnly + vbCritical, "Game Server"
     WScript.Quit patchExit
 End If
 
 'Generate command.
-command = path & "java " & parameters & " -jar ../libs/GameServer.jar"
+command = Chr(34) & javaExe & Chr(34) & " " & parameters & " -jar ../libs/GameServer.jar"
 If window = 1 Then
 	command = "cmd /c start ""L2J Mobius - Game Server Console"" " & command
 End If

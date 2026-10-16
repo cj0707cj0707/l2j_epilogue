@@ -27,7 +27,7 @@ public class InstallDebuffGuard
     }
     public static void main(String[] args) throws Exception
     {
-        if(args.length!=2) throw new IllegalArgumentException("Usage: java -cp LIBS/* InstallDebuffGuard.java CORE.jar DebuffCategoryGuard.java (server must be stopped)");
+        if(args.length!=2) throw new IllegalArgumentException("Usage: java InstallDebuffGuard.java CORE.jar DebuffCategoryGuard.java (server must be stopped)");
         Path core=Path.of(args[0]).toAbsolutePath(), source=Path.of(args[1]).toAbsolutePath();
         // A separate lock file serializes concurrent launcher attempts; never silently launch an unpatched core.
         try(var lockChannel=FileChannel.open(core.resolveSibling(".debuff-guard-install.lock"),StandardOpenOption.CREATE,StandardOpenOption.WRITE);
@@ -52,13 +52,31 @@ public class InstallDebuffGuard
             try
             {
                 byte[] patched;
-                try(var jar=new JarFile(core.toFile())) { patched=patch(entry(jar,EFFECT)); }
+                // Parse hierarchy bytes without loading server classes into the application
+                // classloader (which would pin the replacement target on Windows).
+                Map<String,byte[]> hierarchy=new HashMap<>();
+                try(var jar=new JarFile(core.toFile()))
+                {
+                    for(var e:jar.stream().filter(e->e.getName().endsWith(".class")).toList())
+                        hierarchy.put(e.getName(),entry(jar,e.getName()));
+                    patched=patch(entry(jar,EFFECT),hierarchy);
+                }
                 Path target=temp.resolve(EFFECT);Files.createDirectories(target.getParent());Files.write(target,patched);
                 // Compile against the transformed EffectList's internal bridges,
                 // then the exact original core. No reflection in the runtime path.
-                String cp=temp+File.pathSeparator+core+File.pathSeparator+core.getParent().resolve("*");
-                int status=ToolProvider.getSystemJavaCompiler().run(null,System.out,System.err,"-cp",cp,"-d",temp.toString(),source.toString());
-                if(status!=0) throw new IOException("Debuff guard compilation failed: "+status);
+                var classpath=new ArrayList<Path>();classpath.add(temp);classpath.add(core);
+                try(var files=Files.list(core.getParent()))
+                {files.filter(p->p.toString().endsWith(".jar")&&!p.equals(core)).sorted().forEach(classpath::add);}
+                // Explicitly close javac's archive/file caches BEFORE atomic replacement.
+                var compiler=ToolProvider.getSystemJavaCompiler();
+                try(var files=compiler.getStandardFileManager(null,Locale.ROOT,java.nio.charset.StandardCharsets.UTF_8))
+                {
+                    files.setLocationFromPaths(javax.tools.StandardLocation.CLASS_PATH,classpath);
+                    var units=files.getJavaFileObjectsFromPaths(List.of(source));
+                    if(!compiler.getTask(new PrintWriter(System.err,true),files,null,
+                        List.of("-encoding","UTF-8","-d",temp.toString()),null,units).call())
+                        throw new IOException("Debuff guard compilation failed (see diagnostics above)");
+                }
                 try(var generated=Files.walk(temp)){if(generated.filter(p->p.toString().endsWith(".class")).count()!=2)throw new IOException("Unexpected compiler-generated helper classes");}
                 byte[] helper=Files.readAllBytes(temp.resolve(GUARD));
                 Properties props=new Properties(); props.setProperty("base",BASE);props.setProperty("source",sourceHash);
@@ -98,9 +116,17 @@ public class InstallDebuffGuard
             finally {try(var paths=Files.walk(temp)){for(Path p:paths.sorted(Comparator.reverseOrder()).toList())Files.deleteIfExists(p);}}
         }
     }
-    static byte[] patch(byte[] original)
+    static byte[] patch(byte[] original, Map<String,byte[]> hierarchy)
     {
-        ClassFile cf=ClassFile.of(); int[] calls={0};
+        var resolver=ClassHierarchyResolver.ofResourceParsing((ClassDesc type)->
+        {
+            String descriptor=type.descriptorString();
+            String resource=descriptor.substring(1,descriptor.length()-1)+".class";
+            byte[] bytes=hierarchy.get(resource);
+            return bytes!=null ? new ByteArrayInputStream(bytes)
+                : ClassLoader.getPlatformClassLoader().getResourceAsStream(resource);
+        });
+        ClassFile cf=ClassFile.of(ClassFile.ClassHierarchyResolverOption.of(resolver)); int[] calls={0};
         ClassDesc list=ClassDesc.of("org.l2jmobius.gameserver.entity.actor.holders.creature.EffectList");
         ClassDesc owner=ClassDesc.of("org.l2jmobius.gameserver.entity.actor.Creature");
         ClassDesc helper=ClassDesc.of("org.l2jmobius.gameserver.mechanics.skill.DebuffCategoryGuard");
