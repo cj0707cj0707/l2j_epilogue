@@ -29,6 +29,8 @@ static class Player {
  boolean isInOlympiadMode(){return olympiad;}boolean isOlympiadStart(){return started;}boolean isMageClass(){return mage;}boolean isAffectedBySkill(int id){return active.contains(id);}
 }
 record Skill(int id){int getId(){return id;}boolean isDance(){return false;}}
+// This existing fixture isolates heal/exclusivity; the real role gate is tested by tank_ranged_defense_tests.py.
+static boolean tankMovementDefenseAllowed(Player enemy,Skill skill){return true;}
 static boolean isOpenerOnlySkill(int id){return false;}static boolean isTacticalTank(Player p){return p.tank;}
 static boolean isTankDefenseSkill(int id){return containsId(TANK_DEFENSE_ALL,id);}static boolean isChantOfVictoryFamily(int id){return false;}
 static boolean isLongSelfBuff(Player p,int id){return false;}static boolean containsId(int[] list,int id){return Arrays.stream(list).anyMatch(v->v==id);}

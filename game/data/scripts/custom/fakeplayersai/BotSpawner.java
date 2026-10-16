@@ -18,6 +18,7 @@ import org.l2jmobius.gameserver.entity.World;
 import org.l2jmobius.gameserver.entity.WorldObject;
 import org.l2jmobius.gameserver.entity.actor.Creature;
 import org.l2jmobius.gameserver.entity.actor.Player;
+import org.l2jmobius.gameserver.entity.actor.enums.player.PlayerClass;
 import org.l2jmobius.gameserver.entity.actor.Summon;
 import org.l2jmobius.gameserver.entity.actor.appearance.PlayerAppearance;
 import org.l2jmobius.gameserver.entity.actor.holders.player.AutoPlaySettingsHolder;
@@ -1266,6 +1267,7 @@ public class BotSpawner
 		// includes buffs with 3 or fewer seconds left). refreshAutoBuffs prunes
 		// them right away; the next combat tick puts them back once they end.
 		refreshAutoBuffs(player, preset);
+		pruneRangedTankSupports(player, player.getTarget());
 		aus.setAutoPotionItem(BotPresets.getPotionId());
 		aus.getAutoSupplyItems().clear();
 		
@@ -1344,6 +1346,7 @@ public class BotSpawner
 			return;
 		}
 
+		pruneRangedTankSupports(player, player.getTarget());
 		final Collection<Integer> autoBuffs = player.getAutoUseSettings().getAutoBuffs();
 		if (OlympiadChase.isPursuing(player.getObjectId()) || BotTactics.isOwned(player.getObjectId()))
 		{
@@ -1408,7 +1411,8 @@ public class BotSpawner
 			}
 			if (!autoBuffs.contains(skillId) && !isSelfBuffApplied(player, skillId) && (player.getKnownSkill(skillId) != null)
 				&& !(inOlympiad && isOpenerOnlySkill(skillId))
-				&& !(activeMatch && isLongSelfBuff(player, skillId)))
+				&& !(activeMatch && isLongSelfBuff(player, skillId))
+				&& (!tankBot || tankMovementDefenseAllowed(player.getTarget(), player.getKnownSkill(skillId))))
 			{
 				autoBuffs.add(skillId);
 			}
@@ -1458,6 +1462,8 @@ public class BotSpawner
 		{
 			return;
 		}
+
+		pruneRangedTankSupports(player, opponent);
 
 		// Vengeance belongs to the defense pool from now on: the rotation engine must
 		// never cast it (it would stack a second defense buff over the active one).
@@ -1521,7 +1527,7 @@ public class BotSpawner
 				continue;
 			}
 			final Skill skill = player.getKnownSkill(skillId);
-			if (skill == null)
+			if (skill == null || !tankMovementDefenseAllowed(opponent, skill))
 			{
 				continue;
 			}
@@ -1730,6 +1736,56 @@ public class BotSpawner
     public static boolean isStrongTankDefenseSkill(int skillId)
     { return skillId == 110 || skillId == VENGEANCE_ID || skillId == 760; }
 
+    /** Class/weapon role, not distance or the currently equipped weapon: disarm must not
+     * turn a known archer into a melee opponent. Unknown roles use the core range. */
+    private static boolean isRangedTankOpponent(WorldObject opponent)
+    {
+        if (opponent == null || !opponent.isCreature()) return false;
+        final Creature enemy = opponent.asCreature();
+        if (!enemy.isPlayer()) return enemy.getPhysicalAttackRange() >= 250;
+        final Player player = enemy.asPlayer();
+        // Cover real human archer/crossbow families even when no bot preset exists.
+        final PlayerClass playerClass = player.getPlayerClass();
+        if (playerClass.equalsOrChildOf(PlayerClass.HAWKEYE) || playerClass.equalsOrChildOf(PlayerClass.SILVER_RANGER)
+            || playerClass.equalsOrChildOf(PlayerClass.PHANTOM_RANGER) || playerClass.equalsOrChildOf(PlayerClass.ARBALESTER)) return true;
+        final BotClassPreset preset = BotPresets.getPresetByClassId(player.getPlayerClass().getId());
+        return !TacticsPolicy.meleeOpponent(preset != null, preset != null && preset.isCaster(),
+            preset != null && (preset.getWeaponKind() == BotClassPreset.WeaponKind.BOW || preset.getWeaponKind() == BotClassPreset.WeaponKind.CROSSBOW),
+            player.isMageClass(), player.getPhysicalAttackRange());
+    }
+
+    private static boolean isMovementRestrictingTankSupport(Skill skill)
+    {
+        if (skill == null) return false;
+        // Also reject the Decrease Penalty enchants of UD/Vengeance, not just base ImmobileBuff.
+        if (skill.getId() == 110 || skill.getId() == VENGEANCE_ID) return true;
+        for (EffectScope scope : new EffectScope[] { EffectScope.GENERAL, EffectScope.SELF, EffectScope.PVP })
+        {
+            final var effects = skill.getEffects(scope);
+            if (effects != null) for (AbstractEffect effect : effects)
+                if (effect != null && ("ImmobileBuff".equals(effect.getName()) || "Root".equals(effect.getName()))) return true;
+        }
+        return false;
+    }
+
+    private static boolean tankMovementDefenseAllowed(WorldObject opponent, Skill skill)
+    {
+        return !isRangedTankOpponent(opponent) || !isMovementRestrictingTankSupport(skill);
+    }
+
+    /** Prune future legacy casts, including saved overrides; never remove active effects
+     * or abort a real cast. Offensive ONE-target Root/Stun remains in the rotation. */
+    private static void pruneRangedTankSupports(Player player, WorldObject opponent)
+    {
+        if (!isTacticalTank(player) || !isRangedTankOpponent(opponent)) return;
+        player.getAutoUseSettings().getAutoBuffs().removeIf(id -> !tankMovementDefenseAllowed(opponent, player.getKnownSkill(id)));
+        player.getAutoUseSettings().getAutoSkills().removeIf(id -> {
+            final Skill skill = player.getKnownSkill(id);
+            final boolean selfSupport = skill != null && (isTankDefenseSkill(id) || skill.getTargetType() == TargetType.SELF || skill.hasEffects(EffectScope.SELF));
+            return selfSupport && !tankMovementDefenseAllowed(opponent, skill);
+        });
+    }
+
     public static int[] getTacticalDefenses(Player player, Player enemy)
     {
         if (!isTacticalTank(player)) return new int[0];
@@ -1738,7 +1794,7 @@ public class BotSpawner
         int[] pool = enemy != null && enemy.isMageClass() ? TANK_DEFENSE_MAGIC : TANK_DEFENSE_PHYSICAL;
         java.util.List<Integer> result = new java.util.ArrayList<>();
         for (int id : pool)
-            if (player.getKnownSkill(id) != null && (id == VENGEANCE_ID || (!preset.hasBuffsOverride() && !preset.hasRotationOverride()) || containsId(preset.getBuffs(), id) || containsId(preset.getRotation(), id))) result.add(id);
+            if (player.getKnownSkill(id) != null && tankMovementDefenseAllowed(enemy, player.getKnownSkill(id)) && (id == VENGEANCE_ID || (!preset.hasBuffsOverride() && !preset.hasRotationOverride()) || containsId(preset.getBuffs(), id) || containsId(preset.getRotation(), id))) result.add(id);
         return result.stream().mapToInt(Integer::intValue).toArray();
     }
 
@@ -1750,6 +1806,7 @@ public class BotSpawner
 			if (!player.isOlympiadStart() || isChantOfVictoryFamily(skill.getId()) || skill.isDance()
 				|| (self && isLongSelfBuff(player, skill.getId()))) return false;
 		}
+		if (isTacticalTank(player) && self && !tankMovementDefenseAllowed(enemy, skill)) return false;
 		if (isTacticalTank(player) && isTankDefenseSkill(skill.getId()))
 		{
 			final int[] pool = enemy != null && enemy.isMageClass() ? TANK_DEFENSE_MAGIC : TANK_DEFENSE_PHYSICAL;
