@@ -374,7 +374,11 @@ public class BotPresets
 			},
 			new int[]
 			{
-				500, 482, 499, 625, 502, 917
+				// 833 = Body Reconstruction: Berserker/Doombringer self-heal. Listed here so
+				// BotTactics.act() finds it in the skills map. An explicit guard in act()
+				// skips it when hp >= 0.30, enforcing the HP < 30% threshold in both
+				// training (tick -> act) and olympiad (tickDefense -> act defenseOnly=true).
+				500, 482, 499, 625, 502, 917, 833
 			});
 	}
 	

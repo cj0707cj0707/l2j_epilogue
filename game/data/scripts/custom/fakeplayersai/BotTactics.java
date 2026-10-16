@@ -384,6 +384,11 @@ public final class BotTactics
 		for (Skill skill : skills.values())
 		{
 			if (BotSpawner.isOpenerOnlySkill(skill.getId())) { continue; } // training as well as ranked
+			// Body Reconstruction (833): Doombringer-exclusive HP-threshold self-heal.
+			// Only activate when bot HP drops below 30%; the HEAL kind scoring handles
+			// urgency. Applies to both training (defenseOnly=false) and olympiad
+			// (defenseOnly=true via tickDefense) paths.
+			if (skill.getId() == 833 && preset.getClassId() == 131 && hp >= 0.30) { continue; }
 			if (trainingRushActive && skill.getId() != 793) { continue; }
 			final boolean timedPool = timedTank && BotSpawner.isTankDefenseSkill(skill.getId());
 			if (timedPool && !s.tankDefense.due(time)) { continue; }
