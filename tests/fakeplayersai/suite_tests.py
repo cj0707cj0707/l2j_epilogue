@@ -65,7 +65,7 @@ assert '"profile","custom"); // legacy equal' in npc and 'return "custom";' in n
 assert '10–60 сек.' in npc and '30–60' not in npc and 'Сброса откатов игрока нет' not in npc
 assert 'те же настройки снаряжения и заточки умений' in npc and 'Бот 85 уровня' in npc
 assert 'Откаты обоих сбрасываются ДО таймера селфбафов' in npc and 'не в конце боя' in npc
-assert 'За 1 сек. до боя восстанавливаются только HP/CP/MP' in npc
+assert '70% HP, 15% CP, 100% MP' in npc and 'И игрок, и бот своего класса' in npc
 assert 'Frenzy + Zealot' in npc and 'кастетчик — Zealot' in npc
 assert 'Без минимального HP/CP/MP' in npc and 'При входе снимаются прежние эффекты' in npc
 assert '42705/188869/-3513' in npc and '44112/188116/-3513' in npc

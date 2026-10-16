@@ -82,7 +82,7 @@ assert 'getItemReuseTimeStamps' not in t and 'resetPreparationCooldowns' not in 
 assert t.count('resetPreparationCooldowns(p); resetPreparationCooldowns(b);') == 1, 'exactly one both-participant prep reset call site'
 assert t.index('resetPreparationCooldowns(p); resetPreparationCooldowns(b);') < t.index('p.enableAllSkills(); b.enableAllSkills(); // both') < t.index('s.preparationUntil = System.nanoTime()')
 assert 'resetPreparationCooldowns' not in prep and 'restoreForCombat' not in t, 'no second reset after selfbuffs'
-assert t.count('BotSpawner.applyTrainingClassBuffs(') == 1
+assert t.count('BotSpawner.applyTrainingClassBuffs(') == 2
 assert t.index('s.openersApplied = true;') < t.index('BotSpawner.applyTrainingClassBuffs(') < t.index('BotSpawner.applyPreCombatOpeners(') < t.index('s.active = true')
 assert 'ON_CREATURE_TELEPORTED' in t and 'returnAcknowledged' in t
 assert 'p.getAI().notifyActionCancel();' in t and 'p.getAI().setNextAction(null);' in t
@@ -137,3 +137,8 @@ with tempfile.TemporaryDirectory(prefix='training-check-') as d:
     print('PASS: full custom scripts compiled against actual libs/*.jar', flush=True)
     subprocess.run(['java', '-cp', str(tmp / 'classes') + os.pathsep + cp,
                     'custom.fakeplayersai.trainingPolicyTest'], cwd=tmp, check=True)
+
+assert 'BotSpawner.applyTrainingClassBuffs(p, BotPresets.getPresetByClassId(p.getPlayerClass().getId()));' in prep
+assert 'p.getMaxHp() * trainingHpFraction(classId)' in t
+assert 'p.getMaxCp() * trainingCpFraction(classId)' in t
+assert 'p.setCurrentMp(p.getMaxMp());' in t

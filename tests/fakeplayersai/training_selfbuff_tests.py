@@ -88,7 +88,7 @@ static class Skill {
  void applyEffects(Player p,Player target){check(p==target);p.active.add(id);p.applied.add(this);}
 }
 static class Player {
- int cid; boolean human,online=true,dead,training=true; double hp=1000;
+ int cid; boolean human,online=true,dead,training=true,participant; double hp=1000;
  Map<Integer,Skill> known=new HashMap<>();Set<Integer> active=new HashSet<>();List<Skill> applied=new ArrayList<>();
  Player(int c){cid=c;known.put(176,new Skill(176,3));known.put(420,new Skill(420,1030));}
  Object getClient(){return human?this:null;} boolean isOnline(){return online;} boolean isAlikeDead(){return dead;}
@@ -98,14 +98,15 @@ static class Player {
 record PlayerClass(int id){int getId(){return id;}}
 record Effects(Set<Integer> active){boolean isAffectedBySkill(int id){return active.contains(id);}}
 record BotClassPreset(int cid){int getClassId(){return cid;}}
-static class TrainingArena{static boolean isTrainingBot(Player p){return p.training;}}
+static class TrainingArena{static boolean isTrainingBot(Player p){return p.training;} static boolean isParticipant(Player p){return p.participant;}}
 ''' + grant + '\n' + ids + '\n' + application + '''
 public static void main(String[] args){
  LOGGER.setLevel(java.util.logging.Level.OFF);
  BotClassPreset titan=new BotClassPreset(113), gk=new BotClassPreset(114);
  Player p=new Player(113);applyTrainingClassBuffs(p,titan);check(p.active.equals(Set.of(176,420)));check(p.applied.size()==2);check(p.applied.get(0)==p.known.get(176)&&p.applied.get(1)==p.known.get(420));check(p.applied.get(1).level==1030&&p.hp==1000);applyTrainingClassBuffs(p,titan);check(p.applied.size()==2);
  p=new Player(114);applyTrainingClassBuffs(p,gk);check(p.active.equals(Set.of(420)));check(p.applied.size()==1&&p.applied.get(0).level==1030);
- for(int gate=0;gate<5;gate++){p=new Player(113);switch(gate){case 0:p.human=true;break;case 1:p.training=false;break;case 2:p.dead=true;break;case 3:p.online=false;break;default:p.cid=114;}applyTrainingClassBuffs(p,titan);check(p.applied.isEmpty());}
+ for(int gate=0;gate<5;gate++){p=new Player(113);switch(gate){case 0:p.human=true;p.training=false;break;case 1:p.training=false;break;case 2:p.dead=true;break;case 3:p.online=false;break;default:p.cid=114;}applyTrainingClassBuffs(p,titan);check(p.applied.isEmpty());}
+ for(int cid:new int[]{113,114}){p=new Player(cid);p.human=true;p.training=false;p.participant=true;applyTrainingClassBuffs(p,new BotClassPreset(cid));check(p.active.equals(cid==113?Set.of(176,420):Set.of(420)));check(p.hp==1000);applyTrainingClassBuffs(p,new BotClassPreset(cid));check(p.applied.size()==(cid==113?2:1));}
  p=new Player(113);p.known.remove(176);applyTrainingClassBuffs(p,titan);check(p.active.equals(Set.of(420)));check(!p.known.containsKey(176));
  p=new Player(113);applyTrainingClassBuffs(p,null);check(p.applied.isEmpty());applyTrainingClassBuffs(null,titan);
  for(int cid:new int[]{88,90,91,92,93,94,95,101,102,103,106,108,109,110,115,131}){p=new Player(cid);applyTrainingClassBuffs(p,new BotClassPreset(cid));check(p.applied.isEmpty());}

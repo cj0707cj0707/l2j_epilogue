@@ -2229,3 +2229,8 @@ Vicious Stance 312) стоят на 1-м уровне; скиллы, попад�
 ## Подготовка: ранний reset и бафы орков
 
 [26. Откаты до таймера и тренировочные Frenzy/Zealot](26-training-prep-cooldowns-and-orc-buffs.md): `resetPreparationCooldowns` у обоих до подготовки, последняя секунда лечит только ресурсы; `BotSpawner.applyTrainingClassBuffs` выдаёт изученные176+420 Титану и420 кастетчику в однократном предбоевом окне.
+
+
+### Игроки Titan/Grand Khavatari в тренировке
+
+[27](27-training-orc-player-buffs-and-resources.md): классовые Frenzy/Zealot выдаются и человеку; фактический класс113/114 получает70% HP,15% CP,100% MP при входе и финальной подготовке. Остальные полностью. Откаты по-прежнему до таймера.

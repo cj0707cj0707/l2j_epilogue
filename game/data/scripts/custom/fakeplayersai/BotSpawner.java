@@ -1873,13 +1873,13 @@ public class BotSpawner
     }
 
     /** Explicit training-only bonus requested for the two Orc fighter presets.
-     * Apply the bot's learned/enhanced effects in the owning T-3 opener window.
+     * Apply each participant's learned/enhanced effects in the owning T-3 opener window.
      * This is a supplied buff, not an illegal full-HP cast: no HP manipulation,
      * condition/XML edits, invented skill levels or repeated combat refresh. */
     public static void applyTrainingClassBuffs(Player bot, BotClassPreset preset)
     {
-        if (bot == null || preset == null || bot.getClient() != null || !bot.isOnline()
-            || bot.isAlikeDead() || !TrainingArena.isTrainingBot(bot)
+        if (bot == null || preset == null || !bot.isOnline()
+            || bot.isAlikeDead() || !(TrainingArena.isTrainingBot(bot) || TrainingArena.isParticipant(bot))
             || bot.getPlayerClass().getId() != preset.getClassId()) return;
         for (int id : trainingClassBuffIds(preset.getClassId())) applyOpeningSelfBuff(bot, id);
     }

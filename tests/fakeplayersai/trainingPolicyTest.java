@@ -204,6 +204,12 @@ public final class trainingPolicyTest
     }
     public static void main(String[] args) throws Exception
     {
+        for (int cid = 0; cid <= 140; cid++) {
+            boolean orc = cid == 113 || cid == 114;
+            check(TrainingArena.trainingHpFraction(cid) == (orc ? 0.70 : 1.0), "class HP fraction " + cid);
+            check(TrainingArena.trainingCpFraction(cid) == (orc ? 0.15 : 1.0), "class CP fraction " + cid);
+        }
+
         check("normal".equals(TrainingArena.option(" Normal ", "normal", "experienced", "strong")), "difficulty normalization");
         check("experienced".equals(TrainingArena.option("EXPERIENCED", "normal", "experienced", "strong")), "experienced accepted");
         check("strong".equals(TrainingArena.option("strong", "normal", "experienced", "strong")), "strong accepted");

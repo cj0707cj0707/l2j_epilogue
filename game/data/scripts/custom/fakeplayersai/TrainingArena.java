@@ -236,7 +236,7 @@ public final class TrainingArena
     {
         if (p == null) return "Персонаж недоступен. Перезайдите в игру.";
         Session s = SESSIONS.get(p.getObjectId());
-        if (s == null) return "Личная нерейтинговая тренировка: " + preparationSeconds(TacticalSettings.getTrainingPreparationSeconds()) + " сек. на селфбаф после запуска дуэли. При входе прежние эффекты очищаются. Оба участника получают 13 базовых бафов и олимпийский профиль класса; бот кастует разрешённые селфбафы во время подготовки. Общий лимит дуэли 120 сек., включая подготовку. Наград и очков нет. Бот 85 уровня использует те же настройки снаряжения и заточки умений, что и рейтинговые боты. Порога HP/MP/CP нет. Откаты обоих сбрасываются перед таймером селфбафов, не после него. За секунду до боя восстанавливаются только HP/MP/CP. Титан получает Frenzy и Zealot, кастетчик — Zealot. При выходе сброса нет.";
+        if (s == null) return "Личная нерейтинговая тренировка: " + preparationSeconds(TacticalSettings.getTrainingPreparationSeconds()) + " сек. на селфбаф после запуска дуэли. При входе прежние эффекты очищаются. Оба участника получают 13 базовых бафов и олимпийский профиль класса; бот кастует разрешённые селфбафы во время подготовки. Общий лимит дуэли 120 сек., включая подготовку. Наград и очков нет. Бот 85 уровня использует те же настройки снаряжения и заточки умений, что и рейтинговые боты. Порога HP/MP/CP нет. Откаты обоих сбрасываются перед таймером селфбафов, не после него. За секунду до боя: Титан/кастетчик — 70% HP, 15% CP, 100% MP; остальные — 100%. И игрок, и бот своего класса получают: Титан — Frenzy и Zealot, кастетчик — Zealot. При выходе сброса нет.";
         return (s.stopping ? "Выход: " : s.active ? "Бой: " : "Подготовка: ") + BotPresets.getPresetByClassId(s.choice.classId).getClassName() + ", " + s.choice.difficulty + ", " + s.choice.profile + ". Личная арена " + (s.instance == null ? "создаётся" : s.instance.getId()) + ". Без рейтинга и наград.";
     }
     public static String leave(Player p)
@@ -350,7 +350,7 @@ public final class TrainingArena
                     // Recheck before the explicitly destructive, journaled entry.
                     if (startingDuelPending(p, STARTING_DUEL) || p.isInDuel()) throw new IllegalStateException("Another core duel began during setup");
                     p.stopAllEffects(); s.bot.stopAllEffects();
-                    restoreResources(p); restoreResources(s.bot); // core's later snapshot must not contain old low HP/MP/CP
+                    restoreResources(p); restoreResources(s.bot); // class resource baseline for the core snapshot, not old entry values
                     s.bot.setInvul(true); s.bot.setImmobilized(true); s.bot.disableAllSkills();
                     p.setTradeRefusal(true); p.setInventoryBlockingStatus(true); p.disableAllSkills(); p.setInvul(true); p.setImmobilized(true);
                     p.teleToLocation(HX, HY, CZ, p.getHeading(), s.instance.getId());
@@ -523,7 +523,7 @@ public final class TrainingArena
             // Start AFTER buff work and skill unlock: a slow application never shortens prep.
             s.preparationUntil = System.nanoTime() + preparationSeconds(TacticalSettings.getTrainingPreparationSeconds()) * 1_000_000_000L;
             s.preparationStarted = true;
-            p.sendMessage("Выданы 13 базовых бафов и олимпийский профиль класса. Откаты обоих сброшены ДО таймера селфбафов. Подготовка: бафайте себя, атаковать нельзя. Перед боем — полное восстановление HP/MP/CP без повторного сброса откатов, затем защищённая 1 секунда.");
+            p.sendMessage("Выданы 13 базовых бафов и олимпийский профиль класса. Откаты обоих сброшены ДО таймера селфбафов. Подготовка: бафайте себя, атаковать нельзя. Перед боем — восстановление без повторного сброса откатов: Титан/кастетчик 70% HP, 15% CP, 100% MP; остальные 100%. Затем защищённая 1 секунда.");
         }
         if (!p.isInDuel() || !b.isInDuel() || s.duel.getFinished() || p.getDuelState() != Duel.DUELSTATE_DUELLING || b.getDuelState() != Duel.DUELSTATE_DUELLING)
         {
@@ -557,6 +557,7 @@ public final class TrainingArena
             if (openerWindow(s.openersApplied, s.stopping, s.active, remaining, casting))
             {
                 s.openersApplied = true;
+                BotSpawner.applyTrainingClassBuffs(p, BotPresets.getPresetByClassId(p.getPlayerClass().getId()));
                 BotSpawner.applyTrainingClassBuffs(b, BotPresets.getPresetByClassId(s.choice.classId));
                 BotSpawner.applyPreCombatOpeners(b, BotPresets.getPresetByClassId(s.choice.classId));
                 s.preparationUntil = Math.max(s.preparationUntil, System.nanoTime() + 3_000_000_000L);
@@ -582,7 +583,7 @@ public final class TrainingArena
                 s.finalSnapshotApplied = true;
                 restoreResources(p); restoreResources(b);
                 s.combatAt = System.nanoTime() + 1_000_000_000L;
-                p.sendMessage("HP/MP/CP обоих восстановлены. Бой через 1 секунду. Откаты использованных селфбафов сохраняются.");
+                p.sendMessage("Ресурсы восстановлены по классу: Титан/кастетчик 70% HP, 15% CP, 100% MP; остальные 100%. Бой через 1 секунду. Откаты использованных селфбафов сохраняются.");
                 return;
             }
             if (System.nanoTime() < s.combatAt || castsRunning(p) || castsRunning(b)) return;
@@ -632,9 +633,17 @@ public final class TrainingArena
     { return p.isCastingNow() || p.isCastingSimultaneouslyNow(); }
     private static void restoreResources(Player p)
     {
-        p.setCurrentHp(p.getMaxHp()); p.setCurrentMp(p.getMaxMp()); p.setCurrentCp(p.getMaxCp());
+        int classId = p.getPlayerClass().getId();
+        p.setCurrentHp(p.getMaxHp() * trainingHpFraction(classId));
+        p.setCurrentMp(p.getMaxMp());
+        p.setCurrentCp(p.getMaxCp() * trainingCpFraction(classId));
         p.broadcastUserInfo();
     }
+    static double trainingHpFraction(int classId)
+    { return classId == 113 || classId == 114 ? 0.70 : 1.0; }
+    static double trainingCpFraction(int classId)
+    { return classId == 113 || classId == 114 ? 0.15 : 1.0; }
+
     static void resetPreparationCooldowns(Player p)
     {
         // Actual core APIs clear separate skill disabled/reuse maps. Item reuse,
