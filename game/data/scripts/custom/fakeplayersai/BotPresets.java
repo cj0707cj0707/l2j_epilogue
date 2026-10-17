@@ -11,19 +11,21 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.Map;
 import java.util.logging.Logger;
 
 import org.l2jmobius.gameserver.data.xml.SkillData;
+import org.l2jmobius.gameserver.data.xml.SkillTreeData;
+import org.l2jmobius.gameserver.entity.actor.enums.player.PlayerClass;
 import org.l2jmobius.gameserver.mechanics.skill.Skill;
+import org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn;
 import org.l2jmobius.gameserver.mechanics.skill.targets.TargetType;
 
 /**
@@ -147,6 +149,8 @@ public class BotPresets
 	
 	// ------------------------------------------------------------------
 	// Class presets (classIds verified against data/stats/players/classList.xml)
+	// The roster is exactly the olympiad bot classes (19): every preset below is
+	// spawned by spawnAll()/getNextPreset() and auto-registers for the olympiad.
 	// ------------------------------------------------------------------
 	
 	private static final Map<Integer, BotClassPreset> PRESETS = new TreeMap<>();
@@ -159,13 +163,24 @@ public class BotPresets
 	
 	static
 	{
+		// classId, name, gear, weapon, female, arrows, spiritshot, rotation, selfBuffs
+		// Rotations/buffs verified against data/stats/players/skillTrees + skills XMLs (see _botdata/classes_skills.txt).
+		// Adaptations: taunts/Hide/Snipe/Vanguard/traps excluded from rotation; self-casts and charge-builders go to buffs.
 		addPreset(88, "Duelist", BotClassPreset.GearKind.LIGHT, BotClassPreset.WeaponKind.DUAL, false, false, false,
 			new int[]
 			{
+				// Charge rules of 16.09.2026: the sonic skills require charges again (the
+				// datapack chargeConsume/Charges requirements are restored) and the charge
+				// builder Sonic Focus (8) is part of the rotation - the rotation itself
+				// rebuilds the charges it spends. The charge LEVEL (4..7) is maintained by
+				// the combat driver (BotManager CHARGE_MIN/CHARGE_MAX).
 				261, 5, 345, 6, 7, 9, 775, 8
 			},
 			new int[]
 			{
+				// The charge builders (Sonic Focus 8, Maximum Sonic Focus 919) moved out of
+				// the self-buff set: 8 is a rotation skill now, 919 filled the charges up to
+				// the retail cap of 8 - above the admin charge window (4..7).
 				297, 78, 917, 440
 			});
 		addPreset(90, "Phoenix Knight", BotClassPreset.GearKind.HEAVY, BotClassPreset.WeaponKind.SWORD, false, false, false,
@@ -198,39 +213,47 @@ public class BotPresets
 		addPreset(93, "Adventurer", BotClassPreset.GearKind.LIGHT, BotClassPreset.WeaponKind.DAGGER, false, false, false,
 			new int[]
 			{
+				// Dagger rotation: it must ALWAYS open with Shadow Step (821 - teleport behind
+				// the target) followed by Backstab (30, cast range 40 - the teleport puts the
+				// dagger exactly where the backstab lands from). Bluff (358) stays after them:
+				// its 9 s stun is the follow-up opener. Trick (11) and Switch (12) remain
+				// excluded: their TargetCancel effect produced mutual idle loops in bot fights.
 				821, 30, 358, 531, 263, 344, 409, 96, 412
 			},
 			new int[]
 			{
+				// The class evasion opener (Mirage 445) is NOT an auto-buff: it is applied
+				// by the opening self-enhancement burst (BotSpawner.applyOpeningSelfBuffs)
+				// exactly 3 seconds after the olympiad gates open, together with Exciting
+				// Adventure (768) - casting it during the countdown wastes its short
+				// duration before the fight even begins.
 				768, 356, 357, 111, 312, 4
 			});
 		addPreset(94, "Archmage", BotClassPreset.GearKind.ROBE, BotClassPreset.WeaponKind.MAGIC, false, false, true,
 			new int[]
 			{
-				1071, 1072, 1073, 369, 370, 376, 377
+				// Mage rotation: main attack skills (whitelist) + curses. BotSpawner.buildMageRotation()
+				// spreads the allowed set over the cycle as 80% attacks / 20% curses.
+				1230, 1339, 1451, 1083, 1338, 1056, 1169, 1069, 1160
 			},
 			new int[]
 			{
-				1036, 1059, 1085, 786
+				337, 1532, 1492, 1078, 1040, 1157, 1216
 			});
 		addPreset(95, "Soultaker", BotClassPreset.GearKind.ROBE, BotClassPreset.WeaponKind.MAGIC, false, false, true,
 			new int[]
 			{
-				366, 168, 167, 366, 745, 172, 364
+				1343, 1263, 1064, 1170, 1069, 1222, 1337
 			},
 			new int[]
 			{
-				1036, 1059, 1085, 786
+				337, 1532, 1078, 1157, 1387
 			});
-		addPreset(96, "Mystic Muse", BotClassPreset.GearKind.ROBE, BotClassPreset.WeaponKind.MAGIC, true, false, true,
-			new int[]
-			{
-				1225, 1226, 1222, 1223, 1069, 1227
-			},
-			new int[]
-			{
-				1218, 1219
-			});
+		// Cardinal: Trance-kite + Mana Burn loop. Heals self at HP < 95%.
+		// Rotation: Trance (1394), Mana Burn (1398), Prominence (1230), Magical BackFire (1396).
+		// Buffs: Prayer (1307), Greater Battle Heal (1218 - self only when HP low).
+		// Opening: Mana Storm (1399, -90% MP regen debuff on target) before gates open;
+		//          Prayer (1307) opener ~3 s before fight.
 		addPreset(97, "Cardinal", BotClassPreset.GearKind.ROBE, BotClassPreset.WeaponKind.MAGIC, true, false, true,
 			new int[]
 			{
@@ -240,553 +263,721 @@ public class BotPresets
 			{
 				1307, 1218
 			});
-		addPreset(103, "Doombringer", BotClassPreset.GearKind.LIGHT, BotClassPreset.WeaponKind.DUAL, false, false, false,
+		addPreset(101, "Wind Rider", BotClassPreset.GearKind.LIGHT, BotClassPreset.WeaponKind.DAGGER, false, false, false,
 			new int[]
 			{
-				263, 344, 345, 530, 531, 261, 775, 8, 833
+				// See the Adventurer preset: the rotation opens with Shadow Step (821) +
+				// Backstab (30); Trick/Switch/Charm (target manipulation) stay excluded -
+				// they freeze the bot fights instead of driving them.
+				821, 30, 358, 321, 263, 344, 531, 96
 			},
 			new int[]
 			{
-				445, 768, 297, 440, 78
+				// Dodge (446) is opener-burst-only (see the Adventurer preset comment):
+				// applied 3 seconds after the gates open together with Wind Riding (769).
+				769, 355, 356, 410, 111, 312, 230
 			});
-		addPreset(105, "Soul Hound", BotClassPreset.GearKind.LIGHT, BotClassPreset.WeaponKind.RAPIER, false, false, false,
+		addPreset(102, "Moonlight Sentinel", BotClassPreset.GearKind.LIGHT, BotClassPreset.WeaponKind.BOW, true, true, false,
 			new int[]
 			{
-				500, 482, 499, 625, 502
+				101, 354, 19, 343, 924, 772, 24, 369
 			},
 			new int[]
 			{
-				497, 505, 507
+				413, 111, 415, 416, 303, 123, 324
 			});
-		addPreset(107, "Trickster", BotClassPreset.GearKind.LIGHT, BotClassPreset.WeaponKind.CROSSBOW, false, false, false,
+		addPreset(103, "Mystic Muse", BotClassPreset.GearKind.ROBE, BotClassPreset.WeaponKind.MAGIC, true, false, true,
 			new int[]
 			{
-				542, 921, 544, 543, 547, 546, 548
+				1235, 1340, 1453, 1239, 1071, 1338, 1056, 1069
 			},
 			new int[]
 			{
-				538, 549, 551
+				337, 1532, 1493, 1078, 1047, 1286, 1238
 			});
-		addPreset(108, "Inspector", BotClassPreset.GearKind.LIGHT, BotClassPreset.WeaponKind.ANCIENT, false, false, false,
+		addPreset(106, "Shillien Templar", BotClassPreset.GearKind.HEAVY, BotClassPreset.WeaponKind.SWORD, false, false, false,
 			new int[]
 			{
-				577, 578, 587, 584, 579
+				352, 342, 401, 402, 279, 70, 289, 122, 115, 105, 129, 2
 			},
 			new int[]
 			{
-				570, 576, 580
+				322, 335, 788, 527
+			});
+		addPreset(108, "Ghost Hunter", BotClassPreset.GearKind.LIGHT, BotClassPreset.WeaponKind.DAGGER, false, false, false,
+			new int[]
+			{
+				// See the Adventurer preset: the rotation opens with Shadow Step (821) +
+				// Backstab (30); Trick (11) and Confusion (2) stay excluded - target-cancel /
+				// crowd-freeze skills do not belong in a bot rotation.
+				821, 30, 358, 321, 263, 344, 531, 96, 122, 115, 105, 129
+			},
+			new int[]
+			{
+				// Ghost Walking (770) is opener-burst-only (see the Adventurer preset comment):
+				// applied 3 seconds after the gates open.
+				355, 357, 410, 111, 447, 312
+			});
+		addPreset(109, "Ghost Sentinel", BotClassPreset.GearKind.LIGHT, BotClassPreset.WeaponKind.BOW, true, true, false,
+			new int[]
+			{
+				101, 354, 19, 343, 924, 314, 773, 369, 115, 122, 105
+			},
+			new int[]
+			{
+				414, 415, 303, 417, 111, 312, 324
 			});
 		addPreset(110, "Storm Screamer", BotClassPreset.GearKind.ROBE, BotClassPreset.WeaponKind.MAGIC, true, false, true,
 			new int[]
 			{
-				608, 609, 1097, 610, 614, 615
+				1239, 1341, 1456, 1074, 1338, 1064, 1206, 1069
 			},
 			new int[]
 			{
-				1218, 1219
+				337, 1532, 1494, 1287, 1078, 1157, 1216
 			});
-		addPreset(111, "Dominator", BotClassPreset.GearKind.LIGHT, BotClassPreset.WeaponKind.MAGIC, false, false, true,
+		addPreset(113, "Titan", BotClassPreset.GearKind.HEAVY, BotClassPreset.WeaponKind.TWO_HAND, false, false, false,
 			new int[]
 			{
-				1305, 617, 619, 618, 616, 1414
+				260, 362, 315, 190, 777, 36, 347, 320
 			},
 			new int[]
 			{
-				1218, 623
+				176, 94, 139, 420, 121, 536, 917
 			});
-		addPreset(112, "Doomcryer", BotClassPreset.GearKind.ROBE, BotClassPreset.WeaponKind.MAGIC, false, false, true,
+		addPreset(114, "Grand Khavatari", BotClassPreset.GearKind.LIGHT, BotClassPreset.WeaponKind.FIST, false, false, false,
 			new int[]
 			{
-				630, 631, 632, 633, 634, 635
+				// Charge rules of 16.09.2026: the force skills require charges again (the
+				// datapack chargeConsume/Charges requirements are restored) and the charge
+				// builder Focused Force (50) is part of the rotation - the rotation itself
+				// rebuilds the charges it spends. The charge LEVEL (4..7) is maintained by
+				// the combat driver (BotManager CHARGE_MIN/CHARGE_MAX).
+				281, 120, 776, 284, 81, 280, 54, 346, 17, 35, 95, 50
 			},
 			new int[]
 			{
-				627, 625, 1218
+				// The charge builders (Focused Force 50, Maximum Focus Force 918) moved out
+				// of the self-buff set: 50 is a rotation skill now, 918 filled the charges
+				// up to the retail cap of 8 - above the admin charge window (4..7).
+				222, 424, 420, 917, 83
 			});
-		addPreset(113, "Maestro", BotClassPreset.GearKind.HEAVY, BotClassPreset.WeaponKind.FIST, false, false, false,
+		addPreset(115, "Dominator", BotClassPreset.GearKind.HEAVY, BotClassPreset.WeaponKind.MAGIC, false, false, true,
 			new int[]
 			{
-				176, 907, 660, 661, 663, 664, 420
+				// No whitelisted nukes in the Overlord line: the damage drains (Steal Essence,
+				// Life Drain) fill the 80% attack share, the Seals/mind curses the 20% share.
+				1245, 1090, 1367, 1097, 1092, 1105, 1246, 1247, 1248, 1208, 1099, 1104
 			},
 			new int[]
 			{
-				658, 659
+				// Enlightenment of the Dominator is the WIZARD variant (1532, +40% M.Atk),
+				// the same buff every other caster class learns (datapack change 03.10.2026:
+				// the Dominator left the Healer variant 1533, +10% M.Atk +40% Heal).
+				337, 1532
 			});
-		addPreset(114, "Fortune Seeker", BotClassPreset.GearKind.HEAVY, BotClassPreset.WeaponKind.TWO_HAND, false, false, false,
+		// Doombringer (Kamael) wears LIGHT: Vesper heavy/robe sets and shields carry the
+		// condition races="HUMAN,ELF,DARK_ELF,ORC,DWARF" (no Kamael) in the datapack, and the
+		// Kamael class line masters Light Armor only. The core unequips condition-failing gear
+		// at the olympiad arena entry (OlympiadGame.removals() -> checkItemRestriction()), which
+		// is why the heavy-equipped Doombringer arrived at the olympiad without armor.
+		addPreset(131, "Doombringer", BotClassPreset.GearKind.LIGHT, BotClassPreset.WeaponKind.ANCIENT, false, false, false,
 			new int[]
 			{
-				176, 420, 670, 671, 672
+				494, 793, 484, 495, 493, 526, 497, 498, 477, 485, 501, 1435
 			},
 			new int[]
 			{
-				668, 669
-			});
-		addPreset(115, "Judicator", BotClassPreset.GearKind.ROBE, BotClassPreset.WeaponKind.MAGIC, false, false, true,
-			new int[]
-			{
-				616, 617, 618, 619, 1305, 1414
-			},
-			new int[]
-			{
-				1218, 623
-			});
-		addPreset(116, "Titan", BotClassPreset.GearKind.LIGHT, BotClassPreset.WeaponKind.TWO_HAND, false, false, false,
-			new int[]
-			{
-				689, 362, 363, 367, 690, 691
-			},
-			new int[]
-			{
-				686, 687, 688
-			});
-		addPreset(118, "Grand Khavatari", BotClassPreset.GearKind.LIGHT, BotClassPreset.WeaponKind.FIST, false, false, false,
-			new int[]
-			{
-				695, 700, 703, 704, 705, 706
-			},
-			new int[]
-			{
-				692, 693, 697
-			});
-		addPreset(131, "Doombringer", BotClassPreset.GearKind.LIGHT, BotClassPreset.WeaponKind.DUAL, false, false, false,
-			new int[]
-			{
-				793, 263, 344, 345, 530, 531, 261, 775, 8, 833
-			},
-			new int[]
-			{
+				// 833 = Body Reconstruction: used at HP < 30% (HP threshold enforced in BotTactics.act()).
 				500, 482, 499, 625, 502, 917, 833
 			});
 	}
 	
-	// ------------------------------------------------------------------
-	// Preset access
-	// ------------------------------------------------------------------
-	
-	public static BotClassPreset getPresetByClassId(int classId)
+	/** Classes whose skills consume Cursed Bones (item 2508). */
+	public static final int[] CLASSES_WITH_CURSED_BONES =
 	{
-		return PRESETS.get(classId);
-	}
+		95, 110
+	};
 	
-	public static synchronized BotClassPreset getNextPreset()
+	/** Kamael soul classes - skills consume souls, Soul Gathering consumes Spirit Ores (item 3031). */
+	public static final int[] KAMAEL_SOUL_CLASSES =
 	{
-		if (PRESETS.isEmpty()) { return null; }
-		List<BotClassPreset> list = new ArrayList<>(PRESETS.values());
-		BotClassPreset preset = list.get(_presetCycle % list.size());
-		_presetCycle++;
-		return preset;
-	}
+		131, 132, 133, 134
+	};
 	
-	public static Collection<BotClassPreset> getAllPresets()
+	public static boolean usesCursedBones(int classId)
 	{
-		return Collections.unmodifiableCollection(PRESETS.values());
-	}
-	
-	/** Returns all registered presets. Alias used by AdminBot. */
-	public static Collection<BotClassPreset> getPresets()
-	{
-		return getAllPresets();
-	}
-	
-	/** Returns all registered presets as a List. Alias used by GiranServices. */
-	public static List<BotClassPreset> getPresetList()
-	{
-		return new ArrayList<>(PRESETS.values());
-	}
-	
-	public static Set<Integer> getRegisteredClassIds()
-	{
-		return Collections.unmodifiableSet(PRESETS.keySet());
-	}
-	
-	// ------------------------------------------------------------------
-	// Skill helpers (used by AdminBot to build the skill-management page)
-	// ------------------------------------------------------------------
-	
-	/**
-	 * Returns the display name of a skill, or "Skill#id" when the skill is not found.
-	 */
-	public static String getSkillName(int skillId)
-	{
-		final Skill skill = SkillData.getInstance().getSkill(skillId, 1);
-		return skill != null ? skill.getName() : "Skill#" + skillId;
-	}
-	
-	/**
-	 * Returns the set of skill IDs used by a class: the union of its current
-	 * rotation and self-buffs (including any runtime overrides).
-	 * Used by AdminBot to display the allow/forbid skill management page.
-	 */
-	public static int[] getClassFullSkillPool(int classId)
-	{
-		final BotClassPreset preset = PRESETS.get(classId);
-		if (preset == null)
+		for (int id : CLASSES_WITH_CURSED_BONES)
 		{
-			return new int[0];
+			if (id == classId)
+			{
+				return true;
+			}
 		}
-		final Set<Integer> ids = new LinkedHashSet<>();
-		for (int id : preset.getRotation()) { ids.add(id); }
-		for (int id : preset.getBuffs()) { ids.add(id); }
+		return false;
+	}
+	
+	public static boolean isKamaelSoulClass(int classId)
+	{
+		for (int id : KAMAEL_SOUL_CLASSES)
+		{
+			if (id == classId)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	// ------------------------------------------------------------------
+	// Overrides (persisted via //bot menu)
+	// ------------------------------------------------------------------
+	
+	private static final Map<Integer, String> ROTATION_OVERRIDES = new HashMap<>();
+	private static final Map<Integer, String> BUFF_OVERRIDES = new HashMap<>();
+	private static final Map<Integer, Integer> WEAPON_OVERRIDES = new HashMap<>();
+	
+	public static void loadOverrides()
+	{
+		ROTATION_OVERRIDES.clear();
+		BUFF_OVERRIDES.clear();
+		WEAPON_OVERRIDES.clear();
+		
+		final File file = new File(OVERRIDES_PATH);
+		if (!file.exists())
+		{
+			return;
+		}
+		final Properties props = new Properties();
+		try (InputStream is = new FileInputStream(file))
+		{
+			props.load(is);
+		}
+		catch (IOException e)
+		{
+			LOGGER.warning("FakePlayersAI: overrides load failed: " + e.getMessage());
+			return;
+		}
+		for (String key : props.stringPropertyNames())
+		{
+			final String value = props.getProperty(key).trim();
+			if (key.startsWith("rotation."))
+			{
+				ROTATION_OVERRIDES.put(Integer.parseInt(key.substring(9)), value);
+			}
+			else if (key.startsWith("buffs."))
+			{
+				BUFF_OVERRIDES.put(Integer.parseInt(key.substring(6)), value);
+			}
+			else if (key.startsWith("weapon."))
+			{
+				WEAPON_OVERRIDES.put(Integer.parseInt(key.substring(7)), Integer.parseInt(value));
+			}
+		}
+		applyOverridesToPresets();
+		
+		// Drop overrides of classes that are no longer in the roster (preset removed).
+		boolean pruned = false;
+		pruned |= ROTATION_OVERRIDES.keySet().removeIf(id -> !PRESETS.containsKey(id));
+		pruned |= BUFF_OVERRIDES.keySet().removeIf(id -> !PRESETS.containsKey(id));
+		pruned |= WEAPON_OVERRIDES.keySet().removeIf(id -> !PRESETS.containsKey(id));
+		if (pruned)
+		{
+			saveOverrides();
+			LOGGER.info("FakePlayersAI: overrides of removed classes pruned.");
+		}
+		LOGGER.info("FakePlayersAI: overrides loaded (" + ROTATION_OVERRIDES.size() + " rotations, " + BUFF_OVERRIDES.size() + " buff sets).");
+	}
+	
+	public static void saveOverrides()
+	{
+		final Properties props = new Properties();
+		for (Map.Entry<Integer, String> e : ROTATION_OVERRIDES.entrySet())
+		{
+			props.setProperty("rotation." + e.getKey(), e.getValue());
+		}
+		for (Map.Entry<Integer, String> e : BUFF_OVERRIDES.entrySet())
+		{
+			props.setProperty("buffs." + e.getKey(), e.getValue());
+		}
+		for (Map.Entry<Integer, Integer> e : WEAPON_OVERRIDES.entrySet())
+		{
+			props.setProperty("weapon." + e.getKey(), String.valueOf(e.getValue()));
+		}
+		try (OutputStream os = new FileOutputStream(OVERRIDES_PATH))
+		{
+			props.store(os, "# FakePlayersAI per-class overrides (rotations/buffs/weapons), managed by //bot");
+		}
+		catch (IOException e)
+		{
+			LOGGER.warning("FakePlayersAI: overrides save failed: " + e.getMessage());
+		}
+	}
+	
+	private static void applyOverridesToPresets()
+	{
+		for (Map.Entry<Integer, String> e : ROTATION_OVERRIDES.entrySet())
+		{
+			final BotClassPreset preset = PRESETS.get(e.getKey());
+			if (preset != null)
+			{
+				preset.setRotationOverride(parseIds(e.getValue()));
+			}
+		}
+		for (Map.Entry<Integer, String> e : BUFF_OVERRIDES.entrySet())
+		{
+			final BotClassPreset preset = PRESETS.get(e.getKey());
+			if (preset != null)
+			{
+				preset.setBuffsOverride(parseIds(e.getValue()));
+			}
+		}
+		for (Map.Entry<Integer, Integer> e : WEAPON_OVERRIDES.entrySet())
+		{
+			final BotClassPreset preset = PRESETS.get(e.getKey());
+			if (preset != null)
+			{
+				preset.setWeaponOverride(e.getValue());
+			}
+		}
+	}
+	
+	private static int[] parseIds(String value)
+	{
+		final List<Integer> ids = new ArrayList<>();
+		for (String part : value.split(","))
+		{
+			try
+			{
+				final int id = Integer.parseInt(part.trim());
+				if (id > 0)
+				{
+					ids.add(id);
+				}
+			}
+			catch (NumberFormatException ignored)
+			{
+			}
+		}
 		final int[] result = new int[ids.size()];
-		int i = 0;
-		for (int id : ids) { result[i++] = id; }
+		for (int i = 0; i < ids.size(); i++)
+		{
+			result[i] = ids.get(i);
+		}
 		return result;
 	}
-	
-	/**
-	 * Returns true if a skill targets SELF (used by AdminBot to categorise skills).
-	 */
-	public static boolean isSelfBuffSkill(int skillId)
-	{
-		try
-		{
-			final Skill skill = SkillData.getInstance().getSkill(skillId, 1);
-			if (skill == null) { return false; }
-			return skill.getTargetType() == TargetType.SELF;
-		}
-		catch (Exception e)
-		{
-			return false;
-		}
-	}
-	
-	// ------------------------------------------------------------------
-	// Rotation / buff overrides (in-memory mutations, AdminBot API)
-	// ------------------------------------------------------------------
 	
 	public static boolean rotationAdd(int classId, int skillId)
 	{
 		final BotClassPreset preset = PRESETS.get(classId);
-		if ((preset == null) || (skillId <= 0)) { return false; }
-		final int[] current = preset.getRotation();
-		for (int id : current) { if (id == skillId) { return false; } }
-		final int[] next = Arrays.copyOf(current, current.length + 1);
-		next[current.length] = skillId;
-		preset.setRotationOverride(next);
+		if ((preset == null) || !getClassSkillPool(classId).contains(skillId))
+		{
+			return false;
+		}
+		final int[] rotation = preset.getRotation();
+		for (int s : rotation)
+		{
+			if (s == skillId)
+			{
+				return false;
+			}
+		}
+		final int[] updated = new int[rotation.length + 1];
+		System.arraycopy(rotation, 0, updated, 0, rotation.length);
+		updated[rotation.length] = skillId;
+		if (sameIdSet(updated, preset.getDefaultRotation()))
+		{
+			preset.setRotationOverride(null);
+			ROTATION_OVERRIDES.remove(classId);
+		}
+		else
+		{
+			preset.setRotationOverride(updated);
+			ROTATION_OVERRIDES.put(classId, idsToString(updated));
+		}
 		return true;
-	}
-	
-	public static boolean rotationRemove(int classId, int skillId)
-	{
-		final BotClassPreset preset = PRESETS.get(classId);
-		if (preset == null) { return false; }
-		final int[] current = preset.getRotation();
-		int idx = -1;
-		for (int i = 0; i < current.length; i++) { if (current[i] == skillId) { idx = i; break; } }
-		if (idx < 0) { return false; }
-		final int[] next = new int[current.length - 1];
-		for (int i = 0, j = 0; i < current.length; i++) { if (i != idx) { next[j++] = current[i]; } }
-		preset.setRotationOverride(next.length == 0 ? null : next);
-		return true;
-	}
-	
-	public static void rotationReset(int classId)
-	{
-		final BotClassPreset preset = PRESETS.get(classId);
-		if (preset != null) { preset.setRotationOverride(null); }
 	}
 	
 	public static boolean buffAdd(int classId, int skillId)
 	{
 		final BotClassPreset preset = PRESETS.get(classId);
-		if ((preset == null) || (skillId <= 0)) { return false; }
-		if (!isSelfBuffSkill(skillId)) { return false; }
-		final int[] current = preset.getBuffs();
-		for (int id : current) { if (id == skillId) { return false; } }
-		final int[] next = Arrays.copyOf(current, current.length + 1);
-		next[current.length] = skillId;
-		preset.setBuffsOverride(next);
+		if ((preset == null) || !isSelfBuffSkill(skillId) || !getClassFullSkillPool(classId).contains(skillId))
+		{
+			return false;
+		}
+		final int[] buffs = preset.getBuffs();
+		for (int s : buffs)
+		{
+			if (s == skillId)
+			{
+				return false;
+			}
+		}
+		final int[] updated = new int[buffs.length + 1];
+		System.arraycopy(buffs, 0, updated, 0, buffs.length);
+		updated[buffs.length] = skillId;
+		if (sameIdSet(updated, preset.getDefaultBuffs()))
+		{
+			preset.setBuffsOverride(null);
+			BUFF_OVERRIDES.remove(classId);
+		}
+		else
+		{
+			preset.setBuffsOverride(updated);
+			BUFF_OVERRIDES.put(classId, idsToString(updated));
+		}
 		return true;
 	}
 	
 	public static boolean buffRemove(int classId, int skillId)
 	{
 		final BotClassPreset preset = PRESETS.get(classId);
-		if (preset == null) { return false; }
-		final int[] current = preset.getBuffs();
-		int idx = -1;
-		for (int i = 0; i < current.length; i++) { if (current[i] == skillId) { idx = i; break; } }
-		if (idx < 0) { return false; }
-		final int[] next = new int[current.length - 1];
-		for (int i = 0, j = 0; i < current.length; i++) { if (i != idx) { next[j++] = current[i]; } }
-		preset.setBuffsOverride(next);
+		if (preset == null)
+		{
+			return false;
+		}
+		final int[] buffs = preset.getBuffs();
+		boolean found = false;
+		final List<Integer> updated = new ArrayList<>();
+		for (int s : buffs)
+		{
+			if (s == skillId)
+			{
+				found = true;
+			}
+			else
+			{
+				updated.add(s);
+			}
+		}
+		if (!found)
+		{
+			return false;
+		}
+		final int[] arr = updated.stream().mapToInt(Integer::intValue).toArray();
+		preset.setBuffsOverride(arr);
+		BUFF_OVERRIDES.put(classId, idsToString(arr));
 		return true;
+	}
+	
+	private static boolean sameIdSet(int[] a, int[] b)
+	{
+		if ((a == null) || (b == null) || (a.length != b.length))
+		{
+			return false;
+		}
+		final Set<Integer> setB = new java.util.HashSet<>();
+		for (int v : b)
+		{
+			setB.add(v);
+		}
+		for (int v : a)
+		{
+			if (!setB.contains(v))
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	public static boolean rotationRemove(int classId, int skillId)
+	{
+		final BotClassPreset preset = PRESETS.get(classId);
+		if (preset == null)
+		{
+			return false;
+		}
+		final int[] rotation = preset.getRotation();
+		final List<Integer> updated = new ArrayList<>();
+		for (int s : rotation)
+		{
+			if (s != skillId)
+			{
+				updated.add(s);
+			}
+		}
+		preset.setRotationOverride(updated.stream().mapToInt(Integer::intValue).toArray());
+		if (updated.isEmpty())
+		{
+			ROTATION_OVERRIDES.remove(classId);
+		}
+		else
+		{
+			ROTATION_OVERRIDES.put(classId, idsToString(updated.stream().mapToInt(Integer::intValue).toArray()));
+		}
+		return true;
+	}
+	
+	public static void rotationReset(int classId)
+	{
+		final BotClassPreset preset = PRESETS.get(classId);
+		if (preset != null)
+		{
+			preset.setRotationOverride(null);
+			ROTATION_OVERRIDES.remove(classId);
+		}
 	}
 	
 	public static void buffReset(int classId)
 	{
 		final BotClassPreset preset = PRESETS.get(classId);
-		if (preset != null) { preset.setBuffsOverride(null); }
+		if (preset != null)
+		{
+			preset.setBuffsOverride(null);
+			BUFF_OVERRIDES.remove(classId);
+		}
 	}
 	
 	public static void setWeaponOverride(int classId, int itemId)
 	{
 		final BotClassPreset preset = PRESETS.get(classId);
-		if (preset != null) { preset.setWeaponOverride(itemId); }
-	}
-	
-	// ------------------------------------------------------------------
-	// Gear assignment — new API
-	// ------------------------------------------------------------------
-	
-	public static int getArmorChest(BotClassPreset preset, boolean vesper)
-	{
-		return (vesper ? VESPER_SETS : DYNASTY_SETS)[preset.getGear().ordinal()][0];
-	}
-	
-	public static int getArmorLegs(BotClassPreset preset, boolean vesper)
-	{
-		return (vesper ? VESPER_SETS : DYNASTY_SETS)[preset.getGear().ordinal()][1];
-	}
-	
-	public static int getArmorHelm(BotClassPreset preset, boolean vesper)
-	{
-		return (vesper ? VESPER_SETS : DYNASTY_SETS)[preset.getGear().ordinal()][2];
-	}
-	
-	public static int getArmorGloves(BotClassPreset preset, boolean vesper)
-	{
-		return (vesper ? VESPER_SETS : DYNASTY_SETS)[preset.getGear().ordinal()][3];
-	}
-	
-	public static int getArmorBoots(BotClassPreset preset, boolean vesper)
-	{
-		return (vesper ? VESPER_SETS : DYNASTY_SETS)[preset.getGear().ordinal()][4];
-	}
-	
-	public static int getWeapon(BotClassPreset preset, boolean vesper)
-	{
-		return WEAPONS[preset.getWeaponKind().ordinal()][vesper ? 0 : 1];
-	}
-	
-	public static int getShield(boolean vesper)
-	{
-		return vesper ? VESPER_SHIELD : DYNASTY_SHIELD;
-	}
-	
-	public static int[] getJewels(boolean vesper)
-	{
-		return vesper ? VESPER_JEWELS : DYNASTY_JEWELS;
-	}
-	
-	public static int getAmmo(BotClassPreset preset)
-	{
-		return preset.useArrows() ? ARROW_S : preset.usesBolts() ? BOLT_S : 0;
-	}
-	
-	public static int getShot(BotClassPreset preset)
-	{
-		return preset.useSpiritshot() ? BLESSED_SPIRITSHOT_S : SOULSHOT_S;
-	}
-	
-	public static int getHealPotion() { return POTION_HEAL; }
-	public static int getCpPotion() { return POTION_CP; }
-	
-	// ------------------------------------------------------------------
-	// Gear assignment — compatibility API
-	// ------------------------------------------------------------------
-	
-	public static int[] getArmorSet(BotClassPreset preset, boolean vesper)
-	{
-		return (vesper ? VESPER_SETS : DYNASTY_SETS)[preset.getGear().ordinal()].clone();
-	}
-	
-	public static int getShieldId(BotClassPreset preset, boolean vesper)
-	{
-		switch (preset.getWeaponKind())
+		if (preset != null)
 		{
-			case SWORD: return getShield(vesper);
-			default: return 0;
+			preset.setWeaponOverride(itemId);
+			if (itemId > 0)
+			{
+				WEAPON_OVERRIDES.put(classId, itemId);
+			}
+			else
+			{
+				WEAPON_OVERRIDES.remove(classId);
+			}
 		}
 	}
 	
-	public static int getWeaponId(BotClassPreset preset, boolean vesper)
+	private static String idsToString(int[] ids)
 	{
-		return preset.getWeaponOverride() > 0 ? preset.getWeaponOverride() : getWeapon(preset, vesper);
+		final StringBuilder sb = new StringBuilder();
+		for (int id : ids)
+		{
+			if (sb.length() > 0)
+			{
+				sb.append(',');
+			}
+			sb.append(id);
+		}
+		return sb.toString();
+	}
+	
+	// ------------------------------------------------------------------
+	// Runtime helpers
+	// ------------------------------------------------------------------
+	
+	private static Map<Integer, Set<Integer>> _skillPools = new HashMap<>();
+	private static Map<Integer, Set<Integer>> _fullSkillPools = new HashMap<>();
+	private static Map<Integer, String> _skillNames = new HashMap<>();
+	
+	public static Set<Integer> getClassSkillPool(int classId)
+	{
+		Set<Integer> pool = _skillPools.get(classId);
+		if (pool == null)
+		{
+			pool = new java.util.TreeSet<>();
+			final PlayerClass playerClass = PlayerClass.getPlayerClass(classId);
+			if (playerClass != null)
+			{
+				for (SkillLearn learn : SkillTreeData.getInstance().getCompleteClassSkillTree(playerClass).values())
+				{
+					final Skill skill = SkillData.getInstance().getSkill(learn.getSkillId(), learn.getSkillLevel());
+					if ((skill != null) && skill.isActive() && (skill.getTargetType() != TargetType.SELF))
+					{
+						pool.add(learn.getSkillId());
+					}
+				}
+			}
+			_skillPools.put(classId, pool);
+		}
+		return pool;
+	}
+	
+	public static Set<Integer> getClassFullSkillPool(int classId)
+	{
+		Set<Integer> pool = _fullSkillPools.get(classId);
+		if (pool == null)
+		{
+			pool = new java.util.TreeSet<>();
+			final PlayerClass playerClass = PlayerClass.getPlayerClass(classId);
+			if (playerClass != null)
+			{
+				for (SkillLearn learn : SkillTreeData.getInstance().getCompleteClassSkillTree(playerClass).values())
+				{
+					if (SkillTreeData.getInstance().getCommonSkill(learn.getSkillId(), learn.getSkillLevel()) != null)
+					{
+						continue;
+					}
+					final Skill skill = SkillData.getInstance().getSkill(learn.getSkillId(), learn.getSkillLevel());
+					if ((skill != null) && skill.isActive())
+					{
+						pool.add(learn.getSkillId());
+					}
+				}
+			}
+			_fullSkillPools.put(classId, pool);
+		}
+		return pool;
+	}
+	
+	public static boolean isSelfBuffSkill(int skillId)
+	{
+		Skill skill = SkillData.getInstance().getSkill(skillId, SkillData.getInstance().getMaxLevel(skillId));
+		if (skill == null)
+		{
+			skill = SkillData.getInstance().getSkill(skillId, 1);
+		}
+		return (skill != null) && skill.isActive() && (skill.getTargetType() == TargetType.SELF);
+	}
+	
+	public static String getSkillName(int skillId)
+	{
+		String name = _skillNames.get(skillId);
+		if (name == null)
+		{
+			Skill skill = SkillData.getInstance().getSkill(skillId, SkillData.getInstance().getMaxLevel(skillId));
+			if (skill == null)
+			{
+				skill = SkillData.getInstance().getSkill(skillId, 1);
+			}
+			name = skill != null ? skill.getName() : ("Skill " + skillId);
+			_skillNames.put(skillId, name);
+		}
+		return name;
+	}
+	
+	public static BotClassPreset getPresetByClassId(int classId)
+	{
+		return PRESETS.get(classId);
+	}
+	
+	public static Collection<BotClassPreset> getPresets()
+	{
+		return Collections.unmodifiableCollection(PRESETS.values());
+	}
+	
+	public static List<BotClassPreset> getPresetList()
+	{
+		return new ArrayList<>(PRESETS.values());
+	}
+	
+	public static BotClassPreset getNextPreset()
+	{
+		final List<BotClassPreset> list = getPresetList();
+		if (list.isEmpty())
+		{
+			return null;
+		}
+		_presetCycle = (_presetCycle + 1) % list.size();
+		return list.get(_presetCycle);
+	}
+	
+	public static int[] getArmorSet(BotClassPreset preset, boolean useS84)
+	{
+		final int[][] sets = useS84 ? VESPER_SETS : DYNASTY_SETS;
+		return sets[preset.getGear().ordinal()];
+	}
+	
+	public static int getShieldId(BotClassPreset preset, boolean useS84)
+	{
+		return preset.getWeaponKind() == BotClassPreset.WeaponKind.SWORD ? (useS84 ? VESPER_SHIELD : DYNASTY_SHIELD) : 0;
+	}
+	
+	public static int getWeaponId(BotClassPreset preset, boolean useS84)
+	{
+		if (preset.getWeaponOverride() > 0)
+		{
+			return preset.getWeaponOverride();
+		}
+		final int[] pair = WEAPONS[preset.getWeaponKind().ordinal()];
+		return useS84 ? pair[0] : pair[1];
 	}
 	
 	public static int[] getJewelryIds()
 	{
-		return getJewels(BotManager.getSettings().isUseS84());
+		return BotManager.getSettings().isUseS84() ? VESPER_JEWELS : DYNASTY_JEWELS;
+	}
+	
+	public static int getShotId(BotClassPreset preset)
+	{
+		return preset.useSpiritshot() ? SPIRITSHOT_S : SOULSHOT_S;
+	}
+	
+	public static int getFighterShotId()
+	{
+		return SOULSHOT_S;
+	}
+	
+	public static int getBlessedSpiritshotId()
+	{
+		return BLESSED_SPIRITSHOT_S;
+	}
+	
+	public static int getArrowId()
+	{
+		return ARROW_S;
+	}
+	
+	public static int getBoltId()
+	{
+		return BOLT_S;
+	}
+	
+	public static int getPotionId()
+	{
+		return POTION_HEAL;
+	}
+	
+	public static int getCpPotionId()
+	{
+		return POTION_CP;
 	}
 	
 	public static int[] getAllGearIds()
 	{
 		final List<Integer> ids = new ArrayList<>();
-		for (int[] set : DYNASTY_SETS) { for (int id : set) { ids.add(id); } }
-		for (int[] set : VESPER_SETS) { for (int id : set) { ids.add(id); } }
-		ids.add(DYNASTY_SHIELD); ids.add(VESPER_SHIELD);
-		for (int id : DYNASTY_JEWELS) { ids.add(id); }
-		for (int id : VESPER_JEWELS) { ids.add(id); }
-		for (int[] weapon : WEAPONS) { for (int id : weapon) { ids.add(id); } }
+		for (int[] set : DYNASTY_SETS)
+		{
+			for (int id : set)
+			{
+				ids.add(id);
+			}
+		}
+		for (int[] set : VESPER_SETS)
+		{
+			for (int id : set)
+			{
+				ids.add(id);
+			}
+		}
+		ids.add(DYNASTY_SHIELD);
+		ids.add(VESPER_SHIELD);
+		for (int[] pair : WEAPONS)
+		{
+			ids.add(pair[0]);
+			ids.add(pair[1]);
+		}
+		for (int id : DYNASTY_JEWELS)
+		{
+			ids.add(id);
+		}
+		for (int id : VESPER_JEWELS)
+		{
+			ids.add(id);
+		}
 		final int[] result = new int[ids.size()];
-		for (int i = 0; i < result.length; i++) { result[i] = ids.get(i); }
+		for (int i = 0; i < ids.size(); i++)
+		{
+			result[i] = ids.get(i);
+		}
 		return result;
 	}
 	
-	public static int getPotionId() { return POTION_HEAL; }
-	public static int getCpPotionId() { return POTION_CP; }
-	public static int getFighterShotId() { return SOULSHOT_S; }
-	public static int getBlessedSpiritshotId() { return BLESSED_SPIRITSHOT_S; }
-	public static int getBoltId() { return BOLT_S; }
-	public static int getArrowId() { return ARROW_S; }
-	
 	public static List<String> getNames(boolean female)
 	{
-		return Arrays.asList(female ? FEMALE_NAMES : MALE_NAMES);
-	}
-	
-	// ------------------------------------------------------------------
-	// Override persistence (FakePlayersAIOverrides.ini)
-	// ------------------------------------------------------------------
-	
-	public static void loadOverrides()
-	{
-		final File file = new File(OVERRIDES_PATH);
-		if (!file.exists()) { return; }
-		final Properties props = new Properties();
-		try (InputStream in = new FileInputStream(file))
+		final List<String> list = new ArrayList<>();
+		for (String name : female ? FEMALE_NAMES : MALE_NAMES)
 		{
-			props.load(in);
+			list.add(name);
 		}
-		catch (IOException e)
-		{
-			LOGGER.warning("FakePlayersAI: could not read " + OVERRIDES_PATH + ": " + e.getMessage());
-			return;
-		}
-		for (String key : props.stringPropertyNames())
-		{
-			try
-			{
-				final int dot = key.indexOf('.');
-				if (dot < 0) { continue; }
-				final int classId = Integer.parseInt(key.substring(0, dot));
-				final String subKey = key.substring(dot + 1);
-				final BotClassPreset preset = PRESETS.get(classId);
-				if (preset == null) { continue; }
-				final String value = props.getProperty(key, "").trim();
-				switch (subKey)
-				{
-					case "rotation":
-					{
-						if (value.isEmpty()) { preset.setRotationOverride(null); }
-						else
-						{
-							final String[] parts = value.split(",");
-							final int[] ids = new int[parts.length];
-							for (int i = 0; i < parts.length; i++) { ids[i] = Integer.parseInt(parts[i].trim()); }
-							preset.setRotationOverride(ids);
-						}
-						break;
-					}
-					case "buffs":
-					{
-						if (value.isEmpty()) { preset.setBuffsOverride(new int[0]); }
-						else
-						{
-							final String[] parts = value.split(",");
-							final int[] ids = new int[parts.length];
-							for (int i = 0; i < parts.length; i++) { ids[i] = Integer.parseInt(parts[i].trim()); }
-							preset.setBuffsOverride(ids);
-						}
-						break;
-					}
-					case "weapon":
-						preset.setWeaponOverride(Integer.parseInt(value));
-						break;
-				}
-			}
-			catch (Exception e)
-			{
-				LOGGER.warning("FakePlayersAI: bad override entry '" + key + "': " + e.getMessage());
-			}
-		}
-		LOGGER.info("FakePlayersAI: loaded overrides from " + OVERRIDES_PATH + ".");
-	}
-	
-	public static void saveOverrides()
-	{
-		final Properties props = new Properties();
-		for (BotClassPreset preset : PRESETS.values())
-		{
-			final int classId = preset.getClassId();
-			if (preset.hasRotationOverride())
-			{
-				final int[] rotation = preset.getRotation();
-				final StringBuilder sb = new StringBuilder();
-				for (int i = 0; i < rotation.length; i++) { if (i > 0) { sb.append(','); } sb.append(rotation[i]); }
-				props.setProperty(classId + ".rotation", sb.toString());
-			}
-			if (preset.hasBuffsOverride())
-			{
-				final int[] buffs = preset.getBuffs();
-				final StringBuilder sb = new StringBuilder();
-				for (int i = 0; i < buffs.length; i++) { if (i > 0) { sb.append(','); } sb.append(buffs[i]); }
-				props.setProperty(classId + ".buffs", sb.toString());
-			}
-			if (preset.getWeaponOverride() > 0)
-			{
-				props.setProperty(classId + ".weapon", String.valueOf(preset.getWeaponOverride()));
-			}
-		}
-		try
-		{
-			final File file = new File(OVERRIDES_PATH);
-			file.getParentFile().mkdirs();
-			try (OutputStream out = new FileOutputStream(file))
-			{
-				props.store(out, "FakePlayersAI runtime overrides");
-			}
-		}
-		catch (IOException e)
-		{
-			LOGGER.warning("FakePlayersAI: could not save overrides: " + e.getMessage());
-		}
-	}
-	
-	public static void saveOverride(int classId, String key, String value)
-	{
-		try
-		{
-			final File file = new File(OVERRIDES_PATH);
-			final Properties props = new Properties();
-			if (file.exists())
-			{
-				try (InputStream in = new FileInputStream(file)) { props.load(in); }
-			}
-			props.setProperty(classId + "." + key, value);
-			file.getParentFile().mkdirs();
-			try (OutputStream out = new FileOutputStream(file)) { props.store(out, "FakePlayersAI runtime overrides"); }
-		}
-		catch (IOException e)
-		{
-			LOGGER.warning("FakePlayersAI: could not save override " + classId + "." + key + ": " + e.getMessage());
-		}
-	}
-	
-	public static String loadOverride(int classId, String key, String defaultValue)
-	{
-		try
-		{
-			final File file = new File(OVERRIDES_PATH);
-			if (!file.exists()) { return defaultValue; }
-			final Properties props = new Properties();
-			try (InputStream in = new FileInputStream(file)) { props.load(in); }
-			return props.getProperty(classId + "." + key, defaultValue);
-		}
-		catch (IOException e)
-		{
-			LOGGER.warning("FakePlayersAI: could not load override " + classId + "." + key + ": " + e.getMessage());
-			return defaultValue;
-		}
-	}
-	
-	// ------------------------------------------------------------------
-	// Skill enchant
-	// ------------------------------------------------------------------
-	
-	public static char getSkillEnchantRoute(int classId, int skillId)
-	{
-		return 'p';
+		return list;
 	}
 }
