@@ -462,6 +462,9 @@ public final class BotTactics
 		for (int id : BotSpawner.getTacticalDefenses(bot, enemy)) { final Skill skill = bot.getKnownSkill(id); if (skill != null) { skills.put(id, skill); } }
 		for (int id : BotSpawner.getTacticalCpSupport(bot, enemy)) { final Skill skill = bot.getKnownSkill(id); if (skill != null) { skills.put(id, skill); } }
 		if (preset.getClassId() == 90 && bot.getKnownSkill(69) != null) skills.put(69, bot.getKnownSkill(69));
+		// Mandatory learned recovery is independent of persisted buff/rotation overrides.
+		// Eligibility (HP <=40%, invulnerability, STUN phase, MP/reuse) is checked below.
+		if (preset.getClassId() == 131 && bot.getKnownSkill(833) != null) skills.put(833, bot.getKnownSkill(833));
 		int chargeDemand = 4;
 		for (Skill skill : skills.values())
 		{
