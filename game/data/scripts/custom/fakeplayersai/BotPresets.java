@@ -250,11 +250,12 @@ public class BotPresets
 				337, 1532, 1078, 1157, 1387
 			});
 		// Cardinal: Trance-kite + Mana Burn loop. Heals self at HP < 95%.
-		// Trance (1394): reuse delay 10 s, fixed land rate 65%.
+		// Trance (1394): native learned/enchant template and shared tactical timing; no global rate/reuse override.
 		// Rotation: Trance (1394), Mana Burn (1398), Prominence (1230), Magical BackFire (1396), Mana Storm (1399).
 		// Buffs: Prayer (1307), Greater Battle Heal (1218 - self only when HP low).
-		// Opening: Mana Storm (1399, -90% MP regen debuff on target) before gates open;
-		//          Prayer (1307) opener ~3 s before fight.
+		// Mana Storm (1399) remains a normal MP drain. Opponent regMp x0.10 is
+		// scoped by CardinalArenaSupport to the actual active ranked/training pair, never countdown.
+		// Prayer (1307) is a pre-combat self opener.
 		addPreset(97, "Cardinal", BotClassPreset.GearKind.ROBE, BotClassPreset.WeaponKind.MAGIC, true, false, true,
 			new int[]
 			{

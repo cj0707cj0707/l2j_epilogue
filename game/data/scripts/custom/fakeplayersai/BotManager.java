@@ -1490,7 +1490,8 @@ public class BotManager
 					// MP of a bot inside an ACTIVE match drops below the floor, it is
 					// restored to full - the drain between restores (and the reuse/animation
 					// pacing) stays intact.
-					if (inOlympiad && bot.isOlympiadStart() && (bot.getCurrentMp() < (bot.getMaxMp() * (OLYMPIAD_MP_FLOOR_PERCENT / 100.0))))
+					if (inOlympiad && bot.isOlympiadStart() && olympiadMpFloorAllowed(bot)
+						&& (bot.getCurrentMp() < (bot.getMaxMp() * (OLYMPIAD_MP_FLOOR_PERCENT / 100.0))))
 					{
 						bot.setCurrentMp(bot.getMaxMp());
 						LOGGER.info("FakePlayersAI: oly-mp " + bot.getName() + ": MP was below " + (int) OLYMPIAD_MP_FLOOR_PERCENT + "%, restored to full.");
@@ -1522,6 +1523,13 @@ public class BotManager
 				// Once the gates are open no self-buff longer than 2 minutes may be applied
 				// (admin rule), and every buff of the set lasts far longer - so the old
 				// "apply once at battle start" pass was removed with its per-match marker.
+
+				// Match the training caller: an owned driver keeps its target, including self-casts.
+				if (inOlympiad && bot.isOlympiadStart() && BotTactics.isOwned(bot.getObjectId()))
+				{
+					BotSpawner.maintainOlympiadSummon(bot, preset, getOlympiadOpponent(bot));
+					continue;
+				}
 
 				WorldObject target = bot.getTarget();
 
@@ -1558,15 +1566,6 @@ public class BotManager
 					continue;
 				}
 				withTarget++;
-
-				// The fast tactical driver is the only owner of decisions/intentions here.
-				// Keep the pre-existing resource/profile maintenance above and summons,
-				// but never reassert a second movement/attack/instant opener on its route.
-				if (inOlympiad && bot.isOlympiadStart() && BotTactics.isOwned(bot.getObjectId()))
-				{
-					BotSpawner.maintainOlympiadSummon(bot, preset, target);
-					continue;
-				}
 
 				// Opening curse: mage bots open the fight with the resist-lowering
 				// curse of their class (Archmage: Surrender to Fire, Mystic Muse:
@@ -1861,6 +1860,7 @@ public class BotManager
 				if (holdOlympiadIfNotReady(bot)) continue;
 				if (bot.isAlikeDead() || bot.isTeleporting())
 				{
+					BotTactics.forget(bot.getObjectId());
 					continue;
 				}
 				final boolean inOlympiad = bot.isInOlympiadMode() || ((olympiad != null) && olympiad.playerInStadia(bot));
@@ -1963,7 +1963,7 @@ public class BotManager
 				if (opponent != null) CombatAnalytics.watch(bot, opponent);
 				if (TacticalSettings.isEnabled() && (opponent != null))
 				{
-					if (!bot.isCastingNow()) bot.setTarget(opponent);
+					if (!BotTactics.isOwned(bot.getObjectId()) && !bot.isCastingNow() && !bot.isCastingSimultaneouslyNow()) bot.setTarget(opponent);
 					if (BotTactics.tick(bot, opponent, preset, true)) continue;
 				}
 				final boolean ranged = ((preset != null) && preset.isCaster()) || isKiterPreset(preset);
@@ -2011,6 +2011,16 @@ public class BotManager
 		final boolean closeControlTank = preset != null && (preset.getClassId() == 90 || preset.getClassId() == 91 || preset.getClassId() == 106 || preset.getClassId() == 113);
 		OlympiadChase.update(bot, enemy, approach, attackInRange && !closeControlTank && BotTactics.allowsBasicAttack(bot, preset),
 			center[0], center[1], OLYMPIAD_ARENA_MAX_DISTANCE, !BERSERKER_STATES.containsKey(bot.getObjectId()));
+	}
+
+	private static boolean olympiadMpFloorAllowed(Player player)
+	{
+		if (!TacticalSettings.isEnabled()) return true;
+		final Player opponent = getOlympiadOpponent(player);
+		final boolean cardinalBot = isBot(player) && player.getClient() == null && player.getPlayerClass().getId() == 97;
+		final boolean cardinalOpponentBot = opponent != null && isBot(opponent) && opponent.getClient() == null
+			&& opponent.getPlayerClass().getId() == 97;
+		return TacticsPolicy.arenaMpFloorAllowed(cardinalBot, cardinalOpponentBot);
 	}
 
 	/** Keep the existing dead-task watchdog alive even while the combat gate is holding.
@@ -2071,6 +2081,7 @@ public class BotManager
 		}
 		OLY_GATE_STAYS.add(bot.getObjectId());
 		if (OlympiadCombatGate.ready(bot)) return false;
+		BotTactics.forget(bot.getObjectId()); // release scoped opponent modifiers on countdown/end/invalid match
 		OlympiadCombatGate.hold(bot);
 		return true;
 	}
@@ -2959,6 +2970,7 @@ public class BotManager
 		{
 			LOGGER.warning("FakePlayersAI: despawn of " + bot.getName() + " failed: " + e);
 		}
+		BotTactics.forget(bot.getObjectId());
 		BOTS.remove(bot.getObjectId());
 		OLY_GATE_STAYS.remove(bot.getObjectId());
 		OlympiadCombatGate.forget(bot.getObjectId());

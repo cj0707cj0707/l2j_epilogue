@@ -1,4 +1,4 @@
-/* Contextual arena combat. One owner, real useMagic, no resource/stat bonuses. */
+/* Contextual arena combat. One owner, real useMagic; scoped Cardinal opponent-regeneration rule. */
 package custom.fakeplayersai;
 
 import java.util.ArrayList;
@@ -65,6 +65,7 @@ public final class BotTactics
 		boolean trainingBerserkerMode, pendingRushLoop;
 		long nextCardinalTrance;
 		final TacticsPolicy.CardinalProminence cardinalProminence = new TacticsPolicy.CardinalProminence();
+		final CardinalArenaSupport cardinalSupport = new CardinalArenaSupport();
 		int arenaCenterX, arenaCenterY;
 		boolean hasArenaCenter;
 		final TacticsPolicy.TankDefenseSequence tankDefense = new TacticsPolicy.TankDefenseSequence();
@@ -85,13 +86,18 @@ public final class BotTactics
 	{
 		if (time >= nextSweep)
 		{
-			STATES.entrySet().removeIf(e -> time - e.getValue().seen > TTL_MS);
+			STATES.entrySet().removeIf(e ->
+			{
+				if (time - e.getValue().seen <= TTL_MS) return false;
+				e.getValue().cardinalSupport.clear();
+				return true;
+			});
 			nextSweep = time + 60_000;
 		}
 		State s = STATES.get(id);
 		if (s == null)
 		{
-			if (STATES.size() >= MAX_BOTS) { STATES.remove(STATES.keySet().iterator().next()); }
+			if (STATES.size() >= MAX_BOTS) { forget(STATES.keySet().iterator().next()); }
 			s = new State(); STATES.put(id, s);
 		}
 		s.seen = time;
@@ -178,7 +184,7 @@ public final class BotTactics
 		final boolean trainingBerserker = preset.getClassId() == 131 && !bot.isInOlympiadMode() && s != null
 			&& s.trainingEnemy == enemy.getObjectId() && s.trainingInstance == bot.getInstanceId();
 		final boolean primaryRush = bot.getKnownSkill(793) != null && java.util.Arrays.stream(preset.getRotation()).anyMatch(id -> id == 793);
-		double reach = -1, directReach = -1;
+		double reach = -1, directReach = -1, tranceReach = -1;
 		for (int id : preset.getRotation())
 		{
 			final Skill skill = bot.getKnownSkill(id);
@@ -191,7 +197,8 @@ public final class BotTactics
 			if (bot.isSkillDisabled(skill) || failure != null && time < failure.until
 				|| bot.isInOlympiadMode() && skill.isBlockedInOlympiad() || weaponUnavailable(bot) && skill.isPhysical()
 				|| !resources(bot, skill) || !skill.checkCondition(bot, enemy, false)) { continue; }
-			if (!TacticsPolicy.sleepOffenseAllowed(preset.getClassId() == 115, enemy.isSleeping(),
+			if (!TacticsPolicy.cardinalSleepException(preset.getClassId(), id)
+				&& !TacticsPolicy.sleepOffenseAllowed(preset.getClassId() == 115, enemy.isSleeping(),
 				s == null || s.sleepObserved < 0 ? 0 : time - s.sleepObserved, directDamage(skill), id == 1097 || id == 1069)) { continue; }
 			if (!directDamage(skill) && active(enemy, skill)) { continue; }
 			if (skill.getFlyType() == FlyType.CHARGE && (bot.isMovementDisabled() || !GeoEngine.getInstance().canMoveToTarget(
@@ -199,21 +206,28 @@ public final class BotTactics
 			final boolean aura = skill.getTargetType() == TargetType.AURA || skill.getTargetType() == TargetType.FRONT_AURA || skill.getTargetType() == TargetType.BEHIND_AURA;
 			final double range = TacticsPolicy.effectiveRange(aura, skill.getCastRange(), skill.getAffectRange(), bot.getPhysicalAttackRange(), bot.getTemplate().getCollisionRadius());
 			if (range <= 0) { continue; }
+			if (preset.getClassId() == CARDINAL_CLASS_ID && id == CARDINAL_TRANCE_ID
+				&& (s == null || time >= s.nextCardinalTrance)) tranceReach = range;
 			reach = reach < 0 ? range : ranged ? Math.max(reach, range) : Math.min(reach, range);
 			if (directDamage(skill)) { directReach = Math.max(directReach, range); }
 		}
 		if (ranged && directReach > 0) { reach = directReach; }
 		if (reach < 0) { reach = bot.getPhysicalAttackRange() + bot.getTemplate().getCollisionRadius(); }
-		return TacticsPolicy.boundedApproachRange(reach);
+		return TacticsPolicy.boundedApproachRange(TacticsPolicy.cardinalApproachRange(preset.getClassId(), reach, tranceReach));
 	}
 
 	/** Explicit teardown; parent restores world auto-engines only after this call. */
-	public static synchronized void forget(int botId) { STATES.remove(botId); }
+	public static synchronized void forget(int botId)
+	{
+		State removed = STATES.remove(botId);
+		if (removed != null) removed.cardinalSupport.clear();
+	}
 	public static synchronized String describe(int botId)
 	{
 		final State s = STATES.get(botId);
 		return "tactics:" + getDifficulty(botId) + ":owned=" + (s != null && s.owned)
-			+ ":pending=" + (s == null ? 0 : s.pendingId) + ":backoffs=" + (s == null ? 0 : s.failures.size());
+			+ ":pending=" + (s == null ? 0 : s.pendingId) + ":backoffs=" + (s == null ? 0 : s.failures.size())
+			+ ":cardinalRegen=" + (s != null && s.cardinalSupport.active());
 	}
 
 	/** TrainingArena must authorize an isolated pair. Client-backed humans are NEVER bots. */
@@ -237,7 +251,7 @@ public final class BotTactics
 
 	private static boolean valid(Player bot, Player enemy, boolean ranked, State s)
 	{
-		if (bot == null || enemy == null || bot == enemy || bot.getClient() != null || bot.isAlikeDead() || enemy.isAlikeDead()
+		if (bot == null || enemy == null || bot == enemy || bot.getClient() != null || !bot.isOnline() || !enemy.isOnline() || bot.isAlikeDead() || enemy.isAlikeDead()
 			|| bot.isTeleporting() || enemy.isTeleporting() || bot.getInstanceId() != enemy.getInstanceId()) { return false; }
 		if (ranked)
 		{
@@ -264,6 +278,8 @@ public final class BotTactics
 		final long time = now();
 		s = state(bot.getObjectId(), time);
 		prepare(bot, enemy, s, time);
+		if (preset.getClassId() == CARDINAL_CLASS_ID) s.cardinalSupport.bind(bot, enemy);
+		else s.cardinalSupport.clear();
 		claim(bot, s);
 		return act(bot, enemy, preset, s, time, false);
 	}
@@ -299,6 +315,7 @@ public final class BotTactics
 		final int game = bot.isInOlympiadMode() ? bot.getOlympiadGameId() : -1;
 		if (s.enemy != enemy.getObjectId() || s.game != game || s.instance != bot.getInstanceId())
 		{
+			s.cardinalSupport.clear();
 			s.enemy = enemy.getObjectId(); s.game = game; s.instance = bot.getInstanceId();
 			s.anchorX = bot.getX(); s.anchorY = bot.getY(); s.observed = time;
 			s.arenaCenterX = game >= 0 ? (bot.getX() + enemy.getX()) / 2 : 0;

@@ -711,6 +711,7 @@ public final class TrainingArena
     {
         if (s.humanStopApplied) return;
         s.humanStopApplied = true;
+        if (s.bot != null) BotTactics.forget(s.bot.getObjectId()); // release scoped regen before core restore/return
         stop(s.player); if (s.bot != null) stop(s.bot);
         s.player.setInvul(true); if (s.bot != null) s.bot.setInvul(true);
         if (!s.active) s.player.setImmobilized(false); // release ONLY our preparation hold

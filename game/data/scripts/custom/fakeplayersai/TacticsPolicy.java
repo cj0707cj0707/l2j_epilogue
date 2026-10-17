@@ -64,6 +64,18 @@ final class TacticsPolicy
 		return classId == 97 && (skillId == 1398 || skillId == 1230);
 	}
 
+	/** A ready short-range Trance must not be starved by the900-range MP drain/nuke. */
+	static double cardinalApproachRange(int classId, double normalRange, double legalTranceRange)
+	{
+		return classId == 97 && legalTranceRange > 0 ? Math.min(normalRange, legalTranceRange) : normalRange;
+	}
+
+	/** Ranked Cardinal encounters follow training: no automatic full-MP floor on either bot. */
+	static boolean arenaMpFloorAllowed(boolean cardinalBot, boolean cardinalOpponentBot)
+	{
+		return !cardinalBot && !cardinalOpponentBot;
+	}
+
 	/** A due nuke wins over routine choices/kiting, never over a legal urgent recovery/interrupt.
 	 * The caller supplies only candidates that passed range, LOS, resources and core conditions. */
 	static final class CardinalProminence
