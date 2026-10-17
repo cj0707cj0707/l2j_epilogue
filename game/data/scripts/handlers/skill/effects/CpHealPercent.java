@@ -16,6 +16,8 @@
  */
 package handlers.skill.effects;
 
+import custom.fakeplayersai.BotRecoveryRules;
+
 import org.l2jmobius.gameserver.entity.actor.Creature;
 import org.l2jmobius.gameserver.mechanics.conditions.Condition;
 import org.l2jmobius.gameserver.mechanics.effects.AbstractEffect;
@@ -48,6 +50,7 @@ public class CpHealPercent extends AbstractEffect
 	@Override
 	public void onStart(Creature effector, Creature effected, Skill skill)
 	{
+		if (BotRecoveryRules.blockedSelfHeal(effector, effected)) return;
 		if ((effected == null) || effected.isDead() || effected.isDoor())
 		{
 			return;

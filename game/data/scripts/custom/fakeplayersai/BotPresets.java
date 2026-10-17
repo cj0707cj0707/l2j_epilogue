@@ -390,7 +390,7 @@ public class BotPresets
 			},
 			new int[]
 			{
-				// 833 = Body Reconstruction: used at HP < 30% (HP threshold enforced in BotTactics.act()).
+				// 833 = Body Reconstruction: used at HP <=40%, never while invulnerable.
 				500, 482, 499, 625, 502, 917, 833
 			});
 	}

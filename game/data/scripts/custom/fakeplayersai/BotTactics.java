@@ -341,6 +341,8 @@ public final class BotTactics
 		final State s = state(bot.getObjectId(), time);
 		prepare(bot, enemy, s, time);
 		s.manaAutoAttack.update(bot, preset);
+		pollAttempt(bot, enemy, s, time); // Resolve a completed heal even after it restored HP above the threshold.
+		if (preset.getClassId() == 131 && bot.getCurrentHpPercent() > 40) return false;
 		if ((!defenseThreat(bot, enemy) && bot.getCurrentHpPercent() >= 65) || bot.isCastingNow() || bot.isOutOfControl() || bot.isAllSkillsDisabled()) { return false; }
 		return act(bot, enemy, preset, s, time, true);
 	}
@@ -427,7 +429,11 @@ public final class BotTactics
 		final boolean tankClosing = tank && (!visible || distance > TacticsPolicy.tankApproachRange(bot.getPhysicalAttackRange(), bot.getTemplate().getCollisionRadius()));
 		final int activeStrong = bot.isAffectedBySkill(110) ? 110 : bot.isAffectedBySkill(368) ? 368 : bot.isAffectedBySkill(760) ? 760 : 0;
 		if (timedTank) { s.tankDefense.observed(activeStrong); }
-		final int rushAction = trainingBerserker && !manaFallback ? trainingRushAction(bot, enemy, preset, s, time, distance, visible) : -1;
+		final Skill reconstruction = trainingBerserker ? bot.getKnownSkill(833) : null;
+		final boolean recoveryReady = reconstruction != null && hp <= .40 && !bot.isSkillDisabled(reconstruction)
+			&& BotRecoveryRules.selfHealAllowed(bot, reconstruction) && resources(bot, reconstruction)
+			&& reconstruction.checkCondition(bot, bot, false);
+		final int rushAction = trainingBerserker && !manaFallback && !recoveryReady ? trainingRushAction(bot, enemy, preset, s, time, distance, visible) : -1;
 		if (rushAction == -2) { return true; }
 		final boolean trainingRushActive = rushAction == 793;
 		final boolean interruptReady = s.castObserved >= 0 && TacticsPolicy.reactionReady(difficulty(s), time, s.castObserved, false);
@@ -446,6 +452,7 @@ public final class BotTactics
 		for (int id : preset.getBuffs()) { final Skill skill = bot.getKnownSkill(id); if (skill != null) { skills.put(id, skill); } }
 		for (int id : BotSpawner.getTacticalDefenses(bot, enemy)) { final Skill skill = bot.getKnownSkill(id); if (skill != null) { skills.put(id, skill); } }
 		for (int id : BotSpawner.getTacticalCpSupport(bot, enemy)) { final Skill skill = bot.getKnownSkill(id); if (skill != null) { skills.put(id, skill); } }
+		if (preset.getClassId() == 90 && bot.getKnownSkill(69) != null) skills.put(69, bot.getKnownSkill(69));
 		int chargeDemand = 4;
 		for (Skill skill : skills.values())
 		{
@@ -461,10 +468,10 @@ public final class BotTactics
 		{
 			if (BotSpawner.isOpenerOnlySkill(skill.getId())) { continue; } // training as well as ranked
 			// Body Reconstruction (833): Doombringer-exclusive HP-threshold self-heal.
-			// Only activate when bot HP drops below 30%; the HEAL kind scoring handles
+			// Activate at40% HP or below; the shared guard also protects legacy auto-use.
 			// urgency. Applies to both training (defenseOnly=false) and olympiad
 			// (defenseOnly=true via tickDefense) paths.
-			if (skill.getId() == 833 && preset.getClassId() == 131 && hp >= 0.30) { continue; }
+			if (!BotRecoveryRules.selfHealAllowed(bot, skill)) { continue; }
 			if (preset.getClassId() == CARDINAL_CLASS_ID) {
 				if (skill.getId() == CARDINAL_TRANCE_ID && time < s.nextCardinalTrance) { continue; }
 				if (skill.getId() == CARDINAL_PROMINENCE_ID && !s.cardinalProminence.ready(time)) { continue; }
@@ -514,7 +521,8 @@ public final class BotTactics
 			if (!TacticsPolicy.allowed(kind, ready, inRange, visible, active, offBlocked, conditions, interrupt)) { continue; }
 			// Actual Backstab/FatalBlow handlers own positional rules and the admin bot success roll.
 			final boolean cardinalHealUrgent = preset.getClassId() == CARDINAL_CLASS_ID && skill.getId() == CARDINAL_HEAL_ID && hp < 0.95;
-			final double base = cardinalHealUrgent ? 300 : timedPool ? 210 : cpSupport ? 145 : dominator && sleeping && sleepElapsed >= 5000 && direct ? 135 : kind == TacticsPolicy.Kind.DEFENSE
+			final boolean recoveryHeal = preset.getClassId() == 90 && skill.getId() == 69 || preset.getClassId() == 131 && skill.getId() == 833;
+			final double base = recoveryHeal || cardinalHealUrgent ? 300 : timedPool ? 210 : cpSupport ? 145 : dominator && sleeping && sleepElapsed >= 5000 && direct ? 135 : kind == TacticsPolicy.Kind.DEFENSE
 				? TacticsPolicy.defenseScore(hp, cpRatio(bot), visible && defenseThreat(bot, enemy))
 				: kind == TacticsPolicy.Kind.HEAL && skill.hasEffectType(EffectType.CPHEAL) && !skill.hasEffectType(EffectType.HEAL)
 					? TacticsPolicy.score(kind, new TacticsPolicy.Context(cpRatio(bot), context.enemyHp(), distance, sleeping, s.enemyCasting, interruptReady, context.enemyMoving(), window, context.needsCharges()))
@@ -530,12 +538,13 @@ public final class BotTactics
 			}
 		}
 		final ThreadLocalRandom random = ThreadLocalRandom.current();
-		final int tankSelected = timedTank ? s.tankDefense.choose(options, time, activeStrong != 0) : -1;
+		final int tankSelected = timedTank ? s.tankDefense.choose(options, time, activeStrong != 0, enemy.isMageClass()) : -1;
 		final int tankChoice = tank ? TacticsPolicy.tankActionChoice(options, tankStuns, tankRoots, tankMelee, tankSelected,
 			!enemy.isMovementDisabled() && !enemy.isOutOfControl()) : -1;
 		final int cpChoice = dominator ? s.dominatorCp.choose(options, cpRatio(bot)) : -1;
 		final int cardinalChoice = s.cardinalProminence.choose(preset.getClassId(), options, time);
-		final int selected = cardinalChoice >= 0 ? cardinalChoice : cpChoice >= 0 ? cpChoice : tankChoice >= 0 ? tankChoice : trainingRushActive
+		final int recoveryChoice = options.stream().filter(o -> preset.getClassId() == 90 && o.id() == 69 || preset.getClassId() == 131 && o.id() == 833).mapToInt(TacticsPolicy.Option::id).findFirst().orElse(-1);
+		final int selected = recoveryChoice >= 0 ? recoveryChoice : cardinalChoice >= 0 ? cardinalChoice : cpChoice >= 0 ? cpChoice : tankChoice >= 0 ? tankChoice : trainingRushActive
 			? options.stream().anyMatch(option -> option.id() == 793) ? 793 : -1
 			: trainingBerserker
 			? s.trainingBurst.choose(options, distance, skills.containsKey(793), difficulty(s), random.nextDouble(), random.nextDouble())
@@ -851,13 +860,15 @@ public final class BotTactics
 			x = enemy.getX() - 85 * Math.cos(angle) - 70 * Math.sin(angle);
 			y = enemy.getY() - 85 * Math.sin(angle) + 70 * Math.cos(angle);
 		}
-		else if ((preset.isCaster() || preset.getWeaponKind() == BotClassPreset.WeaponKind.BOW || preset.getWeaponKind() == BotClassPreset.WeaponKind.CROSSBOW || weaponUnavailable(bot))
+		else if (preset.getClassId() == 95
+			? TacticsPolicy.soultakerKite(meleeOpponent(enemy), distance, enemy.isSleeping() || enemy.isMovementDisabled() || enemy.isOutOfControl(), s.offensiveActionsSinceStep)
+			: (preset.isCaster() || preset.getWeaponKind() == BotClassPreset.WeaponKind.BOW || preset.getWeaponKind() == BotClassPreset.WeaponKind.CROSSBOW || weaponUnavailable(bot))
             && TacticsPolicy.rangedStepAllowed(preset.isCaster() || weaponUnavailable(bot), meleeOpponent(enemy),
                 distance, hp, enemy.isSleeping() || enemy.isMovementDisabled() || enemy.isOutOfControl(), offenseReady, s.offensiveActionsSinceStep))
 		{
 			x = bot.getX() + 100 * (bot.getX() - enemy.getX()) / distance;
-				y = bot.getY() + 100 * (bot.getY() - enemy.getY()) / distance;
-				if (bot.isInOlympiadMode() && s.hasArenaCenter && Math.hypot(x - s.arenaCenterX, y - s.arenaCenterY) > 450) { s.nextStep = time + 1500; return false; }
+			y = bot.getY() + 100 * (bot.getY() - enemy.getY()) / distance;
+			if (bot.isInOlympiadMode() && s.hasArenaCenter && Math.hypot(x - s.arenaCenterX, y - s.arenaCenterY) > (preset.getClassId() == 95 ? 1100 : 450)) { s.nextStep = time + 1500; return false; }
 		}
 		else { return false; } // Tanks/other melee maintain pressure via parent pursuit.
 		final double dx = x - bot.getX(), dy = y - bot.getY(), length = Math.hypot(dx, dy);
@@ -866,7 +877,7 @@ public final class BotTactics
 		if (Math.hypot(px - s.anchorX, py - s.anchorY) > 1400 || !GeoEngine.getInstance().canMoveToTarget(bot.getX(), bot.getY(), bot.getZ(), px, py, bot.getZ(), bot.getInstanceId())) { s.nextStep = time + 1500; return false; }
 		stopBasicAttack(bot);
 		bot.getAI().setIntentionMoveTo(new Location(px, py, bot.getZ()));
-		s.nextStep = time + (recovery || weaponUnavailable(bot) ? 600 : preset.getWeaponKind() == BotClassPreset.WeaponKind.DAGGER ? 2500 : 4500);
+		s.nextStep = time + (recovery || weaponUnavailable(bot) ? 600 : preset.getClassId() == 95 ? 800 : preset.getWeaponKind() == BotClassPreset.WeaponKind.DAGGER ? 2500 : 4500);
 		if (bot.getAI().getIntention() != Intention.MOVE_TO || !bot.isMoving()
 			|| Math.hypot(bot.getXdestination() - px, bot.getYdestination() - py) >= 40) { return false; }
 		s.moveX = px; s.moveY = py; s.moveUntil = time + (recovery ? 450 : 200);

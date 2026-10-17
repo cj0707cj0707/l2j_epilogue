@@ -28,6 +28,8 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 ## Последнее обновление
 
+[40. Soultaker, защита танков и самолечение](40-soultaker-tank-recovery-and-invulnerability.md) — кайт95, Anti Magic Armor перед Vengeance против магов, bot-only Sacrifice +30 Power без отката ниже70%, запрет активного самолечения под invul и Body Reconstruction при≤40% в обеих аренах.
+
 [39. Физические боты: автоатака без MP](39-low-mana-physical-autoattack.md) — fallback для немагических классов, включая ножей/лучников/берсеркера; без физического MP floor и без изменений Cardinal.
 
 [38. Кардинал: неисчерпаемая мана в обоих режимах](38-cardinal-unlimited-arena-mana.md) — персональное восстановление MP в общем боевом тике после подтверждения каста; без изменения общих навыков и MP противника.

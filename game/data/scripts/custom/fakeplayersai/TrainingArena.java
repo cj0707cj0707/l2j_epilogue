@@ -139,6 +139,7 @@ public final class TrainingArena
     public static synchronized void init()
     {
         if (initialized) return;
+        BotRecoveryRules.init();
         try { Files.createDirectories(DIR); }
         catch (IOException e) { throw new IllegalStateException("Training recovery directory unavailable", e); }
         // Only two identity-verified harbor zones may omit THIS authorized

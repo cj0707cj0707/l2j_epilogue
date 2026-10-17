@@ -16,6 +16,8 @@
  */
 package handlers.skill.effects;
 
+import custom.fakeplayersai.BotRecoveryRules;
+
 import org.l2jmobius.gameserver.entity.actor.Creature;
 import org.l2jmobius.gameserver.entity.item.enums.ShotType;
 import org.l2jmobius.gameserver.mechanics.conditions.Condition;
@@ -85,7 +87,7 @@ public class HpDrain extends AbstractEffect
 		
 		final double hpAdd = (_power * drain);
 		final double hpFinal = ((effector.getCurrentHp() + hpAdd) > effector.getMaxHp() ? effector.getMaxHp() : (effector.getCurrentHp() + hpAdd));
-		effector.setCurrentHp(hpFinal);
+		if (!BotRecoveryRules.blockedSelfHeal(effector, effector)) effector.setCurrentHp(hpFinal);
 		
 		if (damage > 0)
 		{

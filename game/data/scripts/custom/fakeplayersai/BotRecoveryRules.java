@@ -1,0 +1,110 @@
+package custom.fakeplayersai;
+
+import org.l2jmobius.gameserver.data.xml.SkillData;
+import org.l2jmobius.gameserver.entity.actor.Creature;
+import org.l2jmobius.gameserver.entity.actor.Player;
+import org.l2jmobius.gameserver.mechanics.effects.EffectType;
+import org.l2jmobius.gameserver.mechanics.events.Containers;
+import org.l2jmobius.gameserver.mechanics.events.EventType;
+import org.l2jmobius.gameserver.mechanics.events.holders.actor.creature.OnCreatureSkillUse;
+import org.l2jmobius.gameserver.mechanics.events.listeners.FunctionEventListener;
+import org.l2jmobius.gameserver.mechanics.events.returns.TerminateReturn;
+import org.l2jmobius.gameserver.mechanics.skill.EffectScope;
+import org.l2jmobius.gameserver.mechanics.skill.Skill;
+import org.l2jmobius.gameserver.util.StatSet;
+
+/** Shared selection + synchronous core cast guard; no player skill/XML edits. */
+public final class BotRecoveryRules
+{
+    private static boolean initialized;
+    private static Skill sacrifice;
+    private BotRecoveryRules() { }
+
+    public static synchronized void init()
+    {
+        if (initialized) return;
+        Containers.Global().addListener(new FunctionEventListener(Containers.Global(), EventType.ON_CREATURE_SKILL_USE,
+            (OnCreatureSkillUse e) -> guard(e), BotRecoveryRules.class));
+        initialized = true;
+    }
+
+    private static boolean managed(Creature actor)
+    {
+        return actor != null && actor.isPlayer() && actor.asPlayer().getClient() == null
+            && (BotManager.isBot(actor.asPlayer()) || TrainingArena.isTrainingBot(actor.asPlayer()));
+    }
+
+    /** Also used at effect execution, when invulnerability may have proc'd mid-cast. */
+    public static boolean blockedSelfHeal(Creature effector, Creature effected)
+    {
+        return effector == effected && managed(effected) && effected.isInvul();
+    }
+
+    public static boolean healing(Skill skill)
+    {
+        if (skill == null) return false;
+        if (skill.hasEffectType(EffectType.HEAL, EffectType.CPHEAL)) return true;
+        for (EffectScope scope : EffectScope.values())
+        {
+            final var effects = skill.getEffects(scope);
+            if (effects != null) for (var effect : effects)
+                if (switch (effect.getName())
+                {
+                    case "Heal", "HealPercent", "HealOverTime", "CpHeal", "CpHealPercent", "CpHealOverTime", "HpByLevel", "RebalanceHP" -> true;
+                    default -> false;
+                }) return true;
+        }
+        return false;
+    }
+
+    public static boolean selfHealAllowed(Player bot, Skill skill)
+    {
+        if (!healing(skill)) return true;
+        if (bot.isInvul()) return false;
+        return TacticsPolicy.recoveryHealAllowed(bot.getPlayerClass().getId(), skill.getId(),
+            bot.getCurrentHp() / Math.max(1, bot.getMaxHp()));
+    }
+
+    static TerminateReturn guard(OnCreatureSkillUse event)
+    {
+        if (event == null || !managed(event.getCaster()) || !healing(event.getSkill())) return null;
+        final Player bot = event.getCaster().asPlayer();
+        boolean includesSelf = event.getTarget() == bot;
+        if (event.getTargets() != null) includesSelf |= event.getTargets().contains(bot);
+        // The bot-only Sacrifice must never heal the opponent via a restored enemy target.
+        if (bot.getPlayerClass().getId() == 90 && event.getSkill().getId() == 69 && event.getTarget() != bot)
+            return new TerminateReturn(true, true, true);
+        return includesSelf && !selfHealAllowed(bot, event.getSkill()) ? new TerminateReturn(true, true, true) : null;
+    }
+
+    /** Independent +30 Power template, with ONLY the requested bot reuse override.
+     * Copy this exact simple skill's native properties/effects; never mutate SkillData. */
+    public static synchronized void applyPhoenixSacrifice(Player bot)
+    {
+        if (bot == null || bot.getClient() != null || bot.getPlayerClass().getId() != 90 || bot.getKnownSkill(69) == null) return;
+        if (sacrifice == null)
+        {
+            final Skill nativeSkill = SkillData.getInstance().getSkill(69, 130);
+            if (nativeSkill == null)
+            {
+                java.util.logging.Logger.getLogger(BotRecoveryRules.class.getName()).warning("Phoenix Sacrifice +30 Power template missing; existing skill retained");
+                return;
+            }
+            StatSet set = new StatSet();
+            set.set("skill_id", 69); set.set("level", nativeSkill.getLevel()); set.set("name", nativeSkill.getName());
+            set.set("icon", nativeSkill.getIcon()); set.set("operateType", "A1"); set.set("targetType", "ONE");
+            set.set("castRange", nativeSkill.getCastRange()); set.set("effectRange", nativeSkill.getEffectRange());
+            set.set("effectPoint", nativeSkill.getEffectPoint()); set.set("hitTime", nativeSkill.getHitTime());
+            set.set("hpConsume", nativeSkill.getHpConsume()); set.set("isMagic", 1); set.set("magicLevel", nativeSkill.getMagicLevel());
+            set.set("reuseDelay", 0);
+            Skill copy = new Skill(set);
+            for (EffectScope scope : EffectScope.values())
+            {
+                final var effects = nativeSkill.getEffects(scope);
+                if (effects != null) for (var effect : effects) copy.addEffect(scope, effect);
+            }
+            sacrifice = copy;
+        }
+        if (bot.getKnownSkill(69) != sacrifice) bot.addSkill(sacrifice, false);
+    }
+}

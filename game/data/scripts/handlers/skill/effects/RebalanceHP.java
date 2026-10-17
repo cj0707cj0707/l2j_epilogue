@@ -20,6 +20,8 @@
  */
 package handlers.skill.effects;
 
+import custom.fakeplayersai.BotRecoveryRules;
+
 import org.l2jmobius.gameserver.entity.WorldObject;
 import org.l2jmobius.gameserver.entity.actor.Creature;
 import org.l2jmobius.gameserver.entity.actor.Player;
@@ -57,6 +59,7 @@ public class RebalanceHP extends AbstractEffect
 	@Override
 	public void onStart(Creature effector, Creature effected, Skill skill)
 	{
+		if (BotRecoveryRules.blockedSelfHeal(effector, effected)) return;
 		if (!effector.isPlayer() || !effector.isInParty())
 		{
 			return;

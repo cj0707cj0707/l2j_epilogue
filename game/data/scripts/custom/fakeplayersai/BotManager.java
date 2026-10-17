@@ -461,6 +461,7 @@ public class BotManager
 	public static void init()
 	{
 		TacticalSettings.init();
+		BotRecoveryRules.init();
 		CombatAnalytics.init();
 
 		if (_initialized)
@@ -2336,6 +2337,8 @@ public class BotManager
 			return false;
 		}
 		final double dist = bot.calculateDistance2D(enemy);
+		if (!state.movement.rushPending() && !bot.isCastingNow() && !bot.isCastingSimultaneouslyNow()
+			&& enemy.isPlayer() && BotTactics.tickDefense(bot, enemy.asPlayer(), preset, true)) return true;
 		final boolean manaFallback = BotTactics.needsManaAutoAttack(bot, preset) && BotTactics.allowsBasicAttack(bot, preset);
 		if (!manaFallback && driveOwnRushStunLoop(bot, preset, state, enemy, rush, now)) return true;
 		if (state.movement.rushPending())

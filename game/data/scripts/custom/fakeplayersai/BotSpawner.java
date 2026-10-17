@@ -173,7 +173,7 @@ public class BotSpawner
 	};
 	private static final int[] TANK_DEFENSE_MAGIC =
 	{
-		VENGEANCE_ID, 760, 913, 351, 72, 916,
+		760, VENGEANCE_ID, 913, 351, 72, 916,
 	};
 	private static final int[] TANK_DEFENSE_ALL =
 	{
@@ -455,6 +455,7 @@ public class BotSpawner
 			if (damage && (targetLevel == duelLevel)) duelCount++;
 			else if (!damage && (targetLevel == penaltyLevel)) penaltyCount++;
 		}
+		BotRecoveryRules.applyPhoenixSacrifice(player);
 		LOGGER.info("FakePlayersAI: skill-ench " + player.getName() + ": enchanted " + enchanted + " skills (" + duelCount + " damage->Duel, " + penaltyCount + " self-restricting->Decrease Penalty), " + skipped + " unenchanted.");
 		return enchanted;
 	}
@@ -630,7 +631,8 @@ public class BotSpawner
 		int candidate = 0;
 		for (int skillId : desiredPool)
 		{
-			if ((skillId != VENGEANCE_ID) && !containsId(preset.getBuffs(), skillId)) continue;
+			if ((skillId != VENGEANCE_ID) && !(skillId == 760 && opponentMage && !preset.hasBuffsOverride() && !preset.hasRotationOverride())
+				&& !containsId(preset.getBuffs(), skillId)) continue;
 			final Skill skill = player.getKnownSkill(skillId);
 			if (skill == null || !tankMovementDefenseAllowed(opponent, skill)) continue;
 			if (activeMatch && isLongSelfBuff(player, skillId)) continue;

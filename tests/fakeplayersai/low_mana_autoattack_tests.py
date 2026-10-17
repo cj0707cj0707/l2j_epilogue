@@ -15,7 +15,7 @@ act=body(t,'private static boolean act(')
 assert act.index('pollAttempt(')<act.index('final boolean manaFallback')
 assert act.index('bot.isOutOfControl() || bot.isAllSkillsDisabled()')<act.index('final boolean manaFallback')
 assert act.index('s.pendingId != 0) { return')<act.index('final boolean manaFallback')
-assert 'trainingBerserker && !manaFallback ? trainingRushAction' in act
+assert 'trainingBerserker && !manaFallback && !recoveryReady ? trainingRushAction' in act
 assert act.index('if (manaFallback && selected < 0 && !sleeping)')<act.index('step(bot, enemy')
 assert 's.moveUntil = 0; return false;' in act
 for method in ['public static synchronized boolean tick(','public static synchronized boolean tickDefense(']:

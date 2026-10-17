@@ -139,6 +139,16 @@ final class TacticsPolicy
         if (offenseReady && (hp >= .65 || actionsSinceStep < 2)) return false;
         return true;
     }
+	static boolean soultakerKite(boolean meleeThreat, double distance, boolean controlled, int actions)
+	{
+		return meleeThreat && !controlled && distance > 0 && distance < 450 && (actions >= 1 || distance < 100);
+	}
+	static boolean recoveryHealAllowed(int classId, int skillId, double hp)
+	{
+		if (classId == 90 && skillId == 69) return hp < .70;
+		if (classId == 131 && skillId == 833) return hp <= .40;
+		return true;
+	}
     static boolean attemptResolved(boolean sawCast, boolean paid, long elapsed)
     {
         // A real completed cast need not wait out an arbitrary 750ms lock.
@@ -349,7 +359,18 @@ final class TacticsPolicy
 		void observed(int id) { if (id == 110 || id == 368 || id == 760) { lastStrong = id; } }
 		int choose(List<Option> legal, long time, boolean strongActive)
 		{
+			return choose(legal, time, strongActive, false);
+		}
+		int choose(List<Option> legal, long time, boolean strongActive, boolean magicOpponent)
+		{
 			if (!due(time) || strongActive) { return -1; }
+			if (magicOpponent)
+			{
+				int first = lastStrong == 760 ? 368 : 760;
+				for (int id : new int[] { first, first == 760 ? 368 : 760, 913, 351, 72, 916 })
+					for (Option option : legal) if (option.id == id) return id;
+				return -1;
+			}
 			int first = lastStrong == 368 ? 110 : 368;
 			int second = first == 110 ? 368 : 110;
 			for (int id : new int[] { first, second, 350, 439, 527, 112, 82, 86 })

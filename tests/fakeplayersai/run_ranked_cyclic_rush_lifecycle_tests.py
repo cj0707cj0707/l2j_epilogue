@@ -31,7 +31,9 @@ def main():
         'private static boolean castSkill(', 'private static boolean canBerserkerCast(']
     bodies='\n\n'.join(block(source,s) for s in signatures)
     driver=block(source,'private static boolean driveBerserkerStep(')
-    assert driver.index('driveOwnRushStunLoop(')<driver.index('state.movement.rushPending()')
+    # Emergency recovery may run before the loop, but never during a pending Rush/cast.
+    assert driver.index('!state.movement.rushPending()')<driver.index('BotTactics.tickDefense(')<driver.index('driveOwnRushStunLoop(')
+    assert driver.index('driveOwnRushStunLoop(')<driver.index('if (state.movement.rushPending())')
     assert 'state.rushStun.requested(enemy, previousStun, now);' in driver
     outer=block(source,'private static boolean driveBerserker(')
     assert outer.index('OlympiadCombatGate.ready(bot)')<outer.index('driveBerserkerStep(')

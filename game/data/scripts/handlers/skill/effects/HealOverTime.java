@@ -20,6 +20,8 @@
  */
 package handlers.skill.effects;
 
+import custom.fakeplayersai.BotRecoveryRules;
+
 import org.l2jmobius.gameserver.entity.actor.Creature;
 import org.l2jmobius.gameserver.mechanics.conditions.Condition;
 import org.l2jmobius.gameserver.mechanics.effects.AbstractEffect;
@@ -45,6 +47,7 @@ public class HealOverTime extends AbstractEffect
 	@Override
 	public boolean onActionTime(Creature effector, Creature effected, Skill skill)
 	{
+		if (BotRecoveryRules.blockedSelfHeal(effector, effected)) return true;
 		if (effected.isDead() || effected.isDoor())
 		{
 			return false;
