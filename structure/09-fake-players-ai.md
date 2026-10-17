@@ -11,12 +11,111 @@
 | `BotManager.java` | Реестр ботов, флаги состояния, идентификация |
 | `BotSpawner.java` | Спаун/деспаун ботов, выдача экипировки и скиллов, назначение пресетов |
 | `BotClassPreset.java` | Пресеты классов: ротация скиллов, тип оружия, флаг кастера |
-| `BotPresets.java` | Справочник пресетов по classId |
+| `BotPresets.java` | Справочник пресетов по classId, таблицы снаряжения, методы выдачи снаряжения |
 | `BotTactics.java` | **Тактическое ИИ**: выбор действия, шаги движения, ownership |
 | `TacticsPolicy.java` | Политики и пороги: разрешения, скоринг, сложность |
 | `OlympiadChase.java` | Фазовый драйвер преследования на Олимпиаде (rush/retreat) |
 | `TrainingArena.java` | Тренировочная арена: границы, инициализация пар |
 | `CombatAnalytics.java` | Аналитика боевых событий |
+
+## API BotClassPreset — актуальные и совместимые методы
+
+### Основные (текущие) названия
+| Метод | Возвращает | Описание |
+|---|---|---|
+| `getGear()` | `GearKind` | Тип брони: HEAVY / LIGHT / ROBE |
+| `getWeaponKind()` | `WeaponKind` | Тип оружия |
+| `useArrows()` | `boolean` | Лучник (стрелы) |
+| `useSpiritshot()` | `boolean` | Маг (спиритшоты) |
+| `isCaster()` | `boolean` | weapon == MAGIC |
+
+### Алиасы совместимости (добавлены 17.10.2026)
+Эти методы появились из-за того, что при добавлении Cardinal-бота старые имена были убраны,
+но `BotPresets.java` (на сервере) всё ещё их вызывал:
+| Старый метод | Делегирует к | Причина сохранения |
+|---|---|---|
+| `getGearKind()` | `getGear()` | BotPresets вызывал getGearKind() |
+| `usesArrows()` | `useArrows()` | BotPresets вызывал usesArrows() |
+| `usesBolts()` | `weapon == CROSSBOW` | BotPresets вызывал usesBolts() (метода не было) |
+| `usesSpiritshot()` | `useSpiritshot()` | BotPresets вызывал usesSpiritshot() |
+
+## API BotPresets — актуальные и совместимые методы
+
+### Основные (текущие) — новое API после рефакторинга под Cardinal
+| Метод | Возвращает | Описание |
+|---|---|---|
+| `getArmorChest/Legs/Helm/Gloves/Boots(preset, vesper)` | `int` | ID отдельных частей брони |
+| `getWeapon(preset, vesper)` | `int` | ID оружия |
+| `getShield(vesper)` | `int` | ID щита |
+| `getJewels(vesper)` | `int[]` | ID украшений |
+| `getAmmo(preset)` | `int` | ID стрел или болтов (0 для не-лучников) |
+| `getShot(preset)` | `int` | ID соулшота или спиритшота |
+| `getHealPotion()` | `int` | Greater Healing Potion (1539) |
+| `getCpPotion()` | `int` | Greater CP Potion (5592) |
+| `loadOverride(classId, key, default)` | `String` | Чтение одного переопределения из INI |
+| `saveOverride(classId, key, value)` | `void` | Запись одного переопределения в INI |
+
+### Алиасы совместимости (добавлены 17.10.2026)
+BotSpawner, BotManager и TrainingArena при добавлении Cardinal не были обновлены
+под новые имена методов. Все старые сигнатуры восстановлены как обёртки:
+| Старый метод | Делегирует к | Примечание |
+|---|---|---|
+| `getArmorSet(preset, vesper)` | `(vesper?VESPER:DYNASTY)[gear].clone()` | int[5]: chest,legs,helm,gloves,boots |
+| `getShieldId(preset, vesper)` | `getShield(vesper)` или 0 | 0 для двуручных/луков/магов/арбалетов |
+| `getWeaponId(preset, vesper)` | `getWeapon(preset, vesper)` | учитывает weaponOverride |
+| `getJewelryIds()` | `getJewels(BotManager.getSettings().isUseS84())` | без параметра vesper |
+| `getAllGearIds()` | все ID из dynasty+vesper таблиц | для уничтожения старого снаряжения |
+| `getPotionId()` | `POTION_HEAL` (1539) | — |
+| `getCpPotionId()` | `POTION_CP` (5592) | — |
+| `getFighterShotId()` | `SOULSHOT_S` (1467) | — |
+| `getBlessedSpiritshotId()` | `BLESSED_SPIRITSHOT_S` (3952) | — |
+| `getBoltId()` | `BOLT_S` (9637) | — |
+| `getArrowId()` | `ARROW_S` (1345) | — |
+| `getNames(female)` | `Arrays.asList(MALE/FEMALE_NAMES)` | — |
+| `loadOverrides()` | читает INI + применяет ко всем пресетам | bulk-вариант loadOverride |
+
+## Таблицы снаряжения (константы BotPresets)
+
+### Броня (индекс = GearKind.ordinal(): 0=HEAVY, 1=LIGHT, 2=ROBE)
+| Тир | chest | legs | helm | gloves | boots |
+|---|---|---|---|---|---|
+| Dynasty HEAVY | 9416 | 9421 | 9422 | 9423 | 9424 |
+| Dynasty LIGHT | 9425 | 9428 | 9429 | 9430 | 9431 |
+| Dynasty ROBE | 9432 | 9437 | 9438 | 9439 | 9440 |
+| Vesper HEAVY | 13432 | 13438 | 13137 | 13439 | 13440 |
+| Vesper LIGHT | 13433 | 13441 | 13138 | 13442 | 13443 |
+| Vesper ROBE | 13434 | 13444 | 13139 | 13445 | 13446 |
+
+### Щит: Dynasty 9441, Vesper 13471 (только SWORD-классы)
+### Украшения: Dynasty {9457, 9455, 9456}, Vesper {14165, 14163, 14164}
+### Расходники: SOULSHOT_S=1467, SPIRITSHOT_S=2514, BLESSED_SPIRITSHOT_S=3952, ARROW_S=1345, BOLT_S=9637, POTION_HEAL=1539, POTION_CP=5592
+
+## Пресеты классов
+
+| classId | Класс | Gear | Weapon | female | arrows | spiritshot |
+|---|---|---|---|---|---|---|
+| 88 | Duelist | LIGHT | DUAL | — | — | — |
+| 90 | Phoenix Knight | HEAVY | SWORD | — | — | — |
+| 91 | Hell Knight | HEAVY | SWORD | — | — | — |
+| 92 | Sagittarius | LIGHT | BOW | — | ✓ | — |
+| 93 | Adventurer | LIGHT | DAGGER | — | — | — |
+| 94 | Archmage | ROBE | MAGIC | — | — | ✓ |
+| 95 | Soultaker | ROBE | MAGIC | — | — | ✓ |
+| 96 | Mystic Muse | ROBE | MAGIC | ✓ | — | ✓ |
+| **97** | **Cardinal** | **ROBE** | **MAGIC** | **✓** | **—** | **✓** |
+| 103 | Doombringer | LIGHT | DUAL | — | — | — |
+| 105 | Soul Hound | LIGHT | RAPIER | — | — | — |
+| 107 | Trickster | LIGHT | CROSSBOW | — | — | — |
+| 108 | Inspector | LIGHT | ANCIENT | — | — | — |
+| 110 | Storm Screamer | ROBE | MAGIC | ✓ | — | ✓ |
+| 111 | Dominator | ROBE | MAGIC | — | — | ✓ |
+| 112 | Doomcryer | ROBE | MAGIC | — | — | ✓ |
+| 113 | Maestro | HEAVY | FIST | — | — | — |
+| 114 | Fortune Seeker | HEAVY | TWO_HAND | — | — | — |
+| 115 | Judicator | ROBE | MAGIC | — | — | ✓ |
+| 116 | Titan | LIGHT | TWO_HAND | — | — | — |
+| 118 | Grand Khavatari | LIGHT | FIST | — | — | — |
+| 131 | Doombringer (3rd) | LIGHT | DUAL | — | — | — |
 
 ## Архитектура BotTactics
 
@@ -96,6 +195,7 @@
 - **Dominator (classId=115)**: CpWeave — автоматическое восстановление CP; Sleep-offense — атака спящего врага через 5 сек
 - **Training Berserker (classId=131)**: режим тренировки с Rush-loop (skill 793)
 - **Tank**: особые приоритеты stun/root/melee, закрытие дистанции
+- **Cardinal (classId=97)**: Trance (1394) + Mana Burn (1398) + Prominence (1230) + Magical BackFire (1396); открывающий дебафф Mana Storm (1399) на противника; самобаф Prayer (1307) перед боем
 
 ## Журнал правок
 
@@ -148,3 +248,35 @@
 - После возврата оружия бот автоматически возвращается к штатному поведению.
 
 **Затронутые методы:** `act()` (цикл скиллов + fallback auto-attack), `step()` (ranged-kite ветка + таймер).
+
+### 17.10.2026 — Cardinal-бот (classId=97): добавлен в пресеты; исправлена компиляция
+
+**Файлы:** `BotPresets.java`, `BotClassPreset.java`
+
+**Суть:** При добавлении Cardinal-бота (бои на Олимпиаде и тренировочной арене) API `BotPresets` и `BotClassPreset` был рефакторен (методы переименованы), но `BotSpawner.java`, `BotManager.java` и `TrainingArena.java` обновлены не были. Сервер падал при старте с 34 ошибками компиляции.
+
+**BotClassPreset.java — добавлены алиасы:**
+- `getGearKind()` → делегирует `getGear()`
+- `usesArrows()` → делегирует `useArrows()`
+- `usesBolts()` → `weapon == CROSSBOW`
+- `usesSpiritshot()` → делегирует `useSpiritshot()`
+
+**BotPresets.java — исправлены внутренние вызовы + добавлены алиасы:**
+- Внутри `getArmorChest/Legs/Helm/Gloves/Boots/getAmmo/getShot`: `getGearKind()` → `getGear()`, `usesArrows()` → `useArrows()`, `usesSpiritshot()` → `useSpiritshot()`
+- `getArmorSet(preset, vesper)` → возвращает `int[5]` (все части брони)
+- `getShieldId(preset, vesper)` → 0 кроме SWORD-классов
+- `getWeaponId(preset, vesper)` → учитывает weaponOverride
+- `getJewelryIds()` → `getJewels(BotManager.getSettings().isUseS84())`
+- `getAllGearIds()` → все ID из dynasty+vesper для cleanup
+- `getPotionId()` → 1539, `getCpPotionId()` → 5592
+- `getFighterShotId()` → 1467, `getBlessedSpiritshotId()` → 3952
+- `getBoltId()` → 9637, `getArrowId()` → 1345
+- `getNames(female)` → `Arrays.asList(MALE/FEMALE_NAMES)`
+- `loadOverrides()` → читает `FakePlayersAIOverrides.ini` и применяет rotation/buffs/weapon ко всем пресетам
+
+**Пресет Cardinal (classId=97):**
+- Gear: ROBE, Weapon: MAGIC, female=true, spiritshot=true
+- Rotation: Trance (1394), Mana Burn (1398), Prominence (1230), Magical BackFire (1396)
+- Buffs (self): Prayer (1307), Greater Battle Heal (1218)
+- Opening debuff на противника: Mana Storm (1399)
+- Тактика: kite 450u после Trance, Mana Burn во сне, Prominence как нюк
