@@ -1,0 +1,76 @@
+# 41. Trance65%, круговой кайт, граница бот–бот и истощение магов
+
+17.10.2026. База: `c52fe37b3ebde02b267daa2970ed5293ee3fa982`.
+Резерв: `backup/before-trance-orbit-mana-rules-2026-10-17`.
+
+## 1. Почему Trance проходил слишком часто
+
+В общем XML1394 базовый `activateRate=80`, а +30 Chance (уровень230) поднимает его до100. В поставленном ядре `Formulas.calcEffectSuccess` при activateRate>99 возвращает успех без обычного броска. Заточка `BotSpawner.applySkillEnchants` могла выбрать эту ветку; прежнего фиксированного65% в коде не было.
+
+`CardinalTrance.apply` после общей заточки выдаёт clientless Cardinal97 отдельную неперсистентную копию известного1394: **activateRate=65, minChance=65, maxChance=65, basicProperty=MEN**. Значение ниже100 обязательно: одних min/max недостаточно, если ядро вообще пропускает ветку расчёта. Native формула теперь выполняет один бросок с finalRate65, независимо от Chance-заточки, обычных MEN/M.Atk/M.Def/shot/resistance-модификаторов. Непробиваемые иммунитеты (DEBUFF_IMMUNITY, абсолютный SLEEP immunity, invulnerability) и общий запрет продления существующего дебафа остаются запретами, а не65%-ным обходом.
+
+Длительность выбранной родной ветки, enchant level, Sleep/DefenceTrait-эффекты, cast/reuse/MP-cost и снятие от урона сохранены. Общий SkillData/XML и человеческие навыки не меняются. Активный arena tick также восстанавливает private65%-ную копию, если её подменил native/enchant template.65% — на отдельную допустимую попытку, а не гарантия заданной серии попаданий/промахов.
+
+## 2. Кайт по окружности
+
+- Якорь — **реальный центр** стадиона из `BotManager.OLYMPIAD_STADIUM_CENTERS`; на тренировке —43409/188493. Это больше не midpoint текущих позиций двух бойцов.
+- Общие кайт/recovery-шаги `BotTactics` и legacy олимпийский `BotManager.kitePoint` используют один `ArenaCombatRules.kitePoint`.
+- Целевая окружность имеет радиус450 (евклидово расстояние XY в серверных координатах `/loc`). Изнутри/снаружи бот выходит на неё короткими шагами, затем продолжает идти последовательными хордами. По достижении450 он не упирается в старый радиальный запрет.
+- Первое направление выбирается по удалению от противника и сохраняется. Смена направления — только когда текущая сторона не проходит geodata, а обратная проходит. Это предотвращает колебание у дальней точки вместо обхода.
+- Начатые касты/CC/реакция/сон/триггеры включения кайта и классовые интервалы не обходятся. Все точки проверяются geodata. Физический low-MP fallback по-прежнему уступает автоатаке, не запускает новый recovery-круг.
+- Прежние жёсткие кайт-ограничения450/исключение1100 для Soultaker и привязка1400 к первой позиции убраны. Против человека **нет нового460-ограничения**; остаются обычные границы стадиона/тренировочного инстанса и проверки безопасности сессии, а450 является маршрутом кайта, не стеной для всех действий.
+
+## 3. Строгая граница460 только для бот–бот
+
+Проверки одного кайт-таймера недостаточно: движение также создают преследование, AutoPlay, страх, Rush и Blink. Добавлен hash-verified атомарный core patch `game/core-patches/arena-boundary/`:
+
+- В `Creature.moveToLocation(IIII)` ограничивается native destination; в `WorldObject.setXYZ(III)` — фактически записываемые координаты, включая прямой commit из `Creature.updatePosition` и charge landing. `WorldObject.setLocation(Location)` также закрыт, чтобы этот setter не обходил правило.
+- Только **явно зарегистрированная активная пара двух управляемых clientless ботов** получает ограничитель. Core проверяет identity, online/alive, instance, game/start либо активную duel-сессию. Клиент-backed человек не получает границу и снимает её у бота. Изменение instance/match/end/offline/teleport сбрасывает неприменимый контекст; смена instance через setLocation не обрезается по старой арене.
+- `ArenaCombatRules.update` регистрирует **обоих ботов сразу** до классового драйвера. При допуске в активный бой исходные spawn-позиции за460 нормализуются внутрь с ValidateLocation; далее ограничивается каждый native coordinate commit. Это намеренная коррекция входа пары, а не увеличение скорости или свободный телепорт в тактике.
+- Внутри460 координаты не меняются. Внешняя точка проецируется на459: запас1 учитывает округление integer XY, поэтому фактический радиус не становится460.7.
+- Против человека guard не зарегистрирован, native координаты не режутся. World PvP и подготовительные/завершённые бои не получают этого правила. Ссылки на участников слабые; явная очистка следует `BotTactics.forget`, TTL и вытеснению.
+- Геоданные по-прежнему определяют обычный маршрут; геометрический ограничитель не выдаёт permission на каст/удар сквозь стену. Если маршрут требует выхода из разрешённого круга, выход запрещён, а не разрешён ради обхода препятствия.
+
+## 4. Исчерпание маны магом →101 HP
+
+В общем активном arena проходе магический бот (caster preset либо настоящий mage class), **кроме Cardinal97**, получает `setCurrentHp(101)`, когда MP=0 либо остатка уже не хватает **ни на один изученный атакующий навык** ротации. Используются реальные adjusted initial+main MP-cost, а не откаты/LOS. Пока маны не хватает, правило проверяется на следующих боевых тиках, включая время каста/CC. Если HP уже≤101, повышения HP нет; CP и MP этим правилом не меняются.
+
+Применяется только к боту в разрешённом активном бою Олимпиады/тренировки, не к человеку, не к подготовке/мировому режиму. Родная олимпийская автоматическая доливка MP выключена для всех управляемых ботов: иначе маг не мог бы исчерпать ресурс. Физические классы сохраняют автоатаку из39. Cardinal сохраняет персональное полноеMP из38 и opponent regMp×0.10 из37; этот запрос не отменяет его исключение.
+
+## Файлы и установка
+
+Новые custom-скрипты: `ArenaCombatRules.java`, `CardinalTrance.java`. Согласованные вызовы: `BotTactics`, `BotManager`, `BotSpawner`, `TrainingArena`, комментарий `BotPresets`.
+
+Core-часть: `game/core-patches/arena-boundary/ArenaBoundaryGuard.java`, `InstallArenaBoundary.java`; обновлён `game/core-patches/debuff-no-refresh/InstallDebuffGuard.java`, `game/InstallDebuffGuard.cmd`, `game/GameServerTask.sh`. `GameServer.vbs`/`GameServerWindow.vbs` уже вызывают CMD, а `GameServer.sh` — Task.sh.
+
+1. **Остановить GameServer**, сохранить текущие изменяемые скрипты и `libs/GameServer.jar`.
+2. Обновить **весь комплект** этого изменения: custom-скрипты, обе папки core-patches и CMD/Task.sh. Частичный hot reload не поддерживается.
+3. Запускать через штатный VBS/Window VBS или GameServer.sh/Task.sh с Java25 JDK. При ручной установке из `game/`:
+
+```sh
+java --class-path . core-patches/debuff-no-refresh/InstallDebuffGuard.java ../libs/GameServer.jar core-patches/debuff-no-refresh/DebuffCategoryGuard.java
+java --class-path . core-patches/arena-boundary/InstallArenaBoundary.java ../libs/GameServer.jar core-patches/arena-boundary/ArenaBoundaryGuard.java
+```
+
+Сначала проверяется/ставится прежний debuff guard, затем boundary guard. Повторный запуск проверяет объединённый payload, а не ошибочно считает дополнительные классы повреждением старого патча. Все JAR/file-manager handles закрываются до atomic replace; используется отдельный lock и проверенный backup `.pre-arena-boundary-<inputHash>`. Неизвестный/изменённый вход и несовпадение marker/source/payload прекращают установку/запуск. Подробности — `game/log/debuff-guard-install.log`. При обходе штатного запуска и отсутствии core helper общий тактический проход удерживает бот–бот бой с SEVERE, а не молча отключает лимит; это **не замена правильной установке патча**.
+
+Бинарник `libs/GameServer.jar` в Git не заменялся: тестируется копия, при запуске локальный JAR патчится установщиком. Общий XML1394 и XML1300–1399 не редактируются; клиент/БД не обновляются.
+
+## Проверки
+
+`python3 tests/fakeplayersai/arena_orbit_trance_mana_tests.py`:
+- 26276 assertions: native1394 уровней10/101/130/201/230, неизменность общих шаблонов/людей, воспроизведение100% у native Chance230; два прогона native Formulas по10000 бросков (допуск61–69%) на разных боевых статах,65%-ные min/max и сохранённые абсолютные иммунитеты;
+- по1000 последовательных угловых шагов в обе стороны при нескольких размерах, несколько полных оборотов, ограниченные переходы к окружности;
+-360 направлений и радиусы0/450/459/460/461/600/2000 в обеих arena-моделях; фактические patched WorldObject commits/setLocation и bytecode-проверка native movement wrapper, общий adapter защищает обоих ботов;
+- all19 классов/режимов: истощение, HP101, отсутствие повышения с50, люди/Cardinal/физические исключения, границы adjusted MP-cost и отсутствие старогоMP floor;
+- реальная установка на копию, backup/idempotence обоих entrypoints, rejection неизвестного/подменённого core и удержание при отсутствующем helper; исходный repo JAR не меняется.
+
+Отдельно проверяются прежние `cardinal_arena_parity_tests.py`, `cardinal_name_prominence_tests.py`, `combat_recovery_rules_tests.py`, `low_mana_autoattack_tests.py`, `debuff_no_refresh_tests.py`, `debuff_installer_startup_tests.py`, `training_entry_heal_tests.py`, `run_ranked_cyclic_rush_lifecycle_tests.py`.
+
+Тесты **offline**, без живой БД/клиента. Для HP используется headless status seam только вместо UI/фоновой регенерации; production вызывает обычный Player setter. Тесты native movement используют настоящий patched coordinate setter и audit драйвера, не запущенный игровой AI/геоданные. Полный исторический suite не объявляется зелёным: он содержит устаревшие source-assertions предыдущих требований.
+
+Ручной smoke test после установки: обе арены; bot–bot `/loc` радиус≤460 во время обычного chase/Rush/Blink/страха; против человека выход за460 разрешён; продолжающийся круговой кайт450 без остановки у края; Trance с Chance-заточкой и обычным сопротивлением, абсолютный иммунитет; MP=0/ниже стоимости навыков у Mystic Muse/Dominator →HP101, отсутствие измененийHP человека/воина/Cardinal. Проверить Gate/первичную нормализацию spawn-позиций и отсутствие застревания на местных geodata.
+
+## Откат
+
+При остановленном сервере вернуть весь комплект исходников/launcher из резервной ветки и JAR из проверенного `.pre-arena-boundary-<hash>`, указанного в install log (он сохраняет прежний debuff guard). Удалить новые файлы boundary/custom scripts, затем перезапустить. Нельзя оставить старый debuff verifier вместе с уже изменённым boundary JAR: он правомерно отвергнет несовпадающий payload. Не выполнять общий hard reset поверх собственных сторонних изменений.

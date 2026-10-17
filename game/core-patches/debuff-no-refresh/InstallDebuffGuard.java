@@ -29,6 +29,22 @@ public class InstallDebuffGuard
     {
         if(args.length!=2) throw new IllegalArgumentException("Usage: java InstallDebuffGuard.java CORE.jar DebuffCategoryGuard.java (server must be stopped)");
         Path core=Path.of(args[0]).toAbsolutePath(), source=Path.of(args[1]).toAbsolutePath();
+        boolean boundary;
+        try(var probe=new JarFile(core.toFile())) { boundary=probe.getJarEntry("META-INF/l2j-arena-boundary-v1.properties")!=null; }
+        if(boundary)
+        {
+            Path folder=source.getParent().getParent().resolve("arena-boundary");
+            int result=new ProcessBuilder(Path.of(System.getProperty("java.home"),"bin","java").toString(),"--class-path",".",
+                folder.resolve("InstallArenaBoundary.java").toString(),core.toString(),folder.resolve("ArenaBoundaryGuard.java").toString()).inheritIO().start().waitFor();
+            if(result!=0)throw new IOException("Combined arena/debuff core verification failed: "+result);
+            // Also pin the original debuff helper source when verifying the combined core.
+            try(var jar=new JarFile(core.toFile()))
+            {
+                Properties old=new Properties();old.load(new ByteArrayInputStream(entry(jar,MARK)));
+                if(!sha(Files.readAllBytes(source)).equals(old.getProperty("source")))throw new IOException("Debuff source changed; restore verified backup before upgrade");
+            }
+            return;
+        }
         // A separate lock file serializes concurrent launcher attempts; never silently launch an unpatched core.
         try(var lockChannel=FileChannel.open(core.resolveSibling(".debuff-guard-install.lock"),StandardOpenOption.CREATE,StandardOpenOption.WRITE);
             var lock=lockChannel.lock())

@@ -456,6 +456,7 @@ public class BotSpawner
 			else if (!damage && (targetLevel == penaltyLevel)) penaltyCount++;
 		}
 		BotRecoveryRules.applyPhoenixSacrifice(player);
+		CardinalTrance.apply(player);
 		LOGGER.info("FakePlayersAI: skill-ench " + player.getName() + ": enchanted " + enchanted + " skills (" + duelCount + " damage->Duel, " + penaltyCount + " self-restricting->Decrease Penalty), " + skipped + " unenchanted.");
 		return enchanted;
 	}

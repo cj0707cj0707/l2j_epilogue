@@ -1927,6 +1927,8 @@ public class BotManager
 					continue;
 				}
 				final BotClassPreset preset = BotPresets.getPresetByClassId(getBotClassId(bot));
+				final Player activeOpponent = getOlympiadOpponent(bot);
+				if (activeOpponent != null && ArenaCombatRules.update(bot, activeOpponent, preset)) { OlympiadCombatGate.hold(bot); continue; }
 				final BerserkerState state = BERSERKER_STATES.get(bot.getObjectId());
 				if (state != null)
 				{
@@ -2009,10 +2011,9 @@ public class BotManager
 
 	private static boolean olympiadMpFloorAllowed(Player player)
 	{
-		// Physical bots must be able to run dry and fall back to normal weapon attacks.
-		final BotClassPreset preset = BotPresets.getPresetByClassId(getBotClassId(player));
-		if (isBot(player) && player.getClient() == null && preset != null && !preset.isCaster()
-			&& !player.getPlayerClass().isMage()) return false;
+		// All managed bots must be able to run dry. Cardinal alone has its own
+		// shared full-MP rule; physical fallback and exhausted-mage HP must stay observable.
+		if (isBot(player) && player.getClient() == null) return false;
 		if (!TacticalSettings.isEnabled()) return true;
 		final Player opponent = getOlympiadOpponent(player);
 		final boolean cardinalBot = isBot(player) && player.getClient() == null && player.getPlayerClass().getId() == 97;
@@ -2158,6 +2159,12 @@ public class BotManager
 	 *         opponent unconditionally (alive or not) - it is the identity check for the
 	 *         "the only valid olympiad target is the opponent" enforcement.
 	 */
+	static int[] arenaCenter(Player bot)
+	{
+		int game=bot.getOlympiadGameId();
+		return game>=0&&game<OLYMPIAD_STADIUM_CENTERS.length?OLYMPIAD_STADIUM_CENTERS[game].clone():null;
+	}
+
 	private static Player getOlympiadOpponent(Player player)
 	{
 		try
@@ -2208,6 +2215,7 @@ public class BotManager
 	 */
 	private static Location kitePoint(Player bot, Creature enemy, int[] ownSpawn, int[] enemySpawn)
 	{
+		if (bot.isInOlympiadMode() && enemy.isPlayer()) return ArenaCombatRules.kitePoint(bot, enemy.asPlayer(), KITE_STEP);
 		final double distToEnemy = bot.calculateDistance2D(enemy);
 		if (distToEnemy <= 1)
 		{

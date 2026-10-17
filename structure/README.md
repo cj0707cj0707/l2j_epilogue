@@ -28,6 +28,8 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 ## Последнее обновление
 
+[41. Trance65%, круговой кайт, граница бот–бот и MP магов](41-fixed-trance-orbit-boundary-and-mage-mana.md) — private65%-ный Trance без Chance-бонуса, движение по окружности450, core-ограничитель фактических координат460 только для бот–бот и HP101 при истощении магов; обновление запуска/установщика.
+
 [40. Soultaker, защита танков и самолечение](40-soultaker-tank-recovery-and-invulnerability.md) — кайт95, Anti Magic Armor перед Vengeance против магов, bot-only Sacrifice +30 Power без отката ниже70%, запрет активного самолечения под invul и Body Reconstruction при≤40% в обеих аренах.
 
 [39. Физические боты: автоатака без MP](39-low-mana-physical-autoattack.md) — fallback для немагических классов, включая ножей/лучников/берсеркера; без физического MP floor и без изменений Cardinal.

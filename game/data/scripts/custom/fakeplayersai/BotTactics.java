@@ -90,6 +90,7 @@ public final class BotTactics
 			STATES.entrySet().removeIf(e ->
 			{
 				if (time - e.getValue().seen <= TTL_MS) return false;
+				ArenaCombatRules.clear(e.getKey());
 				e.getValue().cardinalSupport.clear();
 				e.getValue().manaAutoAttack.clear();
 				return true;
@@ -262,6 +263,7 @@ public final class BotTactics
 	/** Explicit teardown; parent restores world auto-engines only after this call. */
 	public static synchronized void forget(int botId)
 	{
+		ArenaCombatRules.clear(botId);
 		State removed = STATES.remove(botId);
 		if (removed != null) removed.cardinalSupport.clear();
 		if (removed != null) removed.manaAutoAttack.clear();
@@ -319,6 +321,7 @@ public final class BotTactics
 		}
 		// Existing Rush/retreat/phase driver retains total ownership.
 		if (ranked && preset.getClassId() == 131) { return false; }
+		if (ArenaCombatRules.update(bot, enemy, preset)) return true;
 		final long time = now();
 		s = state(bot.getObjectId(), time);
 		prepare(bot, enemy, s, time);
@@ -367,9 +370,10 @@ public final class BotTactics
 			s.manaAutoAttack.clear();
 			s.enemy = enemy.getObjectId(); s.game = game; s.instance = bot.getInstanceId();
 			s.anchorX = bot.getX(); s.anchorY = bot.getY(); s.observed = time;
-			s.arenaCenterX = game >= 0 ? (bot.getX() + enemy.getX()) / 2 : 0;
-			s.arenaCenterY = game >= 0 ? (bot.getY() + enemy.getY()) / 2 : 0;
-			s.hasArenaCenter = game >= 0;
+			final int[] center = ArenaCombatRules.center(bot);
+			s.arenaCenterX = center != null ? center[0] : 0;
+			s.arenaCenterY = center != null ? center[1] : 0;
+			s.hasArenaCenter = center != null;
 			s.trainingBurst.reset(); s.trainingBerserkerMode = false; s.dominatorCp.reset();
 			s.tankDefense.reset(time); s.rushLoop.clear(); s.nextRushStep = time; s.pendingRushLoop = false; s.rushMoving = false; s.rushDirectionX = 0; s.rushDirectionY = 0;
 			s.sleepObserved = -1; s.nextDecision = time; s.nextStep = time; s.pendingId = 0; s.failures.clear(); s.enemyCasting = false; s.moveUntil = 0;
@@ -849,8 +853,9 @@ public final class BotTactics
 			distance, TacticsPolicy.recoveryEnemyControlled(preset.getClassId() == 115, enemy.isSleeping(), enemy.isMovementDisabled(), enemy.isOutOfControl()));
 		if (recovery)
 		{
-			x = bot.getX() + 120 * (bot.getX() - enemy.getX()) / distance;
-			y = bot.getY() + 120 * (bot.getY() - enemy.getY()) / distance;
+			final Location orbit = ArenaCombatRules.kitePoint(bot, enemy, 120);
+			if (orbit == null) return false;
+			x = orbit.getX(); y = orbit.getY();
 		}
 		else if (!offenseReady && preset.getWeaponKind() == BotClassPreset.WeaponKind.DAGGER && distance < 170
 			&& !TacticsPolicy.behind(enemy.getX(), enemy.getY(), enemy.getHeading(), bot.getX(), bot.getY()))
@@ -866,15 +871,15 @@ public final class BotTactics
             && TacticsPolicy.rangedStepAllowed(preset.isCaster() || weaponUnavailable(bot), meleeOpponent(enemy),
                 distance, hp, enemy.isSleeping() || enemy.isMovementDisabled() || enemy.isOutOfControl(), offenseReady, s.offensiveActionsSinceStep))
 		{
-			x = bot.getX() + 100 * (bot.getX() - enemy.getX()) / distance;
-			y = bot.getY() + 100 * (bot.getY() - enemy.getY()) / distance;
-			if (bot.isInOlympiadMode() && s.hasArenaCenter && Math.hypot(x - s.arenaCenterX, y - s.arenaCenterY) > (preset.getClassId() == 95 ? 1100 : 450)) { s.nextStep = time + 1500; return false; }
+			final Location orbit = ArenaCombatRules.kitePoint(bot, enemy, 100);
+			if (orbit == null) return false;
+			x = orbit.getX(); y = orbit.getY();
 		}
 		else { return false; } // Tanks/other melee maintain pressure via parent pursuit.
 		final double dx = x - bot.getX(), dy = y - bot.getY(), length = Math.hypot(dx, dy);
 		if (length > 160) { x = bot.getX() + dx * 160 / length; y = bot.getY() + dy * 160 / length; }
 		final int px = (int) Math.round(x), py = (int) Math.round(y);
-		if (Math.hypot(px - s.anchorX, py - s.anchorY) > 1400 || !GeoEngine.getInstance().canMoveToTarget(bot.getX(), bot.getY(), bot.getZ(), px, py, bot.getZ(), bot.getInstanceId())) { s.nextStep = time + 1500; return false; }
+		if (!GeoEngine.getInstance().canMoveToTarget(bot.getX(), bot.getY(), bot.getZ(), px, py, bot.getZ(), bot.getInstanceId())) { s.nextStep = time + 1500; return false; }
 		stopBasicAttack(bot);
 		bot.getAI().setIntentionMoveTo(new Location(px, py, bot.getZ()));
 		s.nextStep = time + (recovery || weaponUnavailable(bot) ? 600 : preset.getClassId() == 95 ? 800 : preset.getWeaponKind() == BotClassPreset.WeaponKind.DAGGER ? 2500 : 4500);

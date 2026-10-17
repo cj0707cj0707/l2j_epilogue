@@ -90,6 +90,7 @@ public final class TrainingArena
         if (value != null) for (String a : allowed) if (a.equalsIgnoreCase(value.trim())) return a;
         return null;
     }
+    static int[] arenaCenter() { return new int[]{CX, CY, CZ}; }
     static boolean inside(int x, int y) { return Math.hypot((double)x - CX, (double)y - CY) <= RADIUS; }
     static String trainingProfile(String value)
     {
