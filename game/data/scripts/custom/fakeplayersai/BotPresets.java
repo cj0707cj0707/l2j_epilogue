@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -468,32 +469,32 @@ public class BotPresets
 	}
 	
 	// ------------------------------------------------------------------
-	// Gear assignment
+	// Gear assignment — new API (individual per-slot methods)
 	// ------------------------------------------------------------------
 	
 	public static int getArmorChest(BotClassPreset preset, boolean vesper)
 	{
-		return (vesper ? VESPER_SETS : DYNASTY_SETS)[preset.getGearKind().ordinal()][0];
+		return (vesper ? VESPER_SETS : DYNASTY_SETS)[preset.getGear().ordinal()][0];
 	}
 	
 	public static int getArmorLegs(BotClassPreset preset, boolean vesper)
 	{
-		return (vesper ? VESPER_SETS : DYNASTY_SETS)[preset.getGearKind().ordinal()][1];
+		return (vesper ? VESPER_SETS : DYNASTY_SETS)[preset.getGear().ordinal()][1];
 	}
 	
 	public static int getArmorHelm(BotClassPreset preset, boolean vesper)
 	{
-		return (vesper ? VESPER_SETS : DYNASTY_SETS)[preset.getGearKind().ordinal()][2];
+		return (vesper ? VESPER_SETS : DYNASTY_SETS)[preset.getGear().ordinal()][2];
 	}
 	
 	public static int getArmorGloves(BotClassPreset preset, boolean vesper)
 	{
-		return (vesper ? VESPER_SETS : DYNASTY_SETS)[preset.getGearKind().ordinal()][3];
+		return (vesper ? VESPER_SETS : DYNASTY_SETS)[preset.getGear().ordinal()][3];
 	}
 	
 	public static int getArmorBoots(BotClassPreset preset, boolean vesper)
 	{
-		return (vesper ? VESPER_SETS : DYNASTY_SETS)[preset.getGearKind().ordinal()][4];
+		return (vesper ? VESPER_SETS : DYNASTY_SETS)[preset.getGear().ordinal()][4];
 	}
 	
 	public static int getWeapon(BotClassPreset preset, boolean vesper)
@@ -513,12 +514,12 @@ public class BotPresets
 	
 	public static int getAmmo(BotClassPreset preset)
 	{
-		return preset.usesArrows() ? ARROW_S : preset.usesBolts() ? BOLT_S : 0;
+		return preset.useArrows() ? ARROW_S : preset.usesBolts() ? BOLT_S : 0;
 	}
 	
 	public static int getShot(BotClassPreset preset)
 	{
-		return preset.usesSpiritshot() ? BLESSED_SPIRITSHOT_S : SOULSHOT_S;
+		return preset.useSpiritshot() ? BLESSED_SPIRITSHOT_S : SOULSHOT_S;
 	}
 	
 	public static int getHealPotion()
@@ -532,25 +533,268 @@ public class BotPresets
 	}
 	
 	// ------------------------------------------------------------------
-	// Skill enchant
+	// Gear assignment — compatibility API (old method names)
+	// Called by BotSpawner.java, BotManager.java, TrainingArena.java
+	// which were not updated when BotPresets was refactored for Cardinal.
 	// ------------------------------------------------------------------
 	
 	/**
-	 * Returns the enchant route letter for a given class and skill.
-	 * Cardinal: all skills enchanted for magic power/spell critical chance (route 'p').
-	 * Other classes: existing routing logic.
+	 * Returns all 5 armor piece IDs (chest, legs, helm, gloves, boots) for
+	 * the given preset and gear tier.
+	 * Compatibility wrapper for callers that used the old getArmorSet() API.
 	 */
-	public static char getSkillEnchantRoute(int classId, int skillId)
+	public static int[] getArmorSet(BotClassPreset preset, boolean vesper)
 	{
-		// Cardinal: all skills enchanted for spell power / crit chance.
-		if (classId == 97) { return 'p'; }
-		// Default for all other classes.
-		return 'p';
+		final int[][] sets = vesper ? VESPER_SETS : DYNASTY_SETS;
+		return sets[preset.getGear().ordinal()].clone();
+	}
+	
+	/**
+	 * Returns the shield ID for the given preset and gear tier, or 0 for
+	 * classes that cannot equip a shield (two-handers, bows, mages, etc.).
+	 * Compatibility wrapper for the old getShieldId() API.
+	 */
+	public static int getShieldId(BotClassPreset preset, boolean vesper)
+	{
+		switch (preset.getWeaponKind())
+		{
+			case SWORD:
+				return getShield(vesper);
+			default:
+				return 0;
+		}
+	}
+	
+	/**
+	 * Returns the weapon ID for the given preset and gear tier, respecting
+	 * any per-preset weapon override set via the //bot menu.
+	 * Compatibility wrapper for the old getWeaponId() API.
+	 */
+	public static int getWeaponId(BotClassPreset preset, boolean vesper)
+	{
+		if (preset.getWeaponOverride() > 0)
+		{
+			return preset.getWeaponOverride();
+		}
+		return getWeapon(preset, vesper);
+	}
+	
+	/**
+	 * Returns the jewelry set IDs (ring, earring, necklace) for the current
+	 * gear tier as determined by BotManager settings.
+	 * Compatibility wrapper for the old getJewelryIds() API.
+	 */
+	public static int[] getJewelryIds()
+	{
+		return getJewels(BotManager.getSettings().isUseS84());
+	}
+	
+	/**
+	 * Returns ALL possible gear item IDs from both dynasty and vesper tables
+	 * (armor pieces, shields, jewels, weapons) for full gear cleanup.
+	 * Compatibility wrapper for the old getAllGearIds() API.
+	 */
+	public static int[] getAllGearIds()
+	{
+		final List<Integer> ids = new ArrayList<>();
+		for (int[] set : DYNASTY_SETS)
+		{
+			for (int id : set)
+			{
+				ids.add(id);
+			}
+		}
+		for (int[] set : VESPER_SETS)
+		{
+			for (int id : set)
+			{
+				ids.add(id);
+			}
+		}
+		ids.add(DYNASTY_SHIELD);
+		ids.add(VESPER_SHIELD);
+		for (int id : DYNASTY_JEWELS)
+		{
+			ids.add(id);
+		}
+		for (int id : VESPER_JEWELS)
+		{
+			ids.add(id);
+		}
+		for (int[] weapon : WEAPONS)
+		{
+			for (int id : weapon)
+			{
+				ids.add(id);
+			}
+		}
+		final int[] result = new int[ids.size()];
+		for (int i = 0; i < result.length; i++)
+		{
+			result[i] = ids.get(i);
+		}
+		return result;
+	}
+	
+	/**
+	 * Returns the Greater Healing Potion ID.
+	 * Compatibility wrapper for the old getPotionId() API.
+	 */
+	public static int getPotionId()
+	{
+		return POTION_HEAL;
+	}
+	
+	/**
+	 * Returns the Greater CP Potion ID.
+	 * Compatibility wrapper for the old getCpPotionId() API.
+	 */
+	public static int getCpPotionId()
+	{
+		return POTION_CP;
+	}
+	
+	/**
+	 * Returns the S-grade soulshot ID used by all physical bots.
+	 * Compatibility wrapper for the old getFighterShotId() API.
+	 */
+	public static int getFighterShotId()
+	{
+		return SOULSHOT_S;
+	}
+	
+	/**
+	 * Returns the S-grade blessed spiritshot ID used by magic bots.
+	 * Compatibility wrapper for the old getBlessedSpiritshotId() API.
+	 */
+	public static int getBlessedSpiritshotId()
+	{
+		return BLESSED_SPIRITSHOT_S;
+	}
+	
+	/**
+	 * Returns the S-grade bolt ID used by crossbow-class bots (Trickster, Inspector).
+	 * Compatibility wrapper for the old getBoltId() API.
+	 */
+	public static int getBoltId()
+	{
+		return BOLT_S;
+	}
+	
+	/**
+	 * Returns the S-grade arrow ID used by bow-class bots (Sagittarius).
+	 * Compatibility wrapper for the old getArrowId() API.
+	 */
+	public static int getArrowId()
+	{
+		return ARROW_S;
+	}
+	
+	/**
+	 * Returns the name pool list for the given gender.
+	 * Compatibility wrapper for the old getNames(boolean) API.
+	 */
+	public static List<String> getNames(boolean female)
+	{
+		return Arrays.asList(female ? FEMALE_NAMES : MALE_NAMES);
 	}
 	
 	// ------------------------------------------------------------------
 	// Override persistence (FakePlayersAIOverrides.ini)
 	// ------------------------------------------------------------------
+	
+	/**
+	 * Loads all per-class overrides from FakePlayersAIOverrides.ini and applies
+	 * them to the corresponding presets in memory.
+	 * Called once by BotManager.init() after the INI file is known to exist.
+	 * Format: {@code <classId>.<key>=<value>}; supported keys: rotation, buffs, weapon.
+	 * Compatibility method; the single-key variant is {@link #loadOverride(int, String, String)}.
+	 */
+	public static void loadOverrides()
+	{
+		final File file = new File(OVERRIDES_PATH);
+		if (!file.exists())
+		{
+			return;
+		}
+		final Properties props = new Properties();
+		try (InputStream in = new FileInputStream(file))
+		{
+			props.load(in);
+		}
+		catch (IOException e)
+		{
+			LOGGER.warning("FakePlayersAI: could not read " + OVERRIDES_PATH + ": " + e.getMessage());
+			return;
+		}
+		for (String key : props.stringPropertyNames())
+		{
+			try
+			{
+				final int dot = key.indexOf('.');
+				if (dot < 0)
+				{
+					continue;
+				}
+				final int classId = Integer.parseInt(key.substring(0, dot));
+				final String subKey = key.substring(dot + 1);
+				final BotClassPreset preset = PRESETS.get(classId);
+				if (preset == null)
+				{
+					continue;
+				}
+				final String value = props.getProperty(key, "").trim();
+				switch (subKey)
+				{
+					case "rotation":
+					{
+						if (value.isEmpty())
+						{
+							preset.setRotationOverride(null);
+						}
+						else
+						{
+							final String[] parts = value.split(",");
+							final int[] ids = new int[parts.length];
+							for (int i = 0; i < parts.length; i++)
+							{
+								ids[i] = Integer.parseInt(parts[i].trim());
+							}
+							preset.setRotationOverride(ids);
+						}
+						break;
+					}
+					case "buffs":
+					{
+						if (value.isEmpty())
+						{
+							preset.setBuffsOverride(new int[0]);
+						}
+						else
+						{
+							final String[] parts = value.split(",");
+							final int[] ids = new int[parts.length];
+							for (int i = 0; i < parts.length; i++)
+							{
+							}
+							preset.setBuffsOverride(ids);
+						}
+						break;
+					}
+					case "weapon":
+					{
+						preset.setWeaponOverride(Integer.parseInt(value));
+						break;
+					}
+				}
+			}
+			catch (Exception e)
+			{
+				LOGGER.warning("FakePlayersAI: bad override entry '" + key + "': " + e.getMessage());
+			}
+		}
+		LOGGER.info("FakePlayersAI: loaded overrides from " + OVERRIDES_PATH + ".");
+	}
 	
 	public static void saveOverride(int classId, String key, String value)
 	{
@@ -596,5 +840,22 @@ public class BotPresets
 			LOGGER.warning("FakePlayersAI: could not load override " + classId + "." + key + ": " + e.getMessage());
 			return defaultValue;
 		}
+	}
+	
+	// ------------------------------------------------------------------
+	// Skill enchant
+	// ------------------------------------------------------------------
+	
+	/**
+	 * Returns the enchant route letter for a given class and skill.
+	 * Cardinal: all skills enchanted for magic power/spell critical chance (route 'p').
+	 * Other classes: existing routing logic.
+	 */
+	public static char getSkillEnchantRoute(int classId, int skillId)
+	{
+		// Cardinal: all skills enchanted for spell power / crit chance.
+		if (classId == 97) { return 'p'; }
+		// Default for all other classes.
+		return 'p';
 	}
 }
