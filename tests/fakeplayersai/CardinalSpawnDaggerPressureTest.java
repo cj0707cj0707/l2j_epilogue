@@ -123,8 +123,11 @@ public class CardinalSpawnDaggerPressureTest
         {
             Player p=ArenaOrbitTranceManaTest.actor(cid,ranked,false),enemy=ArenaOrbitTranceManaTest.actor(94,ranked,true);
             BotClassPreset preset=BotPresets.getPresetByClassId(cid);
+            var constructor=state.getDeclaredConstructor();constructor.setAccessible(true);Object movementState=constructor.newInstance();
+            //47 restores rear approach;46 still forbids cooldown recovery when already behind.
+            ArenaOrbitTranceManaTest.f(WorldObject.class,"_location").set(enemy,new org.l2jmobius.gameserver.entity.Location(200,200,0,0,10));
             for(double hp:new double[]{.1,.4,1})for(double distance:new double[]{1,40,70,120,169,200,349,500})for(int flags=0;flags<4;flags++)
-                check(!(boolean)step.invoke(null,p,enemy,preset,null,1000L,distance,true,hp,(flags&1)!=0,(flags&2)!=0),"actual production step: armed dagger never retreats on cooldown or tries flank");
+                check(!(boolean)step.invoke(null,p,enemy,preset,movementState,1000L,distance,true,hp,(flags&1)!=0,(flags&2)!=0),"actual production step: armed dagger already behind never retreats on cooldown");
             for(int id:preset.getRotation())
             {
                 var skill=SkillData.getInstance().getSkill(id,SkillData.getInstance().getMaxLevel(id));

@@ -852,14 +852,26 @@ public final class BotTactics
 	private static boolean step(Player bot, Player enemy, BotClassPreset preset, State s, long time, double distance, boolean visible, double hp, boolean offenseReady, boolean offenseAvailable)
 	{
 		if (!visible || bot.isMovementDisabled() || Math.abs(bot.getZ() - enemy.getZ()) > 100 || distance < 1) { return false; }
-		if (!TacticsPolicy.daggerStepAllowed(preset.getWeaponKind() == BotClassPreset.WeaponKind.DAGGER, weaponUnavailable(bot))) return false;
+		if (time < s.nextStep) return false;
+		final boolean armedDagger = preset.getWeaponKind() == BotClassPreset.WeaponKind.DAGGER && !weaponUnavailable(bot);
 		double x, y;
-		final boolean recovery = TacticsPolicy.chargeMeleeRecoveryAllowed(strictMeleePressure(bot, enemy, preset), weaponUnavailable(bot))
+		final boolean recovery = TacticsPolicy.daggerStepAllowed(preset.getWeaponKind() == BotClassPreset.WeaponKind.DAGGER, weaponUnavailable(bot))
+			&& TacticsPolicy.chargeMeleeRecoveryAllowed(strictMeleePressure(bot, enemy, preset), weaponUnavailable(bot))
 			&& TacticsPolicy.tankRecoveryAllowed(TacticsPolicy.tankClass(preset.getClassId()), weaponUnavailable(bot))
 			&& TacticsPolicy.titanRecoveryAllowed(preset.getClassId(), weaponUnavailable(bot))
 			&& TacticsPolicy.recoveryStepAllowed(weaponUnavailable(bot), offenseAvailable, offenseReady,
 			distance, TacticsPolicy.recoveryEnemyControlled(preset.getClassId() == 115, enemy.isSleeping(), enemy.isMovementDisabled(), enemy.isOutOfControl()));
-		if (recovery)
+		if (armedDagger)
+		{
+			if (distance >= 170 || TacticsPolicy.behind(enemy.getX(), enemy.getY(), enemy.getHeading(), bot.getX(), bot.getY())) return false;
+			// Restore ordinary rear/side approach, even with ready blows. Never restore recovery retreat.
+			// Charge the attempt before geodata/AI: a blocked path must not retry every tick.
+			s.nextStep = time + 2000;
+			final double angle = enemy.getHeading() * (2 * Math.PI / 65536.0);
+			x = enemy.getX() - 85 * Math.cos(angle) - 70 * Math.sin(angle);
+			y = enemy.getY() - 85 * Math.sin(angle) + 70 * Math.cos(angle);
+		}
+		else if (recovery)
 		{
 			final Location orbit = ArenaCombatRules.kitePoint(bot, enemy, 120);
 			if (orbit == null) return false;
@@ -879,10 +891,10 @@ public final class BotTactics
 		final double dx = x - bot.getX(), dy = y - bot.getY(), length = Math.hypot(dx, dy);
 		if (length > 160) { x = bot.getX() + dx * 160 / length; y = bot.getY() + dy * 160 / length; }
 		final int px = (int) Math.round(x), py = (int) Math.round(y);
-		if (!GeoEngine.getInstance().canMoveToTarget(bot.getX(), bot.getY(), bot.getZ(), px, py, bot.getZ(), bot.getInstanceId())) { s.nextStep = time + 1500; return false; }
+		if (!GeoEngine.getInstance().canMoveToTarget(bot.getX(), bot.getY(), bot.getZ(), px, py, bot.getZ(), bot.getInstanceId())) { if (!armedDagger) s.nextStep = time + 1500; return false; }
 		stopBasicAttack(bot);
 		bot.getAI().setIntentionMoveTo(new Location(px, py, bot.getZ()));
-		s.nextStep = time + (recovery || weaponUnavailable(bot) ? 600 : preset.getClassId() == 95 ? 800 : 4500);
+		if (!armedDagger) s.nextStep = time + (recovery || weaponUnavailable(bot) ? 600 : preset.getClassId() == 95 ? 800 : 4500);
 		if (bot.getAI().getIntention() != Intention.MOVE_TO || !bot.isMoving()
 			|| Math.hypot(bot.getXdestination() - px, bot.getYdestination() - py) >= 40) { return false; }
 		s.moveX = px; s.moveY = py; s.moveUntil = time + (recovery ? 450 : 200);

@@ -270,7 +270,7 @@ final class TacticsPolicy
 	{
 		return classId == 113 && armed && !blocked && !sleeping && !invulnerable && attackable && !pendingCast;
 	}
-	/** Armed daggers hold melee pressure; cooldowns are not a reason to run away/flank. */
+	/** Armed daggers never use recovery retreat. Dedicated rear approach is handled separately. */
 	static boolean daggerStepAllowed(boolean dagger, boolean weaponUnavailable)
 	{
 		return !dagger || weaponUnavailable;

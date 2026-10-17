@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Exact shipped spawnAll body against inert actor creation; real dagger step denial.
+"""Exact shipped spawnAll body against inert actor creation; real dagger recovery denial (rear approach restored by47).
 No production DB, world entry or geodata movement.
 """
 from pathlib import Path
@@ -15,8 +15,8 @@ def method(text,signature):
     return text[a:c]
 assert 'BotCount=19' in (R/'game/config/Custom/FakePlayersAI.ini').read_text()
 step=method(t,'private static boolean step(')
-assert step.index('TacticsPolicy.daggerStepAllowed(')<step.index('final boolean recovery')<step.index('ArenaCombatRules.kitePoint(')
-assert 'enemy.getHeading()' not in step and '85 * Math.cos' not in step and '2500' not in step
+assert step.index('final boolean recovery')<step.index('TacticsPolicy.daggerStepAllowed(')<step.index('ArenaCombatRules.kitePoint(')
+assert 'if (armedDagger)' in step and 's.nextStep = time + 2000;' in step and '2500' not in step
 assert 'fixedClassNames(desired).stream().anyMatch(n -> n.equalsIgnoreCase(current))' in sp
 assert 'owners.contains(e.getKey()) ? 0 : 1' in m
 registration=method(m,'private static Player registerBot(')
@@ -35,4 +35,4 @@ with tempfile.TemporaryDirectory(prefix='cardinal-dagger46-') as d:
         return p.stdout.strip()
     run(['java',str(compiler),'-cp',cp,'-d',str(d/'classes'),*map(str,sources)],R)
     print(run(['java','-cp',str(d/'classes')+os.pathsep+cp,'custom.fakeplayersai.CardinalSpawnDaggerPressureTest',str(R/'game')],R/'game'))
-    print('PASS: all custom/effect scripts compile; no live DB/world spawn; shared ranked/training step gate precedes all optional retreat paths')
+    print('PASS: all custom/effect scripts compile; no live DB/world spawn; shared ranked/training recovery gate; rear approach tested separately by47')
