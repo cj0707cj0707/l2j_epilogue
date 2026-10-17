@@ -27,6 +27,7 @@ public final class OlympiadCombatGate
 	private static final Logger LOGGER = Logger.getLogger(OlympiadCombatGate.class.getName());
 	private static final AtomicBoolean WARNED = new AtomicBoolean();
 	private static final Map<Integer, WeakReference<Object>> CLAIMS = new HashMap<>();
+	private static final Map<Integer, WeakReference<Object>> SUMMON_CLAIMS = new HashMap<>();
 	private static final Access ACCESS = access();
 
 	private record Access(Field stadiums, Method doorIds, Field startTime, Field stadiumId, Field one, Field two, Method aborted) { }
@@ -138,14 +139,25 @@ public final class OlympiadCombatGate
 	 * Weak references avoid retaining an ended game's players; an active mapped game stays live. */
 	public static synchronized boolean claimPreStart(Player bot)
 	{
+		return claim(bot, CLAIMS);
+	}
+
+	/** Separate claim: summon preparation must not consume the existing opener claim. */
+	public static synchronized boolean claimSummonPreparation(Player bot)
+	{
+		return claim(bot, SUMMON_CLAIMS);
+	}
+
+	private static boolean claim(Player bot, Map<Integer, WeakReference<Object>> claims)
+	{
 		try
 		{
 			final Match match = match(bot);
 			if (match == null || ACCESS == null || match.one.isOlympiadStart() || match.two.isOlympiadStart()
 				|| ACCESS.startTime.getLong(match.game) != 0 || !current(match)) return false;
-			final WeakReference<Object> previous = CLAIMS.get(bot.getObjectId());
+			final WeakReference<Object> previous = claims.get(bot.getObjectId());
 			if (previous != null && previous.get() == match.game) return false;
-			CLAIMS.put(bot.getObjectId(), new WeakReference<>(match.game));
+			claims.put(bot.getObjectId(), new WeakReference<>(match.game));
 			return true;
 		}
 		catch (ReflectiveOperationException | RuntimeException | LinkageError error)
@@ -158,6 +170,7 @@ public final class OlympiadCombatGate
 	public static synchronized void forget(int objectId)
 	{
 		CLAIMS.remove(objectId);
+		SUMMON_CLAIMS.remove(objectId);
 	}
 
 	private static void attempt(Runnable action)

@@ -13,8 +13,8 @@ tactics = (S / 'BotTactics.java').read_text()
 manager = (S / 'BotManager.java').read_text()
 training = (S / 'TrainingArena.java').read_text()
 # Wiring assertions complement (not replace) executing the actual production methods.
-assert 'cardinalNickname(player.getObjectId(), CharInfoTable.getInstance()::getIdByName)' in spawner
-assert 'cardinalNickname(0, CharInfoTable.getInstance()::getIdByName)' in spawner
+assert 'fixedClassNickname(desired, player.getObjectId(), CharInfoTable.getInstance()::getIdByName)' in spawner
+assert 'fixedClassNickname(base, 0, CharInfoTable.getInstance()::getIdByName)' in spawner
 assert 'applyBotOnlySkills(player, preset);' in spawner
 assert 'REGISTRY_NAMES.put(bot.getObjectId(), bot.getName());' in manager
 assert manager.index('BotSpawner.applyClassSkills(bot);') < manager.index('BotSpawner.applyBotOnlySkills(bot, preset);') < manager.index('BotSpawner.applySkillEnchants(bot);')

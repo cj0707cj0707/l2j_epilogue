@@ -99,7 +99,7 @@ def main():
         failure=source(tmp/'src',PKG+'mechanics.olympiad.GateFailureTest','''public class GateFailureTest {
  public static void main(String[] args){
   var p=new org.l2jmobius.gameserver.entity.actor.Player(1);
-  if(custom.fakeplayersai.OlympiadCombatGate.ready(p)||custom.fakeplayersai.OlympiadCombatGate.claimPreStart(p))throw new AssertionError("reflection failure opened gate");
+  if(custom.fakeplayersai.OlympiadCombatGate.ready(p)||custom.fakeplayersai.OlympiadCombatGate.claimPreStart(p)||custom.fakeplayersai.OlympiadCombatGate.claimSummonPreparation(p))throw new AssertionError("reflection failure opened gate");
   custom.fakeplayersai.OlympiadCombatGate.hold(p);
   if(p.attack||p.cast||p.moving||p.queued)throw new AssertionError("hold unavailable on reflection failure");
   System.out.println("PASS: incompatible core descriptor fails closed; hold still works");

@@ -620,11 +620,6 @@ public class BotManager
 				OlympiadCombatGate.hold(player);
 				OLY_GATE_STAYS.add(player.getObjectId());
 
-				// Summoner classes (Soultaker / Hell Knight / Phoenix Knight): the summon (and
-				// the Transfer Pain toggle / beast soulshot stock) is prepared 2 seconds before
-				// the battle starts, so the servitor is up from the very first second.
-				BotSpawner.maintainOlympiadSummon(player, preset, null);
-
 				// Berserker (Doombringer): the arena appearance point is remembered right at the
 				// pre-start moment (the bot is already ported and stands still until the fight
 				// starts) - it retains this point as match context, but retreats only a short local step
@@ -657,6 +652,8 @@ public class BotManager
 			BotSpawner.maintainFullBuffs(player, caster);
 			if (bot && preset != null && OlympiadCombatGate.claimPreStart(player))
 			{
+				OlympiadSummonRules.prepare(player, preset);
+				BotSpawner.maintainOlympiadSummon(player, preset, null);
 				BotSpawner.applyPreCombatOpeners(player, preset);
 			}
 
@@ -1726,8 +1723,8 @@ public class BotManager
 				}
 
 				// Summoner classes on the olympiad (Soultaker / Hell Knight / Phoenix Knight):
-				// the class summon is always up, the Soultaker always has Transfer Pain on, the
-				// knights always have the beast soulshot stock, and the servitor is sent at the
+				// only support the pre-start summon (never replace it after death). Transfer Pain,
+				// beast soulshot stock, and attacks are maintained for a surviving servitor at the
 				// match opponent. Runs on every combat tick of an active match.
 				if (inOlympiad && bot.isOlympiadStart())
 				{
@@ -2800,8 +2797,14 @@ public class BotManager
 	{
 		try
 		{
-			// Reuse an existing (not spawned) bot of this class if the registry has one.
-			for (Map.Entry<Integer, Integer> entry : BOT_CLASSES.entrySet())
+			// Prefer the canonical roster owner, not an arbitrary old suffixed duplicate.
+			final List<Map.Entry<Integer, Integer>> candidates = new ArrayList<>(BOT_CLASSES.entrySet());
+			if (BotSpawner.staticClassNickname(preset))
+			{
+				final int owner = org.l2jmobius.gameserver.data.sql.CharInfoTable.getInstance().getIdByName(BotSpawner.classNickname(preset));
+				candidates.sort(java.util.Comparator.comparingInt(e -> e.getKey() == owner ? 0 : 1));
+			}
+			for (Map.Entry<Integer, Integer> entry : candidates)
 			{
 				if ((entry.getValue() == preset.getClassId()) && !BOTS.containsKey(entry.getKey()))
 				{
@@ -2814,7 +2817,8 @@ public class BotManager
 			}
 			
 			// Create a brand new character: the nickname is the class name itself
-			// (numeric suffix when taken) - the bot name displays its class from
+			// (no suffix for Cardinal/Duelist; refuse an occupied canonical name) -
+			// the bot name displays its class from
 			// the very start. ensureClassNickname() in registerBot() only handles
 			// renames of bots restored from the registry/database.
 			final String name = BotSpawner.generateClassNickname(preset);

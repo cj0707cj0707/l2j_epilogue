@@ -289,8 +289,8 @@ public class BotSpawner
 	public static String generateClassNickname(BotClassPreset preset)
 	{
 		final String base = classNickname(preset);
-		if (preset.getClassId() == CLASS_CARDINAL)
-			return cardinalNickname(0, CharInfoTable.getInstance()::getIdByName);
+		if (staticClassNickname(preset))
+			return fixedClassNickname(base, 0, CharInfoTable.getInstance()::getIdByName);
 		if (!CharInfoTable.getInstance().doesCharNameExist(base)) return base;
 		for (int i = 2; i < 100; i++)
 		{
@@ -300,20 +300,17 @@ public class BotSpawner
 		return base + Rnd.get(100, 999);
 	}
 
-	/** Cardinal never steals an occupied name; consider this bot's own ID free.
-	 * Alphabetic aliases fit the client's 16-character name limit and remain stable on reload. */
-	static String cardinalNickname(int objectId, java.util.function.ToIntFunction<String> ownerOfName)
+	static boolean staticClassNickname(BotClassPreset preset)
 	{
-		for (int i = 0; i <= 4096; i++)
-		{
-			String suffix = "";
-			for (int value = i; value > 0; value = (value - 1) / 26)
-				suffix = (char) ('A' + (value - 1) % 26) + suffix;
-			final String candidate = "Cardinal" + suffix;
-			final int owner = ownerOfName.applyAsInt(candidate);
-			if (owner < 0 || objectId > 0 && owner == objectId) return candidate;
-		}
-		throw new IllegalStateException("No free alphabetic Cardinal nickname; existing characters were not changed");
+		return preset != null && (preset.getClassId() == CLASS_CARDINAL || preset.getClassId() == 88);
+	}
+
+	/** No aliases for Cardinal/Duelist; an occupied foreign name is never stolen. */
+	static String fixedClassNickname(String base, int objectId, java.util.function.ToIntFunction<String> ownerOfName)
+	{
+		final int owner = ownerOfName.applyAsInt(base);
+		if (owner < 0 || objectId > 0 && owner == objectId) return base;
+		throw new IllegalStateException("Static bot nickname " + base + " is owned by character " + owner);
 	}
 
 	public static boolean ensureClassNickname(Player player, BotClassPreset preset)
@@ -322,9 +319,18 @@ public class BotSpawner
 		final String desired = classNickname(preset);
 		final String current = player.getName();
 		if (desired.equals(current)) return false;
-		final String name = preset.getClassId() == CLASS_CARDINAL
-			? cardinalNickname(player.getObjectId(), CharInfoTable.getInstance()::getIdByName)
-			: generateClassNickname(preset);
+		final String name;
+		try
+		{
+			name = staticClassNickname(preset)
+				? fixedClassNickname(desired, player.getObjectId(), CharInfoTable.getInstance()::getIdByName)
+				: generateClassNickname(preset);
+		}
+		catch (IllegalStateException conflict)
+		{
+			LOGGER.warning("FakePlayersAI: " + conflict.getMessage() + "; keeping " + current + " unchanged (no suffix cycling).");
+			return false;
+		}
 		if (name.equals(current)) return false;
 		player.setName(name);
 		player.storeMe();
@@ -1087,20 +1093,12 @@ public class BotSpawner
 
 	public static void maintainOlympiadSummon(Player player, BotClassPreset preset, WorldObject target)
 	{
-		if ((player == null) || (preset == null) || !player.isOnline() || player.isAlikeDead()) return;
+		if ((player == null) || (preset == null) || !player.isOnline() || player.isAlikeDead()
+			|| !player.isInOlympiadMode() || player.getClient() != null || !BotManager.isBot(player)) return;
 		final int summonSkillId = getOlympiadSummonSkillId(preset);
 		if (summonSkillId == 0) return;
-		if (!player.hasSummon())
-		{
-			final Skill summonSkill = player.getKnownSkill(summonSkillId);
-			if (summonSkill != null)
-			{
-				summonSkill.applyEffects(player, player);
-				LOGGER.info("FakePlayersAI: oly-summon " + player.getName() + ": " + summonSkill.getName() + " is up.");
-			}
-			else
-				LOGGER.warning("FakePlayersAI: oly-summon " + player.getName() + ": summon skill " + summonSkillId + " is not known!");
-		}
+		// Never create here: a dead/dismissed servitor consumes this match's only summon.
+		// Creation is authorized only by the validated, once-per-game PRE_START hook.
 		if (summonSkillId == SUMMON_CURSED_MAN_ID)
 		{
 			if (!player.getEffectList().isAffectedBySkill(TRANSFER_PAIN_ID))

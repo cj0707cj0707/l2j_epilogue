@@ -40,25 +40,24 @@ public final class CardinalNameProminenceTest
     {
         Map<String,Integer> owners = new HashMap<>();
         java.util.function.ToIntFunction<String> lookup = n -> owners.getOrDefault(n.toLowerCase(Locale.ROOT), -1);
-        check(BotSpawner.cardinalNickname(26, lookup).equals("Cardinal"), "free canonical name");
-        owners.put("cardinal", 26);
-        check(BotSpawner.cardinalNickname(26, lookup).equals("Cardinal"), "own canonical name remains");
-        check(BotSpawner.cardinalNickname(0, lookup).equals("CardinalA"), "new bot never steals existing character");
-        owners.put("cardinala", 27); owners.put("cardinal26", 30);
-        String renamed = BotSpawner.cardinalNickname(30, lookup);
-        check(renamed.equals("CardinalB"), "numeric legacy name migrates safely");
-        owners.remove("cardinal26"); owners.put(renamed.toLowerCase(Locale.ROOT), 30);
-        for (int i=0;i<50;i++) check(BotSpawner.cardinalNickname(30, lookup).equals(renamed), "reload does not increment nickname");
-        check(owners.get("cardinal") == 26 && owners.get("cardinala") == 27, "other owners never modified");
-        owners.clear();
-        for (int i=0;i<4097;i++)
+        for (String base : List.of("Cardinal", "Duelist"))
         {
-            String n = BotSpawner.cardinalNickname(0, lookup);
-            check(n.matches("Cardinal[A-Z]*") && n.length()<=16, "only letters and bounded length");
-            check(owners.put(n.toLowerCase(Locale.ROOT), i+1) == null, "unique generated candidate");
+            owners.clear();
+            check(BotSpawner.fixedClassNickname(base,26,lookup).equals(base), "legacy suffix migrates to free canonical name");
+            owners.put(base.toLowerCase(Locale.ROOT),26);
+            for (int i=0;i<100;i++)
+                check(BotSpawner.fixedClassNickname(base,26,lookup).equals(base), "own canonical name never increments");
+            for (int id : new int[]{0,27,100})
+            {
+                try { BotSpawner.fixedClassNickname(base,id,lookup); throw new AssertionError("foreign name cannot be claimed"); }
+                catch (IllegalStateException expected) { checks++; }
+            }
+            check(owners.size()==1 && owners.get(base.toLowerCase(Locale.ROOT))==26, "foreign records never mutated");
+            owners.clear();
+            check(BotSpawner.fixedClassNickname(base,0,lookup).equals(base), "new bot has no numeric/alphabetic suffix");
         }
-        try { BotSpawner.cardinalNickname(0, lookup); throw new AssertionError("exhaustion must not collide"); }
-        catch (IllegalStateException expected) { checks++; }
+        for (BotClassPreset p : BotPresets.getPresets())
+            check(BotSpawner.staticClassNickname(p)==(p.getClassId()==97||p.getClassId()==88), "only requested classes change policy");
     }
     private static void timing()
     {

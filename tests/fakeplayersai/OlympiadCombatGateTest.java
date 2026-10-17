@@ -54,6 +54,8 @@ public class OlympiadCombatGateTest
 		reset(); bot.start=false; enemy.start=false; game._startTime=0;
 		check(OlympiadCombatGate.claimPreStart(bot), "initial prestart claim");
 		check(!OlympiadCombatGate.claimPreStart(bot), "exactly once");
+		check(OlympiadCombatGate.claimSummonPreparation(bot), "summon claim independent of opener");
+		check(!OlympiadCombatGate.claimSummonPreparation(bot), "summon claim exactly once");
 		check(OlympiadCombatGate.claimPreStart(enemy), "other participant independent claim");
 		OlympiadCombatGate.hold(bot); check(!OlympiadCombatGate.claimPreStart(bot), "hold does not forget claim");
 		OlympiadGame replacement=new OlympiadGame(); replacement._playerOne=bot; replacement._playerTwo=enemy; replacement._startTime=0;
@@ -66,6 +68,9 @@ public class OlympiadCombatGateTest
 		var successes=new java.util.concurrent.atomic.AtomicInteger(); var threads=new java.util.ArrayList<Thread>();
 		for(int i=0;i<32;i++){var t=new Thread(()->{if(OlympiadCombatGate.claimPreStart(bot))successes.incrementAndGet();});threads.add(t);t.start();}
 		for(var t:threads)t.join(); check(successes.get()==1,"concurrent claims atomic");
+		successes.set(0); threads.clear();
+		for(int i=0;i<32;i++){var t=new Thread(()->{if(OlympiadCombatGate.claimSummonPreparation(bot))successes.incrementAndGet();});threads.add(t);t.start();}
+		for(var t:threads)t.join(); check(successes.get()==1,"concurrent summon claims atomic");
 		bot.summon=new Summon(); bot.throwAbort=true;
 		AutoPlayTaskManager.running=true; AutoUseTaskManager.running=true;
 		OlympiadCombatGate.hold(bot);

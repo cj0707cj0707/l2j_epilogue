@@ -72,6 +72,8 @@ public class Summon extends AbstractEffect
 		}
 		
 		final Player player = effector.asPlayer();
+		// applyEffects bypasses the normal cast event, so enforce at effect execution too.
+		if (!custom.fakeplayersai.OlympiadSummonRules.allowSummon(player, skill)) return;
 		final NpcTemplate template = NpcData.getInstance().getTemplate(_npcId);
 		final Servitor summon = new Servitor(template, player);
 		final int consumeItemInterval = (_consumeItemInterval > 0 ? _consumeItemInterval : (template.getRace() != Race.SIEGE_WEAPON ? 240 : 60)) * 1000;
