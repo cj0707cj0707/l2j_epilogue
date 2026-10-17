@@ -14,20 +14,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import org.l2jmobius.gameserver.data.xml.SkillData;
-import org.l2jmobius.gameserver.data.xml.SkillTreeData;
-import org.l2jmobius.gameserver.entity.actor.enums.player.PlayerClass;
 import org.l2jmobius.gameserver.mechanics.skill.Skill;
-import org.l2jmobius.gameserver.mechanics.skill.holders.SkillLearn;
 import org.l2jmobius.gameserver.mechanics.skill.targets.TargetType;
 
 /**
@@ -289,7 +285,7 @@ public class BotPresets
 			{
 				1218, 1219
 			});
-		addPreset(111, "Dominator", BotClassPreset.GearKind.ROBE, BotClassPreset.WeaponKind.MAGIC, false, false, true,
+		addPreset(111, "Dominator", BotClassPreset.GearKind.LIGHT, BotClassPreset.WeaponKind.MAGIC, false, false, true,
 			new int[]
 			{
 				1305, 617, 619, 618, 616, 1414
@@ -413,55 +409,30 @@ public class BotPresets
 	}
 	
 	/**
-	 * Returns the full set of skill IDs available to a class (from its skill tree)
-	 * plus any skills currently in its rotation or buffs override.
-	 * Used by AdminBot to display the "allow/forbid" skill management page.
+	 * Returns the set of skill IDs used by a class: the union of its current
+	 * rotation and self-buffs (including any runtime overrides).
+	 * Used by AdminBot to display the allow/forbid skill management page.
+	 * NOTE: SkillTreeData.getClassSkillTree() is not available in this engine
+	 * build, so the pool is limited to skills already in the preset.
+	 * Use //bot rotadd / buffadd to expand it with additional skill IDs.
 	 */
 	public static int[] getClassFullSkillPool(int classId)
 	{
-		final Set<Integer> ids = new LinkedHashSet<>();
-		
-		// Skills from the class skill tree.
-		try
-		{
-			PlayerClass pc = null;
-			for (PlayerClass c : PlayerClass.values())
-			{
-				if (c.getId() == classId)
-				{
-					pc = c;
-					break;
-				}
-			}
-			if (pc != null)
-			{
-				final Map<Long, SkillLearn> tree = SkillTreeData.getInstance().getClassSkillTree(pc);
-				if (tree != null)
-				{
-					for (SkillLearn learn : tree.values())
-					{
-						ids.add(learn.getSkillId());
-					}
-				}
-			}
-		}
-		catch (Exception e)
-		{
-			LOGGER.warning("FakePlayersAI: getClassFullSkillPool failed for classId " + classId + ": " + e.getMessage());
-		}
-		
-		// Always include the preset's current rotation and buffs so admin-added overrides appear.
 		final BotClassPreset preset = PRESETS.get(classId);
-		if (preset != null)
+		if (preset == null)
 		{
-			for (int id : preset.getRotation())
-			{
-				ids.add(id);
-			}
-			for (int id : preset.getBuffs())
-			{
-				ids.add(id);
-			}
+			return new int[0];
+		}
+		
+		// Union of rotation + buffs (LinkedHashSet preserves insertion order, removes duplicates).
+		final Set<Integer> ids = new LinkedHashSet<>();
+		for (int id : preset.getRotation())
+		{
+			ids.add(id);
+		}
+		for (int id : preset.getBuffs())
+		{
+			ids.add(id);
 		}
 		
 		final int[] result = new int[ids.size()];
@@ -474,9 +445,9 @@ public class BotPresets
 	}
 	
 	/**
-	 * Returns true if a skill should be categorised as a self-buff (cast on self automatically)
-	 * rather than an offensive rotation skill. Used by AdminBot to decide whether clicking
-	 * "allow" adds the skill to buffs or rotation.
+	 * Returns true if a skill should be categorised as a self-buff (cast on self
+	 * automatically) rather than an offensive rotation skill.
+	 * Used by AdminBot to decide whether "allow" adds the skill to buffs or rotation.
 	 */
 	public static boolean isSelfBuffSkill(int skillId)
 	{
@@ -501,8 +472,8 @@ public class BotPresets
 	
 	/**
 	 * Adds a skill to the rotation override for the given class.
-	 * The skill must be in the class full skill pool and must not already be present.
-	 * @return true if the skill was added, false if invalid or already present.
+	 * The skill must not already be present in the rotation.
+	 * @return true if the skill was added.
 	 */
 	public static boolean rotationAdd(int classId, int skillId)
 	{
@@ -518,20 +489,6 @@ public class BotPresets
 			{
 				return false; // already present
 			}
-		}
-		// Validate: skill must exist in the class pool.
-		boolean valid = false;
-		for (int id : getClassFullSkillPool(classId))
-		{
-			if (id == skillId)
-			{
-				valid = true;
-				break;
-			}
-		}
-		if (!valid)
-		{
-			return false;
 		}
 		final int[] next = Arrays.copyOf(current, current.length + 1);
 		next[current.length] = skillId;
@@ -572,7 +529,6 @@ public class BotPresets
 				next[j++] = current[i];
 			}
 		}
-		// setRotationOverride converts empty -> null (falls back to preset default).
 		preset.setRotationOverride(next.length == 0 ? null : next);
 		return true;
 	}
@@ -591,7 +547,6 @@ public class BotPresets
 	
 	/**
 	 * Adds a skill to the self-buff override for the given class.
-	 * The skill must be a self-targeting skill and must not already be present.
 	 * @return true if the skill was added.
 	 */
 	public static boolean buffAdd(int classId, int skillId)
@@ -610,7 +565,7 @@ public class BotPresets
 		{
 			if (id == skillId)
 			{
-				return false; // already present
+				return false;
 			}
 		}
 		final int[] next = Arrays.copyOf(current, current.length + 1);
@@ -652,7 +607,6 @@ public class BotPresets
 				next[j++] = current[i];
 			}
 		}
-		// An empty buff array IS a valid override (explicitly no self-buffs for this class).
 		preset.setBuffsOverride(next);
 		return true;
 	}
@@ -670,8 +624,8 @@ public class BotPresets
 	}
 	
 	/**
-	 * Sets the weapon item-id override for the given class (persisted by the //bot menu).
-	 * Pass 0 to clear the override and revert to the default weapon.
+	 * Sets the weapon item-id override for the given class.
+	 * Pass 0 to clear and revert to the default weapon.
 	 */
 	public static void setWeaponOverride(int classId, int itemId)
 	{
@@ -747,8 +701,7 @@ public class BotPresets
 	}
 	
 	// ------------------------------------------------------------------
-	// Gear assignment — compatibility API (old method names called by
-	// BotSpawner.java, BotManager.java, TrainingArena.java)
+	// Gear assignment — compatibility API
 	// ------------------------------------------------------------------
 	
 	public static int[] getArmorSet(BotClassPreset preset, boolean vesper)
@@ -863,10 +816,7 @@ public class BotPresets
 	// ------------------------------------------------------------------
 	
 	/**
-	 * Loads all per-class overrides from FakePlayersAIOverrides.ini and applies
-	 * them to the corresponding presets in memory.
-	 * Called once by BotManager.init() after the INI file is known to exist.
-	 * Compatibility method; the single-key variant is {@link #loadOverride(int, String, String)}.
+	 * Loads all per-class overrides from FakePlayersAIOverrides.ini.
 	 */
 	public static void loadOverrides()
 	{
@@ -890,17 +840,11 @@ public class BotPresets
 			try
 			{
 				final int dot = key.indexOf('.');
-				if (dot < 0)
-				{
-					continue;
-				}
+				if (dot < 0) { continue; }
 				final int classId = Integer.parseInt(key.substring(0, dot));
 				final String subKey = key.substring(dot + 1);
 				final BotClassPreset preset = PRESETS.get(classId);
-				if (preset == null)
-				{
-					continue;
-				}
+				if (preset == null) { continue; }
 				final String value = props.getProperty(key, "").trim();
 				switch (subKey)
 				{
@@ -914,10 +858,7 @@ public class BotPresets
 						{
 							final String[] parts = value.split(",");
 							final int[] ids = new int[parts.length];
-							for (int i = 0; i < parts.length; i++)
-							{
-								ids[i] = Integer.parseInt(parts[i].trim());
-							}
+							for (int i = 0; i < parts.length; i++) { ids[i] = Integer.parseInt(parts[i].trim()); }
 							preset.setRotationOverride(ids);
 						}
 						break;
@@ -932,10 +873,7 @@ public class BotPresets
 						{
 							final String[] parts = value.split(",");
 							final int[] ids = new int[parts.length];
-							for (int i = 0; i < parts.length; i++)
-							{
-								ids[i] = Integer.parseInt(parts[i].trim());
-							}
+							for (int i = 0; i < parts.length; i++) { ids[i] = Integer.parseInt(parts[i].trim()); }
 							preset.setBuffsOverride(ids);
 						}
 						break;
@@ -956,8 +894,7 @@ public class BotPresets
 	}
 	
 	/**
-	 * Saves ALL current in-memory overrides (rotation, buffs, weapon) for every
-	 * preset that has an active override to FakePlayersAIOverrides.ini.
+	 * Saves ALL current in-memory overrides for every preset to FakePlayersAIOverrides.ini.
 	 * Replaces the entire file content; called by AdminBot after any mutation.
 	 */
 	public static void saveOverrides()
@@ -972,10 +909,7 @@ public class BotPresets
 				final StringBuilder sb = new StringBuilder();
 				for (int i = 0; i < rotation.length; i++)
 				{
-					if (i > 0)
-					{
-						sb.append(',');
-					}
+					if (i > 0) { sb.append(','); }
 					sb.append(rotation[i]);
 				}
 				props.setProperty(classId + ".rotation", sb.toString());
@@ -986,10 +920,7 @@ public class BotPresets
 				final StringBuilder sb = new StringBuilder();
 				for (int i = 0; i < buffs.length; i++)
 				{
-					if (i > 0)
-					{
-						sb.append(',');
-					}
+					if (i > 0) { sb.append(','); }
 					sb.append(buffs[i]);
 				}
 				props.setProperty(classId + ".buffs", sb.toString());
@@ -1066,7 +997,6 @@ public class BotPresets
 	
 	public static char getSkillEnchantRoute(int classId, int skillId)
 	{
-		if (classId == 97) { return 'p'; }
 		return 'p';
 	}
 }
