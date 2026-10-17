@@ -32,6 +32,17 @@ public class InstallArenaBoundary
     {
         if(args.length!=2) throw new IllegalArgumentException("Usage: java InstallArenaBoundary.java CORE.jar ArenaBoundaryGuard.java (server must be stopped)");
         Path core=Path.of(args[0]).toAbsolutePath(), source=Path.of(args[1]).toAbsolutePath();
+        boolean diversity;
+        try(var probe=new JarFile(core.toFile())){diversity=probe.getJarEntry("META-INF/l2j-olympiad-diversity-v1.properties")!=null;}
+        if(diversity)
+        {
+            Path folder=source.getParent().getParent().resolve("olympiad-diversity");
+            int result=new ProcessBuilder(Path.of(System.getProperty("java.home"),"bin","java").toString(),"--class-path",".",
+                folder.resolve("InstallOlympiadDiversity.java").toString(),core.toString(),folder.resolve("OlympiadDiversity.java").toString()).inheritIO().start().waitFor();
+            if(result!=0)throw new IOException("Combined diversity/arena/debuff verification failed: "+result);
+            return;
+        }
+
         // A separate lock file serializes concurrent launcher attempts; never silently launch an unpatched core.
         try(var lockChannel=FileChannel.open(core.resolveSibling(".arena-boundary-install.lock"),StandardOpenOption.CREATE,StandardOpenOption.WRITE);
             var lock=lockChannel.lock())

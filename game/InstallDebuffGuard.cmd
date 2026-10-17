@@ -19,6 +19,9 @@ set "GUARD_RESULT=%ERRORLEVEL%"
 if not "%GUARD_RESULT%"=="0" goto guard_failed
 "%JAVA_EXE%" --class-path "." -Dfile.encoding=UTF-8 "core-patches\arena-boundary\InstallArenaBoundary.java" "..\libs\GameServer.jar" "core-patches\arena-boundary\ArenaBoundaryGuard.java" >>"%GUARD_LOG%" 2>&1
 set "GUARD_RESULT=%ERRORLEVEL%"
+if not "%GUARD_RESULT%"=="0" goto guard_failed
+"%JAVA_EXE%" --class-path "." -Dfile.encoding=UTF-8 "core-patches\olympiad-diversity\InstallOlympiadDiversity.java" "..\libs\GameServer.jar" "core-patches\olympiad-diversity\OlympiadDiversity.java" >>"%GUARD_LOG%" 2>&1
+set "GUARD_RESULT=%ERRORLEVEL%"
 if "%GUARD_RESULT%"=="0" exit /b 0
 :guard_failed
 type "%GUARD_LOG%"

@@ -769,7 +769,7 @@ public class BotManager
 			_tickerCycle++;
 			
 			// Keep only alive/known bots.
-			BOTS.values().removeIf(bot -> !bot.isOnline());			
+			BOTS.values().removeIf(bot -> { if (bot.isOnline()) return false; OlympiadRegistration.clear(bot.getObjectId()); return true; });
 			final Olympiad olympiad = Olympiad.getInstance();
 			final boolean compPeriod = olympiad != null && olympiad.inCompPeriod();
 			
@@ -794,28 +794,8 @@ public class BotManager
 					}
 				}
 				
-				int registered = 0;
-				int attempted = 0;
-				int inOlympiad = 0;
-				for (Player bot : BOTS.values())
-				{
-					if (bot.isInOlympiadMode() || olympiad.playerInStadia(bot))
-					{
-						inOlympiad++;
-					}
-					// getOlympiadGameId() != -1 = the bot is already assigned to a created game
-					// (pending teleport countdown or fighting) - never re-register it (a second
-					// pairing lets the older game's cleanup reset the newer match's flags).
-					if (bot.isNoble() && (bot.getOlympiadGameId() == -1) && !bot.isInOlympiadMode() && !olympiad.isRegisteredInComp(bot))
-					{
-						attempted++;
-						if (olympiad.registerNoble(bot, false))
-						{
-							registered++;
-						}
-					}
-				}
-				LOGGER.info("FakePlayersAI: olympiad: in-world=" + BOTS.size() + ", in-olympiad=" + inOlympiad + ", attempted=" + attempted + ", registered=" + registered + ".");
+				final int registered = OlympiadRegistration.register(olympiad, BOTS.values(), SETTINGS.getOlympiadMinPoints());
+				LOGGER.info("FakePlayersAI: olympiad randomized-register: in-world=" + BOTS.size() + ", registered=" + registered + ".");
 			}
 			
 			// 1b) Combat status (one line per minute): dead bots and total pvp/pk kills.
@@ -1162,10 +1142,9 @@ public class BotManager
 	}
 	
 	/**
-	 * Force-registers every bot for the olympiad right now (//bot button): olympiad points
-	 * are topped up to OlympiadMinPoints first, then every eligible noble bot is registered
-	 * for the non-classed games. Bots inside an active match are skipped (the core would
-	 * refuse them anyway).
+	 * Requests olympiad registration through the SAME randomized queue as automatic passes.
+	 * Newly idle bots wait5..20s; repeated button presses do not reroll or bypass the pause.
+	 * Existing bot min-points eligibility and active/assigned-match guards are preserved.
 	 * @return the number of bots registered, or -1 when the competition period is closed
 	 */
 	public static synchronized int forceOlympiadRegister()
@@ -1175,23 +1154,8 @@ public class BotManager
 		{
 			return -1;
 		}
-		int registered = 0;
-		for (Player bot : BOTS.values())
-		{
-			if (!bot.isNoble() || bot.isInOlympiadMode() || olympiad.playerInStadia(bot) || olympiad.isRegisteredInComp(bot) || (bot.getOlympiadGameId() != -1))
-			{
-				continue;
-			}
-			final int points = olympiad.getNoblePoints(bot.getObjectId());
-			if (points < SETTINGS.getOlympiadMinPoints())
-			{
-				olympiad.setNoblePoints(bot.getObjectId(), SETTINGS.getOlympiadMinPoints());
-			}
-			if (olympiad.registerNoble(bot, false))
-			{
-				registered++;
-			}
-		}
+		// Admin requests use the same shuffle/delay gate; no parallel bypass of pending matches.
+		final int registered = OlympiadRegistration.request(olympiad, BOTS.values(), SETTINGS.getOlympiadMinPoints());
 		LOGGER.info("FakePlayersAI: olympiad force-register by admin: " + registered + " bot(s) registered.");
 		return registered;
 	}
@@ -1237,37 +1201,12 @@ public class BotManager
 			int skippedTeleport = 0;
 			int oppRetarget = 0;
 
-			// Olympiad registration on EVERY combat tick (2 s): a bot must never idle between
-			// matches - as soon as it is out of the stadium (the town-return countdown of the
-			// finished match included), it is registered for the next one here, instead of
-			// waiting for the 30-second maintenance ticker. Points are topped up in the same
-			// pass (the core refuses to register a non-classed noble with less than 5 points).
-			// The maintenance ticker keeps its own slower registration pass as a fallback.
-			if (SETTINGS.isAutoRegisterOlympiad() && (olympiad != null) && olympiad.inCompPeriod())
+			// Every combat tick checks the SAME randomized due-times as maintenance/admin.
+			// Bots wait5..20s after becoming idle, rather than instantly reforming the same pair.
+			if (SETTINGS.isAutoRegisterOlympiad() && (olympiad != null))
 			{
-				int registeredNow = 0;
-				for (Player bot : BOTS.values())
-				{
-					// Same double-booking guard as the ticker pass: a bot assigned to a created
-					// game (olympiadGameId != -1, e.g. the teleport countdown of its match) must
-					// not be re-registered.
-					if (bot.isNoble() && !bot.isAlikeDead() && (bot.getOlympiadGameId() == -1) && !bot.isInOlympiadMode() && !olympiad.playerInStadia(bot) && !olympiad.isRegisteredInComp(bot))
-					{
-						final int points = olympiad.getNoblePoints(bot.getObjectId());
-						if (points < SETTINGS.getOlympiadMinPoints())
-						{
-							olympiad.setNoblePoints(bot.getObjectId(), SETTINGS.getOlympiadMinPoints());
-						}
-						if (olympiad.registerNoble(bot, false))
-						{
-							registeredNow++;
-						}
-					}
-				}
-				if (registeredNow > 0)
-				{
-					LOGGER.info("FakePlayersAI: olympiad fast-register: " + registeredNow + " bot(s) registered after their match.");
-				}
+				final int registeredNow = OlympiadRegistration.register(olympiad, BOTS.values(), SETTINGS.getOlympiadMinPoints());
+				if (registeredNow > 0) LOGGER.info("FakePlayersAI: olympiad randomized fast-register: " + registeredNow + " bot(s).");
 			}
 
 			for (Player bot : BOTS.values())
@@ -2976,6 +2915,7 @@ public class BotManager
 			LOGGER.warning("FakePlayersAI: despawn of " + bot.getName() + " failed: " + e);
 		}
 		BotTactics.forget(bot.getObjectId());
+		OlympiadRegistration.clear(bot.getObjectId());
 		BOTS.remove(bot.getObjectId());
 		OLY_GATE_STAYS.remove(bot.getObjectId());
 		OlympiadCombatGate.forget(bot.getObjectId());
