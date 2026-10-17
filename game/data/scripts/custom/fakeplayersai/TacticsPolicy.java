@@ -270,6 +270,11 @@ final class TacticsPolicy
 	{
 		return classId == 113 && armed && !blocked && !sleeping && !invulnerable && attackable && !pendingCast;
 	}
+	/** Armed daggers hold melee pressure; cooldowns are not a reason to run away/flank. */
+	static boolean daggerStepAllowed(boolean dagger, boolean weaponUnavailable)
+	{
+		return !dagger || weaponUnavailable;
+	}
 	static boolean recoveryStepAllowed(boolean disarmed, boolean offenseAvailable, boolean offenseReady, double distance, boolean enemyControlled)
 	{
 		return !enemyControlled && distance > 1 && distance < 350 && (disarmed || !offenseAvailable && !offenseReady);

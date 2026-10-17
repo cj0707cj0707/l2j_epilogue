@@ -26,7 +26,7 @@ public class BotSettings
 	private boolean _enabled = true;
 	private boolean _spawnOnStart = true;
 	private int _spawnDelaySeconds = 20;
-	private int _botCount = 18; // one bot per olympiad roster class
+	private int _botCount = 19; // one bot per olympiad roster class, including Cardinal
 	
 	// Combat area
 	private int _spawnX = 149450;

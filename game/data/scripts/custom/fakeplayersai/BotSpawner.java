@@ -290,7 +290,11 @@ public class BotSpawner
 	{
 		final String base = classNickname(preset);
 		if (staticClassNickname(preset))
-			return fixedClassNickname(base, 0, CharInfoTable.getInstance()::getIdByName);
+		{
+			final String name = fixedClassNickname(base, 0, CharInfoTable.getInstance()::getIdByName);
+			if (!name.equals(base)) LOGGER.warning("FakePlayersAI: name " + base + " occupied; using stable class name " + name + " (no suffix, foreign character unchanged).");
+			return name;
+		}
 		if (!CharInfoTable.getInstance().doesCharNameExist(base)) return base;
 		for (int i = 2; i < 100; i++)
 		{
@@ -305,12 +309,25 @@ public class BotSpawner
 		return preset != null && (preset.getClassId() == CLASS_CARDINAL || preset.getClassId() == 88);
 	}
 
-	/** No aliases for Cardinal/Duelist; an occupied foreign name is never stolen. */
+	/** Semantic class names, never generated numeric/alphabetic suffixes. */
+	static List<String> fixedClassNames(String base)
+	{
+		return switch (base)
+		{
+			case "Cardinal" -> List.of("Cardinal", "Bishop");
+			case "Duelist" -> List.of("Duelist", "Gladiator");
+			default -> List.of(base);
+		};
+	}
+
 	static String fixedClassNickname(String base, int objectId, java.util.function.ToIntFunction<String> ownerOfName)
 	{
-		final int owner = ownerOfName.applyAsInt(base);
-		if (owner < 0 || objectId > 0 && owner == objectId) return base;
-		throw new IllegalStateException("Static bot nickname " + base + " is owned by character " + owner);
+		for (String candidate : fixedClassNames(base))
+		{
+			final int owner = ownerOfName.applyAsInt(candidate);
+			if (owner < 0 || objectId > 0 && owner == objectId) return candidate;
+		}
+		throw new IllegalStateException("Static bot names " + fixedClassNames(base) + " are all occupied by other characters");
 	}
 
 	public static boolean ensureClassNickname(Player player, BotClassPreset preset)
@@ -319,6 +336,8 @@ public class BotSpawner
 		final String desired = classNickname(preset);
 		final String current = player.getName();
 		if (desired.equals(current)) return false;
+		// Once a semantic fallback was chosen, retain it even if the primary name frees up.
+		if (staticClassNickname(preset) && fixedClassNames(desired).stream().anyMatch(n -> n.equalsIgnoreCase(current))) return false;
 		final String name;
 		try
 		{

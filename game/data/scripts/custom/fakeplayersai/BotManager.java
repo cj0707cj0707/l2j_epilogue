@@ -2762,7 +2762,7 @@ public class BotManager
 	// ------------------------------------------------------------------
 	
 	/**
-	 * Spawns bots up to the configured amount, cycling through all class presets.
+	 * Covers missing roster professions first, then cycles for explicitly configured extra slots.
 	 */
 	public static synchronized int spawnAll()
 	{
@@ -2772,6 +2772,22 @@ public class BotManager
 		}
 		
 		int spawned = 0;
+		// Cover missing professions before creating second/third bots of existing classes.
+		for (BotClassPreset preset : missingRosterPresets())
+		{
+			if (BOTS.size() >= SETTINGS.getBotCount()) break;
+			if (spawnBot(preset) != null) spawned++;
+		}
+		final List<BotClassPreset> stillMissing = missingRosterPresets();
+		if (BOTS.size() < SETTINGS.getBotCount() && !stillMissing.isEmpty())
+		{
+			LOGGER.warning("FakePlayersAI: roster incomplete; missing classes " + stillMissing.stream().map(BotClassPreset::getClassName).toList()
+				+ "; leaving slots open instead of hiding spawn failures behind duplicate classes.");
+			return spawned;
+		}
+		if (SETTINGS.getBotCount() < BotPresets.getPresets().size())
+			LOGGER.warning("FakePlayersAI: BotCount=" + SETTINGS.getBotCount() + " is smaller than roster=" + BotPresets.getPresets().size()
+				+ "; full class coverage needs a larger configured count.");
 		int guard = 0;
 		while ((BOTS.size() < SETTINGS.getBotCount()) && (guard++ < 200))
 		{
@@ -2793,6 +2809,16 @@ public class BotManager
 		return spawned;
 	}
 	
+	private static List<BotClassPreset> missingRosterPresets()
+	{
+		final Set<Integer> active = new java.util.HashSet<>();
+		for (Player bot : BOTS.values()) active.add(getBotClassId(bot));
+		final List<BotClassPreset> missing = new ArrayList<>();
+		for (BotClassPreset preset : BotPresets.getPresets())
+			if (!active.contains(preset.getClassId())) missing.add(preset);
+		return missing;
+	}
+
 	public static synchronized Player spawnBot(BotClassPreset preset)
 	{
 		try
@@ -2801,8 +2827,10 @@ public class BotManager
 			final List<Map.Entry<Integer, Integer>> candidates = new ArrayList<>(BOT_CLASSES.entrySet());
 			if (BotSpawner.staticClassNickname(preset))
 			{
-				final int owner = org.l2jmobius.gameserver.data.sql.CharInfoTable.getInstance().getIdByName(BotSpawner.classNickname(preset));
-				candidates.sort(java.util.Comparator.comparingInt(e -> e.getKey() == owner ? 0 : 1));
+				final List<Integer> owners = new ArrayList<>();
+				for (String name : BotSpawner.fixedClassNames(BotSpawner.classNickname(preset)))
+					owners.add(org.l2jmobius.gameserver.data.sql.CharInfoTable.getInstance().getIdByName(name));
+				candidates.sort(java.util.Comparator.comparingInt(e -> owners.contains(e.getKey()) ? 0 : 1));
 			}
 			for (Map.Entry<Integer, Integer> entry : candidates)
 			{
@@ -2817,7 +2845,7 @@ public class BotManager
 			}
 			
 			// Create a brand new character: the nickname is the class name itself
-			// (no suffix for Cardinal/Duelist; refuse an occupied canonical name) -
+			// (stable semantic fallback for Cardinal/Duelist, no suffix) -
 			// the bot name displays its class from
 			// the very start. ensureClassNickname() in registerBot() only handles
 			// renames of bots restored from the registry/database.
@@ -2827,7 +2855,6 @@ public class BotManager
 			{
 				return null;
 			}
-			saveRegistry();
 			return registerBot(bot, preset);
 		}
 		catch (Throwable e)
@@ -2855,10 +2882,10 @@ public class BotManager
 	private static Player registerBot(Player bot, BotClassPreset preset)
 	{
 		// Class-based nickname: the displayed name shows the bot's class ("Duelist"
-		// for the Duelist, a numeric suffix when the name is taken). Existing bots are
+		// for the Duelist; static semantic fallback for97/88, numeric suffix for others). Existing bots are
 		// renamed too - the rename happens BEFORE world entry, so the database row and
 		// the CharInfo broadcast of the spawn carry the final name.
-		final boolean renamed = BotSpawner.ensureClassNickname(bot, preset);
+		BotSpawner.ensureClassNickname(bot, preset);
 		// The combat title (HP+CP percent) is set BEFORE the world entry as well, so the
 		// spawn broadcast (CharInfo) already carries it - no extra title packet needed.
 		updateCombatTitle(bot);
@@ -2894,11 +2921,9 @@ public class BotManager
 		// Tank bots: P.Def/M.Def reduced by 50% (admin rule) - two MUL stat functions with
 		// a dedicated owner; non-tank bots get the functions removed the same way.
 		updateTankDefenseReduction(bot, preset);
-		if (renamed)
-		{
-			// Persist the new name (this bot is already in BOTS at this point).
-			saveRegistry();
-		}
+		// Persist EVERY successful registration, including an already-correct freshly created
+		// name. Saving before registerBot omitted the last new bot from the on-disk roster.
+		saveRegistry();
 		LOGGER.info("FakePlayersAI: bot " + bot.getName() + " (" + preset.getClassName() + ") is in the world.");
 		return bot;
 	}

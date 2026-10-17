@@ -852,6 +852,7 @@ public final class BotTactics
 	private static boolean step(Player bot, Player enemy, BotClassPreset preset, State s, long time, double distance, boolean visible, double hp, boolean offenseReady, boolean offenseAvailable)
 	{
 		if (!visible || bot.isMovementDisabled() || Math.abs(bot.getZ() - enemy.getZ()) > 100 || distance < 1) { return false; }
+		if (!TacticsPolicy.daggerStepAllowed(preset.getWeaponKind() == BotClassPreset.WeaponKind.DAGGER, weaponUnavailable(bot))) return false;
 		double x, y;
 		final boolean recovery = TacticsPolicy.chargeMeleeRecoveryAllowed(strictMeleePressure(bot, enemy, preset), weaponUnavailable(bot))
 			&& TacticsPolicy.tankRecoveryAllowed(TacticsPolicy.tankClass(preset.getClassId()), weaponUnavailable(bot))
@@ -863,14 +864,6 @@ public final class BotTactics
 			final Location orbit = ArenaCombatRules.kitePoint(bot, enemy, 120);
 			if (orbit == null) return false;
 			x = orbit.getX(); y = orbit.getY();
-		}
-		else if (!offenseReady && preset.getWeaponKind() == BotClassPreset.WeaponKind.DAGGER && distance < 170
-			&& !TacticsPolicy.behind(enemy.getX(), enemy.getY(), enemy.getHeading(), bot.getX(), bot.getY()))
-		{
-			final double angle = enemy.getHeading() * (2 * Math.PI / 65536.0);
-			// A flank waypoint; reaching rear takes real travel while the opponent may turn.
-			x = enemy.getX() - 85 * Math.cos(angle) - 70 * Math.sin(angle);
-			y = enemy.getY() - 85 * Math.sin(angle) + 70 * Math.cos(angle);
 		}
 		else if (preset.getClassId() == 95
 			? TacticsPolicy.soultakerKite(meleeOpponent(enemy), distance, enemy.isSleeping() || enemy.isMovementDisabled() || enemy.isOutOfControl(), s.offensiveActionsSinceStep)
@@ -889,7 +882,7 @@ public final class BotTactics
 		if (!GeoEngine.getInstance().canMoveToTarget(bot.getX(), bot.getY(), bot.getZ(), px, py, bot.getZ(), bot.getInstanceId())) { s.nextStep = time + 1500; return false; }
 		stopBasicAttack(bot);
 		bot.getAI().setIntentionMoveTo(new Location(px, py, bot.getZ()));
-		s.nextStep = time + (recovery || weaponUnavailable(bot) ? 600 : preset.getClassId() == 95 ? 800 : preset.getWeaponKind() == BotClassPreset.WeaponKind.DAGGER ? 2500 : 4500);
+		s.nextStep = time + (recovery || weaponUnavailable(bot) ? 600 : preset.getClassId() == 95 ? 800 : 4500);
 		if (bot.getAI().getIntention() != Intention.MOVE_TO || !bot.isMoving()
 			|| Math.hypot(bot.getXdestination() - px, bot.getYdestination() - py) >= 40) { return false; }
 		s.moveX = px; s.moveY = py; s.moveUntil = time + (recovery ? 450 : 200);

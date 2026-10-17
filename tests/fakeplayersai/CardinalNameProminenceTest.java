@@ -47,12 +47,14 @@ public final class CardinalNameProminenceTest
             owners.put(base.toLowerCase(Locale.ROOT),26);
             for (int i=0;i<100;i++)
                 check(BotSpawner.fixedClassNickname(base,26,lookup).equals(base), "own canonical name never increments");
+            String alternative=base.equals("Cardinal")?"Bishop":"Gladiator";
             for (int id : new int[]{0,27,100})
-            {
-                try { BotSpawner.fixedClassNickname(base,id,lookup); throw new AssertionError("foreign name cannot be claimed"); }
-                catch (IllegalStateException expected) { checks++; }
-            }
+                check(BotSpawner.fixedClassNickname(base,id,lookup).equals(alternative), "foreign primary name uses semantic fallback without suffix");
             check(owners.size()==1 && owners.get(base.toLowerCase(Locale.ROOT))==26, "foreign records never mutated");
+            owners.put(alternative.toLowerCase(Locale.ROOT),27);
+            check(BotSpawner.fixedClassNickname(base,27,lookup).equals(alternative), "own fallback available");
+            try { BotSpawner.fixedClassNickname(base,0,lookup); throw new AssertionError("all occupied must fail closed"); }
+            catch (IllegalStateException expected) { checks++; }
             owners.clear();
             check(BotSpawner.fixedClassNickname(base,0,lookup).equals(base), "new bot has no numeric/alphabetic suffix");
         }

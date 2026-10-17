@@ -19,7 +19,7 @@ assert hook.index('maintainFullBuffs(player, caster)') < hook.index('claimPreSta
 e=(R/'game/data/scripts/handlers/skill/effects/Summon.java').read_text()
 assert e.index('OlympiadSummonRules.allowSummon')<e.index('NpcData.getInstance()')<e.index('summon.fullRestore()')<e.index('summon.spawnMe()')
 assert 'PERMIT.remove();' in (S/'OlympiadSummonRules.java').read_text()
-assert 'candidates.sort' in m and 'e.getKey() == owner ? 0 : 1' in m
+assert 'candidates.sort' in m and 'owners.contains(e.getKey()) ? 0 : 1' in m
 with tempfile.TemporaryDirectory(prefix='oly-summon45-') as d:
     d=Path(d);compiler=d/'Compile.java';compiler.write_text('import javax.tools.ToolProvider;class Compile{public static void main(String[]a){System.exit(ToolProvider.getSystemJavaCompiler().run(null,System.out,System.err,a));}}')
     stubs=dict(STUBS)
