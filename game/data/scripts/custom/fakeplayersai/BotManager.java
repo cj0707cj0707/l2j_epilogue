@@ -2916,6 +2916,7 @@ public class BotManager
 		// Skill enchant policy (Power/Chance to the route maximum) - covers both freshly
 		// created bots and bots restored from the registry/database. Idempotent.
 		BotSpawner.applyClassSkills(bot);
+		BotSpawner.applyBotOnlySkills(bot, preset);
 		BotSpawner.applySkillEnchants(bot);
 		// The class opening curse (mage bots: the elemental Surrender, the necromancer:
 		// Curse Gloom) must sit on the maximum Chance enchant route (highest trigger
@@ -2924,6 +2925,7 @@ public class BotManager
 		BotSpawner.applyAutoCombat(bot, preset);
 		BOTS.put(bot.getObjectId(), bot);
 		BOT_CLASSES.put(bot.getObjectId(), preset.getClassId());
+		REGISTRY_NAMES.put(bot.getObjectId(), bot.getName());
 		// Universal passive (Subclass Counter Celestial, skill 655) for freshly created
 		// bots; bots restored via Player.load receive it from the core restoreSkills().
 		BotSpawner.applyCounterCelestial(bot);

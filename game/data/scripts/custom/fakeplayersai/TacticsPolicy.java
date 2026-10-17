@@ -58,6 +58,33 @@ final class TacticsPolicy
 		}
 	}
 
+	/** Only Cardinal's requested MP drain and borrowed nuke may break protected sleep. */
+	static boolean cardinalSleepException(int classId, int skillId)
+	{
+		return classId == 97 && (skillId == 1398 || skillId == 1230);
+	}
+
+	/** A due nuke wins over routine choices/kiting, never over a legal urgent recovery/interrupt.
+	 * The caller supplies only candidates that passed range, LOS, resources and core conditions. */
+	static final class CardinalProminence
+	{
+		private long nextAt;
+		void reset() { nextAt = 0; }
+		boolean ready(long time) { return time >= nextAt; }
+		void accepted(long time) { nextAt = time + 10000; }
+		int choose(int classId, List<Option> legal, long time)
+		{
+			if (classId != 97 || !ready(time)) return -1;
+			boolean prominence = false;
+			for (Option option : legal)
+			{
+				if (option.score() >= 130 && (option.kind() == Kind.HEAL || option.kind() == Kind.DEFENSE || option.kind() == Kind.CONTROL)) return -1;
+				if (option.id() == 1230 && option.kind() == Kind.DAMAGE) prominence = true;
+			}
+			return prominence ? 1230 : -1;
+		}
+	}
+
 	/** Bounded weighted mistakes: never choose an illegal option; emergencies dominate. */
 	static int select(List<Option> options, Difficulty d, double mistakeRoll, double choiceRoll)
 	{

@@ -63,7 +63,8 @@ public final class BotTactics
 		double pendingMp, pendingHp;
 		int pendingCharges, pendingX, pendingY;
 		boolean trainingBerserkerMode, pendingRushLoop;
-		long nextCardinalTrance, nextCardinalProminence;
+		long nextCardinalTrance;
+		final TacticsPolicy.CardinalProminence cardinalProminence = new TacticsPolicy.CardinalProminence();
 		int arenaCenterX, arenaCenterY;
 		boolean hasArenaCenter;
 		final TacticsPolicy.TankDefenseSequence tankDefense = new TacticsPolicy.TankDefenseSequence();
@@ -306,7 +307,7 @@ public final class BotTactics
 			s.trainingBurst.reset(); s.trainingBerserkerMode = false; s.dominatorCp.reset();
 			s.tankDefense.reset(time); s.rushLoop.clear(); s.nextRushStep = time; s.pendingRushLoop = false; s.rushMoving = false; s.rushDirectionX = 0; s.rushDirectionY = 0;
 			s.sleepObserved = -1; s.nextDecision = time; s.nextStep = time; s.pendingId = 0; s.failures.clear(); s.enemyCasting = false; s.moveUntil = 0;
-			s.nextCardinalTrance = 0; s.nextCardinalProminence = 0;
+			s.nextCardinalTrance = 0; s.cardinalProminence.reset();
 			s.fleeingSamples = 0; s.offensiveActionsSinceStep = 2; s.previousDistance = -1; s.nextHabitSample = time;
 		}
 		final double hp = bot.getCurrentHp() / Math.max(1, bot.getMaxHp());
@@ -399,7 +400,7 @@ public final class BotTactics
 			if (skill.getId() == 833 && preset.getClassId() == 131 && hp >= 0.30) { continue; }
 			if (preset.getClassId() == CARDINAL_CLASS_ID) {
 				if (skill.getId() == CARDINAL_TRANCE_ID && time < s.nextCardinalTrance) { continue; }
-				if (skill.getId() == CARDINAL_PROMINENCE_ID && time < s.nextCardinalProminence) { continue; }
+				if (skill.getId() == CARDINAL_PROMINENCE_ID && !s.cardinalProminence.ready(time)) { continue; }
 			}
 			if (trainingRushActive && skill.getId() != 793) { continue; }
 			final boolean timedPool = timedTank && BotSpawner.isTankDefenseSkill(skill.getId());
@@ -422,9 +423,9 @@ public final class BotTactics
 			if (tank && self && !TacticsPolicy.tankSupportAllowed(tankClosing, immobilizingSupport(skill))) { continue; }
 			if (tankStun && enemy.isStunned() || tankRoot && enemy.isMovementDisabled()) { continue; }
 			// Prominence (1230) also bypasses the sleep-offense gate, same as Mana Burn (1398).
-			final boolean cardinalMbException = preset.getClassId() == CARDINAL_CLASS_ID && (skill.getId() == CARDINAL_MANA_BURN_ID || skill.getId() == CARDINAL_PROMINENCE_ID);
+			final boolean cardinalMbException = TacticsPolicy.cardinalSleepException(preset.getClassId(), skill.getId());
 			if (!self && !cardinalMbException && !TacticsPolicy.sleepOffenseAllowed(dominator, sleeping, sleepElapsed, direct, skill.getId() == 1097 || skill.getId() == 1069)) { continue; }
-			final boolean protectedSleep = sleeping && !dominator;
+			final boolean protectedSleep = sleeping && !dominator && !cardinalMbException;
 			if (!BotSpawner.tacticalSkillAllowed(bot, enemy, skill, self)) { continue; }
 			if (!timedPool && (kind == TacticsPolicy.Kind.HEAL || kind == TacticsPolicy.Kind.DEFENSE)
 				&& !TacticsPolicy.reactionReady(difficulty(s), time, s.hpObserved, hp < .35)) { continue; }
@@ -466,14 +467,15 @@ public final class BotTactics
 		final int tankChoice = tank ? TacticsPolicy.tankActionChoice(options, tankStuns, tankRoots, tankMelee, tankSelected,
 			!enemy.isMovementDisabled() && !enemy.isOutOfControl()) : -1;
 		final int cpChoice = dominator ? s.dominatorCp.choose(options, cpRatio(bot)) : -1;
-		final int selected = cpChoice >= 0 ? cpChoice : tankChoice >= 0 ? tankChoice : trainingRushActive
+		final int cardinalChoice = s.cardinalProminence.choose(preset.getClassId(), options, time);
+		final int selected = cardinalChoice >= 0 ? cardinalChoice : cpChoice >= 0 ? cpChoice : tankChoice >= 0 ? tankChoice : trainingRushActive
 			? options.stream().anyMatch(option -> option.id() == 793) ? 793 : -1
 			: trainingBerserker
 			? s.trainingBurst.choose(options, distance, skills.containsKey(793), difficulty(s), random.nextDouble(), random.nextDouble())
 			: TacticsPolicy.select(options, difficulty(s), random.nextDouble(), random.nextDouble());
 		TacticsPolicy.Kind chosen = null;
 		for (TacticsPolicy.Option o : options) { if (o.id() == selected) { chosen = o.kind(); break; } }
-		final boolean urgent = chosen == TacticsPolicy.Kind.HEAL || chosen == TacticsPolicy.Kind.DEFENSE
+		final boolean urgent = cardinalChoice >= 0 || chosen == TacticsPolicy.Kind.HEAL || chosen == TacticsPolicy.Kind.DEFENSE
 			|| (chosen == TacticsPolicy.Kind.CONTROL && interruptReady && s.enemyCasting);
 		if (!defenseOnly && !urgent && time < s.moveUntil && bot.isMoving() && Math.hypot(bot.getXdestination() - s.moveX, bot.getYdestination() - s.moveY) < 40) { return true; }
 		final boolean offenseReady = options.stream().anyMatch(o -> o.kind() == TacticsPolicy.Kind.DAMAGE || o.kind() == TacticsPolicy.Kind.CONTROL || o.kind() == TacticsPolicy.Kind.SLOW);
@@ -499,7 +501,7 @@ public final class BotTactics
 				if (trainingRushActive && selected == 793) { s.rushLoop.loopRequestAccepted(); }
 				if (preset.getClassId() == CARDINAL_CLASS_ID) {
 					if (selected == CARDINAL_TRANCE_ID) { s.nextCardinalTrance = time + 3000; }
-					if (selected == CARDINAL_PROMINENCE_ID) { s.nextCardinalProminence = time + 10000; }
+					if (selected == CARDINAL_PROMINENCE_ID) { s.cardinalProminence.accepted(time); }
 				}
 				CombatAnalytics.tacticalRequest(bot.getObjectId(), chosen.name());
                 if (chosen == TacticsPolicy.Kind.DAMAGE || chosen == TacticsPolicy.Kind.CONTROL || chosen == TacticsPolicy.Kind.SLOW)

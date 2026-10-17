@@ -430,6 +430,7 @@ public final class TrainingArena
         long exp = ExperienceData.getInstance().getExpForLevel(level);
         b.addExpAndSp(Math.max(0, exp - b.getExp()), 0);
         b.giveAvailableSkills(true, true, true);
+        BotSpawner.applyBotOnlySkills(b, preset);
         BotSpawner.applySkillEnchants(b);
         b.setNoble(false); b.setTitle("Unranked Training"); b.setTradeRefusal(true);
         BotSpawner.equipGear(b, preset);

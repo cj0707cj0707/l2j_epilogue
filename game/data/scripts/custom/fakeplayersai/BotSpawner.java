@@ -207,6 +207,7 @@ public class BotSpawner
 	private static final int CLASS_STORM_SCREAMER = 110;
 	// Cardinal (classId 97): opening MP-regen debuff and pre-combat Prayer.
 	private static final int CLASS_CARDINAL = 97;
+	private static final int CARDINAL_PROMINENCE_ID = 1230;
 	private static final int MANA_STORM_ID = 1399;
 	private static final int CARDINAL_PRAYER_ID = 1307;
 	private static final int SURRENDER_TO_FIRE_ID = 1083;
@@ -286,6 +287,8 @@ public class BotSpawner
 	public static String generateClassNickname(BotClassPreset preset)
 	{
 		final String base = classNickname(preset);
+		if (preset.getClassId() == CLASS_CARDINAL)
+			return cardinalNickname(0, CharInfoTable.getInstance()::getIdByName);
 		if (!CharInfoTable.getInstance().doesCharNameExist(base)) return base;
 		for (int i = 2; i < 100; i++)
 		{
@@ -295,13 +298,31 @@ public class BotSpawner
 		return base + Rnd.get(100, 999);
 	}
 
+	/** Cardinal never steals an occupied name; consider this bot's own ID free.
+	 * Alphabetic aliases fit the client's 16-character name limit and remain stable on reload. */
+	static String cardinalNickname(int objectId, java.util.function.ToIntFunction<String> ownerOfName)
+	{
+		for (int i = 0; i <= 4096; i++)
+		{
+			String suffix = "";
+			for (int value = i; value > 0; value = (value - 1) / 26)
+				suffix = (char) ('A' + (value - 1) % 26) + suffix;
+			final String candidate = "Cardinal" + suffix;
+			final int owner = ownerOfName.applyAsInt(candidate);
+			if (owner < 0 || objectId > 0 && owner == objectId) return candidate;
+		}
+		throw new IllegalStateException("No free alphabetic Cardinal nickname; existing characters were not changed");
+	}
+
 	public static boolean ensureClassNickname(Player player, BotClassPreset preset)
 	{
 		if ((player == null) || (preset == null)) return false;
 		final String desired = classNickname(preset);
 		final String current = player.getName();
 		if (desired.equals(current)) return false;
-		final String name = generateClassNickname(preset);
+		final String name = preset.getClassId() == CLASS_CARDINAL
+			? cardinalNickname(player.getObjectId(), CharInfoTable.getInstance()::getIdByName)
+			: generateClassNickname(preset);
 		if (name.equals(current)) return false;
 		player.setName(name);
 		player.storeMe();
@@ -332,6 +353,7 @@ public class BotSpawner
 		final long expFor85 = ExperienceData.getInstance().getExpForLevel(85);
 		if (player.getExp() < expFor85) player.addExpAndSp(expFor85 - player.getExp(), 0);
 		player.giveAvailableSkills(true, true, true);
+		applyBotOnlySkills(player, preset);
 		player.setNoble(true);
 		equipGear(player, preset);
 		giveConsumables(player, preset);
@@ -345,6 +367,25 @@ public class BotSpawner
 		final int learned = player.giveAvailableSkills(true, true, true);
 		if (learned > 0)
 			LOGGER.info("FakePlayersAI: class-skills " + player.getName() + ": learned " + learned + " new skills.");
+	}
+
+	/** Called only by roster/training bot creation or restoration, never by player login.
+	 * Reapplied after Player.load; no class-tree edit and no downgrade of an enchanted skill. */
+	public static void applyBotOnlySkills(Player player, BotClassPreset preset)
+	{
+		if (player == null || preset == null || player.getClient() != null
+			|| preset.getClassId() != CLASS_CARDINAL || player.getPlayerClass().getId() != CLASS_CARDINAL
+			|| player.getKnownSkill(CARDINAL_PROMINENCE_ID) != null) return;
+		final SkillData data = SkillData.getInstance();
+		final int level = data.getMaxLevel(CARDINAL_PROMINENCE_ID);
+		final Skill skill = level > 0 ? data.getSkill(CARDINAL_PROMINENCE_ID, level) : null;
+		if (skill == null)
+		{
+			LOGGER.warning("FakePlayersAI: Cardinal Prominence template is missing; no skill granted.");
+			return;
+		}
+		player.addSkill(skill, false);
+		LOGGER.info("FakePlayersAI: bot-only " + player.getName() + ": Prominence " + skill.getLevel() + " granted.");
 	}
 
 	public static void applyCounterCelestial(Player player)
