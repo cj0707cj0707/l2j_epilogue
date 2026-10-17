@@ -283,11 +283,9 @@ public class BotManager
 	private static final Map<Integer, String> BOT_TITLES = new ConcurrentHashMap<>();
 
 	/**
-	 * The MP floor (%) of a bot inside an ACTIVE olympiad match: when the current MP
-	 * drops below this share of the maximum, it is restored to full by the combat tick.
-	 * Root cause fixed (admin report): dagger bots ran dry mid-match - the whole MP pool
-	 * goes into the skill rotation, and with MP below the cheapest skill cost the core
-	 * rotation engine casts nothing, so the bot fights on with plain auto-attack only.
+	 * Legacy MP floor for eligible magic bots in ACTIVE olympiad matches.
+	 * Physical bots now run dry and use normal attacks; Cardinal has its own common
+	 * arena refill. olympiadMpFloorAllowed also preserves Cardinal opponent suppression.
 	 */
 	private static final double OLYMPIAD_MP_FLOOR_PERCENT = 30.0;
 
@@ -1482,14 +1480,8 @@ public class BotManager
 					// PvP, waiting for the olympiad and olympiad matches alike.
 					BotSpawner.maintainConsumables(bot, preset);
 					
-					// Olympiad MP floor (admin report: dagger bots stopped casting skills
-					// mid-match and degraded to plain auto-attack). A long match burns the
-					// whole MP pool on the skill rotation; with MP below the cheapest skill
-					// cost the core rotation engine casts nothing (canUseMagic fails), so
-					// the bot keeps swinging its weapon for the rest of the match. When the
-					// MP of a bot inside an ACTIVE match drops below the floor, it is
-					// restored to full - the drain between restores (and the reuse/animation
-					// pacing) stays intact.
+					// Legacy magic-bot upkeep only. Do not refill physical bots instead of
+					// their requested low-MP weapon fallback; Cardinal is handled by BotTactics.
 					if (inOlympiad && bot.isOlympiadStart() && olympiadMpFloorAllowed(bot)
 						&& (bot.getCurrentMp() < (bot.getMaxMp() * (OLYMPIAD_MP_FLOOR_PERCENT / 100.0))))
 					{
@@ -1873,6 +1865,8 @@ public class BotManager
 				{
 					continue; // Includes self-target casts and deliberate sleep holds.
 				}
+				final BotClassPreset preset = BotPresets.getPresetByClassId(getBotClassId(bot));
+				if (!inOlympiad) BotTactics.maintainWorldManaFallback(bot, preset);
 				final WorldObject target = bot.getTarget();
 				if ((target == null) || !target.isCreature() || target.asCreature().isAlikeDead())
 				{
@@ -1898,14 +1892,13 @@ public class BotManager
 
 				// The bot has a target again: resume the fight immediately when it is doing
 				// nothing (this is what makes the recovery feel instant - target AND attack).
-				final BotClassPreset preset = BotPresets.getPresetByClassId(getBotClassId(bot));
 				final boolean caster = (preset != null) && preset.isCaster();
 				final WorldObject currentTarget = bot.getTarget();
-				if (BotTactics.allowsBasicAttack(bot, preset) && (!inOlympiad || OlympiadCombatGate.ready(bot)) && !OlympiadChase.isPursuing(bot.getObjectId()) && !bot.isCastingNow() && !bot.isMoving() && (currentTarget != null) && currentTarget.isCreature()
+				if (BotTactics.allowsBasicAttack(bot, preset) && (!inOlympiad || OlympiadCombatGate.ready(bot)) && !OlympiadChase.isPursuing(bot.getObjectId()) && !bot.isCastingNow() && !bot.isCastingSimultaneouslyNow() && !bot.isMoving() && (currentTarget != null) && currentTarget.isCreature()
 					&& !currentTarget.asCreature().isAlikeDead() && currentTarget.asCreature().isAutoAttackable(bot))
 				{
 					final Intention intention = bot.getAI().getIntention();
-					if ((intention != Intention.ATTACK) && (intention != Intention.CAST))
+					if ((intention != Intention.ATTACK) && (intention != Intention.CAST || BotTactics.needsManaAutoAttack(bot, preset)))
 					{
 						bot.getAI().setIntentionAttack(currentTarget.asCreature());
 					}
@@ -2015,6 +2008,10 @@ public class BotManager
 
 	private static boolean olympiadMpFloorAllowed(Player player)
 	{
+		// Physical bots must be able to run dry and fall back to normal weapon attacks.
+		final BotClassPreset preset = BotPresets.getPresetByClassId(getBotClassId(player));
+		if (isBot(player) && player.getClient() == null && preset != null && !preset.isCaster()
+			&& !player.getPlayerClass().isMage()) return false;
 		if (!TacticalSettings.isEnabled()) return true;
 		final Player opponent = getOlympiadOpponent(player);
 		final boolean cardinalBot = isBot(player) && player.getClient() == null && player.getPlayerClass().getId() == 97;
@@ -2339,7 +2336,8 @@ public class BotManager
 			return false;
 		}
 		final double dist = bot.calculateDistance2D(enemy);
-		if (driveOwnRushStunLoop(bot, preset, state, enemy, rush, now)) return true;
+		final boolean manaFallback = BotTactics.needsManaAutoAttack(bot, preset) && BotTactics.allowsBasicAttack(bot, preset);
+		if (!manaFallback && driveOwnRushStunLoop(bot, preset, state, enemy, rush, now)) return true;
 		if (state.movement.rushPending())
 		{
 			final BerserkerCycle.RushStatus status = state.movement.pollRush(now, bot.isCastingNow(), dist, bot.getX(), bot.getY());
@@ -2373,6 +2371,15 @@ public class BotManager
 		if (bot.isCastingNow())
 		{
 			return true; // Never abort a real filler for a rush.
+		}
+		if (bot.isCastingSimultaneouslyNow()) return true;
+		if (manaFallback)
+		{
+			stopRushStunMove(bot, state);
+			state.movement.endRetreat(now);
+			state.retreating = false;
+			if (bot.getAI().getIntention() == Intention.CAST) bot.getAI().setIntentionIdle(); // No real cast/pending remains here.
+			return false; // Parent owns ordinary armed pursuit/attack, not recovery kiting.
 		}
         if (TacticalSettings.isEnabled() && enemy.isPlayer() && BotTactics.recoveryOnly(bot, enemy.asPlayer(), preset))
         {

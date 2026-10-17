@@ -66,6 +66,7 @@ public final class BotTactics
 		long nextCardinalTrance;
 		final TacticsPolicy.CardinalProminence cardinalProminence = new TacticsPolicy.CardinalProminence();
 		final CardinalArenaSupport cardinalSupport = new CardinalArenaSupport();
+		final ManaAutoAttackSupport manaAutoAttack = new ManaAutoAttackSupport();
 		int arenaCenterX, arenaCenterY;
 		boolean hasArenaCenter;
 		final TacticsPolicy.TankDefenseSequence tankDefense = new TacticsPolicy.TankDefenseSequence();
@@ -90,6 +91,7 @@ public final class BotTactics
 			{
 				if (time - e.getValue().seen <= TTL_MS) return false;
 				e.getValue().cardinalSupport.clear();
+				e.getValue().manaAutoAttack.clear();
 				return true;
 			});
 			nextSweep = time + 60_000;
@@ -129,8 +131,46 @@ public final class BotTactics
 	/** Mandatory gate for every parent fallback, including training and phase drivers. */
 	public static boolean allowsBasicAttack(Player bot, BotClassPreset preset)
 	{
-		return bot != null && preset != null && TacticsPolicy.basicAttackAllowed(
-			preset.getWeaponKind() == BotClassPreset.WeaponKind.DAGGER, preset.isCaster(), weaponUnavailable(bot));
+		return bot != null && preset != null && (TacticsPolicy.basicAttackAllowed(
+			preset.getWeaponKind() == BotClassPreset.WeaponKind.DAGGER, preset.isCaster(), weaponUnavailable(bot))
+			|| needsManaAutoAttack(bot, preset) && !weaponUnavailable(bot));
+	}
+
+	/** MP shortage, NOT a cooldown/LOS/item/charge bypass. Use actual learned rotation
+	 * and core-adjusted initial+main costs; a payable offense still belongs to skills. */
+	public static boolean needsManaAutoAttack(Player bot, BotClassPreset preset)
+	{
+		if (bot == null || preset == null || bot.getClient() != null || !bot.isOnline() || bot.isAlikeDead()
+			|| preset.getClassId() == CARDINAL_CLASS_ID || preset.isCaster()
+			|| bot.getPlayerClass().isMage() || bot.getPlayerClass().getId() != preset.getClassId()) { return false; }
+		if (bot.getCurrentMp() <= 0) return true;
+		boolean offense = false;
+		for (int id : preset.getRotation())
+		{
+			final Skill skill = bot.getKnownSkill(id);
+			if (skill == null || BotSpawner.isOpenerOnlySkill(id) || skill.isPassive() || skill.isToggle() || skill.isSuicideAttack()) continue;
+			final TacticsPolicy.Kind type = kind(skill);
+			if (type == null || self(type) || !supportedTarget(skill, false)) continue;
+			offense = true;
+			if (bot.getCurrentMp() >= bot.getStat().getMpInitialConsume(skill) + bot.getStat().getMpConsume(skill)) return false;
+		}
+		return offense;
+	}
+
+	/** World combat keeps its existing auto engines. Do not claim tactical ownership. */
+	public static synchronized void maintainWorldManaFallback(Player bot, BotClassPreset preset)
+	{
+		if (bot == null || !BotManager.isBot(bot) || bot.isInOlympiadMode()) return;
+		final boolean fighting = bot.getTarget() != null && bot.getTarget().isCreature()
+			&& !bot.getTarget().asCreature().isAlikeDead() && bot.getTarget().asCreature().isAutoAttackable(bot)
+			&& bot.getTarget().getInstanceId() == bot.getInstanceId() && !bot.isTeleporting();
+		State s = STATES.get(bot.getObjectId());
+		if (fighting && needsManaAutoAttack(bot, preset))
+		{
+			s = state(bot.getObjectId(), now());
+			s.manaAutoAttack.update(bot, preset);
+		}
+		else if (s != null) s.manaAutoAttack.clear();
 	}
 
     private static boolean weaponUnavailable(Player bot)
@@ -144,6 +184,7 @@ public final class BotTactics
     {
         if (bot == null || preset == null || !valid(bot, enemy, true, STATES.get(bot.getObjectId()))
             || bot.isCastingNow() || bot.isMovementDisabled() || bot.isOutOfControl() || bot.isAllSkillsDisabled()) return false;
+        if (needsManaAutoAttack(bot, preset) && allowsBasicAttack(bot, preset)) return false;
         boolean available = false;
         if (!weaponUnavailable(bot))
         {
@@ -177,6 +218,8 @@ public final class BotTactics
 		if (bot == null || enemy == null || preset == null) { return 40; }
 		if (TacticsPolicy.tankClass(preset.getClassId()))
 			return TacticsPolicy.tankApproachRange(bot.getPhysicalAttackRange(), bot.getTemplate().getCollisionRadius());
+		if (needsManaAutoAttack(bot, preset))
+			return TacticsPolicy.boundedApproachRange(bot.getPhysicalAttackRange() + bot.getTemplate().getCollisionRadius());
 		final boolean ranged = preset.isCaster() || preset.getWeaponKind() == BotClassPreset.WeaponKind.BOW
 			|| preset.getWeaponKind() == BotClassPreset.WeaponKind.CROSSBOW;
 		final State s = STATES.get(bot.getObjectId());
@@ -221,6 +264,7 @@ public final class BotTactics
 	{
 		State removed = STATES.remove(botId);
 		if (removed != null) removed.cardinalSupport.clear();
+		if (removed != null) removed.manaAutoAttack.clear();
 	}
 	public static synchronized String describe(int botId)
 	{
@@ -280,6 +324,7 @@ public final class BotTactics
 		prepare(bot, enemy, s, time);
 		if (preset.getClassId() == CARDINAL_CLASS_ID) s.cardinalSupport.bind(bot, enemy);
 		else s.cardinalSupport.clear();
+		s.manaAutoAttack.update(bot, preset);
 		claim(bot, s);
 		return act(bot, enemy, preset, s, time, false);
 	}
@@ -295,6 +340,7 @@ public final class BotTactics
 		final long time = now();
 		final State s = state(bot.getObjectId(), time);
 		prepare(bot, enemy, s, time);
+		s.manaAutoAttack.update(bot, preset);
 		if ((!defenseThreat(bot, enemy) && bot.getCurrentHpPercent() >= 65) || bot.isCastingNow() || bot.isOutOfControl() || bot.isAllSkillsDisabled()) { return false; }
 		return act(bot, enemy, preset, s, time, true);
 	}
@@ -316,6 +362,7 @@ public final class BotTactics
 		if (s.enemy != enemy.getObjectId() || s.game != game || s.instance != bot.getInstanceId())
 		{
 			s.cardinalSupport.clear();
+			s.manaAutoAttack.clear();
 			s.enemy = enemy.getObjectId(); s.game = game; s.instance = bot.getInstanceId();
 			s.anchorX = bot.getX(); s.anchorY = bot.getY(); s.observed = time;
 			s.arenaCenterX = game >= 0 ? (bot.getX() + enemy.getX()) / 2 : 0;
@@ -360,6 +407,7 @@ public final class BotTactics
 		if (bot.isCastingNow() || bot.isOutOfControl() || bot.isAllSkillsDisabled()) { return !defenseOnly; }
 		if (s.pendingId != 0) { return !defenseOnly; }
 		final boolean sleeping = enemy.isSleeping();
+		final boolean manaFallback = !defenseOnly && needsManaAutoAttack(bot, preset) && allowsBasicAttack(bot, preset);
 		final boolean dominator = preset.getClassId() == 115;
 		final long sleepElapsed = s.sleepObserved < 0 ? 0 : time - s.sleepObserved;
 		if (sleeping && !defenseOnly)
@@ -379,7 +427,7 @@ public final class BotTactics
 		final boolean tankClosing = tank && (!visible || distance > TacticsPolicy.tankApproachRange(bot.getPhysicalAttackRange(), bot.getTemplate().getCollisionRadius()));
 		final int activeStrong = bot.isAffectedBySkill(110) ? 110 : bot.isAffectedBySkill(368) ? 368 : bot.isAffectedBySkill(760) ? 760 : 0;
 		if (timedTank) { s.tankDefense.observed(activeStrong); }
-		final int rushAction = trainingBerserker ? trainingRushAction(bot, enemy, preset, s, time, distance, visible) : -1;
+		final int rushAction = trainingBerserker && !manaFallback ? trainingRushAction(bot, enemy, preset, s, time, distance, visible) : -1;
 		if (rushAction == -2) { return true; }
 		final boolean trainingRushActive = rushAction == 793;
 		final boolean interruptReady = s.castObserved >= 0 && TacticsPolicy.reactionReady(difficulty(s), time, s.castObserved, false);
@@ -496,6 +544,9 @@ public final class BotTactics
 		for (TacticsPolicy.Option o : options) { if (o.id() == selected) { chosen = o.kind(); break; } }
 		final boolean urgent = cardinalChoice >= 0 || chosen == TacticsPolicy.Kind.HEAL || chosen == TacticsPolicy.Kind.DEFENSE
 			|| (chosen == TacticsPolicy.Kind.CONTROL && interruptReady && s.enemyCasting);
+		// No recovery retreat/flank/kite when MP cannot pay any offensive skill.
+		// Parents still enforce real range, LOS, sleep, weapon and arena authority.
+		if (manaFallback && selected < 0 && !sleeping) { s.moveUntil = 0; return false; }
 		if (!defenseOnly && !urgent && time < s.moveUntil && bot.isMoving() && Math.hypot(bot.getXdestination() - s.moveX, bot.getYdestination() - s.moveY) < 40) { return true; }
 		final boolean offenseReady = options.stream().anyMatch(o -> o.kind() == TacticsPolicy.Kind.DAMAGE || o.kind() == TacticsPolicy.Kind.CONTROL || o.kind() == TacticsPolicy.Kind.SLOW);
 		final boolean trainingPressure = TacticsPolicy.trainingBerserkerPressure(trainingBerserker && !trainingRushActive,
@@ -549,7 +600,7 @@ public final class BotTactics
 			sleeping, enemy.isInvul(), enemy.isAutoAttackable(bot), bot.isCastingNow() || bot.isCastingSimultaneouslyNow() || s.pendingId != 0)) { return false; }
 		// During enemy invulnerability: melee/archer bots keep auto-attacking (engine handles immunity).
 		if (!defenseOnly && enemy.isInvul() && !preset.isCaster() && allowsBasicAttack(bot, preset)) { return false; }
-		// Parent may pursue when merely out of range, but may never autoattack a dagger.
+		// Ordinary unavailable offense still holds; MP-starved physical bots yielded above.
 		if (!defenseOnly && !offenseAvailable) { stopBasicAttack(bot); return true; }
 		return false;
 	}

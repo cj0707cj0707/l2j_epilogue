@@ -28,6 +28,8 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 ## Последнее обновление
 
+[39. Физические боты: автоатака без MP](39-low-mana-physical-autoattack.md) — fallback для немагических классов, включая ножей/лучников/берсеркера; без физического MP floor и без изменений Cardinal.
+
 [38. Кардинал: неисчерпаемая мана в обоих режимах](38-cardinal-unlimited-arena-mana.md) — персональное восстановление MP в общем боевом тике после подтверждения каста; без изменения общих навыков и MP противника.
 
 [37. Кардинал: Олимпиада как тренировка](37-cardinal-olympiad-training-parity.md) — владение целью, сближение под Trance, общий временныйregMp×0.10 и запрет олимпийского full-MP floor в паре с ботом97; безопасная очистка.
@@ -64,6 +66,7 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 | Файл | Содержание |
 |---|---|
+| [39-low-mana-physical-autoattack.md](39-low-mana-physical-autoattack.md) | Оружейная автоатака при нехватке MP, исключения магов/Cardinal, временный MP-расход обычного выстрела |
 | [38-cardinal-unlimited-arena-mana.md](38-cardinal-unlimited-arena-mana.md) | Кардинал: неисчерпаемая MP только боту в активной тренировке/Олимпиаде, сохранение regMp противника |
 | [37-cardinal-olympiad-training-parity.md](37-cardinal-olympiad-training-parity.md) | Кардинал: отличия родительских драйверов, Trance-дальность, реальное -90% regMp и lifecycle эффекта |
 | [36-cardinal-name-and-prominence.md](36-cardinal-name-and-prominence.md) | Кардинал: безопасное имя без цифр, ручная выдача Prominence только боту и тактический интервал10с |
