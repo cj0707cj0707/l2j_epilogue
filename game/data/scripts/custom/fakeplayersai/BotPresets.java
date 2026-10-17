@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -150,8 +151,6 @@ public class BotPresets
 	
 	// ------------------------------------------------------------------
 	// Class presets (classIds verified against data/stats/players/classList.xml)
-	// The roster is exactly the olympiad bot classes (18): every preset below is
-	// spawned by spawnAll()/getNextPreset() and auto-registers for the olympiad.
 	// ------------------------------------------------------------------
 	
 	private static final Map<Integer, BotClassPreset> PRESETS = new TreeMap<>();
@@ -164,24 +163,13 @@ public class BotPresets
 	
 	static
 	{
-		// classId, name, gear, weapon, female, arrows, spiritshot, rotation, selfBuffs
-		// Rotations/buffs verified against data/stats/players/skillTrees + skills XMLs (see _botdata/classes_skills.txt).
-		// Adaptations: taunts/Hide/Snipe/Vanguard/traps excluded from rotation; self-casts and charge-builders go to buffs.
 		addPreset(88, "Duelist", BotClassPreset.GearKind.LIGHT, BotClassPreset.WeaponKind.DUAL, false, false, false,
 			new int[]
 			{
-				// Charge rules of 16.09.2026: the sonic skills require charges again (the
-				// datapack chargeConsume/Charges requirements are restored) and the charge
-				// builder Sonic Focus (8) is part of the rotation - the rotation itself
-				// rebuilds the charges it spends. The charge LEVEL (4..7) is maintained by
-				// the combat driver (BotManager CHARGE_MIN/CHARGE_MAX).
 				261, 5, 345, 6, 7, 9, 775, 8
 			},
 			new int[]
 			{
-				// The charge builders (Sonic Focus 8, Maximum Sonic Focus 919) moved out of
-				// the self-buff set: 8 is a rotation skill now, 919 filled the charges up to
-				// the retail cap of 8 - above the admin charge window (4..7).
 				297, 78, 917, 440
 			});
 		addPreset(90, "Phoenix Knight", BotClassPreset.GearKind.HEAVY, BotClassPreset.WeaponKind.SWORD, false, false, false,
@@ -214,28 +202,15 @@ public class BotPresets
 		addPreset(93, "Adventurer", BotClassPreset.GearKind.LIGHT, BotClassPreset.WeaponKind.DAGGER, false, false, false,
 			new int[]
 			{
-				// Dagger rotation: it must ALWAYS open with Shadow Step (821 - teleport behind
-				// the target) followed by Backstab (30, cast range 40 - the teleport puts the
-				// dagger exactly where the backstab lands from). Bluff (358) stays after them:
-				// its 9 s stun is the follow-up opener. Trick (11) and Switch (12) remain
-				// excluded: their TargetCancel effect produced mutual idle loops in bot fights.
 				821, 30, 358, 531, 263, 344, 409, 96, 412
 			},
 			new int[]
 			{
-				// The class evasion opener (Mirage 445) is NOT an auto-buff: it is applied
-				// by the opening self-enhancement burst (BotSpawner.applyOpeningSelfBuffs)
-				// exactly 3 seconds after the olympiad gates open, together with Exciting
-				// Adventure (768) - casting it during the countdown wastes its short
-				// duration before the fight even begins.
 				768, 356, 357, 111, 312, 4
 			});
 		addPreset(94, "Archmage", BotClassPreset.GearKind.ROBE, BotClassPreset.WeaponKind.MAGIC, false, false, true,
 			new int[]
 			{
-				// Mage rotation: main nuke first, then DoT, then slow/debuff cycle.
-				// Prominence (Archmage exclusive fire nuke chain) is the primary DAMAGE skill.
-				// Blaze (fire DoT), Blazing Skin (fire self-buff/CC reflect) added for utility.
 				1071, 1072, 1073, 369, 370, 376, 377
 			},
 			new int[]
@@ -245,10 +220,6 @@ public class BotPresets
 		addPreset(95, "Soultaker", BotClassPreset.GearKind.ROBE, BotClassPreset.WeaponKind.MAGIC, false, false, true,
 			new int[]
 			{
-				// Soultaker: Curse Gloom opener debuff + nuke/CC rotation.
-				// Curse Gloom (745): -90% MP auto-regen; applied as opening debuff via
-				// BotSpawner.getOpeningCurseSkillId() at olympiad start.
-				// Corpse Burst (365) excluded: requires a dead target.
 				366, 168, 167, 366, 745, 172, 364
 			},
 			new int[]
@@ -258,26 +229,12 @@ public class BotPresets
 		addPreset(96, "Mystic Muse", BotClassPreset.GearKind.ROBE, BotClassPreset.WeaponKind.MAGIC, true, false, true,
 			new int[]
 			{
-				// Mystic Muse: ice nuke chain (Freezing Shackle 1225 root, Blizzard 1226 AoE,
-				// Ice Dagger 1222 nuke, Ice Storm 1223 chain nuke).
 				1225, 1226, 1222, 1223, 1069, 1227
 			},
 			new int[]
 			{
 				1218, 1219
 			});
-		// Cardinal (classId 97): healing/support class repurposed as a mana-drain / Trance-kite fighter.
-		// Gear mirrors Mystic Muse (ROBE + MAGIC weapon + female + spiritshot=true).
-		// All skills enchanted for magic power / spell critical chance.
-		// Opening sequence (BotSpawner):
-		//   - Mana Storm (1399) applied as the opening MP-regen debuff (-90%) on the opponent.
-		//   - Prayer (1307) applied as the pre-combat self-buff opener.
-		// Combat priorities (handled by BotTactics scoring):
-		//   1. Greater Battle Heal (1218): score 300 whenever own HP < 95%.
-		//   2. Mana Burn (1398): drains enemy MP; also cast during Trance sleep window.
-		//   3. Trance (1394): 3-second re-use gate; on land -> kite to 450u + Mana Burn.
-		//   4. Prominence (1230): damage nuke; 10-second re-use gate.
-		//   5. Magical BackFire (1396): maintained debuff (SLOW kind); re-applied when expired.
 		addPreset(97, "Cardinal", BotClassPreset.GearKind.ROBE, BotClassPreset.WeaponKind.MAGIC, true, false, true,
 			new int[]
 			{
@@ -290,18 +247,10 @@ public class BotPresets
 		addPreset(103, "Doombringer", BotClassPreset.GearKind.LIGHT, BotClassPreset.WeaponKind.DUAL, false, false, false,
 			new int[]
 			{
-				// Doombringer rotation.
-				// Body Reconstruction (833): a unique Doombringer self-heal (HP recovery
-				// proportional to HP deficit). Used only when HP drops below 30%; BotTactics
-				// filters it out above that threshold so it does not fire as a generic buff.
 				263, 344, 345, 530, 531, 261, 775, 8, 833
 			},
 			new int[]
 			{
-				// Doombringer self-buffs: Mirage (445, evasion), Exciting Adventure (768,
-				// speed boost), standard elemental/mastery buffs (297, 440), and charge
-				// builder (78 = Sonic Fury). 917 is not in this pack's Doombringer data;
-				// replaced with 76 (Sonic Blaster - an alternative charge fill skill).
 				445, 768, 297, 440, 78
 			});
 		addPreset(105, "Soul Hound", BotClassPreset.GearKind.LIGHT, BotClassPreset.WeaponKind.RAPIER, false, false, false,
@@ -311,37 +260,29 @@ public class BotPresets
 			},
 			new int[]
 			{
-				// Soul Hound self-buffs.
 				497, 505, 507
 			});
 		addPreset(107, "Trickster", BotClassPreset.GearKind.LIGHT, BotClassPreset.WeaponKind.CROSSBOW, false, false, false,
 			new int[]
 			{
-				// Trickster rotation.
 				542, 921, 544, 543, 547, 546, 548
 			},
 			new int[]
 			{
-				// Trickster self-buffs.
 				538, 549, 551
 			});
 		addPreset(108, "Inspector", BotClassPreset.GearKind.LIGHT, BotClassPreset.WeaponKind.ANCIENT, false, false, false,
 			new int[]
 			{
-				// Inspector rotation.
 				577, 578, 587, 584, 579
 			},
 			new int[]
 			{
-				// Inspector self-buffs.
 				570, 576, 580
 			});
 		addPreset(110, "Storm Screamer", BotClassPreset.GearKind.ROBE, BotClassPreset.WeaponKind.MAGIC, true, false, true,
 			new int[]
 			{
-				// Storm Screamer rotation: wind nukes + CC chain.
-				// Tempest (608) is the main AoE nuke; Cyclone (609) is the DoT; static
-				// Shackle (1097) is the main CC (wind root); Vortex Shackle (614) AoE root.
 				608, 609, 1097, 610, 614, 615
 			},
 			new int[]
@@ -351,10 +292,6 @@ public class BotPresets
 		addPreset(111, "Dominator", BotClassPreset.GearKind.ROBE, BotClassPreset.WeaponKind.MAGIC, false, false, true,
 			new int[]
 			{
-				// Dominator rotation.
-				// Dominator AI (classId==115 in BotTactics) gets a special weave: it uses
-				// CP/HP healing skills first (DominatorCpWeave), and after that uses the
-				// offense rotation via sleepElapsed >= 5000 ms scoring.
 				1305, 617, 619, 618, 616, 1414
 			},
 			new int[]
@@ -364,7 +301,6 @@ public class BotPresets
 		addPreset(112, "Doomcryer", BotClassPreset.GearKind.ROBE, BotClassPreset.WeaponKind.MAGIC, false, false, true,
 			new int[]
 			{
-				// Doomcryer rotation.
 				630, 631, 632, 633, 634, 635
 			},
 			new int[]
@@ -374,30 +310,24 @@ public class BotPresets
 		addPreset(113, "Maestro", BotClassPreset.GearKind.HEAVY, BotClassPreset.WeaponKind.FIST, false, false, false,
 			new int[]
 			{
-				// Maestro rotation: forge/earth melee skills.
 				176, 907, 660, 661, 663, 664, 420
 			},
 			new int[]
 			{
-				// Maestro self-buffs (damage window buffs are part of rotation).
 				658, 659
 			});
 		addPreset(114, "Fortune Seeker", BotClassPreset.GearKind.HEAVY, BotClassPreset.WeaponKind.TWO_HAND, false, false, false,
 			new int[]
 			{
-				// Fortune Seeker rotation.
 				176, 420, 670, 671, 672
 			},
 			new int[]
 			{
-				// Fortune Seeker self-buffs.
 				668, 669
 			});
 		addPreset(115, "Judicator", BotClassPreset.GearKind.ROBE, BotClassPreset.WeaponKind.MAGIC, false, false, true,
 			new int[]
 			{
-				// Judicator (Dominator in Gracia) rotation.
-				// Judicator AI uses the same classId==115 path in BotTactics as Dominator.
 				616, 617, 618, 619, 1305, 1414
 			},
 			new int[]
@@ -407,7 +337,6 @@ public class BotPresets
 		addPreset(116, "Titan", BotClassPreset.GearKind.LIGHT, BotClassPreset.WeaponKind.TWO_HAND, false, false, false,
 			new int[]
 			{
-				// Titan rotation: cleave/two-hand skills + speed/power-up casts.
 				689, 362, 363, 367, 690, 691
 			},
 			new int[]
@@ -417,7 +346,6 @@ public class BotPresets
 		addPreset(118, "Grand Khavatari", BotClassPreset.GearKind.LIGHT, BotClassPreset.WeaponKind.FIST, false, false, false,
 			new int[]
 			{
-				// Grand Khavatari rotation.
 				695, 700, 703, 704, 705, 706
 			},
 			new int[]
@@ -427,22 +355,17 @@ public class BotPresets
 		addPreset(131, "Doombringer", BotClassPreset.GearKind.LIGHT, BotClassPreset.WeaponKind.DUAL, false, false, false,
 			new int[]
 			{
-				// Doombringer rotation (classId 131 = the actual Doombringer from the
-				// 3rd class expansion; classId 103 above is the pre-expansion placeholder).
-				// Rush (793) opens and recycles: when it lands a stun the bot retreats
-				// and re-rushes (handled by BotTactics.trainingRushAction and BotSpawner
-				// rush-loop driver). Body Reconstruction (833) self-heals below 30% HP.
 				793, 263, 344, 345, 530, 531, 261, 775, 8, 833
 			},
 			new int[]
 			{
-				// Doombringer self-buffs: Mirage (445), Exciting Adventure (768),
-				// standard buffs (297, 440), charge builder (78).
-				// Doom Cry (917) and Absolute Zero (833): role-specific runtime skills,
-				// not permanent self-buffs.
 				500, 482, 499, 625, 502, 917, 833
 			});
 	}
+	
+	// ------------------------------------------------------------------
+	// Preset access
+	// ------------------------------------------------------------------
 	
 	public static BotClassPreset getPresetByClassId(int classId)
 	{
@@ -463,9 +386,300 @@ public class BotPresets
 		return Collections.unmodifiableCollection(PRESETS.values());
 	}
 	
+	/**
+	 * Returns all registered presets. Alias for {@link #getAllPresets()} used by AdminBot.
+	 */
+	public static Collection<BotClassPreset> getPresets()
+	{
+		return getAllPresets();
+	}
+	
 	public static Set<Integer> getRegisteredClassIds()
 	{
 		return Collections.unmodifiableSet(PRESETS.keySet());
+	}
+	
+	// ------------------------------------------------------------------
+	// Skill helpers (used by AdminBot to build the skill-management page)
+	// ------------------------------------------------------------------
+	
+	/**
+	 * Returns the display name of a skill, or "Skill#id" when the skill is not found.
+	 */
+	public static String getSkillName(int skillId)
+	{
+		final Skill skill = SkillData.getInstance().getSkill(skillId, 1);
+		return skill != null ? skill.getName() : "Skill#" + skillId;
+	}
+	
+	/**
+	 * Returns the full set of skill IDs available to a class (from its skill tree)
+	 * plus any skills currently in its rotation or buffs override.
+	 * Used by AdminBot to display the "allow/forbid" skill management page.
+	 */
+	public static int[] getClassFullSkillPool(int classId)
+	{
+		final Set<Integer> ids = new LinkedHashSet<>();
+		
+		// Skills from the class skill tree.
+		try
+		{
+			PlayerClass pc = null;
+			for (PlayerClass c : PlayerClass.values())
+			{
+				if (c.getId() == classId)
+				{
+					pc = c;
+					break;
+				}
+			}
+			if (pc != null)
+			{
+				final Map<Long, SkillLearn> tree = SkillTreeData.getInstance().getClassSkillTree(pc);
+				if (tree != null)
+				{
+					for (SkillLearn learn : tree.values())
+					{
+						ids.add(learn.getSkillId());
+					}
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			LOGGER.warning("FakePlayersAI: getClassFullSkillPool failed for classId " + classId + ": " + e.getMessage());
+		}
+		
+		// Always include the preset's current rotation and buffs so admin-added overrides appear.
+		final BotClassPreset preset = PRESETS.get(classId);
+		if (preset != null)
+		{
+			for (int id : preset.getRotation())
+			{
+				ids.add(id);
+			}
+			for (int id : preset.getBuffs())
+			{
+				ids.add(id);
+			}
+		}
+		
+		final int[] result = new int[ids.size()];
+		int i = 0;
+		for (int id : ids)
+		{
+			result[i++] = id;
+		}
+		return result;
+	}
+	
+	/**
+	 * Returns true if a skill should be categorised as a self-buff (cast on self automatically)
+	 * rather than an offensive rotation skill. Used by AdminBot to decide whether clicking
+	 * "allow" adds the skill to buffs or rotation.
+	 */
+	public static boolean isSelfBuffSkill(int skillId)
+	{
+		try
+		{
+			final Skill skill = SkillData.getInstance().getSkill(skillId, 1);
+			if (skill == null)
+			{
+				return false;
+			}
+			return skill.getTargetType() == TargetType.SELF;
+		}
+		catch (Exception e)
+		{
+			return false;
+		}
+	}
+	
+	// ------------------------------------------------------------------
+	// Rotation / buff overrides (in-memory mutations, AdminBot API)
+	// ------------------------------------------------------------------
+	
+	/**
+	 * Adds a skill to the rotation override for the given class.
+	 * The skill must be in the class full skill pool and must not already be present.
+	 * @return true if the skill was added, false if invalid or already present.
+	 */
+	public static boolean rotationAdd(int classId, int skillId)
+	{
+		final BotClassPreset preset = PRESETS.get(classId);
+		if ((preset == null) || (skillId <= 0))
+		{
+			return false;
+		}
+		final int[] current = preset.getRotation();
+		for (int id : current)
+		{
+			if (id == skillId)
+			{
+				return false; // already present
+			}
+		}
+		// Validate: skill must exist in the class pool.
+		boolean valid = false;
+		for (int id : getClassFullSkillPool(classId))
+		{
+			if (id == skillId)
+			{
+				valid = true;
+				break;
+			}
+		}
+		if (!valid)
+		{
+			return false;
+		}
+		final int[] next = Arrays.copyOf(current, current.length + 1);
+		next[current.length] = skillId;
+		preset.setRotationOverride(next);
+		return true;
+	}
+	
+	/**
+	 * Removes a skill from the rotation override for the given class.
+	 * @return true if the skill was found and removed.
+	 */
+	public static boolean rotationRemove(int classId, int skillId)
+	{
+		final BotClassPreset preset = PRESETS.get(classId);
+		if (preset == null)
+		{
+			return false;
+		}
+		final int[] current = preset.getRotation();
+		int idx = -1;
+		for (int i = 0; i < current.length; i++)
+		{
+			if (current[i] == skillId)
+			{
+				idx = i;
+				break;
+			}
+		}
+		if (idx < 0)
+		{
+			return false;
+		}
+		final int[] next = new int[current.length - 1];
+		for (int i = 0, j = 0; i < current.length; i++)
+		{
+			if (i != idx)
+			{
+				next[j++] = current[i];
+			}
+		}
+		// setRotationOverride converts empty -> null (falls back to preset default).
+		preset.setRotationOverride(next.length == 0 ? null : next);
+		return true;
+	}
+	
+	/**
+	 * Resets the rotation override for the given class to the preset default.
+	 */
+	public static void rotationReset(int classId)
+	{
+		final BotClassPreset preset = PRESETS.get(classId);
+		if (preset != null)
+		{
+			preset.setRotationOverride(null);
+		}
+	}
+	
+	/**
+	 * Adds a skill to the self-buff override for the given class.
+	 * The skill must be a self-targeting skill and must not already be present.
+	 * @return true if the skill was added.
+	 */
+	public static boolean buffAdd(int classId, int skillId)
+	{
+		final BotClassPreset preset = PRESETS.get(classId);
+		if ((preset == null) || (skillId <= 0))
+		{
+			return false;
+		}
+		if (!isSelfBuffSkill(skillId))
+		{
+			return false;
+		}
+		final int[] current = preset.getBuffs();
+		for (int id : current)
+		{
+			if (id == skillId)
+			{
+				return false; // already present
+			}
+		}
+		final int[] next = Arrays.copyOf(current, current.length + 1);
+		next[current.length] = skillId;
+		preset.setBuffsOverride(next);
+		return true;
+	}
+	
+	/**
+	 * Removes a skill from the self-buff override for the given class.
+	 * @return true if the skill was found and removed.
+	 */
+	public static boolean buffRemove(int classId, int skillId)
+	{
+		final BotClassPreset preset = PRESETS.get(classId);
+		if (preset == null)
+		{
+			return false;
+		}
+		final int[] current = preset.getBuffs();
+		int idx = -1;
+		for (int i = 0; i < current.length; i++)
+		{
+			if (current[i] == skillId)
+			{
+				idx = i;
+				break;
+			}
+		}
+		if (idx < 0)
+		{
+			return false;
+		}
+		final int[] next = new int[current.length - 1];
+		for (int i = 0, j = 0; i < current.length; i++)
+		{
+			if (i != idx)
+			{
+				next[j++] = current[i];
+			}
+		}
+		// An empty buff array IS a valid override (explicitly no self-buffs for this class).
+		preset.setBuffsOverride(next);
+		return true;
+	}
+	
+	/**
+	 * Resets the self-buff override for the given class to the preset default.
+	 */
+	public static void buffReset(int classId)
+	{
+		final BotClassPreset preset = PRESETS.get(classId);
+		if (preset != null)
+		{
+			preset.setBuffsOverride(null);
+		}
+	}
+	
+	/**
+	 * Sets the weapon item-id override for the given class (persisted by the //bot menu).
+	 * Pass 0 to clear the override and revert to the default weapon.
+	 */
+	public static void setWeaponOverride(int classId, int itemId)
+	{
+		final BotClassPreset preset = PRESETS.get(classId);
+		if (preset != null)
+		{
+			preset.setWeaponOverride(itemId);
+		}
 	}
 	
 	// ------------------------------------------------------------------
@@ -533,27 +747,15 @@ public class BotPresets
 	}
 	
 	// ------------------------------------------------------------------
-	// Gear assignment — compatibility API (old method names)
-	// Called by BotSpawner.java, BotManager.java, TrainingArena.java
-	// which were not updated when BotPresets was refactored for Cardinal.
+	// Gear assignment — compatibility API (old method names called by
+	// BotSpawner.java, BotManager.java, TrainingArena.java)
 	// ------------------------------------------------------------------
 	
-	/**
-	 * Returns all 5 armor piece IDs (chest, legs, helm, gloves, boots) for
-	 * the given preset and gear tier.
-	 * Compatibility wrapper for callers that used the old getArmorSet() API.
-	 */
 	public static int[] getArmorSet(BotClassPreset preset, boolean vesper)
 	{
-		final int[][] sets = vesper ? VESPER_SETS : DYNASTY_SETS;
-		return sets[preset.getGear().ordinal()].clone();
+		return (vesper ? VESPER_SETS : DYNASTY_SETS)[preset.getGear().ordinal()].clone();
 	}
 	
-	/**
-	 * Returns the shield ID for the given preset and gear tier, or 0 for
-	 * classes that cannot equip a shield (two-handers, bows, mages, etc.).
-	 * Compatibility wrapper for the old getShieldId() API.
-	 */
 	public static int getShieldId(BotClassPreset preset, boolean vesper)
 	{
 		switch (preset.getWeaponKind())
@@ -565,11 +767,6 @@ public class BotPresets
 		}
 	}
 	
-	/**
-	 * Returns the weapon ID for the given preset and gear tier, respecting
-	 * any per-preset weapon override set via the //bot menu.
-	 * Compatibility wrapper for the old getWeaponId() API.
-	 */
 	public static int getWeaponId(BotClassPreset preset, boolean vesper)
 	{
 		if (preset.getWeaponOverride() > 0)
@@ -579,21 +776,11 @@ public class BotPresets
 		return getWeapon(preset, vesper);
 	}
 	
-	/**
-	 * Returns the jewelry set IDs (ring, earring, necklace) for the current
-	 * gear tier as determined by BotManager settings.
-	 * Compatibility wrapper for the old getJewelryIds() API.
-	 */
 	public static int[] getJewelryIds()
 	{
 		return getJewels(BotManager.getSettings().isUseS84());
 	}
 	
-	/**
-	 * Returns ALL possible gear item IDs from both dynasty and vesper tables
-	 * (armor pieces, shields, jewels, weapons) for full gear cleanup.
-	 * Compatibility wrapper for the old getAllGearIds() API.
-	 */
 	public static int[] getAllGearIds()
 	{
 		final List<Integer> ids = new ArrayList<>();
@@ -636,64 +823,36 @@ public class BotPresets
 		return result;
 	}
 	
-	/**
-	 * Returns the Greater Healing Potion ID.
-	 * Compatibility wrapper for the old getPotionId() API.
-	 */
 	public static int getPotionId()
 	{
 		return POTION_HEAL;
 	}
 	
-	/**
-	 * Returns the Greater CP Potion ID.
-	 * Compatibility wrapper for the old getCpPotionId() API.
-	 */
 	public static int getCpPotionId()
 	{
 		return POTION_CP;
 	}
 	
-	/**
-	 * Returns the S-grade soulshot ID used by all physical bots.
-	 * Compatibility wrapper for the old getFighterShotId() API.
-	 */
 	public static int getFighterShotId()
 	{
 		return SOULSHOT_S;
 	}
 	
-	/**
-	 * Returns the S-grade blessed spiritshot ID used by magic bots.
-	 * Compatibility wrapper for the old getBlessedSpiritshotId() API.
-	 */
 	public static int getBlessedSpiritshotId()
 	{
 		return BLESSED_SPIRITSHOT_S;
 	}
 	
-	/**
-	 * Returns the S-grade bolt ID used by crossbow-class bots (Trickster, Inspector).
-	 * Compatibility wrapper for the old getBoltId() API.
-	 */
 	public static int getBoltId()
 	{
 		return BOLT_S;
 	}
 	
-	/**
-	 * Returns the S-grade arrow ID used by bow-class bots (Sagittarius).
-	 * Compatibility wrapper for the old getArrowId() API.
-	 */
 	public static int getArrowId()
 	{
 		return ARROW_S;
 	}
 	
-	/**
-	 * Returns the name pool list for the given gender.
-	 * Compatibility wrapper for the old getNames(boolean) API.
-	 */
 	public static List<String> getNames(boolean female)
 	{
 		return Arrays.asList(female ? FEMALE_NAMES : MALE_NAMES);
@@ -707,7 +866,6 @@ public class BotPresets
 	 * Loads all per-class overrides from FakePlayersAIOverrides.ini and applies
 	 * them to the corresponding presets in memory.
 	 * Called once by BotManager.init() after the INI file is known to exist.
-	 * Format: {@code <classId>.<key>=<value>}; supported keys: rotation, buffs, weapon.
 	 * Compatibility method; the single-key variant is {@link #loadOverride(int, String, String)}.
 	 */
 	public static void loadOverrides()
@@ -776,6 +934,7 @@ public class BotPresets
 							final int[] ids = new int[parts.length];
 							for (int i = 0; i < parts.length; i++)
 							{
+								ids[i] = Integer.parseInt(parts[i].trim());
 							}
 							preset.setBuffsOverride(ids);
 						}
@@ -794,6 +953,65 @@ public class BotPresets
 			}
 		}
 		LOGGER.info("FakePlayersAI: loaded overrides from " + OVERRIDES_PATH + ".");
+	}
+	
+	/**
+	 * Saves ALL current in-memory overrides (rotation, buffs, weapon) for every
+	 * preset that has an active override to FakePlayersAIOverrides.ini.
+	 * Replaces the entire file content; called by AdminBot after any mutation.
+	 */
+	public static void saveOverrides()
+	{
+		final Properties props = new Properties();
+		for (BotClassPreset preset : PRESETS.values())
+		{
+			final int classId = preset.getClassId();
+			if (preset.hasRotationOverride())
+			{
+				final int[] rotation = preset.getRotation();
+				final StringBuilder sb = new StringBuilder();
+				for (int i = 0; i < rotation.length; i++)
+				{
+					if (i > 0)
+					{
+						sb.append(',');
+					}
+					sb.append(rotation[i]);
+				}
+				props.setProperty(classId + ".rotation", sb.toString());
+			}
+			if (preset.hasBuffsOverride())
+			{
+				final int[] buffs = preset.getBuffs();
+				final StringBuilder sb = new StringBuilder();
+				for (int i = 0; i < buffs.length; i++)
+				{
+					if (i > 0)
+					{
+						sb.append(',');
+					}
+					sb.append(buffs[i]);
+				}
+				props.setProperty(classId + ".buffs", sb.toString());
+			}
+			if (preset.getWeaponOverride() > 0)
+			{
+				props.setProperty(classId + ".weapon", String.valueOf(preset.getWeaponOverride()));
+			}
+		}
+		try
+		{
+			final File file = new File(OVERRIDES_PATH);
+			file.getParentFile().mkdirs();
+			try (OutputStream out = new FileOutputStream(file))
+			{
+				props.store(out, "FakePlayersAI runtime overrides");
+			}
+		}
+		catch (IOException e)
+		{
+			LOGGER.warning("FakePlayersAI: could not save overrides: " + e.getMessage());
+		}
 	}
 	
 	public static void saveOverride(int classId, String key, String value)
@@ -846,16 +1064,9 @@ public class BotPresets
 	// Skill enchant
 	// ------------------------------------------------------------------
 	
-	/**
-	 * Returns the enchant route letter for a given class and skill.
-	 * Cardinal: all skills enchanted for magic power/spell critical chance (route 'p').
-	 * Other classes: existing routing logic.
-	 */
 	public static char getSkillEnchantRoute(int classId, int skillId)
 	{
-		// Cardinal: all skills enchanted for spell power / crit chance.
 		if (classId == 97) { return 'p'; }
-		// Default for all other classes.
 		return 'p';
 	}
 }
