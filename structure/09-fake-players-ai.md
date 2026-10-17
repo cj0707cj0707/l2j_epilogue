@@ -280,3 +280,7 @@ BotSpawner, BotManager и TrainingArena при добавлении Cardinal н�
 - Buffs (self): Prayer (1307), Greater Battle Heal (1218)
 - Opening debuff на противника: Mana Storm (1399)
 - Тактика: kite 450u после Trance, Mana Burn во сне, Prominence как нюк
+
+## 17.10.2026: общий сбой навыков при входе/спавне
+
+`spawnBot(...) failed ... Skill.getId() because skill is null` вместе с отсутствующими1320/1322 вызван повреждением общего `game/data/stats/skills/01300-01399.xml`, а не отдельным пресетом: в XML оказался placeholder `__XML_B64__`. Восстановлен полный файл99 определений; BotSpawner/BotManager/пресеты этим исправлением не изменены. Общая цепочка `rewardSkills` ломала также вход людей. Диагностика, тесты и установка: [35-character-login-skill-xml-recovery.md](35-character-login-skill-xml-recovery.md).

@@ -118,3 +118,7 @@
 ## Новые сервисы Олимпиады в Гиране
 
 `stats/npcs/custom/GiranService1008000.xml`, `GiranService1009000.xml`, `GiranService1010000.xml`, `GiranService1011000.xml` — Тренер/аналитик, Мастер подготовки, Распорядитель Олимпиады, Справочник. Общие спавны — `spawns/Others/GiranServices.xml`, ряд `(83249..83441,148613,-3455)`, displayId 31960. Java-диалоги — `scripts/custom/GiranServices/`; отдельного HTML/клиентского NPC-патча нет. Мастера атрибутов нет. Устройство и инструкция: [20](20-olympiad-suite-and-giran-services.md). Runtime-журналы тренировок `data/training-arena-recovery/` не являются датапаком для публикации: содержат доказательства восстановления/блокировки аккаунта, не удалять при обновлении.
+
+## Восстановление навыков 1300–1399 и входа персонажей
+
+`stats/skills/01300-01399.xml` восстановлен из целой Git-версии после замены всего содержимого строкой `__XML_B64__`. Возвращены99 определений, включая1322 Common Craft и1320 Create Common Item (уровни1–9). Их отсутствие ломало `SkillTreeData.getAllAvailableSkills` при входе персонажей и повышении уровня ботов. Деревья изучения и JAR не менялись. Карта ответственности, происхождение XML, проверки и применение: [35-character-login-skill-xml-recovery.md](35-character-login-skill-xml-recovery.md).

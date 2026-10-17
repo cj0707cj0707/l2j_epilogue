@@ -28,6 +28,8 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 ## Последнее обновление
 
+[35. Вход персонажей: восстановление XML навыков](35-character-login-skill-xml-recovery.md) — исправлен placeholder вместо99 определений1300–1399; восстановлены1320/1322, добавлены XML/XSD и real-core регрессии общей цепочки входа/спавна.
+
 [34. Доминатор: Victory/CP; Титан: давление; Vengeance против всех](34-dominator-cp-titan-pressure-vengeance-all.md) — классовое исключение1414, реальные CP-самокасты около50%, отсутствие отхода Титана из-за откатов и разрешение368 против магов/лучников.
 
 [33. Танки: без самообездвиживания против дальников](33-tank-no-immobile-defense-vs-ranged.md) — общий запрет УД/Vengeance и корневой self-защиты против лучников/магов на любой дистанции, включая overrides.
@@ -56,6 +58,7 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 | Файл | Содержание |
 |---|---|
+| [35-character-login-skill-xml-recovery.md](35-character-login-skill-xml-recovery.md) | Вход после выбора персонажа: повреждённый XML1300–1399, восстановление, карта файлов и регрессии |
 | [01-root-structure.md](01-root-structure.md) | Корневые папки сервера: `game`, `login`, `libs`, `db_installer`, `backup`, `images` |
 | [02-launching.md](02-launching.md) | Запуск/остановка серверов, `java.cfg`, логи, консольные скрипты |
 | [03-game-config.md](03-game-config.md) | `game/config` — все конфиги GameServer (+ `Custom/` — кастомные фичи) |
@@ -87,6 +90,7 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 | Задача | Документ |
 |---|---|
+| Не входит после выбора персонажа; Skill1322/1320 отсутствует; NPE getAllAvailableSkills | `35-character-login-skill-xml-recovery.md` |
 | Поменять рейты (XP/SP/дроп/адена) | `03-game-config.md` → `Rates.ini` |
 | Изменить порт/IP/сетевые настройки | `03-game-config.md` → `Network.ini`, `Server.ini`; `04-login-server.md` |
 | Включить/настроить офлайн-трейд, баффера и т.п. | `03-game-config.md` → `Custom/*.ini` |
