@@ -344,10 +344,12 @@ public final class BotTactics
 		if (bot.isCastingNow() || bot.isCastingSimultaneouslyNow())
 		{
 			pollAttempt(bot, enemy, s, time);
+			restoreCardinalMana(bot, preset);
 			return true; // never Idle, cancel an attack, or retarget during a real cast
 		}
 		if (!defenseOnly && !allowsBasicAttack(bot, preset)) { stopBasicAttack(bot); }
 		pollAttempt(bot, enemy, s, time);
+		restoreCardinalMana(bot, preset);
 		if (trainingBerserker && (bot.isOutOfControl() || bot.isAllSkillsDisabled() || s.pendingId != 0))
 		{
 			stopBasicAttack(bot); // no auto continuation under cast/CC; never abort a cast
@@ -550,6 +552,17 @@ public final class BotTactics
 		// Parent may pursue when merely out of range, but may never autoattack a dagger.
 		if (!defenseOnly && !offenseAvailable) { stopBasicAttack(bot); return true; }
 		return false;
+	}
+
+	/** Active validated arena tick only. Poll the previous cast BEFORE refilling so
+	 * its real MP payment remains observable. Never alter shared skill templates. */
+	private static void restoreCardinalMana(Player bot, BotClassPreset preset)
+	{
+		if (bot == null || preset == null || preset.getClassId() != CARDINAL_CLASS_ID
+			|| bot.getClient() != null || bot.getPlayerClass().getId() != CARDINAL_CLASS_ID
+			|| !bot.isOnline() || bot.isAlikeDead()) { return; }
+		final int maximum = bot.getMaxMp();
+		if (maximum > 0 && bot.getCurrentMp() < maximum) { bot.setCurrentMp(maximum); }
 	}
 
 	private static void stopBasicAttack(Player bot)

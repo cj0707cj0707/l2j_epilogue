@@ -45,6 +45,17 @@ assert 'TacticsPolicy.cardinalSleepException(preset.getClassId(), id)' in reach
 assert 'TacticsPolicy.cardinalApproachRange(preset.getClassId(), reach, tranceReach)' in reach
 assert 'time >= s.nextCardinalTrance' in reach
 act=body(t,'private static boolean act(')
+assert act.count('restoreCardinalMana(bot, preset);') == 2, 'refill both casting and normal ticks'
+casting=act[act.index('if (bot.isCastingNow()'):act.index('if (!defenseOnly && !allowsBasicAttack')]
+assert casting.index('pollAttempt(')<casting.index('restoreCardinalMana(')<casting.index('return true;')
+normal=act[act.index('if (!defenseOnly && !allowsBasicAttack'):]
+assert normal.index('pollAttempt(')<normal.index('restoreCardinalMana(')<normal.index('time < s.nextDecision')<normal.index('resources(bot, skill)')
+mana=body(t,'private static void restoreCardinalMana(')
+for guard in ['preset.getClassId() != CARDINAL_CLASS_ID','bot.getClient() != null',
+              'bot.getPlayerClass().getId() != CARDINAL_CLASS_ID','!bot.isOnline()','bot.isAlikeDead()',
+              'maximum > 0 && bot.getCurrentMp() < maximum','bot.setCurrentMp(maximum)']:
+    assert guard in mana,guard
+assert 'ranked' not in mana and 'setCurrentHp' not in mana and 'setCurrentCp' not in mana
 for guard in ['bot.isCastingNow() || bot.isCastingSimultaneouslyNow()','resources(bot, skill)','skill.checkCondition(bot, self ? bot : enemy, false)','!bot.isSkillDisabled(skill)','bot.useMagic(skill, true, true)']:
     assert guard in act,guard
 print('PASS: common ranked/training driver and bound effect; parent target ownership; actual reuse/resource/LOS checks; every cleanup path wired',flush=True)

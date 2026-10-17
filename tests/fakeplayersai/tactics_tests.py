@@ -95,9 +95,13 @@ def xml_audit(output):
 
 def source_guards():
     src = (SCRIPTS / 'BotTactics.java').read_text()
+    # Explicit user-requested Cardinal-only arena MP exception, covered by
+    # cardinal_arena_parity_tests.py; keep every other direct resource write banned.
+    assert src.count('bot.setCurrentMp(maximum);') == 1
+    guarded_src = src.replace('bot.setCurrentMp(maximum);', '')
     for forbidden in ('setHeading(', 'setXYZ(', 'teleToLocation(', 'MagicSkillUse(', 'applyEffects(',
                       'setCurrentHp(', 'setCurrentMp(', 'increaseCharges(', 'setMoveSpeed(', 'setPAtk(', 'abortCast('):
-        assert forbidden not in src, 'No tactical cheats: ' + forbidden
+        assert forbidden not in guarded_src, 'No tactical cheats outside Cardinal MP exception: ' + forbidden
     for required in ('bot.useMagic(skill, true, true)', 'bot.getClient() != null',
                      'BotSpawner.getTacticalRotation(bot, enemy)', 'BotSpawner.getTacticalDefenses(bot, enemy)',
                      'BotSpawner.isOpenerOnlySkill(skill.getId())', 'preset.getBuffs()',

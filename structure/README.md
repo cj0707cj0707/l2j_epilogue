@@ -28,6 +28,8 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 ## Последнее обновление
 
+[38. Кардинал: неисчерпаемая мана в обоих режимах](38-cardinal-unlimited-arena-mana.md) — персональное восстановление MP в общем боевом тике после подтверждения каста; без изменения общих навыков и MP противника.
+
 [37. Кардинал: Олимпиада как тренировка](37-cardinal-olympiad-training-parity.md) — владение целью, сближение под Trance, общий временныйregMp×0.10 и запрет олимпийского full-MP floor в паре с ботом97; безопасная очистка.
 
 [36. Кардинал: имя без цифр и дополнительный Prominence](36-cardinal-name-and-prominence.md) — стабильное уникальное буквенное имя, bot-only1230/28, приоритет законного каста через10с и согласованные фильтры сна.
@@ -62,6 +64,7 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 | Файл | Содержание |
 |---|---|
+| [38-cardinal-unlimited-arena-mana.md](38-cardinal-unlimited-arena-mana.md) | Кардинал: неисчерпаемая MP только боту в активной тренировке/Олимпиаде, сохранение regMp противника |
 | [37-cardinal-olympiad-training-parity.md](37-cardinal-olympiad-training-parity.md) | Кардинал: отличия родительских драйверов, Trance-дальность, реальное -90% regMp и lifecycle эффекта |
 | [36-cardinal-name-and-prominence.md](36-cardinal-name-and-prominence.md) | Кардинал: безопасное имя без цифр, ручная выдача Prominence только боту и тактический интервал10с |
 | [35-character-login-skill-xml-recovery.md](35-character-login-skill-xml-recovery.md) | Вход после выбора персонажа: повреждённый XML1300–1399, восстановление, карта файлов и регрессии |

@@ -146,6 +146,56 @@ public final class CardinalArenaParityTest
         check(states().size()==2048,"state count remains bounded");
         clearStates();
     }
+    /** Real Player/PlayerStat/PlayerStatus setter; suppress only scheduled network
+     * delivery in this inert fixture, not the production MP or stat implementation. */
+    private static void prepareMana(Player p) throws Exception
+    {
+        float[] mp=new float[256];Arrays.fill(mp,1000);
+        field(PlayerTemplate.class,"_baseMp").set(p.getTemplate(),mp);
+        field(PlayerStat.class,"_oldMaxMp").setInt(p.getStat(),1000);
+        field(CreatureStatus.class,"_creature").set(p.getStatus(),p);
+        Object queued=java.lang.reflect.Proxy.newProxyInstance(
+            CardinalArenaParityTest.class.getClassLoader(),
+            new Class<?>[]{java.util.concurrent.ScheduledFuture.class},
+            (proxy,m,args)->{throw new AssertionError("queued network placeholder must not be executed");});
+        field(Player.class,"_broadcastStatusUpdateTask").set(p,queued);
+    }
+    private static void unlimitedMana() throws Exception
+    {
+        Method refill=method("restoreCardinalMana",Player.class,BotClassPreset.class);
+        BotClassPreset cardinal=BotPresets.getPresetByClassId(97),other=BotPresets.getPresetByClassId(94);
+        for(boolean ranked:new boolean[]{false,true})
+        {
+            Player bot=actor(700,97,ranked,false),enemy=actor(701,94,ranked,true);
+            prepareMana(bot);prepareMana(enemy);
+            CardinalArenaSupport support=new CardinalArenaSupport();support.bind(bot,enemy);
+            for(int i=0;i<300;i++)
+            {
+                field(CreatureStatus.class,"_currentMp").setDouble(bot.getStatus(),i%2==0?0:1000-54-i);
+                refill.invoke(null,bot,cardinal);
+                equal(bot.getCurrentMp(),1000,"unlimited bot MP in mode="+ranked);
+                equal(bot.getMaxMp(),1000,"max MP unchanged");
+                equal(enemy.getCurrentMp(),321,"enemy MP never refilled");
+                equal(regen(enemy),2,"opponent -90% regen preserved during refill");
+            }
+            refill.invoke(null,bot,cardinal);equal(bot.getCurrentMp(),1000,"full MP is idempotent");
+            support.clear();equal(regen(enemy),20,"normal regen cleanup still works");
+            field(CreatureStatus.class,"_currentMp").setDouble(bot.getStatus(),25);
+            refill.invoke(null,bot,other);equal(bot.getCurrentMp(),25,"wrong preset cannot refill");
+            refill.invoke(null,bot,null);equal(bot.getCurrentMp(),25,"null preset cannot refill");
+            field(Player.class,"_isOnline").setBoolean(bot,false);
+            refill.invoke(null,bot,cardinal);equal(bot.getCurrentMp(),25,"offline bot cannot refill");
+            field(Player.class,"_isOnline").setBoolean(bot,true);
+            field(Creature.class,"_isDead").setBoolean(bot,true);
+            refill.invoke(null,bot,cardinal);equal(bot.getCurrentMp(),25,"dead bot cannot refill");
+            for(Player excluded:new Player[]{actor(702,97,ranked,true),actor(703,94,ranked,false)})
+            {
+                prepareMana(excluded);refill.invoke(null,excluded,cardinal);
+                equal(excluded.getCurrentMp(),321,"human Cardinal and other-class bot excluded");
+            }
+            refill.invoke(null,null,cardinal);
+        }
+    }
     private static void policyAndActualSkills()
     {
         SkillData data=SkillData.getInstance();Skill trance=data.getSkill(1394,data.getMaxLevel(1394));
@@ -170,9 +220,9 @@ public final class CardinalArenaParityTest
     public static void main(String[] args) throws Exception
     {
         unsafe=(Unsafe)field(Unsafe.class,"theUnsafe").get(null);
-        statsAndAuthority();stateEviction();
+        statsAndAuthority();stateEviction();unlimitedMana();
         ServerConfig.DATAPACK_ROOT=new File(args[0]);ThreadConfig.THREADS_FOR_LOADING=false;
         handlers.EffectMasterHandler.main(new String[0]);policyAndActualSkills();
-        System.out.println("PASS: "+checks+" real-core regen, source/class guard, ranked/training authority, pair/invalid/end/TTL/eviction teardown,600-vs900 approach and shared10s policy checks; no live match");
+        System.out.println("PASS: "+checks+" real-core regen/unlimited Cardinal MP, source/class guard, ranked/training authority, pair/invalid/end/TTL/eviction teardown,600-vs900 approach and shared10s policy checks; no live match");
     }
 }
