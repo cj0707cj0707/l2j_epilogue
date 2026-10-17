@@ -382,12 +382,16 @@ public class BotPresets
 		return Collections.unmodifiableCollection(PRESETS.values());
 	}
 	
-	/**
-	 * Returns all registered presets. Alias for {@link #getAllPresets()} used by AdminBot.
-	 */
+	/** Returns all registered presets. Alias used by AdminBot. */
 	public static Collection<BotClassPreset> getPresets()
 	{
 		return getAllPresets();
+	}
+	
+	/** Returns all registered presets as a List. Alias used by GiranServices. */
+	public static List<BotClassPreset> getPresetList()
+	{
+		return new ArrayList<>(PRESETS.values());
 	}
 	
 	public static Set<Integer> getRegisteredClassIds()
@@ -412,9 +416,6 @@ public class BotPresets
 	 * Returns the set of skill IDs used by a class: the union of its current
 	 * rotation and self-buffs (including any runtime overrides).
 	 * Used by AdminBot to display the allow/forbid skill management page.
-	 * NOTE: SkillTreeData.getClassSkillTree() is not available in this engine
-	 * build, so the pool is limited to skills already in the preset.
-	 * Use //bot rotadd / buffadd to expand it with additional skill IDs.
 	 */
 	public static int[] getClassFullSkillPool(int classId)
 	{
@@ -423,41 +424,24 @@ public class BotPresets
 		{
 			return new int[0];
 		}
-		
-		// Union of rotation + buffs (LinkedHashSet preserves insertion order, removes duplicates).
 		final Set<Integer> ids = new LinkedHashSet<>();
-		for (int id : preset.getRotation())
-		{
-			ids.add(id);
-		}
-		for (int id : preset.getBuffs())
-		{
-			ids.add(id);
-		}
-		
+		for (int id : preset.getRotation()) { ids.add(id); }
+		for (int id : preset.getBuffs()) { ids.add(id); }
 		final int[] result = new int[ids.size()];
 		int i = 0;
-		for (int id : ids)
-		{
-			result[i++] = id;
-		}
+		for (int id : ids) { result[i++] = id; }
 		return result;
 	}
 	
 	/**
-	 * Returns true if a skill should be categorised as a self-buff (cast on self
-	 * automatically) rather than an offensive rotation skill.
-	 * Used by AdminBot to decide whether "allow" adds the skill to buffs or rotation.
+	 * Returns true if a skill targets SELF (used by AdminBot to categorise skills).
 	 */
 	public static boolean isSelfBuffSkill(int skillId)
 	{
 		try
 		{
 			final Skill skill = SkillData.getInstance().getSkill(skillId, 1);
-			if (skill == null)
-			{
-				return false;
-			}
+			if (skill == null) { return false; }
 			return skill.getTargetType() == TargetType.SELF;
 		}
 		catch (Exception e)
@@ -470,174 +454,79 @@ public class BotPresets
 	// Rotation / buff overrides (in-memory mutations, AdminBot API)
 	// ------------------------------------------------------------------
 	
-	/**
-	 * Adds a skill to the rotation override for the given class.
-	 * The skill must not already be present in the rotation.
-	 * @return true if the skill was added.
-	 */
 	public static boolean rotationAdd(int classId, int skillId)
 	{
 		final BotClassPreset preset = PRESETS.get(classId);
-		if ((preset == null) || (skillId <= 0))
-		{
-			return false;
-		}
+		if ((preset == null) || (skillId <= 0)) { return false; }
 		final int[] current = preset.getRotation();
-		for (int id : current)
-		{
-			if (id == skillId)
-			{
-				return false; // already present
-			}
-		}
+		for (int id : current) { if (id == skillId) { return false; } }
 		final int[] next = Arrays.copyOf(current, current.length + 1);
 		next[current.length] = skillId;
 		preset.setRotationOverride(next);
 		return true;
 	}
 	
-	/**
-	 * Removes a skill from the rotation override for the given class.
-	 * @return true if the skill was found and removed.
-	 */
 	public static boolean rotationRemove(int classId, int skillId)
 	{
 		final BotClassPreset preset = PRESETS.get(classId);
-		if (preset == null)
-		{
-			return false;
-		}
+		if (preset == null) { return false; }
 		final int[] current = preset.getRotation();
 		int idx = -1;
-		for (int i = 0; i < current.length; i++)
-		{
-			if (current[i] == skillId)
-			{
-				idx = i;
-				break;
-			}
-		}
-		if (idx < 0)
-		{
-			return false;
-		}
+		for (int i = 0; i < current.length; i++) { if (current[i] == skillId) { idx = i; break; } }
+		if (idx < 0) { return false; }
 		final int[] next = new int[current.length - 1];
-		for (int i = 0, j = 0; i < current.length; i++)
-		{
-			if (i != idx)
-			{
-				next[j++] = current[i];
-			}
-		}
+		for (int i = 0, j = 0; i < current.length; i++) { if (i != idx) { next[j++] = current[i]; } }
 		preset.setRotationOverride(next.length == 0 ? null : next);
 		return true;
 	}
 	
-	/**
-	 * Resets the rotation override for the given class to the preset default.
-	 */
 	public static void rotationReset(int classId)
 	{
 		final BotClassPreset preset = PRESETS.get(classId);
-		if (preset != null)
-		{
-			preset.setRotationOverride(null);
-		}
+		if (preset != null) { preset.setRotationOverride(null); }
 	}
 	
-	/**
-	 * Adds a skill to the self-buff override for the given class.
-	 * @return true if the skill was added.
-	 */
 	public static boolean buffAdd(int classId, int skillId)
 	{
 		final BotClassPreset preset = PRESETS.get(classId);
-		if ((preset == null) || (skillId <= 0))
-		{
-			return false;
-		}
-		if (!isSelfBuffSkill(skillId))
-		{
-			return false;
-		}
+		if ((preset == null) || (skillId <= 0)) { return false; }
+		if (!isSelfBuffSkill(skillId)) { return false; }
 		final int[] current = preset.getBuffs();
-		for (int id : current)
-		{
-			if (id == skillId)
-			{
-				return false;
-			}
-		}
+		for (int id : current) { if (id == skillId) { return false; } }
 		final int[] next = Arrays.copyOf(current, current.length + 1);
 		next[current.length] = skillId;
 		preset.setBuffsOverride(next);
 		return true;
 	}
 	
-	/**
-	 * Removes a skill from the self-buff override for the given class.
-	 * @return true if the skill was found and removed.
-	 */
 	public static boolean buffRemove(int classId, int skillId)
 	{
 		final BotClassPreset preset = PRESETS.get(classId);
-		if (preset == null)
-		{
-			return false;
-		}
+		if (preset == null) { return false; }
 		final int[] current = preset.getBuffs();
 		int idx = -1;
-		for (int i = 0; i < current.length; i++)
-		{
-			if (current[i] == skillId)
-			{
-				idx = i;
-				break;
-			}
-		}
-		if (idx < 0)
-		{
-			return false;
-		}
+		for (int i = 0; i < current.length; i++) { if (current[i] == skillId) { idx = i; break; } }
+		if (idx < 0) { return false; }
 		final int[] next = new int[current.length - 1];
-		for (int i = 0, j = 0; i < current.length; i++)
-		{
-			if (i != idx)
-			{
-				next[j++] = current[i];
-			}
-		}
+		for (int i = 0, j = 0; i < current.length; i++) { if (i != idx) { next[j++] = current[i]; } }
 		preset.setBuffsOverride(next);
 		return true;
 	}
 	
-	/**
-	 * Resets the self-buff override for the given class to the preset default.
-	 */
 	public static void buffReset(int classId)
 	{
 		final BotClassPreset preset = PRESETS.get(classId);
-		if (preset != null)
-		{
-			preset.setBuffsOverride(null);
-		}
+		if (preset != null) { preset.setBuffsOverride(null); }
 	}
 	
-	/**
-	 * Sets the weapon item-id override for the given class.
-	 * Pass 0 to clear and revert to the default weapon.
-	 */
 	public static void setWeaponOverride(int classId, int itemId)
 	{
 		final BotClassPreset preset = PRESETS.get(classId);
-		if (preset != null)
-		{
-			preset.setWeaponOverride(itemId);
-		}
+		if (preset != null) { preset.setWeaponOverride(itemId); }
 	}
 	
 	// ------------------------------------------------------------------
-	// Gear assignment — new API (individual per-slot methods)
+	// Gear assignment — new API
 	// ------------------------------------------------------------------
 	
 	public static int getArmorChest(BotClassPreset preset, boolean vesper)
@@ -690,15 +579,8 @@ public class BotPresets
 		return preset.useSpiritshot() ? BLESSED_SPIRITSHOT_S : SOULSHOT_S;
 	}
 	
-	public static int getHealPotion()
-	{
-		return POTION_HEAL;
-	}
-	
-	public static int getCpPotion()
-	{
-		return POTION_CP;
-	}
+	public static int getHealPotion() { return POTION_HEAL; }
+	public static int getCpPotion() { return POTION_CP; }
 	
 	// ------------------------------------------------------------------
 	// Gear assignment — compatibility API
@@ -713,20 +595,14 @@ public class BotPresets
 	{
 		switch (preset.getWeaponKind())
 		{
-			case SWORD:
-				return getShield(vesper);
-			default:
-				return 0;
+			case SWORD: return getShield(vesper);
+			default: return 0;
 		}
 	}
 	
 	public static int getWeaponId(BotClassPreset preset, boolean vesper)
 	{
-		if (preset.getWeaponOverride() > 0)
-		{
-			return preset.getWeaponOverride();
-		}
-		return getWeapon(preset, vesper);
+		return preset.getWeaponOverride() > 0 ? preset.getWeaponOverride() : getWeapon(preset, vesper);
 	}
 	
 	public static int[] getJewelryIds()
@@ -737,74 +613,23 @@ public class BotPresets
 	public static int[] getAllGearIds()
 	{
 		final List<Integer> ids = new ArrayList<>();
-		for (int[] set : DYNASTY_SETS)
-		{
-			for (int id : set)
-			{
-				ids.add(id);
-			}
-		}
-		for (int[] set : VESPER_SETS)
-		{
-			for (int id : set)
-			{
-				ids.add(id);
-			}
-		}
-		ids.add(DYNASTY_SHIELD);
-		ids.add(VESPER_SHIELD);
-		for (int id : DYNASTY_JEWELS)
-		{
-			ids.add(id);
-		}
-		for (int id : VESPER_JEWELS)
-		{
-			ids.add(id);
-		}
-		for (int[] weapon : WEAPONS)
-		{
-			for (int id : weapon)
-			{
-				ids.add(id);
-			}
-		}
+		for (int[] set : DYNASTY_SETS) { for (int id : set) { ids.add(id); } }
+		for (int[] set : VESPER_SETS) { for (int id : set) { ids.add(id); } }
+		ids.add(DYNASTY_SHIELD); ids.add(VESPER_SHIELD);
+		for (int id : DYNASTY_JEWELS) { ids.add(id); }
+		for (int id : VESPER_JEWELS) { ids.add(id); }
+		for (int[] weapon : WEAPONS) { for (int id : weapon) { ids.add(id); } }
 		final int[] result = new int[ids.size()];
-		for (int i = 0; i < result.length; i++)
-		{
-			result[i] = ids.get(i);
-		}
+		for (int i = 0; i < result.length; i++) { result[i] = ids.get(i); }
 		return result;
 	}
 	
-	public static int getPotionId()
-	{
-		return POTION_HEAL;
-	}
-	
-	public static int getCpPotionId()
-	{
-		return POTION_CP;
-	}
-	
-	public static int getFighterShotId()
-	{
-		return SOULSHOT_S;
-	}
-	
-	public static int getBlessedSpiritshotId()
-	{
-		return BLESSED_SPIRITSHOT_S;
-	}
-	
-	public static int getBoltId()
-	{
-		return BOLT_S;
-	}
-	
-	public static int getArrowId()
-	{
-		return ARROW_S;
-	}
+	public static int getPotionId() { return POTION_HEAL; }
+	public static int getCpPotionId() { return POTION_CP; }
+	public static int getFighterShotId() { return SOULSHOT_S; }
+	public static int getBlessedSpiritshotId() { return BLESSED_SPIRITSHOT_S; }
+	public static int getBoltId() { return BOLT_S; }
+	public static int getArrowId() { return ARROW_S; }
 	
 	public static List<String> getNames(boolean female)
 	{
@@ -815,16 +640,10 @@ public class BotPresets
 	// Override persistence (FakePlayersAIOverrides.ini)
 	// ------------------------------------------------------------------
 	
-	/**
-	 * Loads all per-class overrides from FakePlayersAIOverrides.ini.
-	 */
 	public static void loadOverrides()
 	{
 		final File file = new File(OVERRIDES_PATH);
-		if (!file.exists())
-		{
-			return;
-		}
+		if (!file.exists()) { return; }
 		final Properties props = new Properties();
 		try (InputStream in = new FileInputStream(file))
 		{
@@ -850,10 +669,7 @@ public class BotPresets
 				{
 					case "rotation":
 					{
-						if (value.isEmpty())
-						{
-							preset.setRotationOverride(null);
-						}
+						if (value.isEmpty()) { preset.setRotationOverride(null); }
 						else
 						{
 							final String[] parts = value.split(",");
@@ -865,10 +681,7 @@ public class BotPresets
 					}
 					case "buffs":
 					{
-						if (value.isEmpty())
-						{
-							preset.setBuffsOverride(new int[0]);
-						}
+						if (value.isEmpty()) { preset.setBuffsOverride(new int[0]); }
 						else
 						{
 							final String[] parts = value.split(",");
@@ -879,10 +692,8 @@ public class BotPresets
 						break;
 					}
 					case "weapon":
-					{
 						preset.setWeaponOverride(Integer.parseInt(value));
 						break;
-					}
 				}
 			}
 			catch (Exception e)
@@ -893,10 +704,6 @@ public class BotPresets
 		LOGGER.info("FakePlayersAI: loaded overrides from " + OVERRIDES_PATH + ".");
 	}
 	
-	/**
-	 * Saves ALL current in-memory overrides for every preset to FakePlayersAIOverrides.ini.
-	 * Replaces the entire file content; called by AdminBot after any mutation.
-	 */
 	public static void saveOverrides()
 	{
 		final Properties props = new Properties();
@@ -907,22 +714,14 @@ public class BotPresets
 			{
 				final int[] rotation = preset.getRotation();
 				final StringBuilder sb = new StringBuilder();
-				for (int i = 0; i < rotation.length; i++)
-				{
-					if (i > 0) { sb.append(','); }
-					sb.append(rotation[i]);
-				}
+				for (int i = 0; i < rotation.length; i++) { if (i > 0) { sb.append(','); } sb.append(rotation[i]); }
 				props.setProperty(classId + ".rotation", sb.toString());
 			}
 			if (preset.hasBuffsOverride())
 			{
 				final int[] buffs = preset.getBuffs();
 				final StringBuilder sb = new StringBuilder();
-				for (int i = 0; i < buffs.length; i++)
-				{
-					if (i > 0) { sb.append(','); }
-					sb.append(buffs[i]);
-				}
+				for (int i = 0; i < buffs.length; i++) { if (i > 0) { sb.append(','); } sb.append(buffs[i]); }
 				props.setProperty(classId + ".buffs", sb.toString());
 			}
 			if (preset.getWeaponOverride() > 0)
@@ -953,17 +752,11 @@ public class BotPresets
 			final Properties props = new Properties();
 			if (file.exists())
 			{
-				try (InputStream in = new FileInputStream(file))
-				{
-					props.load(in);
-				}
+				try (InputStream in = new FileInputStream(file)) { props.load(in); }
 			}
 			props.setProperty(classId + "." + key, value);
 			file.getParentFile().mkdirs();
-			try (OutputStream out = new FileOutputStream(file))
-			{
-				props.store(out, "FakePlayersAI runtime overrides");
-			}
+			try (OutputStream out = new FileOutputStream(file)) { props.store(out, "FakePlayersAI runtime overrides"); }
 		}
 		catch (IOException e)
 		{
@@ -978,10 +771,7 @@ public class BotPresets
 			final File file = new File(OVERRIDES_PATH);
 			if (!file.exists()) { return defaultValue; }
 			final Properties props = new Properties();
-			try (InputStream in = new FileInputStream(file))
-			{
-				props.load(in);
-			}
+			try (InputStream in = new FileInputStream(file)) { props.load(in); }
 			return props.getProperty(classId + "." + key, defaultValue);
 		}
 		catch (IOException e)
