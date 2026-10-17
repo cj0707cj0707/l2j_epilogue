@@ -54,7 +54,7 @@ final class BerserkerCycle
 
 	boolean canRetreat(long now, double distance)
 	{
-		return now >= nextRetreatAt && distance > 100 && distance < 220;
+		return now >= nextRetreatAt && Double.isFinite(distance) && distance >= 0 && distance < 220;
 	}
 
 	void beginRetreat(long now, double distance)
@@ -65,7 +65,7 @@ final class BerserkerCycle
 
 	boolean retreatUnproductive(long now, double distance)
 	{
-		return (distance <= 100) || ((retreatAt >= 0) && ((now - retreatAt >= RETREAT_MAX_MS)
+		return ((retreatAt >= 0) && ((now - retreatAt >= RETREAT_MAX_MS)
 			|| ((now - retreatAt >= RETREAT_PROGRESS_MS) && (distance - retreatDistance < 25))));
 	}
 

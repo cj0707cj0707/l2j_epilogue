@@ -262,6 +262,8 @@ final class TacticsPolicy
 			return -1;
 		}
 	}
+	static boolean chargeMeleeClass(int classId) { return classId == 88 || classId == 114; }
+	static boolean chargeMeleeRecoveryAllowed(boolean meleePressure, boolean disarmed) { return !meleePressure || disarmed; }
 	static boolean titanRecoveryAllowed(int classId, boolean disarmed) { return classId != 113 || disarmed; }
 	static boolean titanPursuit(int classId, boolean armed, boolean blocked, boolean sleeping,
 		boolean invulnerable, boolean attackable, boolean pendingCast)
@@ -401,6 +403,12 @@ final class TacticsPolicy
 			return true;
 		}
 		void retryRetreat(long time) { retreatAt = -1; retryAt = time + 750; }
+		boolean follow(T current, boolean liveStun)
+		{
+			if (current == null || !liveStun) { clear(); return false; }
+			if (original == null || original.get() != current) begin(current);
+			return true; // follow replacement STUN without editing either native lifetime
+		}
 		boolean active(T current, boolean liveOwnRush)
 		{
 			if (current != null && original != null && original.get() == current && liveOwnRush) { return true; }

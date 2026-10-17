@@ -211,13 +211,20 @@ public final class BotTactics
         return true;
     }
 
+	public static boolean strictMeleePressure(Player bot, Player enemy, BotClassPreset preset)
+	{
+		if (bot == null || enemy == null || preset == null || !TacticsPolicy.chargeMeleeClass(preset.getClassId())) return false;
+		BotClassPreset opponent = BotPresets.getPresetByClassId(enemy.getPlayerClass().getId());
+		return enemy.isMageClass() || opponent != null && opponent.isCaster();
+	}
+
 	/** Center-to-center pursuit stop distance, not permission to attack. Uses the
 	 * same effective learned offense and legality as selection. In particular a
 	 * dagger must reach its 40+collision blow radius, not an 80/110 auto envelope. */
 	public static synchronized int tacticalApproachRange(Player bot, Player enemy, BotClassPreset preset)
 	{
 		if (bot == null || enemy == null || preset == null) { return 40; }
-		if (TacticsPolicy.tankClass(preset.getClassId()))
+		if (TacticsPolicy.tankClass(preset.getClassId()) || strictMeleePressure(bot, enemy, preset))
 			return TacticsPolicy.tankApproachRange(bot.getPhysicalAttackRange(), bot.getTemplate().getCollisionRadius());
 		if (needsManaAutoAttack(bot, preset))
 			return TacticsPolicy.boundedApproachRange(bot.getPhysicalAttackRange() + bot.getTemplate().getCollisionRadius());
@@ -430,14 +437,12 @@ public final class BotTactics
 		final double distance = bot.calculateDistance2D(enemy);
 		final boolean tank = TacticsPolicy.tankClass(preset.getClassId());
 		final boolean timedTank = tank;
+		final boolean chargeMelee = strictMeleePressure(bot, enemy, preset);
+		final boolean chargeClosing = chargeMelee && (!visible || distance > TacticsPolicy.tankApproachRange(bot.getPhysicalAttackRange(), bot.getTemplate().getCollisionRadius()));
 		final boolean tankClosing = tank && (!visible || distance > TacticsPolicy.tankApproachRange(bot.getPhysicalAttackRange(), bot.getTemplate().getCollisionRadius()));
 		final int activeStrong = bot.isAffectedBySkill(110) ? 110 : bot.isAffectedBySkill(368) ? 368 : bot.isAffectedBySkill(760) ? 760 : 0;
 		if (timedTank) { s.tankDefense.observed(activeStrong); }
-		final Skill reconstruction = trainingBerserker ? bot.getKnownSkill(833) : null;
-		final boolean recoveryReady = reconstruction != null && hp <= .40 && !bot.isSkillDisabled(reconstruction)
-			&& BotRecoveryRules.selfHealAllowed(bot, reconstruction) && resources(bot, reconstruction)
-			&& reconstruction.checkCondition(bot, bot, false);
-		final int rushAction = trainingBerserker && !manaFallback && !recoveryReady ? trainingRushAction(bot, enemy, preset, s, time, distance, visible) : -1;
+		final int rushAction = trainingBerserker ? trainingRushAction(bot, enemy, preset, s, time, distance, visible) : -1;
 		if (rushAction == -2) { return true; }
 		final boolean trainingRushActive = rushAction == 793;
 		final boolean interruptReady = s.castObserved >= 0 && TacticsPolicy.reactionReady(difficulty(s), time, s.castObserved, false);
@@ -488,6 +493,7 @@ public final class BotTactics
 			final boolean direct = directDamage(skill);
 			final TacticsPolicy.Kind kind = dominator && sleeping && sleepElapsed >= 5000 && direct ? TacticsPolicy.Kind.DAMAGE : detected;
 			if (kind == null || (defenseOnly && kind != TacticsPolicy.Kind.HEAL && kind != TacticsPolicy.Kind.DEFENSE)) { continue; }
+			if (chargeClosing && !self(kind)) { continue; }
 			final boolean self = self(kind);
 			// PARTY_CLAN may include a same-clan/party opponent. Never heal/buff them;
 			// query ordinary targets without changing the target or skill implementation.
@@ -502,8 +508,8 @@ public final class BotTactics
 			if (tankStun && enemy.isStunned() || tankRoot && enemy.isMovementDisabled()) { continue; }
 			// Prominence (1230) also bypasses the sleep-offense gate, same as Mana Burn (1398).
 			final boolean cardinalMbException = TacticsPolicy.cardinalSleepException(preset.getClassId(), skill.getId());
-			if (!self && !cardinalMbException && !TacticsPolicy.sleepOffenseAllowed(dominator, sleeping, sleepElapsed, direct, skill.getId() == 1097 || skill.getId() == 1069)) { continue; }
-			final boolean protectedSleep = sleeping && !dominator && !cardinalMbException;
+			if (!self && !cardinalMbException && !trainingRushActive && !TacticsPolicy.sleepOffenseAllowed(dominator, sleeping, sleepElapsed, direct, skill.getId() == 1097 || skill.getId() == 1069)) { continue; }
+			final boolean protectedSleep = sleeping && !dominator && !cardinalMbException && !trainingRushActive;
 			if (!BotSpawner.tacticalSkillAllowed(bot, enemy, skill, self)) { continue; }
 			if (!timedPool && (kind == TacticsPolicy.Kind.HEAL || kind == TacticsPolicy.Kind.DEFENSE)
 				&& !TacticsPolicy.reactionReady(difficulty(s), time, s.hpObserved, hp < .35)) { continue; }
@@ -559,6 +565,7 @@ public final class BotTactics
 			|| (chosen == TacticsPolicy.Kind.CONTROL && interruptReady && s.enemyCasting);
 		// No recovery retreat/flank/kite when MP cannot pay any offensive skill.
 		// Parents still enforce real range, LOS, sleep, weapon and arena authority.
+		if (trainingRushActive && selected < 0) { stopBasicAttack(bot); return true; }
 		if (manaFallback && selected < 0 && !sleeping) { s.moveUntil = 0; return false; }
 		if (!defenseOnly && !urgent && time < s.moveUntil && bot.isMoving() && Math.hypot(bot.getXdestination() - s.moveX, bot.getYdestination() - s.moveY) < 40) { return true; }
 		final boolean offenseReady = options.stream().anyMatch(o -> o.kind() == TacticsPolicy.Kind.DAMAGE || o.kind() == TacticsPolicy.Kind.CONTROL || o.kind() == TacticsPolicy.Kind.SLOW);
@@ -614,6 +621,7 @@ public final class BotTactics
 		// During enemy invulnerability: melee/archer bots keep auto-attacking (engine handles immunity).
 		if (!defenseOnly && enemy.isInvul() && !preset.isCaster() && allowsBasicAttack(bot, preset)) { return false; }
 		// Ordinary unavailable offense still holds; MP-starved physical bots yielded above.
+		if (!defenseOnly && chargeClosing && !bot.isMovementDisabled() && !bot.isOutOfControl()) return false;
 		if (!defenseOnly && !offenseAvailable) { stopBasicAttack(bot); return true; }
 		return false;
 	}
@@ -701,9 +709,7 @@ public final class BotTactics
 	}
 	private static BuffInfo ownRushStun(Player bot, Player enemy)
 	{
-		final BuffInfo effect = enemy.getEffectList().getBuffInfoByAbnormalType(AbnormalType.STUN);
-		return effect != null && !effect.isRemoved() && effect.isInUse() && enemy.isSleeping() && hasAppliedStun(effect)
-			&& effect.getSkill().getId() == 793 && effect.getEffector() == bot && effect.getEffected() == enemy ? effect : null;
+		return RushStunSupport.stun(enemy);
 	}
 	private static void stopRushMovement(Player bot, State s)
 	{
@@ -717,26 +723,23 @@ public final class BotTactics
 	private static int trainingRushAction(Player bot, Player enemy, BotClassPreset preset, State s, long time, double distance, boolean visible)
 	{
 		final BuffInfo stun = ownRushStun(bot, enemy);
-		if (!s.rushLoop.active(stun, stun != null)) { stopRushMovement(bot, s); return -1; }
+		if (!s.rushLoop.follow(stun, stun != null)) { stopRushMovement(bot, s); return -1; }
 		if (!java.util.Arrays.stream(preset.getRotation()).anyMatch(id -> id == 793) || bot.getKnownSkill(793) == null
 			|| !visible || distance > 600 || Math.abs(bot.getZ() - enemy.getZ()) > 100)
 		{ s.rushLoop.retryRetreat(time); stopRushMovement(bot, s); stopBasicAttack(bot); return -2; }
-		if (enemy.isSleeping() || enemy.isInvul()) { stopRushMovement(bot, s); stopBasicAttack(bot); return -2; }
 		if (!s.rushLoop.retreatAllowed(time, distance)) { stopRushMovement(bot, s); stopBasicAttack(bot); return -2; }
 		if (distance >= 220) { stopRushMovement(bot, s); return 793; } // all real skill gates still run in act
 		stopBasicAttack(bot);
 		if (bot.isMovementDisabled() || time < s.nextRushStep) { return -2; }
 		s.nextRushStep = time + 250;
-		for (int attempt = 0; attempt < 8; attempt++)
+		final int[] center = ArenaCombatRules.center(bot);
+		if (center == null) return -2;
+		final double radius = ArenaCombatRules.retreatRadius(bot, enemy, 1000);
+		for (Location point : RushStunSupport.retreat(bot.getX(), bot.getY(), bot.getZ(), enemy.getX(), enemy.getY(), center[0], center[1], radius))
 		{
-			final double[] point = TacticsPolicy.OriginalRushStun.retreatPoint(bot.getX(), bot.getY(), enemy.getX(), enemy.getY(), attempt, s.rushDirectionX, s.rushDirectionY);
-			if (point == null) { continue; }
-			final int x = (int)Math.round(point[0]), y = (int)Math.round(point[1]);
-			if (!TrainingArena.inside(x, y) || Math.hypot(x - enemy.getX(), y - enemy.getY()) > 1600
-				|| Math.hypot(x - s.rushAnchorX, y - s.rushAnchorY) > 650
-				|| Math.hypot(x - enemy.getX(), y - enemy.getY()) <= distance + 10
-				|| !GeoEngine.getInstance().canMoveToTarget(bot.getX(), bot.getY(), bot.getZ(), x, y, bot.getZ(), bot.getInstanceId())) { continue; }
-			bot.getAI().setIntentionMoveTo(new Location(x, y, bot.getZ()));
+			final int x = point.getX(), y = point.getY();
+			if (!TrainingArena.inside(x, y) || !GeoEngine.getInstance().canMoveToTarget(bot.getX(), bot.getY(), bot.getZ(), x, y, bot.getZ(), bot.getInstanceId())) continue;
+			bot.getAI().setIntentionMoveTo(point);
 			s.rushMoveX = x; s.rushMoveY = y; s.rushMoving = true;
 			return -2;
 		}
@@ -847,7 +850,8 @@ public final class BotTactics
 	{
 		if (!visible || bot.isMovementDisabled() || Math.abs(bot.getZ() - enemy.getZ()) > 100 || distance < 1) { return false; }
 		double x, y;
-		final boolean recovery = TacticsPolicy.tankRecoveryAllowed(TacticsPolicy.tankClass(preset.getClassId()), weaponUnavailable(bot))
+		final boolean recovery = TacticsPolicy.chargeMeleeRecoveryAllowed(strictMeleePressure(bot, enemy, preset), weaponUnavailable(bot))
+			&& TacticsPolicy.tankRecoveryAllowed(TacticsPolicy.tankClass(preset.getClassId()), weaponUnavailable(bot))
 			&& TacticsPolicy.titanRecoveryAllowed(preset.getClassId(), weaponUnavailable(bot))
 			&& TacticsPolicy.recoveryStepAllowed(weaponUnavailable(bot), offenseAvailable, offenseReady,
 			distance, TacticsPolicy.recoveryEnemyControlled(preset.getClassId() == 115, enemy.isSleeping(), enemy.isMovementDisabled(), enemy.isOutOfControl()));

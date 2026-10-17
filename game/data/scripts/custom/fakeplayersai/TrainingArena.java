@@ -622,7 +622,7 @@ public final class TrainingArena
             // (+60) may otherwise retain ENGAGED outside both this strict
             // manual attack gate and skill range, with no old route to resume.
             // Let pursuit reach the exact range; THIS caller owns its autoattack.
-            boolean closeControlTank = preset.getClassId() == 90 || preset.getClassId() == 91 || preset.getClassId() == 106 || preset.getClassId() == 113;
+            boolean closeControlTank = preset.getClassId() == 90 || preset.getClassId() == 91 || preset.getClassId() == 106 || preset.getClassId() == 113 || BotTactics.strictMeleePressure(b, p, preset);
             boolean chaseAttack = basicAttack && preset.getClassId() != 131 && !closeControlTank;
             OlympiadChase.updateTraining(b, p, range, chaseAttack, CX, CY, RADIUS);
             if (basicAttack && !b.isAttackingOrCastingNow() && !b.isMovementDisabled() && !p.isSleeping()

@@ -81,15 +81,15 @@ public final class RankedRushOriginalStunRegression
 		Method observe=type.getDeclaredMethod("observe",Object.class,Object.class,long.class);observe.setAccessible(true);
 		Object target=new Object(),foreignTarget=new Object(),original=new Object(),replacement=new Object();
 		Object loop=ctor.newInstance();
-		check((int)observe.invoke(loop,target,original,0L)==0,"arbitrary preexisting own or foreign effect not acquired without our cast");
-		request.invoke(loop,target,null,0L);check((int)observe.invoke(loop,target,null,1L)==0,"requested cast is not successful stun proof");
+		check((int)observe.invoke(loop,target,original,0L)==1,"current genuine applied stun acquired even without observing our request");
+		request.invoke(loop,target,null,0L);check((int)observe.invoke(loop,target,null,1L)==2,"expired actual effect ends phase despite a pending request");
 		check((int)observe.invoke(loop,target,original,2L)==1,"new applied effect acquired after own cast");
 		for(int i=0;i<100;i++){request.invoke(loop,target,original,3L+i);check((int)observe.invoke(loop,target,original,10000L+i)==1,"repeat damage keeps original identity, no guessed stun timer");}
-		check((int)observe.invoke(loop,target,replacement,10200L)==2,"replacement immediately ends original lease");
-		check((int)observe.invoke(loop,target,replacement,10201L)==0,"replacement cannot silently extend loop");
+		check((int)observe.invoke(loop,target,replacement,10200L)==1,"current live replacement keeps Rush-only phase");
+		check((int)observe.invoke(loop,target,replacement,10201L)==1,"replacement followed without synthetic duration change");
 		loop=ctor.newInstance();request.invoke(loop,target,original,0L);
-		check((int)observe.invoke(loop,target,original,1L)==0,"no capture when our cast did not create a new stun");
-		check((int)observe.invoke(loop,target,replacement,6001L)==0,"late stale observation cannot acquire");
+		check((int)observe.invoke(loop,target,original,1L)==1,"preexisting real stun is sufficient for latest requested rule");
+		check((int)observe.invoke(loop,target,replacement,6001L)==1,"native effect, not a guessed request timeout, determines active phase");
 		loop=ctor.newInstance();request.invoke(loop,target,null,0L);observe.invoke(loop,target,original,1L);
 		check((int)observe.invoke(loop,foreignTarget,original,2L)==2,"target swap ends lease");
 		loop=ctor.newInstance();request.invoke(loop,target,null,0L);observe.invoke(loop,target,original,1L);
@@ -122,7 +122,7 @@ public final class RankedRushOriginalStunRegression
 		@SuppressWarnings("unchecked") List<Location> zero=(List<Location>)candidates.invoke(null,0,0,0,0,0,0,0,1200d);
 		check(!zero.isEmpty(),"coincident actors choose finite legal escape direction");
 		check(((List<?>)candidates.invoke(null,0,0,0,0,0,0,0,100d)).isEmpty(),"no legal arena retreat returns none");
-		check(((List<?>)candidates.invoke(null,200,0,0,0,0,0,0,1200d)).isEmpty(),"already legal min distance, do not retreat more");
+		check(((List<?>)candidates.invoke(null,220,0,0,0,0,0,0,1200d)).isEmpty(),"already sufficient220 margin, do not retreat more");
 	}
 	public static void main(String[]args)throws Exception {
 		actualAppliedEffect();identityPolicy();safetyAndGeometry();

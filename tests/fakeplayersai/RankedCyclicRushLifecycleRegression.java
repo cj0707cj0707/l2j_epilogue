@@ -24,6 +24,7 @@ public final class RankedCyclicRushLifecycleRegression
     private enum Intention { IDLE, ATTACK, CAST, MOVE_TO }
     private enum EffectType { STUN, DAMAGE }
     private enum EffectFlag { STUNNED; int getMask(){return 1;} }
+    private static class ArenaCombatRules { static double retreatRadius(Player b,Creature e,double normal){return 450;} }
     private static class Location {
         final int x,y,z; Location(int x,int y,int z){this.x=x;this.y=y;this.z=z;}
         int getX(){return x;} int getY(){return y;} int getZ(){return z;}
@@ -35,8 +36,10 @@ public final class RankedCyclicRushLifecycleRegression
         final EffectList effects=new EffectList();
         boolean isPlayer(){return this instanceof Player;}
         EffectList getEffectList(){return effects;}
+        boolean isStunned(){return effects.stun&&effects.active!=null;}
     }
     private static class Effect {
+        boolean isInstant(){return false;}
         EffectType getEffectType(){return EffectType.STUN;}
         int getEffectFlags(){return 1;}
     }
@@ -50,6 +53,7 @@ public final class RankedCyclicRushLifecycleRegression
     }
     private static class EffectList {
         BuffInfo active; boolean stun=true;
+        List<BuffInfo> getEffects(){return active==null?List.of():List.of(active);}
         BuffInfo getBuffInfoBySkillId(int id){return active!=null&&active.skill.getId()==id?active:null;}
         boolean isAffected(EffectFlag flag){return stun&&active!=null;}
         BuffInfo getBuffInfoByAbnormalType(Object type){return active;}
@@ -235,8 +239,10 @@ public final class RankedCyclicRushLifecycleRegression
         bot.conditions=true;check(tick()&&bot.casts==oldCast+1,"ready original-stun charge resumes without synthetic reuse edits");
         finishCharge(Intention.CAST);
         opponent.effects.active=new BuffInfo(bot,opponent,bot.rush,bot.now);
-        check(!tick()&&state.rushStun.original==null&&arms==1,"replacement same793 identity ends original lease");
-        check(!tick()&&arms==1,"same-skill replacement alone cannot silently restart lease");
+        state.stunLoopReleasing=true; // previous effect expired during a pending cast, new native STUN now live
+        check(tick()&&state.rushStun.original==opponent.effects.active&&arms==0,"live replacement STUN continues Rush-only phase");
+        check(!state.stunLoopReleasing,"new live STUN cancels stale deferred phase release");
+        check(tick()&&arms==0,"replacement cannot resume fillers while target is stunned");
         check(original!=opponent.effects.active,"replacement fixture actually changed BuffInfo identity");
     }
     public static void main(String[]args){cyclicLandings();blockedAndReplacement();System.out.println("PASS: "+checks+" ranked source-exact cyclic Rush lifecycle checks (deterministic core-compatible doubles; no live server)");}

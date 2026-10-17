@@ -107,8 +107,10 @@ public class BotSpawner
 	public static int[] getTacticalCpSupport(Player player, Player enemy)
 	{
 		if (player == null || player.getPlayerClass().getId() != 115) return new int[0];
+		// CP recovery is mandatory learned support, independent of damage/buff menu overrides.
+		// Selection still enforces native cost, reuse, self-only targets and invulnerability.
 		return java.util.stream.IntStream.of(1305, 1306)
-			.filter(id -> player.getKnownSkill(id) != null && dominatorPresetAllows(player, id)).toArray();
+			.filter(id -> player.getKnownSkill(id) != null).toArray();
 	}
 
 	private static int[][] buildOlympiadProfile(int[][] profile)

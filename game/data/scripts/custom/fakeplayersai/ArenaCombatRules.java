@@ -38,6 +38,8 @@ public final class ArenaCombatRules
     {
         if(clear!=null)try{clear.invoke(null,id);}catch(ReflectiveOperationException e){throw new IllegalStateException(e);}
     }
+    static double retreatRadius(Player bot,org.l2jmobius.gameserver.entity.actor.Creature enemy,double normal)
+    { return managed(bot)&&enemy!=null&&enemy.isPlayer()&&managed(enemy.asPlayer())?450:normal; }
     static int[] center(Player bot)
     {return bot.isInOlympiadMode()?BotManager.arenaCenter(bot):TrainingArena.arenaCenter();}
     /** Caller has already validated the active pair/doors or training session. */

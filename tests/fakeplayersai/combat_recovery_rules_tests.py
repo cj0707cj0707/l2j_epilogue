@@ -12,13 +12,15 @@ s=(SRC/'BotSpawner.java').read_text();r=(SRC/'BotRecoveryRules.java').read_text(
 act=body(t,'private static boolean act(');step=body(t,'private static boolean step(')
 assert 'TacticsPolicy.soultakerKite(meleeOpponent(enemy)' in step and 'preset.getClassId() == 95 ? 800' in step
 assert 'BotRecoveryRules.selfHealAllowed(bot, skill)' in act
-assert 'hp <= .40' in act and '!recoveryReady ? trainingRushAction' in act
+assert 'trainingBerserker ? trainingRushAction' in act
+assert 'if (classId == 131 && skillId == 833) return hp <= .40;' in (SRC/'TacticsPolicy.java').read_text()
+assert 'if (trainingRushActive && skill.getId() != 793)' in act
 assert act.index('recoveryChoice >= 0 ? recoveryChoice')<act.index('if (selected >= 0)')
 assert 'enemy.isMageClass())' in act[act.index('final int tankSelected'):act.index('final int tankChoice')]
 defense=body(t,'public static synchronized boolean tickDefense(')
 assert defense.index('pollAttempt(')<defense.index('getCurrentHpPercent() >= 65')
 driver=body(m,'private static boolean driveBerserkerStep(')
-assert driver.index('!state.movement.rushPending()')<driver.index('BotTactics.tickDefense(')<driver.index('driveOwnRushStunLoop(')
+assert driver.index('driveOwnRushStunLoop(')<driver.index('!state.movement.rushPending()')<driver.index('BotTactics.tickDefense(')
 assert 'BotRecoveryRules.applyPhoenixSacrifice(player);' in body(s,'public static int applySkillEnchants(')
 assert '760, VENGEANCE_ID' in s and 'set("reuseDelay", 0)' in r
 assert 'BotRecoveryRules.init()' in m and 'BotRecoveryRules.init()' in (SRC/'TrainingArena.java').read_text()

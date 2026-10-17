@@ -20,7 +20,7 @@ assert 'REGISTRY_NAMES.put(bot.getObjectId(), bot.getName());' in manager
 assert manager.index('BotSpawner.applyClassSkills(bot);') < manager.index('BotSpawner.applyBotOnlySkills(bot, preset);') < manager.index('BotSpawner.applySkillEnchants(bot);')
 assert training.index('b.giveAvailableSkills(true, true, true);') < training.index('BotSpawner.applyBotOnlySkills(b, preset);') < training.index('BotSpawner.applySkillEnchants(b);')
 assert 'applyBotOnlySkills(human' not in training
-assert 'final boolean protectedSleep = sleeping && !dominator && !cardinalMbException;' in tactics
+assert 'final boolean protectedSleep = sleeping && !dominator && !cardinalMbException && !trainingRushActive;' in tactics
 assert 'TacticsPolicy.cardinalSleepException(preset.getClassId(), skill.getId())' in tactics
 assert 'skill.getId() == CARDINAL_PROMINENCE_ID && !s.cardinalProminence.ready(time)' in tactics
 assert 's.cardinalProminence.reset();' in tactics

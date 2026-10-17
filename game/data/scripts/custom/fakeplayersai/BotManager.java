@@ -421,12 +421,13 @@ public class BotManager
 		{
 			if (original != null)
 			{
-				if (target == enemy && original == applied) return ACTIVE;
+				if (target == enemy && applied != null) { original = applied; return ACTIVE; }
 				original = null;
 				watching = false;
 				target = before = null;
 				return ENDED;
 			}
+			if (applied != null) { target = enemy; original = applied; watching = false; before = null; return ACTIVE; }
 			if (!watching) return NONE;
 			if (target != enemy || now < requestedAt || now - requestedAt > BerserkerCycle.RUSH_TIMEOUT_MS)
 			{
@@ -2004,7 +2005,7 @@ public class BotManager
 		final int[] center = OLYMPIAD_STADIUM_CENTERS[gameId];
 		// Tanks and Titan must reach their real melee envelope. Chase's +60 attack
 		// hysteresis can otherwise retain ENGAGED without a live route or strike.
-		final boolean closeControlTank = preset != null && (preset.getClassId() == 90 || preset.getClassId() == 91 || preset.getClassId() == 106 || preset.getClassId() == 113);
+		final boolean closeControlTank = preset != null && (preset.getClassId() == 90 || preset.getClassId() == 91 || preset.getClassId() == 106 || preset.getClassId() == 113 || BotTactics.strictMeleePressure(bot, enemy, preset));
 		OlympiadChase.update(bot, enemy, approach, attackInRange && !closeControlTank && BotTactics.allowsBasicAttack(bot, preset),
 			center[0], center[1], OLYMPIAD_ARENA_MAX_DISTANCE, !BERSERKER_STATES.containsKey(bot.getObjectId()));
 	}
@@ -2345,10 +2346,12 @@ public class BotManager
 			return false;
 		}
 		final double dist = bot.calculateDistance2D(enemy);
+		// A live native STUN owns this phase, even when MP is too low to repeat:
+		// wait, never substitute autos/heals/fillers until the stun really ends.
+		if (driveOwnRushStunLoop(bot, preset, state, enemy, rush, now)) return true;
 		if (!state.movement.rushPending() && !bot.isCastingNow() && !bot.isCastingSimultaneouslyNow()
 			&& enemy.isPlayer() && BotTactics.tickDefense(bot, enemy.asPlayer(), preset, true)) return true;
 		final boolean manaFallback = BotTactics.needsManaAutoAttack(bot, preset) && BotTactics.allowsBasicAttack(bot, preset);
-		if (!manaFallback && driveOwnRushStunLoop(bot, preset, state, enemy, rush, now)) return true;
 		if (state.movement.rushPending())
 		{
 			final BerserkerCycle.RushStatus status = state.movement.pollRush(now, bot.isCastingNow(), dist, bot.getX(), bot.getY());
@@ -2476,6 +2479,9 @@ public class BotManager
 		}
 		// castSkill pauses the filler engine only after a skill passes the range gates.
 		// Do not reset the rotation order every 250 ms while merely considering a cast.
+		if (state.disarmDone && !enemy.isAffectedBySkill(BERSERKER_DISARM_ID) && canBerserkerCast(bot, BERSERKER_DISARM_ID)) state.disarmDone = false;
+		if (state.enumaDone && canBerserkerCast(bot, BERSERKER_ENUMA_ELISH_ID)) state.enumaDone = false;
+		if (state.crushingDone && canBerserkerCast(bot, BERSERKER_CRUSHING_PAIN_ID)) state.crushingDone = false;
 		if (!state.disarmDone && (dist <= BERSERKER_DISARM_MAX_DISTANCE) && castSkill(bot, BERSERKER_DISARM_ID))
 		{
 			state.disarmDone = true;
@@ -2536,12 +2542,10 @@ public class BotManager
 
 	private static BuffInfo ownRushStun(Player bot, Creature enemy)
 	{
-		final BuffInfo info = enemy.getEffectList().getBuffInfoBySkillId(BERSERKER_RUSH_IMPACT_ID);
-		return isOwnRushStun(bot, enemy, info) && enemy.getEffectList().isAffected(EffectFlag.STUNNED)
-			&& enemy.getEffectList().getBuffInfoByAbnormalType(info.getSkill().getAbnormalType()) == info ? info : null;
+		return RushStunSupport.stun(enemy);
 	}
 
-	/** High-priority ranked-only control lease, bounded by the exact original applied stun.
+	/** High-priority ranked control phase, bounded by the current actually applied STUN.
 	 * No synthetic status, effect timer edit, teleport, forced reuse, or filler-cast abort. */
 	private static boolean driveOwnRushStunLoop(Player bot, BotClassPreset preset, BerserkerState state, Creature enemy, Skill rush, long now)
 	{
@@ -2550,6 +2554,7 @@ public class BotManager
 		final BuffInfo applied = ownRushStun(bot, enemy);
 		final int observation = state.rushStun.observe(enemy, applied, now);
 		if (observation == RushStunLoop.ENDED) state.stunLoopReleasing = true;
+		else if (observation == RushStunLoop.ACTIVE) state.stunLoopReleasing = false; // A genuinely new STUN can land while the last cast finishes.
 		if (state.stunLoopReleasing)
 		{
 			if (bot.isCastingNow() || bot.isCastingSimultaneouslyNow()) return true; // The actual last charge is allowed to finish.
@@ -2559,7 +2564,7 @@ public class BotManager
 			state.rushDone = true;
 			state.disarmDone = state.enumaDone = state.crushingDone = false;
 			armBerserkerCombat(bot, preset, state);
-			return false; // Original effect gone: ordinary phase driver resumes immediately.
+			return false; // No live STUN: ordinary phase driver resumes immediately.
 		}
 		if (observation != RushStunLoop.ACTIVE) return false;
 		// Force both pools off, even if an external maintenance call re-armed them.
@@ -2589,7 +2594,7 @@ public class BotManager
 			final int game = bot.getOlympiadGameId();
 			if (game < 0 || game >= OLYMPIAD_STADIUM_CENTERS.length) return true;
 			final int[] center = OLYMPIAD_STADIUM_CENTERS[game];
-			for (Location point : rushStunRetreatCandidates(bot.getX(), bot.getY(), bot.getZ(), enemy.getX(), enemy.getY(), center[0], center[1], OLYMPIAD_ARENA_MAX_DISTANCE))
+			for (Location point : rushStunRetreatCandidates(bot.getX(), bot.getY(), bot.getZ(), enemy.getX(), enemy.getY(), center[0], center[1], ArenaCombatRules.retreatRadius(bot, enemy, OLYMPIAD_ARENA_MAX_DISTANCE)))
 			{
 				if (!GeoEngine.getInstance().canMoveToTarget(bot.getX(), bot.getY(), bot.getZ(), point.getX(), point.getY(), point.getZ(), bot.getInstanceId())) continue;
 				// Re-read the exact identity and official gate immediately before changing movement.
@@ -2609,7 +2614,7 @@ public class BotManager
 			bot.isDisarmed(), rush.isBlockedInOlympiad(), GeoEngine.getInstance().canSeeTarget(bot, enemy),
 			GeoEngine.getInstance().canMoveToTarget(bot.getX(), bot.getY(), bot.getZ(), enemy.getX(), enemy.getY(), enemy.getZ(), bot.getInstanceId()),
 			rush.checkCondition(bot, enemy, false), distance, rush.getCastRange(), Math.abs((double) bot.getZ() - enemy.getZ()))) return true;
-		castSkill(bot, BERSERKER_RUSH_IMPACT_ID); // Normal useMagic pays MP/reuse/conditions; no new stun lease.
+		castSkill(bot, BERSERKER_RUSH_IMPACT_ID); // Normal useMagic pays MP/reuse/conditions; no synthetic stun or duration refresh.
 		return true;
 	}
 
@@ -2637,36 +2642,18 @@ public class BotManager
 	/** Pure bounded geometry; callers must still validate server geodata and the live gate. */
 	private static List<Location> rushStunRetreatCandidates(int x, int y, int z, int enemyX, int enemyY, int centerX, int centerY, double arenaRadius)
 	{
-		final List<Location> result = new ArrayList<>();
-		final double distance = Math.hypot((double) x - enemyX, (double) y - enemyY);
-		if (distance >= BERSERKER_RUSH_MIN_DISTANCE || !Double.isFinite(arenaRadius) || arenaRadius <= 0) return result;
-		double dx = x - (double) enemyX, dy = y - (double) enemyY;
-		if (distance < 1) { dx = centerX - (double) x; dy = centerY - (double) y; }
-		final double length = Math.hypot(dx, dy);
-		if (length < 1) { dx = 1; dy = 0; } else { dx /= length; dy /= length; }
-		final double step = Math.min(240, Math.max(40, 220 - distance));
-		for (double angle : new double[] {0, Math.PI / 4, -Math.PI / 4, Math.PI / 2, -Math.PI / 2, Math.PI})
-		{
-			final int px = x + (int) Math.round((dx * Math.cos(angle) - dy * Math.sin(angle)) * step);
-			final int py = y + (int) Math.round((dx * Math.sin(angle) + dy * Math.cos(angle)) * step);
-			if (Math.hypot((double) px - enemyX, (double) py - enemyY) < BERSERKER_RUSH_MIN_DISTANCE
-				|| Math.hypot((double) px - centerX, (double) py - centerY) > arenaRadius) continue;
-			result.add(new Location(px, py, z));
-		}
-		return result;
+		return RushStunSupport.retreat(x, y, z, enemyX, enemyY, centerX, centerY, arenaRadius);
 	}
 
 	/** Short local retreat, never an unconditional run to the arena spawn point. */
 	private static Location berserkerRetreatPoint(Player bot, Creature enemy)
 	{
-		final Location point = kitePoint(bot, enemy, null, null);
-		final int game = bot.getOlympiadGameId();
-		if ((point == null) || (game < 0) || (game >= OLYMPIAD_STADIUM_CENTERS.length))
-		{
-			return null;
-		}
-		final int[] center = OLYMPIAD_STADIUM_CENTERS[game];
-		return Math.hypot((double) point.getX() - center[0], (double) point.getY() - center[1]) <= OLYMPIAD_ARENA_MAX_DISTANCE ? point : null;
+		final int[] center = arenaCenter(bot);
+		if (center == null) return null;
+		for (Location point : RushStunSupport.retreat(bot.getX(), bot.getY(), bot.getZ(), enemy.getX(), enemy.getY(), center[0], center[1],
+			ArenaCombatRules.retreatRadius(bot, enemy, OLYMPIAD_ARENA_MAX_DISTANCE)))
+			if (GeoEngine.getInstance().canMoveToTarget(bot.getX(), bot.getY(), bot.getZ(), point.getX(), point.getY(), point.getZ(), bot.getInstanceId())) return point;
+		return null;
 	}
 
 	/**

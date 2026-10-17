@@ -30,9 +30,11 @@ def main():
         'private static void stopRushStunMove(', 'private static List<Location> rushStunRetreatCandidates(',
         'private static boolean castSkill(', 'private static boolean canBerserkerCast(']
     bodies='\n\n'.join(block(source,s) for s in signatures)
+    helper=(SRC/'RushStunSupport.java').read_text()
+    bodies+='\n private static final class RushStunSupport {\n'+block(helper,'static BuffInfo stun(')+'\n'+block(helper,'static List<Location> retreat(')+'\n}'
     driver=block(source,'private static boolean driveBerserkerStep(')
-    # Emergency recovery may run before the loop, but never during a pending Rush/cast.
-    assert driver.index('!state.movement.rushPending()')<driver.index('BotTactics.tickDefense(')<driver.index('driveOwnRushStunLoop(')
+    # Latest rule: live STUN owns the phase before recovery and low-MP fallback.
+    assert driver.index('driveOwnRushStunLoop(')<driver.index('BotTactics.tickDefense(')<driver.index('final boolean manaFallback')
     assert driver.index('driveOwnRushStunLoop(')<driver.index('if (state.movement.rushPending())')
     assert 'state.rushStun.requested(enemy, previousStun, now);' in driver
     outer=block(source,'private static boolean driveBerserker(')
