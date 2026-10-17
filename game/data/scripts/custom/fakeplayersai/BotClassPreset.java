@@ -80,6 +80,15 @@ public class BotClassPreset
 		return _gear;
 	}
 	
+	/**
+	 * Compatibility alias for {@link #getGear()}.
+	 * BotPresets.java on older server builds still calls getGearKind().
+	 */
+	public GearKind getGearKind()
+	{
+		return _gear;
+	}
+	
 	public WeaponKind getWeaponKind()
 	{
 		return _weapon;
@@ -95,7 +104,35 @@ public class BotClassPreset
 		return _useArrows;
 	}
 	
+	/**
+	 * Compatibility alias for {@link #useArrows()}.
+	 * BotPresets.java on older server builds still calls usesArrows().
+	 */
+	public boolean usesArrows()
+	{
+		return _useArrows;
+	}
+	
+	/**
+	 * @return true when this class uses bolts (crossbow / Kamael Arbalester line).
+	 * Crossbow bots consume bolts instead of arrows.
+	 * Compatibility method; the canonical check is weaponKind == CROSSBOW.
+	 */
+	public boolean usesBolts()
+	{
+		return _weapon == WeaponKind.CROSSBOW;
+	}
+	
 	public boolean useSpiritshot()
+	{
+		return _useSpiritshot;
+	}
+	
+	/**
+	 * Compatibility alias for {@link #useSpiritshot()}.
+	 * BotPresets.java on older server builds still calls usesSpiritshot().
+	 */
+	public boolean usesSpiritshot()
 	{
 		return _useSpiritshot;
 	}
