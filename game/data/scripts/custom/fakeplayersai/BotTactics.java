@@ -75,6 +75,7 @@ public final class BotTactics
 		final TacticsPolicy.DominatorCpWeave dominatorCp = new TacticsPolicy.DominatorCpWeave();
 		final TacticsPolicy.DominatorPressure dominatorPressure = new TacticsPolicy.DominatorPressure();
 		final SleepRetreat sleepRetreat = new SleepRetreat();
+		final DominatorControlRetreat controlRetreat = new DominatorControlRetreat();
 		final SummonAttackPulse summonAttack = new SummonAttackPulse();
 		final TacticsPolicy.OriginalRushStun<BuffInfo> rushLoop = new TacticsPolicy.OriginalRushStun<>();
 		long nextRushStep;
@@ -229,7 +230,14 @@ public final class BotTactics
 		return bot != null && enemy != null && preset != null && bot.getClient() == null
 			&& preset.getClassId() == 115 && bot.getPlayerClass().getId() == 115 && !meleeOpponent(enemy);
 	}
-	private static boolean pressureControl(Skill skill)
+	private static boolean daggerShadow(Player bot, Player enemy, BotClassPreset preset, Skill skill)
+    {
+        int cid = preset.getClassId();
+        BotClassPreset target = BotPresets.getPresetByClassId(enemy.getPlayerClass().getId());
+        return bot.getClient() == null && bot.getPlayerClass().getId() == cid && (cid == 93 || cid == 101 || cid == 108)
+            && skill.getId() == 821 && (enemy.isMageClass() || target != null && target.isCaster());
+    }
+    private static boolean pressureControl(Skill skill)
 	{
 		return skill.hasEffectType(EffectType.SLEEP, EffectType.STUN);
 	}
@@ -490,7 +498,7 @@ public final class BotTactics
 			s.arenaCenterX = center != null ? center[0] : 0;
 			s.arenaCenterY = center != null ? center[1] : 0;
 			s.hasArenaCenter = center != null;
-			s.trainingBurst.reset(); s.trainingBerserkerMode = false; s.dominatorCp.reset(); s.dominatorPressure.reset(); s.sleepRetreat.reset(); s.summonAttack.reset();
+			s.trainingBurst.reset(); s.trainingBerserkerMode = false; s.dominatorCp.reset(); s.dominatorPressure.reset(); s.sleepRetreat.reset(); s.summonAttack.reset(); s.controlRetreat.reset();
 			s.tankDefense.reset(time); s.rushLoop.clear(); s.nextRushStep = time; s.pendingRushLoop = false; s.rushMoving = false; s.rushDirectionX = 0; s.rushDirectionY = 0;
 			s.sleepObserved = -1; s.nextDecision = time; s.nextStep = time; s.pendingId = 0; s.failures.clear(); s.enemyCasting = false; s.moveUntil = 0;
 			s.nextCardinalTrance = 0; s.cardinalProminence.reset();
@@ -531,9 +539,15 @@ public final class BotTactics
 		if (bot.isCastingNow() || bot.isOutOfControl() || bot.isAllSkillsDisabled()) { return !defenseOnly; }
 		if (s.pendingId != 0) { return !defenseOnly; }
 		final boolean sleeping = enemy.isSleeping();
+        final BuffInfo meleeControl = !defenseOnly && bot.getPlayerClass().getId() == 115 && meleeOpponent(enemy)
+            ? DominatorControlRetreat.control(bot, enemy) : null;
+        final boolean controlHold = meleeControl != null;
+        final int[] arenaCenter = s.hasArenaCenter ? new int[]{s.arenaCenterX, s.arenaCenterY} : ArenaCombatRules.center(bot);
+        if (!defenseOnly && s.controlRetreat.tick(bot, meleeControl, time, arenaCenter)) return true;
+        if (controlHold) stopBasicAttack(bot);
 		// Actual landed own sleep, never a mere accepted request or another caster's effect.
-		final boolean ownSleep = !defenseOnly && SleepRetreat.ownSleep(bot, enemy) != null;
-		if (!defenseOnly && s.sleepRetreat.tick(bot, enemy, time, s.hasArenaCenter ? new int[]{s.arenaCenterX, s.arenaCenterY} : ArenaCombatRules.center(bot))) return true;
+		final boolean ownSleep = !defenseOnly && !controlHold && SleepRetreat.ownSleep(bot, enemy) != null;
+		if (!defenseOnly && !controlHold && s.sleepRetreat.tick(bot, enemy, time, s.hasArenaCenter ? new int[]{s.arenaCenterX, s.arenaCenterY} : ArenaCombatRules.center(bot))) return true;
 		final boolean manaFallback = !defenseOnly && needsManaAutoAttack(bot, preset) && allowsBasicAttack(bot, preset);
 		final boolean dominator = preset.getClassId() == 115;
 		final boolean pressure = !defenseOnly && dominatorRangedPressure(bot, enemy, preset);
@@ -581,6 +595,9 @@ public final class BotTactics
 		// Mandatory learned recovery is independent of persisted buff/rotation overrides.
 		// Eligibility (HP <=40%, invulnerability, STUN phase, MP/reuse) is checked below.
 		if (preset.getClassId() == 131 && bot.getKnownSkill(833) != null) skills.put(833, bot.getKnownSkill(833));
+		if (controlHold && bot.getKnownSkill(1245) != null) skills.put(1245, bot.getKnownSkill(1245));
+        Skill shadow = bot.getKnownSkill(821);
+        if (!defenseOnly && shadow != null && daggerShadow(bot, enemy, preset, shadow)) skills.put(821, shadow);
 		int chargeDemand = 4;
 		for (Skill skill : skills.values())
 		{
@@ -595,6 +612,7 @@ public final class BotTactics
 		boolean offenseAvailable = false;
 		for (Skill skill : skills.values())
 		{
+			if (controlHold && skill.getId() != 1245 && !TacticsPolicy.dominatorCpSkill(skill.getId())) continue;
 			if (BotSpawner.isOpenerOnlySkill(skill.getId())) { continue; } // training as well as ranked
 			// Body Reconstruction (833): Doombringer-exclusive HP-threshold self-heal.
 			// Activate at40% HP or below; the shared guard also protects legacy auto-use.
@@ -623,7 +641,7 @@ public final class BotTactics
 			if (self && (skill.getId() == 1305 || skill.getId() == 1414)
 				&& !TacticsPolicy.selfOnlyTargets(bot, skill.getTargetList(bot, false, bot))) { continue; }
 			final boolean cpSupport = dominator && kind == TacticsPolicy.Kind.HEAL && TacticsPolicy.dominatorCpSkill(skill.getId()) && skill.hasEffectType(EffectType.CPHEAL);
-			if (cpSupport && !TacticsPolicy.dominatorCpNeeded(cpRatio(bot))) { continue; }
+			if (cpSupport && !(controlHold ? TacticsPolicy.dominatorControlCpNeeded(cpRatio(bot)) : TacticsPolicy.dominatorCpNeeded(cpRatio(bot)))) { continue; }
 			final boolean tankStun = tank && !self && skill.hasEffectType(EffectType.STUN);
 			final boolean tankRoot = tank && !self && skill.hasEffectType(EffectType.ROOT);
 			if (tank && !TacticsPolicy.tankClosingSkillAllowed(tankClosing, self, kind, tankStun || tankRoot)) { continue; }
@@ -637,7 +655,9 @@ public final class BotTactics
 			if (!timedPool && (kind == TacticsPolicy.Kind.HEAL || kind == TacticsPolicy.Kind.DEFENSE)
 				&& !TacticsPolicy.reactionReady(difficulty(s), time, s.hpObserved, hp < .35)) { continue; }
 			if (!supportedTarget(skill, self) || skill.isPassive() || skill.isToggle() || skill.isSuicideAttack()
-				|| skill.hasEffectType(EffectType.TELEPORT, EffectType.TELEPORT_TO_TARGET)) { continue; }
+				|| skill.hasEffectType(EffectType.TELEPORT, EffectType.TELEPORT_TO_TARGET) && !daggerShadow(bot, enemy, preset, skill)) { continue; }
+            if (skill.getId() == 821 && (!daggerShadow(bot, enemy, preset, skill) || bot.isMovementDisabled()
+                || !GeoEngine.getInstance().canMoveToTarget(bot.getX(), bot.getY(), bot.getZ(), enemy.getX(), enemy.getY(), enemy.getZ(), bot.getInstanceId()))) continue;
 			final Failure f = s.failures.get(skill.getId());
 			final boolean ready = !bot.isSkillDisabled(skill) && (f == null || time >= f.until) && (!bot.isInOlympiadMode() || !skill.isBlockedInOlympiad());
 			final boolean inRange = self || inRange(bot, enemy, skill, distance);
@@ -676,31 +696,32 @@ public final class BotTactics
 		final int tankSelected = timedTank ? s.tankDefense.choose(options, time, activeStrong != 0, enemy.isMageClass()) : -1;
 		final int tankChoice = tank ? TacticsPolicy.tankActionChoice(options, tankStuns, tankRoots, tankMelee, tankSelected,
 			!enemy.isMovementDisabled() && !enemy.isOutOfControl()) : -1;
-		final int cpProposed = dominator ? s.dominatorCp.choose(options, cpRatio(bot)) : -1;
+		final int cpProposed = dominator ? s.dominatorCp.choose(options, cpRatio(bot), controlHold) : -1;
 		// CP heal may interrupt any phase; the owed offensive action follows this phase, not random damage.
 		final int cpChoice = pressure && options.stream().anyMatch(o -> o.id() == cpProposed && !self(o.kind())) ? -1 : cpProposed;
 		final int pressureChoice = pressure ? s.dominatorPressure.choose(options, pressureControls, pressureCurses, sleeping || enemy.isStunned()) : -1;
 		final int cardinalChoice = s.cardinalProminence.choose(preset.getClassId(), options, time);
+		final int shadowChoice = !defenseOnly && options.stream().anyMatch(o -> o.id() == 821) ? 821 : -1;
 		final int recoveryChoice = options.stream().filter(o -> preset.getClassId() == 90 && o.id() == 69 || preset.getClassId() == 131 && o.id() == 833).mapToInt(TacticsPolicy.Option::id).findFirst().orElse(-1);
-		final int selected = recoveryChoice >= 0 ? recoveryChoice : cardinalChoice >= 0 ? cardinalChoice : cpChoice >= 0 ? cpChoice : pressureChoice >= 0 ? pressureChoice : tankChoice >= 0 ? tankChoice : trainingRushActive
+		final int selected = recoveryChoice >= 0 ? recoveryChoice : cardinalChoice >= 0 ? cardinalChoice : shadowChoice >= 0 ? shadowChoice : cpChoice >= 0 ? cpChoice : pressureChoice >= 0 ? pressureChoice : tankChoice >= 0 ? tankChoice : trainingRushActive
 			? options.stream().anyMatch(option -> option.id() == 793) ? 793 : -1
 			: trainingBerserker
 			? s.trainingBurst.choose(options, distance, skills.containsKey(793), difficulty(s), random.nextDouble(), random.nextDouble())
 			: TacticsPolicy.select(options, difficulty(s), random.nextDouble(), random.nextDouble());
 		TacticsPolicy.Kind chosen = null;
 		for (TacticsPolicy.Option o : options) { if (o.id() == selected) { chosen = o.kind(); break; } }
-		final boolean urgent = cardinalChoice >= 0 || chosen == TacticsPolicy.Kind.HEAL || chosen == TacticsPolicy.Kind.DEFENSE
+		final boolean urgent = shadowChoice >= 0 || cardinalChoice >= 0 || chosen == TacticsPolicy.Kind.HEAL || chosen == TacticsPolicy.Kind.DEFENSE
 			|| (chosen == TacticsPolicy.Kind.CONTROL && interruptReady && s.enemyCasting);
 		// No recovery retreat/flank/kite when MP cannot pay any offensive skill.
 		// Parents still enforce real range, LOS, sleep, weapon and arena authority.
 		if (trainingRushActive && selected < 0) { stopBasicAttack(bot); return true; }
-		if (manaFallback && selected < 0 && !sleeping) { s.moveUntil = 0; return false; }
-		if (!defenseOnly && !pressure && !urgent && time < s.moveUntil && bot.isMoving() && Math.hypot(bot.getXdestination() - s.moveX, bot.getYdestination() - s.moveY) < 40) { return true; }
+		if (!controlHold && manaFallback && selected < 0 && !sleeping) { s.moveUntil = 0; return false; }
+		if (!defenseOnly && !controlHold && !pressure && !urgent && time < s.moveUntil && bot.isMoving() && Math.hypot(bot.getXdestination() - s.moveX, bot.getYdestination() - s.moveY) < 40) { return true; }
 		final boolean offenseReady = options.stream().anyMatch(o -> o.kind() == TacticsPolicy.Kind.DAMAGE || o.kind() == TacticsPolicy.Kind.CONTROL || o.kind() == TacticsPolicy.Kind.SLOW);
 		final boolean trainingPressure = TacticsPolicy.trainingBerserkerPressure(trainingBerserker && !trainingRushActive,
 			allowsBasicAttack(bot, preset), bot.isMovementDisabled() || bot.isOutOfControl() || bot.isAllSkillsDisabled() || bot.isDisabled(),
 			sleeping, enemy.isInvul(), visible, enemy.isAutoAttackable(bot), bot.isCastingNow() || bot.isCastingSimultaneouslyNow() || s.pendingId != 0);
-        if (!defenseOnly && (!sleeping || dominator || preset.getClassId() == CARDINAL_CLASS_ID) && !pressure && !ownSleep && !urgent && time >= s.nextStep && !trainingPressure && step(bot, enemy, preset, s, time, distance, visible, hp, offenseReady, offenseAvailable)) { return true; }
+        if (!defenseOnly && (!sleeping || dominator || preset.getClassId() == CARDINAL_CLASS_ID) && !pressure && !ownSleep && !controlHold && !urgent && time >= s.nextStep && !trainingPressure && step(bot, enemy, preset, s, time, distance, visible, hp, offenseReady, offenseAvailable)) { return true; }
 		if (selected >= 0)
 		{
 			final Skill skill = skills.get(selected);
@@ -730,6 +751,7 @@ public final class BotTactics
 			// Self targeting remains until cast resolves; next offensive action restores enemy.
 			return true;
 		}
+		if (controlHold) return true; // no parent autoattack/chase/Hammer Crush under own melee control
 		if (ownSleep) return true; // no parent chase back into the sleeping target after retreat
 		if (pressure && pressureClosing && !bot.isMovementDisabled() && !bot.isOutOfControl()) { s.moveUntil = 0; return false; }
 		if (trainingRushActive) { stopBasicAttack(bot); return true; } // no fillers/autos during the original own stun loop
@@ -956,6 +978,7 @@ public final class BotTactics
 		// Targeted cleansing is emergency self-support only, never an offensive dispel candidate.
 		if (skill.getId() == SOUL_CLEANSE_ID) return null;
 		if (skill.getId() == ESCAPE_SHACKLE_ID) return null;
+        if (skill.getId() == 821) return TacticsPolicy.Kind.CONTROL;
 		// Explicit IDs, never translated skill-name substring guesses. Defense wins
 		// over Vengeance's taunt; SELF CpDamPercent costs remain support, not attacks.
 		if (TacticsPolicy.defenseSkill(skill.getId())) { return TacticsPolicy.Kind.DEFENSE; }

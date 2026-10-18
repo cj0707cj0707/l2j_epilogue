@@ -90,3 +90,8 @@ java --class-path . core-patches/observer-cleanup/InstallObserverCleanup.java ..
 - Проверить `game/log/debuff-guard-install.log`: `Installed Olympiad observer cleanup v1` на первой установке либо `Olympiad observer cleanup v1 verified; all four patches intact.` на следующих запусках. При hash/source mismatch не обходить проверку: нужен согласованный комплект и соответствующий backup.
 
 Откат: остановить GameServer; вернуть проверенный `.pre-observer-cleanup-*` JAR (в нём три прежних guards), предыдущие установщики/launchers и при необходимости свой General.ini из сохранённой копии. Нельзя откатывать только один verifier или только marker; не удалять markers вручную и не патчить работающий сервер.
+
+
+## Уточнение55
+
+Цепочка запуска теперь состоит из пяти патчей: новый olympiad-battle-timer следует за observer-cleanup. Старые installer делегируют проверку нового marker; обновлённый observer installer принимает verified legacy52 при обновлении. Поведение входа GM/выхода из наблюдения не менялось. См. [55](55-dominator-melee-control-shadow-step-and-90s-olympiad.md).

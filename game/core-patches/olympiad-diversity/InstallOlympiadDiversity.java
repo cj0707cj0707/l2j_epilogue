@@ -42,6 +42,16 @@ public class InstallOlympiadDiversity
     {
         if(args.length!=2)throw new IllegalArgumentException("Usage: java InstallOlympiadDiversity.java CORE.jar OlympiadDiversity.java (server stopped)");
         Path core=Path.of(args[0]).toAbsolutePath(),source=Path.of(args[1]).toAbsolutePath();
+        boolean battleTimer;
+        try(var probe=new JarFile(core.toFile())){battleTimer=probe.getJarEntry("META-INF/l2j-olympiad-battle-timer-v1.properties")!=null;}
+        if(battleTimer)
+        {
+            Path root=source.getParent().getParent();
+            int result=new ProcessBuilder(Path.of(System.getProperty("java.home"),"bin","java").toString(),"--class-path",".",
+                root.resolve("olympiad-battle-timer/InstallOlympiadBattleTimer.java").toString(),core.toString(),root.toString()).inheritIO().start().waitFor();
+            if(result!=0)throw new IOException("Combined five-patch verification failed: "+result);
+            return;
+        }
         boolean observerCleanup;
         try(var probe=new JarFile(core.toFile())){observerCleanup=probe.getJarEntry("META-INF/l2j-observer-cleanup-v1.properties")!=null;}
         if(observerCleanup)

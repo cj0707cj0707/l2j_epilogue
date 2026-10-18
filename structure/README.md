@@ -28,6 +28,8 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 ## Последнее обновление
 
+[55. Dominator: root/stun→200→Steal/CP; Shadow Step; Олимпиада90с](55-dominator-melee-control-shadow-step-and-90s-olympiad.md) — scoped CP до>85%,821 первым против кастеров, пятый core-патч переполнения таймера и обновлённая установка.
+
 [54. Отход после сна и команда живому саммону раз в3с](54-post-sleep-retreat-and-summon-attack-pulse.md) — Cardinal до дальности Mana Burn внутри круга450, Dominator до300; фактический собственный сон, без повторного призыва.
 
 [52. GM: вход без invul/invisible и очистка после просмотра Олимпиады](52-gm-login-and-olympiad-observer-cleanup.md) — отключены все startup-пути автоскрытия; native выход из просмотра снимает оба флага и у GM. Четвёртый проверяемый core-патч, назначение файлов и установка.
@@ -119,6 +121,8 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 | [26-training-prep-cooldowns-and-orc-buffs.md](26-training-prep-cooldowns-and-orc-buffs.md) | Сброс откатов до подготовки, тренировочные бафы Titan/Grand Khavatari |
 
 ## Последнее изменение
+
+- [55: Контроль мили-цели, Shadow Step и90с](55-dominator-melee-control-shadow-step-and-90s-olympiad.md): карта файлов, таймер/установка, проверки и откат.
 
 - [54: Отход после сна; повторная атака саммона](54-post-sleep-retreat-and-summon-attack-pulse.md): маршрут внутри450, Cardinal — реальная дальность1398, Dominator —300; общий3000мс native attack pulse без resummon.
 

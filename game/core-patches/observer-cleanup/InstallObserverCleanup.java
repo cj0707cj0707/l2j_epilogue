@@ -43,6 +43,16 @@ public class InstallObserverCleanup
     {
         if(args.length!=2)throw new IllegalArgumentException("Usage: java InstallObserverCleanup.java CORE.jar PATCH_ROOT (server stopped)");
         Path core=Path.of(args[0]).toAbsolutePath(),patches=Path.of(args[1]).toAbsolutePath();
+        boolean battleTimer;
+        try(var probe=new JarFile(core.toFile())){battleTimer=probe.getJarEntry("META-INF/l2j-olympiad-battle-timer-v1.properties")!=null;}
+        if(battleTimer)
+        {
+            Path root=patches;
+            int result=new ProcessBuilder(Path.of(System.getProperty("java.home"),"bin","java").toString(),"--class-path",".",
+                root.resolve("olympiad-battle-timer/InstallOlympiadBattleTimer.java").toString(),core.toString(),root.toString()).inheritIO().start().waitFor();
+            if(result!=0)throw new IOException("Combined five-patch verification failed: "+result);
+            return;
+        }
         String sourceHash=sha(Files.readAllBytes(patches.resolve("observer-cleanup/InstallObserverCleanup.java")));
         try(var channel=FileChannel.open(core.resolveSibling(".observer-cleanup-install.lock"),StandardOpenOption.CREATE,StandardOpenOption.WRITE);var lock=channel.lock())
         {
@@ -55,7 +65,7 @@ public class InstallObserverCleanup
                     var p=properties(jar,MARK);
                     if(!p.stringPropertyNames().equals(Set.of("base","input","source","playerBase","player","payload"))
                         ||!p.getProperty("input", "").matches("[0-9a-f]{64}")
-                        ||!BASE.equals(p.getProperty("base"))||!sourceHash.equals(p.getProperty("source"))||!PLAYER_BASE.equals(p.getProperty("playerBase"))
+                        ||!BASE.equals(p.getProperty("base"))||!(sourceHash.equals(p.getProperty("source"))||"7d48e6b2377d04d0ee705f71665855151eb630e128dd4df22ac23468109bc426".equals(p.getProperty("source")))||!PLAYER_BASE.equals(p.getProperty("playerBase"))
                         ||!payload(jar,Map.of(),MARK).equals(p.getProperty("payload"))||!sha(entry(jar,PLAYER)).equals(p.getProperty("player")))
                         throw new IOException("Observer cleanup marker/hash mismatch; restore verified backup");
                     System.out.println("Olympiad observer cleanup v1 verified; all four patches intact.");return;

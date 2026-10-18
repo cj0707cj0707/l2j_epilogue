@@ -259,6 +259,7 @@ final class TacticsPolicy
 	}
 
 	static boolean dominatorCpSkill(int id) { return id == 1305 || id == 1306; }
+	static boolean dominatorControlCpNeeded(double ratio) { return Double.isFinite(ratio) && ratio >= 0 && ratio <= .85; }
 	static boolean dominatorCpNeeded(double ratio) { return Double.isFinite(ratio) && ratio >= 0 && ratio < .50; }
 	/** One real CP cast may be woven between available attacks, not a permanent heal loop. */
 	static final class DominatorCpWeave
@@ -271,7 +272,8 @@ final class TacticsPolicy
 			if (dominatorCpSkill(id)) { owesAttack = true; }
 			else if (offensive) { owesAttack = false; }
 		}
-		int choose(List<Option> legal, double cp)
+		int choose(List<Option> legal, double cp) { return choose(legal, cp, false); }
+		int choose(List<Option> legal, double cp, boolean controlHold)
 		{
 			// Never displace an ordinary life-saving HP heal.
 			for (Option option : legal)
@@ -281,7 +283,7 @@ final class TacticsPolicy
 				for (Kind priority : new Kind[] { Kind.DAMAGE, Kind.CONTROL, Kind.SLOW })
 					for (Option option : legal) if (option.kind == priority) { return option.id; }
 			}
-			if (!dominatorCpNeeded(cp)) { return -1; }
+			if (!(controlHold ? dominatorControlCpNeeded(cp) : dominatorCpNeeded(cp))) { return -1; }
 			// Honor is the shorter real cast; Ritual remains a genuine legal fallback.
 			for (int id : new int[] { 1305, 1306 })
 				for (Option option : legal) if (option.id == id && option.kind == Kind.HEAL) { return id; }

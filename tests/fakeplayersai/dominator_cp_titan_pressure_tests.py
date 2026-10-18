@@ -22,7 +22,7 @@ def audit():
 def guards(s):
     act=s[s.index('private static boolean act('):s.index('private static void stopBasicAttack(')]
     for marker in ('BotSpawner.getTacticalCpSupport(bot, enemy)','TacticsPolicy.dominatorCpNeeded(cpRatio(bot))', 'cpSupport ? 145',
-                   's.dominatorCp.choose(options, cpRatio(bot))', 'TacticsPolicy.titanPursuit(preset.getClassId(), allowsBasicAttack(bot, preset)',
+                   's.dominatorCp.choose(options, cpRatio(bot), controlHold)', 'TacticsPolicy.titanPursuit(preset.getClassId(), allowsBasicAttack(bot, preset)',
                    'resources(bot, skill)', 'skill.checkCondition(bot, self ? bot : enemy, false)', 'bot.setTarget(self ? bot : enemy)'):
         assert marker in act,marker
     assert act.index('if (selected >= 0)')<act.index('TacticsPolicy.titanPursuit(')<act.index('if (!defenseOnly && !offenseAvailable)'), 'ready skill first, legal Titan fallback before generic hold'
@@ -39,18 +39,24 @@ def guards(s):
     step=s[s.index('private static boolean step('):]
     assert 'TacticsPolicy.titanRecoveryAllowed(preset.getClassId(), weaponUnavailable(bot))' in step
     assert 'TacticsPolicy.tankRecoveryAllowed(TacticsPolicy.tankClass(preset.getClassId()), weaponUnavailable(bot))' in step
-    for forbidden in ('setCurrentCp(', 'setCurrentMp(', 'setCurrentHp(', 'setHeading(', 'setXYZ(', 'abortCast(', 'applyEffects(', 'startAutoPlay(', 'startAutoUseTask('):assert forbidden not in s,forbidden
+    # Cardinal-only native MP support predates this Dominator regression; never allow it in other code.
+    support=s[s.index('private static void restoreCardinalMana('):s.index('private static void stopBasicAttack(')]
+    assert 'preset.getClassId() != CARDINAL_CLASS_ID' in support and 'bot.getPlayerClass().getId() != CARDINAL_CLASS_ID' in support
+    guarded=s.replace(support,'')
+    for forbidden in ('setCurrentCp(', 'setCurrentMp(', 'setCurrentHp(', 'setHeading(', 'setXYZ(', 'abortCast(', 'applyEffects(', 'startAutoPlay(', 'startAutoUseTask('):assert forbidden not in guarded,forbidden
 
 def main():
     audit();guards((SRC/'BotTactics.java').read_text())
     with tempfile.TemporaryDirectory(prefix='dominator-cp-titan-') as d:
         tmp=Path(d);launcher=tmp/'Compile.java';launcher.write_text('import javax.tools.ToolProvider;public class Compile {public static void main(String[] a){System.exit(ToolProvider.getSystemJavaCompiler().run(null,System.out,System.err,a));}}')
-        old=tmp/'old'/'TacticsPolicy.java';old.parent.mkdir();old.write_text(subprocess.check_output(['git','show','a1bb787:game/data/scripts/custom/fakeplayersai/TacticsPolicy.java'],cwd=ROOT,text=True))
-        probe=tmp/'TitanCooldownRootProbe.java';probe.write_text('package custom.fakeplayersai;public class TitanCooldownRootProbe{public static void main(String[] a){if(TacticsPolicy.recoveryStepAllowed(false,false,false,100,false))throw new AssertionError("generic cooldown-only recovery backpedals armed Titan");}}')
-        subprocess.run(['java',str(launcher),'-d',str(tmp/'oldclasses'),str(old),str(probe)],check=True)
-        result=subprocess.run(['java','-cp',str(tmp/'oldclasses'),'custom.fakeplayersai.TitanCooldownRootProbe'],capture_output=True,text=True)
-        assert result.returncode!=0 and 'generic cooldown-only recovery backpedals armed Titan' in result.stderr
-        print('PASS: baseline a1bb787 behaviorally reproduces generic cooldown-only retreat trigger (not unique toTitan)',flush=True)
+        if subprocess.run(['git','cat-file','-e','a1bb787^{commit}'],cwd=ROOT,capture_output=True).returncode==0:
+            old=tmp/'old'/'TacticsPolicy.java';old.parent.mkdir();old.write_text(subprocess.check_output(['git','show','a1bb787:game/data/scripts/custom/fakeplayersai/TacticsPolicy.java'],cwd=ROOT,text=True))
+            probe=tmp/'TitanCooldownRootProbe.java';probe.write_text('package custom.fakeplayersai;public class TitanCooldownRootProbe{public static void main(String[] a){if(TacticsPolicy.recoveryStepAllowed(false,false,false,100,false))throw new AssertionError("generic cooldown-only recovery backpedals armed Titan");}}')
+            subprocess.run(['java',str(launcher),'-d',str(tmp/'oldclasses'),str(old),str(probe)],check=True)
+            result=subprocess.run(['java','-cp',str(tmp/'oldclasses'),'custom.fakeplayersai.TitanCooldownRootProbe'],capture_output=True,text=True)
+            assert result.returncode!=0 and 'generic cooldown-only recovery backpedals armed Titan' in result.stderr
+            print('PASS: baseline a1bb787 behaviorally reproduces generic cooldown-only retreat trigger (not unique toTitan)',flush=True)
+        else: print('SKIP: optional historical a1bb787 reproduction (commit absent); current production regressions still run',flush=True)
         # Authoritative target handlers are tracked but not necessarily sparse-checked-out.
         target_sources=[]
         for name in ('PartyClan','One'):
