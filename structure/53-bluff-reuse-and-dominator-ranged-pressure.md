@@ -56,3 +56,8 @@
 - Новые проверки:1856 утверждений (native358 base/enchant, игроки/боты трёх dagger-классов;115 против магов/трёх лучников и неизвестного crossbow/ranged класса в обоих режимах; реальные act/poll, sleep/260, CP между фазами, MP/reuse, отказ запроса и melee-исключение).
 - Регрессии: CP/melee/Rush29287+458, Cardinal509, dagger rear3168, Escape Shackle377, Soul Cleanse714, mandatory Victory2031. Все custom/effect scripts компилируются.
 - `git diff --check` без ошибок; исходный `libs/GameServer.jar` не изменён (SHA256 `8f27196ca9d74b82bbe9ad0d12d70da0196fa4e0d1bf23595267b724c79a23dd`).
+
+
+## Уточнение54
+
+После фактически наложенного собственного сна115 сначала отходит примерно на300 внутри круга450. Пока этот сон действует, pressureClosing/обычный шаг/parent chase не возвращают бота до40: доступная фазовая ротация и CP продолжаются с текущей дистанции, AURA200 вне радиуса не применяется. По окончании сна возвращается прежнее сближение. Общий Bluff и остальная фазовая политика не меняются. См. [54-post-sleep-retreat-and-summon-attack-pulse.md](54-post-sleep-retreat-and-summon-attack-pulse.md).

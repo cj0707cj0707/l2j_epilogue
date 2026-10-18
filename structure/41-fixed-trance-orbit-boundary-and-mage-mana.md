@@ -74,3 +74,8 @@ java --class-path . core-patches/arena-boundary/InstallArenaBoundary.java ../lib
 ## Откат
 
 При остановленном сервере вернуть весь комплект исходников/launcher из резервной ветки и JAR из проверенного `.pre-arena-boundary-<hash>`, указанного в install log (он сохраняет прежний debuff guard). Удалить новые файлы boundary/custom scripts, затем перезапустить. Нельзя оставить старый debuff verifier вместе с уже изменённым boundary JAR: он правомерно отвергнет несовпадающий payload. Не выполнять общий hard reset поверх собственных сторонних изменений.
+
+
+## Уточнение54
+
+Для97/115 после фактически наложенного собственного сна добавлен отдельный прямой отход, допускающий путь через центр: Cardinal до доступной дальности Mana Burn, Dominator до300. Конечная точка внутри450, весь отрезок между внутренними точками также внутри; общий orbit остальных ситуаций и core460 только бот–бот не меняются. См. [54-post-sleep-retreat-and-summon-attack-pulse.md](54-post-sleep-retreat-and-summon-attack-pulse.md).

@@ -28,6 +28,8 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 ## Последнее обновление
 
+[54. Отход после сна и команда живому саммону раз в3с](54-post-sleep-retreat-and-summon-attack-pulse.md) — Cardinal до дальности Mana Burn внутри круга450, Dominator до300; фактический собственный сон, без повторного призыва.
+
 [52. GM: вход без invul/invisible и очистка после просмотра Олимпиады](52-gm-login-and-olympiad-observer-cleanup.md) — отключены все startup-пути автоскрытия; native выход из просмотра снимает оба флага и у GM. Четвёртый проверяемый core-патч, назначение файлов и установка.
 
 [51. Cardinal/Bishop: восстановление и ник противника на Олимпиаде](51-cardinal-recovery-and-olympiad-opponent-notice.md) — покрытие19 профессий при старом/заполненном лимите, безопасный поиск потерянного офлайн-бота в БД, личное сообщение при прибытии на арену; карта файлов, тесты и установка.
@@ -117,6 +119,8 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 | [26-training-prep-cooldowns-and-orc-buffs.md](26-training-prep-cooldowns-and-orc-buffs.md) | Сброс откатов до подготовки, тренировочные бафы Titan/Grand Khavatari |
 
 ## Последнее изменение
+
+- [54: Отход после сна; повторная атака саммона](54-post-sleep-retreat-and-summon-attack-pulse.md): маршрут внутри450, Cardinal — реальная дальность1398, Dominator —300; общий3000мс native attack pulse без resummon.
 
 - [53: Bluff ×2 reuse и Dominator против дальнего боя](53-bluff-reuse-and-dominator-ranged-pressure.md): общий358 —16с; бот115 — сближение → сон/стан → проклятия → атака с поддержкой CP.
 

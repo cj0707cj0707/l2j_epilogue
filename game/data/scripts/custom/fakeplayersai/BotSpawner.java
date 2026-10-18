@@ -1119,6 +1119,7 @@ public class BotSpawner
 	{
 		if ((player == null) || (preset == null) || !player.isOnline() || player.isAlikeDead()
 			|| !player.isInOlympiadMode() || player.getClient() != null || !BotManager.isBot(player)) return;
+		if (target != null && target.isPlayer()) BotTactics.tickSummonAttack(player, target.asPlayer(), true);
 		final int summonSkillId = getOlympiadSummonSkillId(preset);
 		if (summonSkillId == 0) return;
 		// Never create here: a dead/dismissed servitor consumes this match's only summon.
@@ -1138,15 +1139,6 @@ public class BotSpawner
 		final int crystals = (int) player.getInventory().getInventoryItemCount(crystalId, -1);
 		if (crystals < SERVITOR_CRYSTAL_STOCK)
 			player.getInventory().addItem(ItemProcessType.REWARD, crystalId, SERVITOR_CRYSTAL_STOCK - crystals, player, null);
-		if ((target != null) && target.isCreature())
-		{
-			final Creature enemy = target.asCreature();
-			if (!enemy.isAlikeDead())
-			{
-				final Summon summon = player.getSummon();
-				if ((summon != null) && !summon.isDead() && (summon.getTarget() != enemy)) summon.doSummonAttack(enemy);
-			}
-		}
 	}
 
 	public static void ensurePresetGear(Player player, BotClassPreset preset)

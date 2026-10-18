@@ -1870,6 +1870,7 @@ public class BotManager
 				final BotClassPreset preset = BotPresets.getPresetByClassId(getBotClassId(bot));
 				final Player activeOpponent = getOlympiadOpponent(bot);
 				if (activeOpponent != null && ArenaCombatRules.update(bot, activeOpponent, preset)) { OlympiadCombatGate.hold(bot); continue; }
+				BotTactics.tickSummonAttack(bot, activeOpponent, true);
 				final BerserkerState state = BERSERKER_STATES.get(bot.getObjectId());
 				if (state != null)
 				{
