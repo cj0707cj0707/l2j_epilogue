@@ -71,7 +71,13 @@ public class CardinalSpawnDaggerPressureTest
         owners.remove("bishop");check(spawnAll()==1&&missingRosterPresets().isEmpty(),"retry recovers only missing slot after conflict resolved");
         reset(19);fail.add(97);check(spawnAll()==18,"generic Cardinal spawn failure leaves reserved gap");
         check(attempts.get(97)==1,"failure not replaced by arbitrary class");fail.clear();check(spawnAll()==1,"next request retries missing class");
-        reset(18);check(spawnAll()==18&&BOTS.size()==18,"explicit lower limit respected, not silently overridden");
+        reset(18);check(spawnAll()==19&&BOTS.size()==19,"stale18 count cannot exclude a required profession");
+        check(missingRosterPresets().isEmpty(),"stale count repaired with complete class coverage");
+        reset(19);for(BotClassPreset p:BotPresets.getPresets())if(p.getClassId()!=97)spawnBot(p);
+        spawnBot(BotPresets.getPresetByClassId(94));attempts.clear();
+        check(BOTS.size()==19&&spawnAll()==1&&BOTS.size()==20,"full duplicate roster still admits missing Cardinal without deleting actors");
+        check(attempts.size()==1&&attempts.get(97)==1&&missingRosterPresets().isEmpty(),"only missing class added above filled count");
+        reset(0);check(spawnAll()==0&&BOTS.isEmpty(),"zero still disables population");
         reset(23);check(spawnAll()==23&&BOTS.size()==23,"extra slots still permitted after full coverage");
         check(missingRosterPresets().isEmpty(),"extra slots do not displace a class");
         SETTINGS.setEnabled(false);check(spawnAll()==0,"disabled spawning unchanged");

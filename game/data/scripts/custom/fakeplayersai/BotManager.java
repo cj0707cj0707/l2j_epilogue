@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
+import java.util.logging.Level;
 
 import org.l2jmobius.commons.threads.ThreadPool;
 import org.l2jmobius.commons.util.Rnd;
@@ -472,6 +473,7 @@ public class BotManager
 		}
 		_initialized = true;
 		
+		OlympiadOpponentNotice.init(); // Player-facing arrival notice also works with bots disabled.
 		SETTINGS.load();
 		BotPresets.loadOverrides();
 		
@@ -601,6 +603,7 @@ public class BotManager
 				return;
 			}
 
+			OlympiadOpponentNotice.announce(player); // Deduplicated fallback if arrival raced the native pair.
 			final boolean bot = isBot(player);
 			final BotClassPreset preset = BotPresets.getPresetByClassId(bot ? getBotClassId(player) : player.getPlayerClass().getId());
 			final boolean caster = (preset != null) ? preset.isCaster() : player.isMageClass();
@@ -2774,30 +2777,32 @@ public class BotManager
 	 */
 	public static synchronized int spawnAll()
 	{
-		if (!SETTINGS.isEnabled())
+		if (!SETTINGS.isEnabled() || SETTINGS.getBotCount() <= 0)
 		{
 			return 0;
 		}
 		
 		int spawned = 0;
+		final List<BotClassPreset> missing = missingRosterPresets();
+		// A stale18 limit or restored duplicates must not silently exclude Cardinal.
+		// Keep existing actors; class coverage takes precedence over the configured count.
+		final int targetCount = Math.max(SETTINGS.getBotCount(), BOTS.size() + missing.size());
+		if (targetCount > SETTINGS.getBotCount())
+			LOGGER.warning("FakePlayersAI: extending roster target to " + targetCount + " for missing professions; configured BotCount=" + SETTINGS.getBotCount());
 		// Cover missing professions before creating second/third bots of existing classes.
-		for (BotClassPreset preset : missingRosterPresets())
+		for (BotClassPreset preset : missing)
 		{
-			if (BOTS.size() >= SETTINGS.getBotCount()) break;
 			if (spawnBot(preset) != null) spawned++;
 		}
 		final List<BotClassPreset> stillMissing = missingRosterPresets();
-		if (BOTS.size() < SETTINGS.getBotCount() && !stillMissing.isEmpty())
+		if (!stillMissing.isEmpty())
 		{
 			LOGGER.warning("FakePlayersAI: roster incomplete; missing classes " + stillMissing.stream().map(BotClassPreset::getClassName).toList()
 				+ "; leaving slots open instead of hiding spawn failures behind duplicate classes.");
 			return spawned;
 		}
-		if (SETTINGS.getBotCount() < BotPresets.getPresets().size())
-			LOGGER.warning("FakePlayersAI: BotCount=" + SETTINGS.getBotCount() + " is smaller than roster=" + BotPresets.getPresets().size()
-				+ "; full class coverage needs a larger configured count.");
 		int guard = 0;
-		while ((BOTS.size() < SETTINGS.getBotCount()) && (guard++ < 200))
+		while ((BOTS.size() < targetCount) && (guard++ < 200))
 		{
 			final BotClassPreset preset = BotPresets.getNextPreset();
 			if (preset == null)
@@ -2831,6 +2836,16 @@ public class BotManager
 	{
 		try
 		{
+			// Older saves could omit the last bot although its character still owns the name.
+			// Restore only verified offline generated-bot accounts, never arbitrary names.
+			for (BotRosterRecovery.Candidate candidate : BotRosterRecovery.findCardinal(preset))
+			{
+				if (BOT_CLASSES.putIfAbsent(candidate.objectId(), preset.getClassId()) == null)
+				{
+					REGISTRY_NAMES.put(candidate.objectId(), candidate.name());
+					LOGGER.info("FakePlayersAI: recovered Cardinal registry candidate " + candidate.name() + " objectId=" + candidate.objectId());
+				}
+			}
 			// Prefer the canonical roster owner, not an arbitrary old suffixed duplicate.
 			final List<Map.Entry<Integer, Integer>> candidates = new ArrayList<>(BOT_CLASSES.entrySet());
 			if (BotSpawner.staticClassNickname(preset))
@@ -2867,7 +2882,7 @@ public class BotManager
 		}
 		catch (Throwable e)
 		{
-			LOGGER.warning("FakePlayersAI: spawnBot(" + preset.getClassName() + ") failed: " + e);
+			LOGGER.log(Level.WARNING, "FakePlayersAI: spawnBot(" + preset.getClassName() + ") failed", e);
 			return null;
 		}
 	}
