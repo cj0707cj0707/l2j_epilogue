@@ -28,6 +28,8 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 ## Последнее обновление
 
+[49. Кинжальщики: Escape Shackle только при руте](49-dagger-escape-shackle-root-only.md) — приоритетный native453 для93/101/108, обычная ротация во время отката, повтор при сохраняющемся root; исключение из случайных auto/tactical-пулов, карта файлов и установка.
+
 [48. Берсеркер: срочный Soul Cleanse](48-berserker-emergency-soul-cleanse.md) — магический self-cast1510 при ROOT/PhysicalMute до Rush/movement/reaction-ограничений, удержание своей цели до завершения, native ресурсы и откат.
 
 [47. Кинжальщики: попытка захода за спину раз в две секунды](47-dagger-rear-approach-two-seconds.md) — восстановлен отдельный rear-approach для93/101/108 в обоих arena-режимах,2000мс между попытками, без generic recovery-отходов; карта файлов, регрессии и установка.

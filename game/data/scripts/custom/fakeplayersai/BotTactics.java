@@ -32,6 +32,7 @@ public final class BotTactics
 {
 	private static final int MAX_BOTS = 2048;
 	private static final int SOUL_CLEANSE_ID = 1510;
+	private static final int ESCAPE_SHACKLE_ID = 453;
 	// Cardinal-specific IDs for timing gates and Trance-kite logic.
 	private static final int CARDINAL_CLASS_ID = 97;
 	private static final int CARDINAL_TRANCE_ID = 1394;
@@ -402,6 +403,35 @@ public final class BotTactics
 		return true; // Preserve self target until pollAttempt observes resolution.
 	}
 
+	/** Learned dagger-only root escape. Unavailable means continue normal combat,
+	 * not wait here; retry before the normal decision gate while ROOT persists. */
+	private static boolean escapeShackle(Player bot, Player enemy, BotClassPreset preset, State s, long time)
+	{
+		final int classId = preset.getClassId();
+		if ((classId != 93 && classId != 101 && classId != 108) || bot.getPlayerClass().getId() != classId || bot.getClient() != null) return false;
+		if (s.pendingId == ESCAPE_SHACKLE_ID) return true;
+		if (!bot.isRooted() || s.pendingId != 0 || bot.isCastingNow() || bot.isCastingSimultaneouslyNow()
+			|| bot.isOutOfControl() || bot.isAllSkillsDisabled()) return false;
+		final Skill skill = bot.getKnownSkill(ESCAPE_SHACKLE_ID);
+		final Failure backoff = s.failures.get(ESCAPE_SHACKLE_ID);
+		if (skill == null || skill.isMagic() || skill.getTargetType() != TargetType.SELF || skill.isPassive()
+			|| bot.isSkillDisabled(skill) || bot.isInOlympiadMode() && skill.isBlockedInOlympiad()
+			|| !resources(bot, skill) || backoff != null && time < backoff.until) return false;
+		bot.setTarget(bot);
+		if (!skill.checkCondition(bot, bot, false)) { bot.setTarget(enemy); return false; }
+		AutoUseTaskManager.getInstance().stopAutoUseTask(bot);
+		AutoPlayTaskManager.getInstance().stopAutoPlay(bot);
+		stopBasicAttack(bot);
+		bot.setTarget(bot);
+		s.pendingMp = bot.getCurrentMp(); s.pendingHp = bot.getCurrentHp(); s.pendingCharges = bot.getCharges();
+		s.pendingX = bot.getX(); s.pendingY = bot.getY(); s.pendingRushLoop = false;
+		if (!bot.useMagic(skill, true, true)) { failure(s, ESCAPE_SHACKLE_ID, time); bot.setTarget(enemy); return false; }
+		s.pendingId = ESCAPE_SHACKLE_ID; s.pendingAt = time; s.pendingSelf = true; s.pendingDebuff = false; s.sawCast = bot.isCastingNow();
+		s.moveUntil = 0;
+		CombatAnalytics.tacticalRequest(bot.getObjectId(), "DEFENSE");
+		return true;
+	}
+
 	private static void claim(Player bot, State s)
 	{
 		// Stop pool membership, not just autoPlaying (AutoPlay ignores that flag).
@@ -457,6 +487,7 @@ public final class BotTactics
 		pollAttempt(bot, enemy, s, time);
 		restoreCardinalMana(bot, preset);
 		if (soulCleanse(bot, enemy, preset, s, time)) return true;
+		if (escapeShackle(bot, enemy, preset, s, time)) return true;
 		if (trainingBerserker && (bot.isOutOfControl() || bot.isAllSkillsDisabled() || s.pendingId != 0))
 		{
 			stopBasicAttack(bot); // no auto continuation under cast/CC; never abort a cast
@@ -872,6 +903,7 @@ public final class BotTactics
 	{
 		// Targeted cleansing is emergency self-support only, never an offensive dispel candidate.
 		if (skill.getId() == SOUL_CLEANSE_ID) return null;
+		if (skill.getId() == ESCAPE_SHACKLE_ID) return null;
 		// Explicit IDs, never translated skill-name substring guesses. Defense wins
 		// over Vengeance's taunt; SELF CpDamPercent costs remain support, not attacks.
 		if (TacticsPolicy.defenseSkill(skill.getId())) { return TacticsPolicy.Kind.DEFENSE; }

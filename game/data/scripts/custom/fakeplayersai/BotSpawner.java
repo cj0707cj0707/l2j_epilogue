@@ -43,6 +43,7 @@ public class BotSpawner
 {
 	private static final Logger LOGGER = Logger.getLogger(BotSpawner.class.getName());
 	private static final int SPIRIT_ORE_ID = 3031;
+	private static final int ESCAPE_SHACKLE_ID = 453;
 	public static final int COUNTER_CELESTIAL_ID = 655;
 	private static final int MAX_SKILL_ENCHANT_LEVEL = 30;
 	private static final int FUNC_ORDER_ADD = 1;
@@ -569,8 +570,10 @@ public class BotSpawner
 			for (int skillId : buildMageRotation(preset.getRotation())) aus.getAutoSkills().add(skillId);
 		else
 			for (int skillId : preset.getRotation()) aus.getAutoSkills().add(skillId);
+		// Escape Shackle is exclusively driven by BotTactics while rooted, even with overrides.
+		aus.getAutoSkills().remove(Integer.valueOf(ESCAPE_SHACKLE_ID));
 		aus.getAutoBuffs().clear();
-		for (int skillId : preset.getBuffs()) aus.getAutoBuffs().add(skillId);
+		for (int skillId : preset.getBuffs()) if (skillId != ESCAPE_SHACKLE_ID) aus.getAutoBuffs().add(skillId);
 		refreshAutoBuffs(player, preset);
 		pruneRangedTankSupports(player, player.getTarget());
 		aus.setAutoPotionItem(BotPresets.getPotionId());
@@ -620,7 +623,7 @@ public class BotSpawner
 		final boolean activeMatch = inOlympiad && player.isOlympiadStart();
 		if (inOlympiad && !activeMatch) { autoBuffs.clear(); return; }
 		final boolean tankBot = BotManager.isTankBot(player);
-		autoBuffs.removeIf(skillId -> !containsId(desired, skillId)
+		autoBuffs.removeIf(skillId -> skillId == ESCAPE_SHACKLE_ID || !containsId(desired, skillId)
 			|| isSelfBuffApplied(player, skillId)
 			|| (inOlympiad && isOpenerOnlySkill(skillId))
 			|| (inOlympiad && isOlympiadChantBanned(player, skillId))
@@ -628,6 +631,7 @@ public class BotSpawner
 			|| (tankBot && isTankDefenseSkill(skillId)));
 		for (int skillId : desired)
 		{
+			if (skillId == ESCAPE_SHACKLE_ID) continue;
 			if (inOlympiad && isOlympiadChantBanned(player, skillId)) continue;
 			if (tankBot && isTankDefenseSkill(skillId)) continue;
 			if (!autoBuffs.contains(skillId) && !isSelfBuffApplied(player, skillId) && (player.getKnownSkill(skillId) != null)
@@ -819,7 +823,7 @@ public class BotSpawner
 
 	public static boolean tacticalSkillAllowed(Player player, Player enemy, Skill skill, boolean self)
 	{
-		if (isOpenerOnlySkill(skill.getId())) return false;
+		if (skill.getId() == ESCAPE_SHACKLE_ID || isOpenerOnlySkill(skill.getId())) return false;
 		if (player.isInOlympiadMode())
 		{
 			if (!player.isOlympiadStart() || isOlympiadChantBanned(player, skill.getId()) || skill.isDance()
@@ -941,7 +945,7 @@ public class BotSpawner
 
 	static boolean trainingPreparationSkillAllowed(Skill skill)
 	{
-		if (skill == null || skill.isPassive() || skill.isBlockedInOlympiad() || skill.isDance()
+		if (skill == null || skill.getId() == ESCAPE_SHACKLE_ID || skill.isPassive() || skill.isBlockedInOlympiad() || skill.isDance()
 			|| skill.isSuicideAttack() || skill.isDebuff() || skill.hasNegativeEffect() || skill.isDamage()
 			|| skill.nextActionIsAttack() || isOpenerOnlySkill(skill.getId()) || isTankDefenseSkill(skill.getId())
 			|| isChantOfVictoryFamily(skill.getId())) return false;
