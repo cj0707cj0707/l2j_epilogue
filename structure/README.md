@@ -28,6 +28,8 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 ## Последнее обновление
 
+[52. GM: вход без invul/invisible и очистка после просмотра Олимпиады](52-gm-login-and-olympiad-observer-cleanup.md) — отключены все startup-пути автоскрытия; native выход из просмотра снимает оба флага и у GM. Четвёртый проверяемый core-патч, назначение файлов и установка.
+
 [51. Cardinal/Bishop: восстановление и ник противника на Олимпиаде](51-cardinal-recovery-and-olympiad-opponent-notice.md) — покрытие19 профессий при старом/заполненном лимите, безопасный поиск потерянного офлайн-бота в БД, личное сообщение при прибытии на арену; карта файлов, тесты и установка.
 
 [50. Dominator: обязательный серверный Victory of Pa'agrio](50-dominator-mandatory-server-victory.md) — дополнительный1414 перед Олимпиадой/тренировкой независимо от overrides/изученности, learned enchant или native base, только115, без бесплатного rebuff в бою.

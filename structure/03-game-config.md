@@ -154,7 +154,7 @@
 
 | Параметр | Значение | Комментарий |
 |---|---|---|
-| GMStartupInvisible / Invulnerable / BuilderHide | True / True / True | GM входит скрытым |
+| GMStartupInvisible / GMStartupInvulnerable / GMStartupBuilderHide | False / False / False | Автоматические GM invul/invisible отключены; BuilderHide тоже выключен, иначе включает оба флага через setHiding. См. [52](52-gm-login-and-olympiad-observer-cleanup.md). |
 | LogChat / LogItems / GMAudit | False | Логирование выключено |
 | SkillCheckEnable / Remove | True / True | Чистка невалидных скиллов |
 | AutoDestroyDroppedItemAfter | 600 сек | |

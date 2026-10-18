@@ -27,10 +27,18 @@
   childAccess). Такая команда одна — `oly` (`//oly`): дистанционная регистрация на бесклассовую
   олимпиаду. → [13-oly-remote-registration.md](13-oly-remote-registration.md)
 - Панельные HTML лежат в `data\html\admin\` (233 файла).
-- Особенность олимпиады: invul администратора — участника матча (`//invul` / `//setinvul` / автостарт ГМа)
+- Особенность олимпиады: invul администратора — участника матча (например, включённый `//invul` / `//setinvul`)
   принудительно снимается ядром за 1 секунду до начала боя (`OlympiadGameTask`, отметка «1»; наблюдатели
   арены не затрагиваются). → [09-fake-players-ai.md](09-fake-players-ai.md), журнал правок за 09.09.2026.
 - Логирование действий ГМ: `log\gmaudit0.log`, `log\audit0.log`.
+
+## GM: вход и выход из просмотра Олимпиады
+
+По [52](52-gm-login-and-olympiad-observer-cleanup.md) `General.ini` содержит `GMStartupBuilderHide=False`, `GMStartupInvulnerable=False`, `GMStartupInvisible=False`. Отключение только Invulnerable недостаточно: native `setHiding(true)` через BuilderHide выставляет оба флага и silence. Ручные GM-команды сохраняются.
+
+Новый core-патч `game/core-patches/observer-cleanup/InstallObserverCleanup.java` снимает GM-исключение в `Player.leaveOlympiadObserverMode`: при выходе принудительно `setInvisible(false)` и `setInvul(false)` для всех зрителей. Во время просмотра защита остаётся. Не снимает настоящие skill-effects/штатную краткую teleport-защиту и не меняет обычный observer mode. Это отдельное правило от снятия invul участника перед боем.
+
+Требуются весь согласованный core-patches-комплект, обновлённые CMD/Task.sh и полный рестарт; это четвёртый hash-verified патч после debuff/boundary/diversity. Бинарный JAR в Git не заменён; установка меняет локальный JAR атомарно с backup. Назначение файлов, тесты, smoke и откат —52.
 
 ## Аккаунты
 

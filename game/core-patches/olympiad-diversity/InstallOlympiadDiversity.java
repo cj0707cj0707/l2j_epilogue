@@ -42,6 +42,16 @@ public class InstallOlympiadDiversity
     {
         if(args.length!=2)throw new IllegalArgumentException("Usage: java InstallOlympiadDiversity.java CORE.jar OlympiadDiversity.java (server stopped)");
         Path core=Path.of(args[0]).toAbsolutePath(),source=Path.of(args[1]).toAbsolutePath();
+        boolean observerCleanup;
+        try(var probe=new JarFile(core.toFile())){observerCleanup=probe.getJarEntry("META-INF/l2j-observer-cleanup-v1.properties")!=null;}
+        if(observerCleanup)
+        {
+            Path patches=source.getParent().getParent();
+            int result=new ProcessBuilder(Path.of(System.getProperty("java.home"),"bin","java").toString(),"--class-path",".",
+                patches.resolve("observer-cleanup/InstallObserverCleanup.java").toString(),core.toString(),patches.toString()).inheritIO().start().waitFor();
+            if(result!=0)throw new IOException("Combined observer/diversity/arena/debuff verification failed: "+result);
+            return;
+        }
         try(var channel=FileChannel.open(core.resolveSibling(".olympiad-diversity-install.lock"),StandardOpenOption.CREATE,StandardOpenOption.WRITE);var lock=channel.lock())
         {
             byte[] original=Files.readAllBytes(core);String sourceHash=sha(Files.readAllBytes(source));

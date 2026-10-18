@@ -32,6 +32,16 @@ public class InstallArenaBoundary
     {
         if(args.length!=2) throw new IllegalArgumentException("Usage: java InstallArenaBoundary.java CORE.jar ArenaBoundaryGuard.java (server must be stopped)");
         Path core=Path.of(args[0]).toAbsolutePath(), source=Path.of(args[1]).toAbsolutePath();
+        boolean observerCleanup;
+        try(var probe=new JarFile(core.toFile())){observerCleanup=probe.getJarEntry("META-INF/l2j-observer-cleanup-v1.properties")!=null;}
+        if(observerCleanup)
+        {
+            Path patches=source.getParent().getParent();
+            int result=new ProcessBuilder(Path.of(System.getProperty("java.home"),"bin","java").toString(),"--class-path",".",
+                patches.resolve("observer-cleanup/InstallObserverCleanup.java").toString(),core.toString(),patches.toString()).inheritIO().start().waitFor();
+            if(result!=0)throw new IOException("Combined observer/diversity/arena/debuff verification failed: "+result);
+            return;
+        }
         boolean diversity;
         try(var probe=new JarFile(core.toFile())){diversity=probe.getJarEntry("META-INF/l2j-olympiad-diversity-v1.properties")!=null;}
         if(diversity)
