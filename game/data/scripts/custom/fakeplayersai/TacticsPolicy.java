@@ -232,6 +232,32 @@ final class TacticsPolicy
 		for (Object target : targets) if (target != caster) { return false; }
 		return true;
 	}
+	/** One real control attempt, each available curse in rotation order, then damage.
+	 * Failed requests do not advance; resisted but executed spells do not starve damage. */
+	static final class DominatorPressure
+	{
+		private boolean opened;
+		private final java.util.Set<Integer> curses = new java.util.HashSet<>();
+		void reset() { opened = false; curses.clear(); }
+		boolean curseDone(int id) { return curses.contains(id); }
+		boolean opened() { return opened; }
+		int choose(List<Option> legal, List<Integer> controls, List<Integer> debuffs, boolean controlled)
+		{
+			if (!opened && !controlled)
+				for (Option o : legal) if (controls.contains(o.id)) return o.id;
+			for (Option o : legal) if (debuffs.contains(o.id) && !curses.contains(o.id)) return o.id;
+			for (Option o : legal) if (o.kind == Kind.DAMAGE && !controls.contains(o.id)) return o.id;
+			return -1;
+		}
+		void resolved(int id, boolean executed, boolean control, boolean curse, boolean damage)
+		{
+			if (!executed) return;
+			if (control) opened = true;
+			else if (curse) { opened = true; if (curses.size() < 128) curses.add(id); }
+			else if (damage) reset();
+		}
+	}
+
 	static boolean dominatorCpSkill(int id) { return id == 1305 || id == 1306; }
 	static boolean dominatorCpNeeded(double ratio) { return Double.isFinite(ratio) && ratio >= 0 && ratio < .50; }
 	/** One real CP cast may be woven between available attacks, not a permanent heal loop. */

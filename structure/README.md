@@ -116,6 +116,10 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 | [25-training-berserker-post-rush.md](25-training-berserker-post-rush.md) | Берсеркер на тренировке: приоритет серии после Rush и устранение простоя |
 | [26-training-prep-cooldowns-and-orc-buffs.md](26-training-prep-cooldowns-and-orc-buffs.md) | Сброс откатов до подготовки, тренировочные бафы Titan/Grand Khavatari |
 
+## Последнее изменение
+
+- [53: Bluff ×2 reuse и Dominator против дальнего боя](53-bluff-reuse-and-dominator-ranged-pressure.md): общий358 —16с; бот115 — сближение → сон/стан → проклятия → атака с поддержкой CP.
+
 ## Куда смотреть при типовых задачах
 
 | Задача | Документ |
