@@ -1,5 +1,8 @@
 # 43. Berserker: Body Reconstruction отсутствовал в пуле лечения
 
+> **Уточнение48:** правило «во время STUN на противнике — только Rush» теперь имеет одно срочное исключение: магический self-cast Soul Cleanse1510 при ROOT/PhysicalMute на самом берсеркере. Уже выполняемый каст не прерывается, остальные heal/filler-приоритеты не меняются. См. [48](48-berserker-emergency-soul-cleanse.md).
+
+
 База: `7a93669bdf6ce7952795b4714da1fd858c8d90f4`.
 Резерв: `backup/before-berserker-body-reconstruction-pool-2026-10-17`.
 

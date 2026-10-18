@@ -31,6 +31,7 @@ import org.l2jmobius.gameserver.taskmanagers.AutoUseTaskManager;
 public final class BotTactics
 {
 	private static final int MAX_BOTS = 2048;
+	private static final int SOUL_CLEANSE_ID = 1510;
 	// Cardinal-specific IDs for timing gates and Trance-kite logic.
 	private static final int CARDINAL_CLASS_ID = 97;
 	private static final int CARDINAL_TRANCE_ID = 1394;
@@ -53,7 +54,7 @@ public final class BotTactics
 		long seen, nextDecision, observed, hpObserved, castObserved = -1, nextStep, moveUntil, sleepObserved = -1;
 		int hpBand = -1;
 		int trainingEnemy, trainingInstance, enemy, game = -1, instance, anchorX, anchorY, moveX, moveY;
-		boolean owned, enemyCasting;
+		boolean owned, enemyCasting, cleanseLease;
 		int fleeingSamples, offensiveActionsSinceStep = 2;
 
 		long nextHabitSample;
@@ -357,6 +358,50 @@ public final class BotTactics
 		return act(bot, enemy, preset, s, time, true);
 	}
 
+	/** Emergency magic self-cast, before the ranked movement/phase/reaction gates.
+	 * A short ownership lease protects ONE-target Soul Cleanse from parent retargeting. */
+	public static synchronized boolean tickSoulCleanse(Player bot, Player enemy, BotClassPreset preset, boolean ranked)
+	{
+		if (preset == null || preset.getClassId() != 131 || !valid(bot, enemy, ranked, bot == null ? null : STATES.get(bot.getObjectId()))) return false;
+		final long time = now();
+		final State s = state(bot.getObjectId(), time);
+		prepare(bot, enemy, s, time);
+		pollAttempt(bot, enemy, s, time);
+		if (s.cleanseLease && s.pendingId != SOUL_CLEANSE_ID) { s.owned = false; s.cleanseLease = false; }
+		final boolean handled = soulCleanse(bot, enemy, preset, s, time);
+		if (handled && !s.owned) { s.owned = true; s.cleanseLease = true; }
+		return handled;
+	}
+
+	/** Root/physical-skill mute do NOT prohibit magic. Native magic silence, CC,
+	 * reuse, MP and race/target conditions still apply. Never cancel another cast. */
+	private static boolean soulCleanse(Player bot, Player enemy, BotClassPreset preset, State s, long time)
+	{
+		if (preset.getClassId() != 131 || bot.getPlayerClass().getId() != 131 || bot.getClient() != null) return false;
+		if (s.pendingId == SOUL_CLEANSE_ID) return true;
+		if (s.pendingId != 0 || bot.isCastingNow() || bot.isCastingSimultaneouslyNow() || bot.isOutOfControl() || bot.isAllSkillsDisabled()
+			|| !(bot.isRooted() || bot.isPhysicalMuted())) return false;
+		final Skill skill = bot.getKnownSkill(SOUL_CLEANSE_ID);
+		final Failure backoff = s.failures.get(SOUL_CLEANSE_ID);
+		if (skill == null || !skill.isMagic() || skill.getTargetType() != TargetType.ONE || skill.isPassive()
+			|| bot.isSkillDisabled(skill) || bot.isInOlympiadMode() && skill.isBlockedInOlympiad()
+			|| !resources(bot, skill) || backoff != null && time < backoff.until) return false;
+		// Soul Cleanse is targeted magic, NOT a physical attack and NOT targetType SELF.
+		bot.setTarget(bot);
+		if (!skill.checkCondition(bot, bot, false)) { bot.setTarget(enemy); return false; }
+		AutoUseTaskManager.getInstance().stopAutoUseTask(bot);
+		AutoPlayTaskManager.getInstance().stopAutoPlay(bot);
+		stopBasicAttack(bot);
+		bot.setTarget(bot); // Idle/attack cleanup must not leave a different target before useMagic.
+		s.pendingMp = bot.getCurrentMp(); s.pendingHp = bot.getCurrentHp(); s.pendingCharges = bot.getCharges();
+		s.pendingX = bot.getX(); s.pendingY = bot.getY(); s.pendingRushLoop = false;
+		if (!bot.useMagic(skill, true, true)) { failure(s, SOUL_CLEANSE_ID, time); bot.setTarget(enemy); return false; }
+		s.pendingId = SOUL_CLEANSE_ID; s.pendingAt = time; s.pendingSelf = true; s.pendingDebuff = false; s.sawCast = bot.isCastingNow();
+		s.moveUntil = 0;
+		CombatAnalytics.tacticalRequest(bot.getObjectId(), "DEFENSE");
+		return true; // Preserve self target until pollAttempt observes resolution.
+	}
+
 	private static void claim(Player bot, State s)
 	{
 		// Stop pool membership, not just autoPlaying (AutoPlay ignores that flag).
@@ -373,6 +418,7 @@ public final class BotTactics
 		final int game = bot.isInOlympiadMode() ? bot.getOlympiadGameId() : -1;
 		if (s.enemy != enemy.getObjectId() || s.game != game || s.instance != bot.getInstanceId())
 		{
+			if (s.cleanseLease) { s.owned = false; s.cleanseLease = false; }
 			s.cardinalSupport.clear();
 			s.manaAutoAttack.clear();
 			s.enemy = enemy.getObjectId(); s.game = game; s.instance = bot.getInstanceId();
@@ -410,6 +456,7 @@ public final class BotTactics
 		if (!defenseOnly && !allowsBasicAttack(bot, preset)) { stopBasicAttack(bot); }
 		pollAttempt(bot, enemy, s, time);
 		restoreCardinalMana(bot, preset);
+		if (soulCleanse(bot, enemy, preset, s, time)) return true;
 		if (trainingBerserker && (bot.isOutOfControl() || bot.isAllSkillsDisabled() || s.pendingId != 0))
 		{
 			stopBasicAttack(bot); // no auto continuation under cast/CC; never abort a cast
@@ -823,6 +870,8 @@ public final class BotTactics
 	}
 	private static TacticsPolicy.Kind kind(Skill skill)
 	{
+		// Targeted cleansing is emergency self-support only, never an offensive dispel candidate.
+		if (skill.getId() == SOUL_CLEANSE_ID) return null;
 		// Explicit IDs, never translated skill-name substring guesses. Defense wins
 		// over Vengeance's taunt; SELF CpDamPercent costs remain support, not attacks.
 		if (TacticsPolicy.defenseSkill(skill.getId())) { return TacticsPolicy.Kind.DEFENSE; }

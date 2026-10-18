@@ -1,5 +1,8 @@
 # 42. Dominator CP, сближение бойцов и повторный Rush Impact
 
+> **Уточнение48:** правило «во время STUN на противнике — только Rush» теперь имеет одно срочное исключение: магический self-cast Soul Cleanse1510 при ROOT/PhysicalMute на самом берсеркере. Уже выполняемый каст не прерывается, остальные heal/filler-приоритеты не меняются. См. [48](48-berserker-emergency-soul-cleanse.md).
+
+
 17.10.2026. База: `ff029185e2496c5bc70cba8f87cffd963d0f179d`.
 Резерв: `backup/before-dominator-melee-rush-recovery-2026-10-17`.
 

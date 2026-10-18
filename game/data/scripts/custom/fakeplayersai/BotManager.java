@@ -346,6 +346,7 @@ public class BotManager
 		484, // Rush
 		493, // Storm Assault
 		494, // Shoulder Charge
+		1510, // Soul Cleanse: emergency self-targeted magic, never the live offensive auto pool.
 		495, // Blade Rush
 	};
 
@@ -1880,7 +1881,7 @@ public class BotManager
 						if ((bot.calculateDistance2D(center[0], center[1], center[2]) <= OLYMPIAD_ARENA_MAX_DISTANCE)
 							&& (enemy.calculateDistance2D(center[0], center[1], center[2]) <= OLYMPIAD_ARENA_MAX_DISTANCE))
 						{
-							if (!bot.isCastingNow())
+							if (!bot.isCastingNow() && !bot.isCastingSimultaneouslyNow() && !BotTactics.isOwned(bot.getObjectId()))
 							{
 								bot.setTarget(enemy);
 							}
@@ -2259,6 +2260,13 @@ public class BotManager
 		}
 		synchronized (state)
 		{
+			// Root must not hit the movement-disabled early return before magical self-cleanse.
+			// This is the sole emergency exception to the enemy-STUN Rush-only phase.
+			if (enemy.isPlayer() && BotTactics.tickSoulCleanse(bot, enemy.asPlayer(), preset, true))
+			{
+				state.enginesStopped = true;
+				return true;
+			}
 			final long now = System.currentTimeMillis();
 			if (now < state.nextDecisionAt)
 			{
