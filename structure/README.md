@@ -28,6 +28,8 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 ## Последнее обновление
 
+[50. Dominator: обязательный серверный Victory of Pa'agrio](50-dominator-mandatory-server-victory.md) — дополнительный1414 перед Олимпиадой/тренировкой независимо от overrides/изученности, learned enchant или native base, только115, без бесплатного rebuff в бою.
+
 [49. Кинжальщики: Escape Shackle только при руте](49-dagger-escape-shackle-root-only.md) — приоритетный native453 для93/101/108, обычная ротация во время отката, повтор при сохраняющемся root; исключение из случайных auto/tactical-пулов, карта файлов и установка.
 
 [48. Берсеркер: срочный Soul Cleanse](48-berserker-emergency-soul-cleanse.md) — магический self-cast1510 при ROOT/PhysicalMute до Rush/movement/reaction-ограничений, удержание своей цели до завершения, native ресурсы и откат.

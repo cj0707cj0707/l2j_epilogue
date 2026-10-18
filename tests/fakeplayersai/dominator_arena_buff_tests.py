@@ -9,7 +9,7 @@ def method(sig):
  a=s.index(sig);b=s.index('{',a);i=b+1;d=1
  while d:d+=(s[i]=='{')-(s[i]=='}');i+=1
  return s[a:i]
-methods=[method(x) for x in ('private static boolean isDominatorVictory(', 'private static boolean isOlympiadChantBanned(', 'private static boolean dominatorPresetAllows(', 'private static void applyDominatorArenaBuff(', 'public static int[] getTacticalCpSupport(', 'private static boolean isLongSelfBuff(', 'public static boolean tacticalSkillAllowed(', 'public static int stripChantBuffs(', 'public static void trimOlympiadBannedSkillsFromAutoLists(')]
+methods=[method(x) for x in ('private static boolean isDominatorVictory(', 'private static boolean isOlympiadChantBanned(', 'private static void applyDominatorArenaBuff(', 'public static int[] getTacticalCpSupport(', 'private static boolean isLongSelfBuff(', 'public static boolean tacticalSkillAllowed(', 'public static int stripChantBuffs(', 'public static void trimOlympiadBannedSkillsFromAutoLists(')]
 maintenance=method('public static void maintainFullBuffs(Player player, boolean caster)')
 assert 'if (olympiad && !activeMatch) applyDominatorArenaBuff(player);' in maintenance
 training=method('public static void applyTrainingOlympiadBuffs(')
@@ -18,23 +18,25 @@ assert 'applyDominatorArenaBuff' not in (P/'BotTactics.java').read_text(), 'comb
 profile=method('private static int[][] buildOlympiadProfile(')
 assert 'isChantOfVictoryFamily(buff[0])' in profile, 'do not globally allow1414 in every mage profile'
 presets=(P/'BotPresets.java').read_text();dom=presets[presets.index('addPreset(115,'):presets.index('// Doombringer')]
-assert '1414, 337, 1532' in dom
+assert '337, 1532' in dom
+assert 'dominatorPresetAllows' not in method('private static void applyDominatorArenaBuff(')
 ore=method('private static void giveConsumables(')
 assert 'SPIRIT_ORE_ID' in ore
 source='''import java.util.*;import java.util.logging.*;
 class BotSpawner {
 static int checks;static void check(boolean b){checks++;if(!b)throw new AssertionError("check "+checks);}
-static final int OLYMPIAD_MAX_SELFBUFF_SECONDS=120;
+static final int OLYMPIAD_MAX_SELFBUFF_SECONDS=120, ESCAPE_SHACKLE_ID=453;
 static final int[] CHANT_OF_VICTORY_FAMILY={1355,1356,1357,1363,1413,1414,7061,7062,7063,7064};
 static int[] TANK_DEFENSE_MAGIC={368,760},TANK_DEFENSE_PHYSICAL={368,110},TANK_DEFENSE_ALL={368,110,760};
 static Logger LOGGER=Logger.getLogger("test");enum SkillFinishType{REMOVED}
-record Skill(int id,int duration){int getId(){return id;}int getAbnormalTime(){return duration;}boolean isDance(){return false;}}
+record Skill(int id,int duration){int getId(){return id;}int getAbnormalTime(){return duration;}boolean isDance(){return false;}void applyEffects(Player caster,Player target){check(caster==target);if(target.effects.active.add(id))target.grants++;}}
+static class SkillData {static SkillData getInstance(){return new SkillData();}Skill getSkill(int id,int level){return new Skill(id,300);}}
 record PlayerClass(int id){int getId(){return id;}}
 static class AutoUseSettingsHolder {Set<Integer> buffs=new HashSet<>(),skills=new HashSet<>();Set<Integer> getAutoBuffs(){return buffs;}Set<Integer> getAutoSkills(){return skills;}}
 static class Effects {Set<Integer> active=new HashSet<>();boolean isAffectedBySkill(int id){return active.contains(id);}void stopSkillEffects(SkillFinishType f,int id){active.remove(id);}}
 static class Player {int cid,grants;boolean oly=true,started=true;Map<Integer,Skill> known=new HashMap<>();Effects effects=new Effects();AutoUseSettingsHolder auto=new AutoUseSettingsHolder();
  Player(int cid){this.cid=cid;}PlayerClass getPlayerClass(){return new PlayerClass(cid);}Skill getKnownSkill(int id){return known.get(id);}Effects getEffectList(){return effects;}
- AutoUseSettingsHolder getAutoUseSettings(){return auto;}String getName(){return "fixture";}boolean isInOlympiadMode(){return oly;}boolean isOlympiadStart(){return started;}boolean isMageClass(){return true;}boolean isAffectedBySkill(int id){return effects.active.contains(id);}}
+ AutoUseSettingsHolder getAutoUseSettings(){return auto;}String getName(){return "fixture";}boolean isAlikeDead(){return false;}boolean isInOlympiadMode(){return oly;}boolean isOlympiadStart(){return started;}boolean isMageClass(){return true;}boolean isAffectedBySkill(int id){return effects.active.contains(id);}}
 static class BotClassPreset {boolean override;int[] buffs={1414},rotation={1245};boolean hasBuffsOverride(){return override;}boolean hasRotationOverride(){return override;}int[] getBuffs(){return buffs;}int[] getRotation(){return rotation;}}
 static class BotPresets{static BotClassPreset preset=new BotClassPreset();static BotClassPreset getPresetByClassId(int id){return id==115?preset:null;}}
 static boolean containsId(int[]a,int id){return Arrays.stream(a).anyMatch(v->v==id);}static boolean isChantOfVictoryFamily(int id){return containsId(CHANT_OF_VICTORY_FAMILY,id);}
@@ -45,24 +47,24 @@ static boolean tankMovementDefenseAllowed(Player enemy,Skill skill){return true;
 public static void main(String[]a){LOGGER.setLevel(Level.OFF);
  for(int cid:new int[]{90,91,94,95,103,106,110,113,114,115,131})for(boolean learned:new boolean[]{false,true}){
   Player p=new Player(cid),enemy=new Player(94);if(learned){p.known.put(1414,new Skill(1414,300));p.known.put(1305,new Skill(1305,0));p.known.put(1306,new Skill(1306,0));}
-  for(int id:CHANT_OF_VICTORY_FAMILY){boolean allowed=cid==115&&learned&&id==1414;
+  for(int id:CHANT_OF_VICTORY_FAMILY){boolean allowed=cid==115&&id==1414;
    check(isOlympiadChantBanned(p,id)==!allowed);p.effects.active.add(id);p.auto.buffs.add(id);p.auto.skills.add(id);
   }
   stripChantBuffs(p);trimOlympiadBannedSkillsFromAutoLists(p);
-  for(int id:CHANT_OF_VICTORY_FAMILY){boolean allowed=cid==115&&learned&&id==1414;check(p.effects.active.contains(id)==allowed);check(p.auto.buffs.contains(id)==allowed);check(p.auto.skills.contains(id)==allowed);}
+  for(int id:CHANT_OF_VICTORY_FAMILY){boolean allowed=cid==115&&id==1414;check(p.effects.active.contains(id)==allowed);check(p.auto.buffs.contains(id)==allowed);check(p.auto.skills.contains(id)==allowed);}
   if(learned){check(isLongSelfBuff(p,1414)==(cid!=115));check(tacticalSkillAllowed(p,enemy,p.known.get(1414),true)==(cid==115));}
-  p.effects.active.clear();applyDominatorArenaBuff(p);applyDominatorArenaBuff(p);check(p.grants==(cid==115&&learned?1:0));
+  p.effects.active.clear();applyDominatorArenaBuff(p);applyDominatorArenaBuff(p);check(p.grants==(cid==115?1:0));
   check(Arrays.equals(getTacticalCpSupport(p,enemy),cid==115&&learned?new int[]{1305,1306}:new int[0]));
  }
  Player p=new Player(115),enemy=new Player(94);p.known.put(1414,new Skill(1414,300));p.known.put(1305,new Skill(1305,0));p.known.put(1306,new Skill(1306,0));
  BotPresets.preset.override=true;BotPresets.preset.buffs=new int[]{337};BotPresets.preset.rotation=new int[]{1245};
- applyDominatorArenaBuff(p);check(p.grants==0);check(getTacticalCpSupport(p,enemy).length==0);
- BotPresets.preset.buffs=new int[]{1414,1306};applyDominatorArenaBuff(p);check(p.grants==1);check(Arrays.equals(getTacticalCpSupport(p,enemy),new int[]{1306}));
+ applyDominatorArenaBuff(p);check(p.grants==1);check(Arrays.equals(getTacticalCpSupport(p,enemy),new int[]{1305,1306}));
+ BotPresets.preset.buffs=new int[]{1414,1306};applyDominatorArenaBuff(p);check(p.grants==1);check(Arrays.equals(getTacticalCpSupport(p,enemy),new int[]{1305,1306}));
  BotPresets.preset.rotation=new int[]{1305};check(Arrays.equals(getTacticalCpSupport(p,enemy),new int[]{1305,1306}));
  p.known.remove(1305);check(Arrays.equals(getTacticalCpSupport(p,enemy),new int[]{1306}));
  p.started=false;check(!tacticalSkillAllowed(p,enemy,p.known.get(1414),true));p.started=true;check(tacticalSkillAllowed(p,enemy,p.known.get(1414),true));
  check(!isDominatorVictory(null,1414));check(getTacticalCpSupport(null,enemy).length==0);
- System.out.println("PASS: "+checks+" exact production learned115-only1414 exception/strip/trim/long-buff/baseline-once/CP override checks (inert actors)");
+ System.out.println("PASS: "+checks+" exact production class115-only1414 exception/strip/trim/long-buff/baseline-once/mandatory server-buff/CP override checks (inert actors)");
 }}
 '''
 with tempfile.TemporaryDirectory(prefix='dominator-arena-buff-') as d:

@@ -84,7 +84,7 @@ public class BotSpawner
 
 	private static boolean isDominatorVictory(Player player, int skillId)
 	{
-		return player != null && skillId == 1414 && player.getPlayerClass().getId() == 115 && player.getKnownSkill(1414) != null;
+		return player != null && skillId == 1414 && player.getPlayerClass().getId() == 115;
 	}
 
 	private static boolean isOlympiadChantBanned(Player player, int skillId)
@@ -92,17 +92,18 @@ public class BotSpawner
 		return isChantOfVictoryFamily(skillId) && !isDominatorVictory(player, skillId);
 	}
 
-	private static boolean dominatorPresetAllows(Player player, int skillId)
-	{
-		if (player == null || player.getPlayerClass().getId() != 115) return false;
-		final BotClassPreset preset = BotPresets.getPresetByClassId(115);
-		return preset == null || (!preset.hasBuffsOverride() && !preset.hasRotationOverride())
-			|| containsId(preset.getBuffs(), skillId) || containsId(preset.getRotation(), skillId);
-	}
-
+	/** Class-specific server preparation buff, not a configurable rotation entry.
+	 * Preserve a learned enchant; without the skill use the native base effect only.
+	 * Callers run before combat, never as a free in-combat rebuff. */
 	private static void applyDominatorArenaBuff(Player player)
 	{
-		if (isDominatorVictory(player, 1414) && dominatorPresetAllows(player, 1414)) applyOpeningSelfBuff(player, 1414);
+		if (!isDominatorVictory(player, 1414) || player.isAlikeDead() || player.getEffectList().isAffectedBySkill(1414)) return;
+		Skill skill = player.getKnownSkill(1414);
+		if (skill == null) skill = SkillData.getInstance().getSkill(1414, 1);
+		if (skill == null) { LOGGER.warning("FakePlayersAI: Dominator arena buff unavailable: 1414/1"); return; }
+		// Apply solely to the recipient: PARTY_CLAN must not buff the opponent.
+		skill.applyEffects(player, player);
+		LOGGER.info("FakePlayersAI: arena-buff " + player.getName() + ": Victory of Pa'agrio applied.");
 	}
 
 	public static int[] getTacticalCpSupport(Player player, Player enemy)
