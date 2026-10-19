@@ -37,6 +37,8 @@ final class TankClassMechanics
         if(!tank)return false;
         return live(enemy,110)!=null||live(enemy,368)!=null||live(enemy,760)!=null;
     }
+    static boolean sacrificeBlocked(Player bot)
+    { return bot!=null&&bot.getClient()==null&&bot.getPlayerClass().getId()==90&&(live(bot,406)!=null||live(bot,785)!=null); }
     static boolean allowed(Player bot,int id)
     {
         if(!skill(id))return true;
@@ -63,7 +65,7 @@ final class TankClassMechanics
     /** Only legal, ready options from the common engine; no skill/condition bypass. */
     static int choose(List<TacticsPolicy.Option> options)
     {
-        for(int id:new int[]{406,785,789,762,784,761,788})
+        for(int id:new int[]{785,406,789,762,784,761,788})
             for(var o:options)if(o.id()==id)return id;
         return -1;
     }

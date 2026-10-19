@@ -766,7 +766,8 @@ public final class BotTactics
 		final int cardinalChoice = survival ? CardinalSurvival.choose(options, hp) : s.cardinalProminence.choose(preset.getClassId(), options, time);
 		final int shadowChoice = !defenseOnly && options.stream().anyMatch(o -> o.id() == 821) ? 821 : -1;
 		final int tankMechanicChoice = TankClassMechanics.choose(options);
-		final int recoveryChoice = tankMechanicChoice == 406 ? 406 : options.stream().filter(o -> preset.getClassId() == 90 && o.id() == 69 || preset.getClassId() == 131 && o.id() == 833).mapToInt(TacticsPolicy.Option::id).findFirst().orElse(-1);
+		// A legal charged Flame wins over both low-HP Angelic and Sacrifice; no waiting for unavailable charges.
+		final int recoveryChoice = (tankMechanicChoice == 785 || tankMechanicChoice == 406) ? tankMechanicChoice : options.stream().filter(o -> preset.getClassId() == 90 && o.id() == 69 || preset.getClassId() == 131 && o.id() == 833).mapToInt(TacticsPolicy.Option::id).findFirst().orElse(-1);
 		final int selected = recoveryChoice >= 0 ? recoveryChoice : cardinalChoice >= 0 ? cardinalChoice : shadowChoice >= 0 ? shadowChoice : cpChoice >= 0 ? cpChoice : pressureChoice >= 0 ? pressureChoice : tankMechanicChoice >= 0 ? tankMechanicChoice : tankChoice >= 0 ? tankChoice : trainingRushActive
 			? options.stream().anyMatch(option -> option.id() == 793) ? 793 : -1
 			: trainingBerserker

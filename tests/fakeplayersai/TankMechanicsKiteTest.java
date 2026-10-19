@@ -77,12 +77,48 @@ public class TankMechanicsKiteTest extends CardinalSurvivalControlChanceTest {
   // No absent skill learning, and no availability spoof through a wrong-class override.
   Player empty=owner(90,false),wrong=owner(115,false);for(int id:new int[]{406,784,785,761,762,788,789}){verify(!TankClassMechanics.allowed(empty,id),"absent stays absent");learn(wrong,nativeSkill(id));verify(!TankClassMechanics.allowed(wrong,id),"wrong class cannot use mechanics");}
  }
+ @SuppressWarnings("unchecked") static void phoenixPriorityAndSacrifice()throws Exception {
+  Map<Integer,Player> roster=(Map<Integer,Player>)f(BotManager.class,"BOTS").get(null);
+  for(boolean ranked:new boolean[]{false,true}) {
+   for(double health:new double[]{10000,5000,3000,2000}) {
+    Player e=actor(88,ranked,true),p=knight(90,ranked,e);learn(p,nativeSkill(69));hp(p,health);apply(p,5562,3);
+    verify(run(p,e,centered(),10000)&&last==785,"ready Flame before Angelic/Sacrifice at any legal HP "+health);p.setCastingNow(false);
+   }
+   for(int stage:new int[]{0,1,2,3}) {
+    Player e=actor(88,ranked,true),p=knight(90,ranked,e);learn(p,nativeSkill(69));hp(p,2000);if(stage>0)apply(p,5562,stage);
+    Map<Integer,Long> disabled=(Map<Integer,Long>)f(Creature.class,"_disabledSkills").get(p);
+    if(stage==3)disabled.put(p.getKnownSkill(785).getReuseHashCode(),System.currentTimeMillis()+60000);
+    verify(run(p,e,centered(),10000)&&last==406,"Angelic emergency when no stage3 or Flame on reuse");p.setCastingNow(false);
+   }
+   {Player e=actor(88,ranked,true),p=knight(90,ranked,e);hp(p,1000);apply(p,5562,3);
+    verify(run(p,e,centered(),10000)&&last==406,"Flame HP cost not bypassed: emergency Angelic");p.setCastingNow(false);}
+   for(int icon:new int[]{785,406}) {
+    Player e=actor(88,ranked,true),p=knight(90,ranked,e);learn(p,nativeSkill(69));roster.put(p.getObjectId(),p);hp(p,5000);apply(p,icon,p.getKnownSkill(icon).getLevel());Skill heal=p.getKnownSkill(69);
+    verify(!BotRecoveryRules.selfHealAllowed(p,heal),"Sacrifice forbidden under active icon "+icon);
+    var event=new org.l2jmobius.gameserver.mechanics.events.holders.actor.creature.OnCreatureSkillUse();event.setCaster(p);event.setSkill(heal);event.setTarget(p);event.setTargets(List.of(p));
+    verify(BotRecoveryRules.guard(event).terminate(),"synchronous legacy/AutoUse cast guard");
+    verify(BotRecoveryRules.blockedSacrifice(p,p,heal),"execution guard catches icon gained midcast");
+    for(var effect:heal.getEffects(EffectScope.GENERAL))effect.onStart(p,p,heal);
+    verify(p.getCurrentHp()==5000,"real Heal handler gives no HP under icon");
+    run(p,e,centered(),10000);verify(last==0,"actual act cannot select Sacrifice or replace icon, actual="+last);
+    verify(!BotRecoveryRules.blockedSacrifice(p,p,nativeSkill(1218)),"other healing skills unchanged");
+    BuffInfo info=p.getEffectList().getBuffInfoBySkillId(icon);info.setInUse(false);
+    verify(BotRecoveryRules.selfHealAllowed(p,heal),"inactive icon not a healing veto");info.setInUse(true);clear(p,icon);
+    verify(BotRecoveryRules.guard(event)==null&&BotRecoveryRules.selfHealAllowed(p,heal),"Sacrifice unlocked on expiration/removal");
+    verify(run(p,e,centered(),20000)&&last==69,"normal Sacrifice resumes after icon");p.setCastingNow(false);
+    roster.remove(p.getObjectId());
+   }
+   // A human Phoenix with the same native effects is outside the bot restriction.
+   Player human=actor(90,ranked,true);effects(human);apply(human,785,1);
+   verify(!TankClassMechanics.sacrificeBlocked(human)&&!BotRecoveryRules.blockedSacrifice(human,human,nativeSkill(69)),"human Phoenix unaffected");
+  }
+ }
  public static void main(String[]args){try{test60(args);}catch(Throwable t){t.printStackTrace();System.exit(1);}}
  static void test60(String[]args)throws Exception {
   ServerConfig.DATAPACK_ROOT=new File(args[0]);ThreadConfig.THREADS_FOR_LOADING=false;unsafe=(Unsafe)f(Unsafe.class,"theUnsafe").get(null);f(LowManaAutoAttackTest.class,"unsafe").set(null,unsafe);CpMeleeRushRecoveryTest.unsafe=unsafe;
   handlers.EffectMasterHandler.main(new String[0]);org.l2jmobius.gameserver.handler.TargetHandler.getInstance().registerHandler(new handlers.skill.targets.Party());skill=SkillData.getInstance().getSkill(1510,1);recordingType();state=Class.forName("custom.fakeplayersai.BotTactics$State");
   act=BotTactics.class.getDeclaredMethod("act",Player.class,Player.class,BotClassPreset.class,state,long.class,boolean.class);act.setAccessible(true);poll=BotTactics.class.getDeclaredMethod("pollAttempt",Player.class,Player.class,state,long.class);poll.setAccessible(true);
   var geo=java.nio.file.Files.createTempDirectory("tank60-geo-");org.l2jmobius.gameserver.config.GeoEngineConfig.GEODATA_PATH=geo;org.l2jmobius.gameserver.geoengine.GeoEngine.getInstance();java.nio.file.Files.delete(geo);
-  defenses();classSkills();System.out.println("PASS: "+checks+" all19 tank-defense circle/ownership and native Angelic/seed/stage3/finisher conditions, HP/MP/reuse checks; no live server");System.exit(0);
+  defenses();classSkills();phoenixPriorityAndSacrifice();System.out.println("PASS: "+checks+" all19 tank-defense circle/ownership, native class mechanics, Flame-first and icon Sacrifice cast/execution veto; no live server");System.exit(0);
  }
 }

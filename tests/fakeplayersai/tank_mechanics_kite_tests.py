@@ -37,7 +37,9 @@ assert 'bot.addSkill(copy,false)' in chance and 'getClient()!=null' in chance
 mechanics=(S/'TankClassMechanics.java').read_text()
 assert 'TankClassMechanics.defendedTank(enemy)' in tactics
 assert 'TankClassMechanics.support(skill.getId()) ? 230' in tactics
-assert 'tankMechanicChoice == 406 ? 406' in tactics
+assert '(tankMechanicChoice == 785 || tankMechanicChoice == 406) ? tankMechanicChoice' in tactics
+assert 'TankClassMechanics.sacrificeBlocked(bot)' in (S/'BotRecoveryRules.java').read_text()
+assert 'BotRecoveryRules.blockedSacrifice(effector, effected, skill)' in (R/'game/data/scripts/handlers/skill/effects/Heal.java').read_text()
 assert 'TankClassMechanics::skill' in (S/'BotSpawner.java').read_text()
 assert 'TankClassMechanics.skill(skill.getId())' in (S/'BotSpawner.java').read_text()
 for forbidden in ['setCurrentHp(', 'applyEffects(', 'setReuseDelay(', 'makeTriggerCast(', 'setCharges(', 'addSkill(']:

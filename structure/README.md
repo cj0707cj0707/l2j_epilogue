@@ -28,6 +28,8 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 ## Последнее обновление
 
+[61. Phoenix: Flame Icon первым, Sacrifice запрещён под иконами](61-phoenix-flame-first-and-no-sacrifice-under-icons.md) — готовый785 раньше406/69;406 резерв lowHP; под785/406 запрет69 вAI,cast guard иHeal execution. Карта файлов, проверки и установка.
+
 [60. Кайт защиты танков и native классовые механики](60-tank-defense-kiting-and-native-class-mechanics.md) — все19 классов кайтят танка под110/368/760; Phoenix:406 при lowHP и784→5562/3→785, Hell:761→5561/3→762, Shillien:788→5564/3→789. Родные условия/ресурсы, карта файлов и тесты.
 
 [59. Cardinal: выживание против Clarity; три bot-only дебаффа15%](59-cardinal-clarity-survival-and-fixed-control-chance.md) — пока на противнике действующий3282, только Trance/Celestial Shield/Prominence/Greater Battle Heal с приоритетом защиты. Trance97, Dreaming Spirit115 иFear115: фикс15%, без изменения навыков игроков; карта файлов, тесты, установка. Это исключение к nativeChance из56/58.

@@ -40,6 +40,13 @@ public final class BotRecoveryRules
         return effector == effected && managed(effected) && effected.isInvul();
     }
 
+    /** Recheck native icon effects at Heal execution as well as cast admission. */
+    public static boolean blockedSacrifice(Creature effector, Creature effected, Skill skill)
+    {
+        return skill != null && skill.getId() == 69 && effector == effected && managed(effected)
+            && TankClassMechanics.sacrificeBlocked(effected.asPlayer());
+    }
+
     public static boolean healing(Skill skill)
     {
         if (skill == null) return false;
@@ -60,7 +67,7 @@ public final class BotRecoveryRules
     public static boolean selfHealAllowed(Player bot, Skill skill)
     {
         if (!healing(skill)) return true;
-        if (bot.isInvul()) return false;
+        if (bot.isInvul() || skill.getId() == 69 && TankClassMechanics.sacrificeBlocked(bot)) return false;
         return TacticsPolicy.recoveryHealAllowed(bot.getPlayerClass().getId(), skill.getId(),
             bot.getCurrentHp() / Math.max(1, bot.getMaxHp()));
     }

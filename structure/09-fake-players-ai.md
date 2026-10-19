@@ -1,6 +1,6 @@
 # 09. Система ботов FakePlayersAI (`game\data\scripts\custom\fakeplayersai\`)
 
-> **Текущее состояние60:** правила58/59 сохранены. Все19 классов кайтят танков под110/368/760; Phoenix/Hell/Shillien используют родные lowHP/seed/stage3 механики. При расхождении с историей ниже приоритет у [60](60-tank-defense-kiting-and-native-class-mechanics.md), [59](59-cardinal-clarity-survival-and-fixed-control-chance.md) и [58](58-olympiad-150s-invulnerability-kite-native-mana-and-clarity.md).
+> **Текущее состояние61:** Phoenix: готовыйFlame Icon раньшеAngelic/Sacrifice; под406/785 самолечение69 запрещено ([61](61-phoenix-flame-first-and-no-sacrifice-under-icons.md)). правила58/59 сохранены. Все19 классов кайтят танков под110/368/760; Phoenix/Hell/Shillien используют родные lowHP/seed/stage3 механики. При расхождении с историей ниже приоритет у [60](60-tank-defense-kiting-and-native-class-mechanics.md), [59](59-cardinal-clarity-survival-and-fixed-control-chance.md) и [58](58-olympiad-150s-invulnerability-kite-native-mana-and-clarity.md).
 
 > Движение под страхом у игроков/ботов/саммонов: [23](23-bounded-fear-movement.md). Общий обработчик Fear, фиксированный радиус отступления, гарантированный возврат.
 
@@ -15,7 +15,7 @@
 | `BotClassPreset.java` | Пресеты классов: ротация скиллов, тип оружия, флаг кастера |
 | `BotPresets.java` | Справочник пресетов по classId, таблицы снаряжения, методы выдачи снаряжения |
 | `BotTactics.java` | **Тактическое ИИ**: выбор действия, шаги движения, ownership |
-| `TankClassMechanics.java` | Native HP/seed/stage3/finisher трёх танковых пресетов; действующая сильная защита танка для общего кайта |
+| `TankClassMechanics.java` | Native HP/seed/stage3/finisher;785 перед406, живые иконы для запрета69; сильная защита танка для общего кайта |
 | `TacticsPolicy.java` | Политики и пороги: разрешения, скоринг, сложность |
 | `OlympiadChase.java` | Фазовый драйвер преследования на Олимпиаде (rush/retreat) |
 | `TrainingArena.java` | Тренировочная арена: границы, инициализация пар |

@@ -16,6 +16,8 @@
  */
 package handlers.skill.effects;
 
+import custom.fakeplayersai.BotRecoveryRules;
+
 import org.l2jmobius.gameserver.config.custom.ClassBalanceConfig;
 import org.l2jmobius.gameserver.entity.actor.Creature;
 import org.l2jmobius.gameserver.entity.item.enums.ShotType;
@@ -61,7 +63,8 @@ public class Heal extends AbstractEffect
 	@Override
 	public void onStart(Creature effector, Creature effected, Skill skill)
 	{
-		if ((effected == null) || effected.isDead() || effected.isDoor() || effected.isInvul())
+		if ((effected == null) || effected.isDead() || effected.isDoor() || effected.isInvul()
+            || BotRecoveryRules.blockedSacrifice(effector, effected, skill))
 		{
 			return;
 		}
