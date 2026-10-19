@@ -89,14 +89,14 @@ public final class CardinalArenaParityTest
             for(int i=0;i<300;i++)
             {
                 support.bind(bot,enemy);
-                equal(regen(enemy),3,"exact10% of real calculator including prior buffs, mode="+ranked);
+                equal(regen(enemy),30,"native regen including prior buffs, mode="+ranked);
                 equal(enemy.getCurrentMp(),321,"no direct MP change");
                 equal(enemy.calcStat(Stat.REGENERATE_HP_RATE,20,null,null),20,"HP regeneration unchanged");
                 equal(regen(bot),20,"Cardinal's own regen unchanged");
             }
             support.bind(bot,next);
             equal(regen(enemy),30,"old target fully restored on pair change");
-            equal(regen(next),2,"new opponent suppressed once");
+            equal(regen(next),20,"new opponent retains native regen");
             support.clear(); support.clear();
             equal(regen(next),20,"double release idempotent");
             support.bind(bot,enemy);
@@ -176,7 +176,7 @@ public final class CardinalArenaParityTest
                 equal(bot.getCurrentMp(),1000,"unlimited bot MP in mode="+ranked);
                 equal(bot.getMaxMp(),1000,"max MP unchanged");
                 equal(enemy.getCurrentMp(),321,"enemy MP never refilled");
-                equal(regen(enemy),2,"opponent -90% regen preserved during refill");
+                equal(regen(enemy),20,"opponent native regen preserved during refill");
             }
             refill.invoke(null,bot,cardinal);equal(bot.getCurrentMp(),1000,"full MP is idempotent");
             support.clear();equal(regen(enemy),20,"normal regen cleanup still works");
@@ -215,7 +215,7 @@ public final class CardinalArenaParityTest
             check(TacticsPolicy.cardinalSleepException(97,1398)&&TacticsPolicy.cardinalSleepException(97,1230),"both modes keep narrow sleep exceptions");
         }
         for(boolean self:new boolean[]{false,true})for(boolean opponent:new boolean[]{false,true})
-            check(TacticsPolicy.arenaMpFloorAllowed(self,opponent)==(!self&&!opponent),"no instant refill for either side of Cardinal-bot pair");
+            check(TacticsPolicy.arenaMpFloorAllowed(self,opponent)==false,"no instant refill for either side of Cardinal-bot pair");
     }
     public static void main(String[] args) throws Exception
     {

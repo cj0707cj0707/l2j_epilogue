@@ -73,7 +73,7 @@ final class TacticsPolicy
 	/** Ranked Cardinal encounters follow training: no automatic full-MP floor on either bot. */
 	static boolean arenaMpFloorAllowed(boolean cardinalBot, boolean cardinalOpponentBot)
 	{
-		return !cardinalBot && !cardinalOpponentBot;
+		return false; // no artificial active-battle MP floor for any class
 	}
 
 	/** A due nuke wins over routine choices/kiting, never over a legal urgent recovery/interrupt.

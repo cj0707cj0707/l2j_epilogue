@@ -51,7 +51,7 @@ assert 'ArenaCombatRules.kitePoint(bot, enemy, 100)' in tactics and 'ArenaCombat
 assert 'ArenaCombatRules.kitePoint(bot, enemy.asPlayer(), KITE_STEP)' in manager
 assert '(bot.getX() + enemy.getX()) / 2' not in tactics
 assert 'CardinalTrance.apply(player)' in (S/'BotSpawner.java').read_text()
-assert 'if (isBot(player) && player.getClient() == null) return false;' in manager
+assert 'private static boolean olympiadMpFloorAllowed(Player player) { return false; }' in manager
 assert 'arena-boundary/InstallArenaBoundary.java' in (R/'game/GameServerTask.sh').read_text()
 assert r'arena-boundary\InstallArenaBoundary.java' in (R/'game/InstallDebuffGuard.cmd').read_text()
 print('PASS: verified backups/idempotence/unknown+tampered rejection, native coordinate wrappers, shared ranked/training/legacy wiring; repository JAR unchanged')

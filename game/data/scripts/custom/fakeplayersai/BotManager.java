@@ -261,12 +261,7 @@ public class BotManager
 	/** objectId -> last combat title text shown above the bot (skips redundant broadcasts). */
 	private static final Map<Integer, String> BOT_TITLES = new ConcurrentHashMap<>();
 
-	/**
-	 * Legacy MP floor for eligible magic bots in ACTIVE olympiad matches.
-	 * Physical bots now run dry and use normal attacks; Cardinal has its own common
-	 * arena refill. olympiadMpFloorAllowed also preserves Cardinal opponent suppression.
-	 */
-	private static final double OLYMPIAD_MP_FLOOR_PERCENT = 30.0;
+
 
 	// ------------------------------------------------------------------
 	// Berserker (Doombringer, class 131) olympiad duel driver
@@ -859,7 +854,8 @@ public class BotManager
 						bot.setCurrentHp(bot.getMaxHp());
 						bot.setCurrentCp(bot.getMaxCp());
 					}
-					if (SETTINGS.isRestoreMp())
+					// Periodic idle refill is now Cardinal-only; everyone else regenerates natively.
+					if (SETTINGS.isRestoreMp() && bot.getPlayerClass().getId() == 97)
 					{
 						bot.setCurrentMp(bot.getMaxMp());
 					}
@@ -1400,14 +1396,8 @@ public class BotManager
 					// PvP, waiting for the olympiad and olympiad matches alike.
 					BotSpawner.maintainConsumables(bot, preset);
 					
-					// Legacy magic-bot upkeep only. Do not refill physical bots instead of
-					// their requested low-MP weapon fallback; Cardinal is handled by BotTactics.
-					if (inOlympiad && bot.isOlympiadStart() && olympiadMpFloorAllowed(bot)
-						&& (bot.getCurrentMp() < (bot.getMaxMp() * (OLYMPIAD_MP_FLOOR_PERCENT / 100.0))))
-					{
-						bot.setCurrentMp(bot.getMaxMp());
-						LOGGER.info("FakePlayersAI: oly-mp " + bot.getName() + ": MP was below " + (int) OLYMPIAD_MP_FLOOR_PERCENT + "%, restored to full.");
-					}
+					// Native MP regeneration for every class; Cardinal refill belongs to BotTactics.
+
 				}
 
 				// Charge window (see the constants above): bots of the charge classes keep
@@ -1478,6 +1468,8 @@ public class BotManager
 					continue;
 				}
 				withTarget++;
+
+				if (inOlympiad && target.isPlayer() && BotTactics.tickInvulnerableMelee(bot, target.asPlayer(), preset, true)) continue;
 
 				// Opening curse: mage bots open the fight with the resist-lowering
 				// curse of their class (Archmage: Surrender to Fire, Mystic Muse:
@@ -1849,6 +1841,7 @@ public class BotManager
 				final Player activeOpponent = getOlympiadOpponent(bot);
 				if (activeOpponent != null && ArenaCombatRules.update(bot, activeOpponent, preset)) { OlympiadCombatGate.hold(bot); continue; }
 				BotTactics.tickSummonAttack(bot, activeOpponent, true);
+				if (BotTactics.tickInvulnerableMelee(bot, activeOpponent, preset, true)) continue;
 				final BerserkerState state = BERSERKER_STATES.get(bot.getObjectId());
 				if (state != null)
 				{
@@ -1929,18 +1922,8 @@ public class BotManager
 			center[0], center[1], OLYMPIAD_ARENA_MAX_DISTANCE, !BERSERKER_STATES.containsKey(bot.getObjectId()));
 	}
 
-	private static boolean olympiadMpFloorAllowed(Player player)
-	{
-		// All managed bots must be able to run dry. Cardinal alone has its own
-		// shared full-MP rule; physical fallback and exhausted-mage HP must stay observable.
-		if (isBot(player) && player.getClient() == null) return false;
-		if (!TacticalSettings.isEnabled()) return true;
-		final Player opponent = getOlympiadOpponent(player);
-		final boolean cardinalBot = isBot(player) && player.getClient() == null && player.getPlayerClass().getId() == 97;
-		final boolean cardinalOpponentBot = opponent != null && isBot(opponent) && opponent.getClient() == null
-			&& opponent.getPlayerClass().getId() == 97;
-		return TacticsPolicy.arenaMpFloorAllowed(cardinalBot, cardinalOpponentBot);
-	}
+	/** Compatibility predicate: no active-battle MP floor for any class. */
+	private static boolean olympiadMpFloorAllowed(Player player) { return false; }
 
 	/** Keep the existing dead-task watchdog alive even while the combat gate is holding.
 	 * It never arms combat and a failed readiness snapshot is not itself a timeout. */
@@ -2242,6 +2225,11 @@ public class BotManager
 		}
 		synchronized (state)
 		{
+			if (enemy.isPlayer() && BotTactics.tickInvulnerableMelee(bot, enemy.asPlayer(), preset, true))
+			{
+				state.enginesStopped = true;
+				return true;
+			}
 			// Root must not hit the movement-disabled early return before magical self-cleanse.
 			// This is the sole emergency exception to the enemy-STUN Rush-only phase.
 			if (enemy.isPlayer() && BotTactics.tickSoulCleanse(bot, enemy.asPlayer(), preset, true))

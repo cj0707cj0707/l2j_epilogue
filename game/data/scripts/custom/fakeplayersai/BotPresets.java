@@ -256,8 +256,8 @@ public class BotPresets
 		// Trance (1394): ordinary native template; maximum real Chance enchant, no fixed bot-only roll.
 		// Rotation: Trance (1394), Mana Burn (1398), Prominence (1230), Magical BackFire (1396), Mana Storm (1399).
 		// Buffs: Prayer (1307), Greater Battle Heal (1218 - self only when HP low).
-		// Mana Storm (1399) remains a normal MP drain. Opponent regMp x0.10 is
-		// scoped by CardinalArenaSupport to the actual active ranked/training pair, never countdown.
+		// Mana Storm (1399) remains a normal MP drain; opponent MP regeneration is native.
+		// CardinalArenaSupport grants native Maximum Clarity for the opening 60 seconds.
 		// Prayer (1307) is a pre-combat self opener.
 		addPreset(97, "Cardinal", BotClassPreset.GearKind.ROBE, BotClassPreset.WeaponKind.MAGIC, true, false, true,
 			new int[]

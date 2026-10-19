@@ -16,7 +16,7 @@ assert act.index('pollAttempt(')<act.index('final boolean manaFallback')
 assert act.index('bot.isOutOfControl() || bot.isAllSkillsDisabled()')<act.index('final boolean manaFallback')
 assert act.index('s.pendingId != 0) { return')<act.index('final boolean manaFallback')
 assert 'trainingBerserker ? trainingRushAction' in act
-assert act.index('if (manaFallback && selected < 0 && !sleeping)')<act.index('step(bot, enemy')
+assert act.index('if (!controlHold && manaFallback && selected < 0 && !sleeping)')<act.index('step(bot, enemy')
 assert 's.moveUntil = 0; return false;' in act
 for method in ['public static synchronized boolean tick(','public static synchronized boolean tickDefense(']:
     b=body(t,method);assert b.index('!valid(')<b.index('s.manaAutoAttack.update(bot, preset)')
@@ -43,7 +43,7 @@ for guard in ['OlympiadCombatGate.ready(bot)','opponent.isAutoAttackable(bot)','
 driver=body(m,'private static boolean driveBerserkerStep(')
 assert 'if (driveOwnRushStunLoop(' in driver
 assert driver.index('driveOwnRushStunLoop(')<driver.index('final boolean manaFallback')
-assert act.index('if (trainingRushActive && selected < 0)')<act.index('if (manaFallback && selected < 0')
+assert act.index('if (trainingRushActive && selected < 0)')<act.index('if (!controlHold && manaFallback && selected < 0')
 assert driver.index('state.movement.rushPending()')<driver.index('if (manaFallback)')
 assert driver.index('if (bot.isCastingSimultaneouslyNow()) return true;')<driver.index('if (manaFallback)')<driver.index('BotTactics.recoveryOnly(')
 assert 'return false; // Parent owns ordinary armed pursuit/attack' in driver

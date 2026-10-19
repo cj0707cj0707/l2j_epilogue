@@ -28,11 +28,13 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 ## Последнее обновление
 
+[58. Олимпиада150с, кайт invul-мили, штатная MP и Maximum Clarity](58-olympiad-150s-invulnerability-kite-native-mana-and-clarity.md) — все19 классов; Cardinal infinite MP сохранена,−90% regen и HP101 отменены; противник97 получает native3282 на60с от старта, без повторного обновления. Карта файлов, тесты и установка.
+
 [57. Штатные откаты Trance и Bluff](57-default-trance-and-bluff-cooldowns.md) — Bluff8000мс вместо16000 для игроков/ботов; убран отдельный3с AI-delay Trance, native reuse1000мс сохранён. Chance/эпик и остальные механики без изменений.
 
 [56. Родные дебаффы/Chance и постоянный эпик+6](56-native-debuff-chance-and-permanent-epic-jewelry.md) — убраны tank25% и private Trance65%; реальные Chance+30/+15, полный список навыков19 классов; пять эпиков всем ботам, безопасная миграция и карта файлов.
 
-[55. Dominator: root/stun→200→Steal/CP; Shadow Step; Олимпиада90с](55-dominator-melee-control-shadow-step-and-90s-olympiad.md) — scoped CP до>85%,821 первым против кастеров, пятый core-патч переполнения таймера и обновлённая установка.
+[55. Dominator: root/stun→200→Steal/CP; Shadow Step; Олимпиада90с](55-dominator-melee-control-shadow-step-and-90s-olympiad.md) — scoped CP до>85%,821 первым против кастеров, пятый core-патч переполнения таймера и обновлённая установка; лимит90с заменён150с в58.
 
 [54. Отход после сна и команда живому саммону раз в3с](54-post-sleep-retreat-and-summon-attack-pulse.md) — Cardinal до дальности Mana Burn внутри круга450, Dominator до300; фактический собственный сон, без повторного призыва.
 
@@ -48,7 +50,7 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 [47. Кинжальщики: попытка захода за спину раз в две секунды](47-dagger-rear-approach-two-seconds.md) — восстановлен отдельный rear-approach для93/101/108 в обоих arena-режимах,2000мс между попытками, без generic recovery-отходов; карта файлов, регрессии и установка.
 
-[41. Trance65%, круговой кайт, граница бот–бот и MP магов](41-fixed-trance-orbit-boundary-and-mage-mana.md) — исторический private65%-ный Trance (отменён в56), движение по окружности450, core-ограничитель фактических координат460 только для бот–бот и HP101 при истощении магов; обновление запуска/установщика.
+[41. Trance65%, круговой кайт, граница бот–бот и MP магов](41-fixed-trance-orbit-boundary-and-mage-mana.md) — исторический private65%-ный Trance (отменён в56), движение по окружности450, core-ограничитель фактических координат460 только для бот–бот и исторический HP101 при истощении магов (отменён в58); обновление запуска/установщика.
 
 [40. Soultaker, защита танков и самолечение](40-soultaker-tank-recovery-and-invulnerability.md) — кайт95, Anti Magic Armor перед Vengeance против магов, bot-only Sacrifice +30 Power без отката ниже70%, запрет активного самолечения под invul и Body Reconstruction при≤40% в обеих аренах.
 
@@ -56,7 +58,7 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 [38. Кардинал: неисчерпаемая мана в обоих режимах](38-cardinal-unlimited-arena-mana.md) — персональное восстановление MP в общем боевом тике после подтверждения каста; без изменения общих навыков и MP противника.
 
-[37. Кардинал: Олимпиада как тренировка](37-cardinal-olympiad-training-parity.md) — владение целью, сближение под Trance, общий временныйregMp×0.10 и запрет олимпийского full-MP floor в паре с ботом97; безопасная очистка.
+[37. Кардинал: Олимпиада как тренировка](37-cardinal-olympiad-training-parity.md) — владение целью, сближение под Trance, исторический regMp×0.10 (снят в58) и запрет олимпийского full-MP floor в паре с ботом97; безопасная очистка.
 
 [36. Кардинал: имя без цифр и дополнительный Prominence](36-cardinal-name-and-prominence.md) — стабильное уникальное буквенное имя, bot-only1230/28, приоритет законного каста через10с и согласованные фильтры сна.
 
@@ -90,6 +92,7 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 | Файл | Содержание |
 |---|---|
+| [58-olympiad-150s-invulnerability-kite-native-mana-and-clarity.md](58-olympiad-150s-invulnerability-kite-native-mana-and-clarity.md) | Текущее:150с, всеобщий invul-кайт мили, обычнаяMP, native3282/60с, карта и установка |
 | [57-default-trance-and-bluff-cooldowns.md](57-default-trance-and-bluff-cooldowns.md) | Отмена увеличенного Bluff reuse и отдельного Cardinal Trance timer; штатные параметры, тесты и установка |
 | [56-native-debuff-chance-and-permanent-epic-jewelry.md](56-native-debuff-chance-and-permanent-epic-jewelry.md) | Native дебаффы вместо25%/65%, Chance+30/+15 по19 классам и постоянные пять эпиков+6 |
 | [48-berserker-emergency-soul-cleanse.md](48-berserker-emergency-soul-cleanse.md) | Срочное магическое самоочищение берсеркера131 при руте/запрете физических навыков, приоритеты и ownership |

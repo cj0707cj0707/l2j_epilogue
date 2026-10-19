@@ -1,5 +1,7 @@
 # 41. Trance65%, круговой кайт, граница бот–бот и истощение магов
 
+> **Актуальное обновление58:** MP/HP101-правило ниже отменено: MP штатная, HP за истощение не снижается, кроме сохранённого infiniteMP Cardinal. Boundary/orbit сохранены; Chance уже возвращён native в56. См. [58](58-olympiad-150s-invulnerability-kite-native-mana-and-clarity.md).
+
 > **Исторический документ. Обновление56 отменяет private65%-ный Trance:** теперь родной SkillData1394 с Chance+30 (native activateRate100 и fast-path до обычных сопротивлений; DEBUFF_IMMUNITY остаётся предварительным запретом). Старые объяснения65% и иммунитетов ниже не являются текущим поведением. Геометрия, boundary и MP-логика сохранены. Актуальные тесты и установка: [56](56-native-debuff-chance-and-permanent-epic-jewelry.md).
 
 

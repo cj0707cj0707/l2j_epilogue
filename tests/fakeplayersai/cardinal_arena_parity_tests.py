@@ -14,12 +14,13 @@ def body(source,signature):
         depth+=(source[right]=='{')-(source[right]=='}');right+=1
     return source[pos:right]
 tick=body(t,'public static synchronized boolean tick(')
-assert tick.index('!valid(')<tick.index('s.cardinalSupport.bind(bot, enemy)')<tick.index('return act(bot, enemy, preset, s, time, false)')
-assert 'if (preset.getClassId() == CARDINAL_CLASS_ID) s.cardinalSupport.bind(bot, enemy);' in tick
+assert tick.index('!valid(')<tick.index('return act(bot, enemy, preset, s, time, false)')
+assert 's.cardinalSupport.start(bot, enemy, s.combatStartedAt, time)' in body(t,'private static void prepare(')
 assert 'BotTactics.tick(b, p, preset, false)' in a and 'BotTactics.tick(bot, opponent, preset, true)' in m
 assert 'getCurrentMp' not in support and 'setCurrentMp' not in support
-assert 'Stat.REGENERATE_MP_RATE, 0x70, this, 0.10, null' in support
-assert 'previous.removeStatsOwner(this)' in support
+assert 'REGENERATE_MP_RATE' not in support and '0.10' not in support
+assert 'skill.applyEffects(enemy,enemy,true,seconds)' in support
+assert 'old.removeStatsOwner(this)' in support
 assert 's.cardinalSupport.clear();' in body(t,'private static void prepare(')
 assert 'removed.cardinalSupport.clear();' in body(t,'public static synchronized void forget(')
 assert 'e.getValue().cardinalSupport.clear();' in body(t,'private static State state(')
@@ -32,12 +33,9 @@ assert combat.index('BotTactics.isOwned(bot.getObjectId()))\n\t\t\t\t{\n\t\t\t\t
 fast=body(m,'private static void olympiadChaseTick(')
 assert 'if (!BotTactics.isOwned(bot.getObjectId()) && !bot.isCastingNow() && !bot.isCastingSimultaneouslyNow()) bot.setTarget(opponent);' in fast
 assert 'holdOlympiadIfNotReady(bot)' in fast and fast.index('holdOlympiadIfNotReady(bot)')<fast.index('BotTactics.tick(')
-assert 'olympiadMpFloorAllowed(bot)' in combat
 refill=body(m,'private static boolean olympiadMpFloorAllowed(')
-assert 'if (!TacticalSettings.isEnabled()) return true;' in refill
-assert 'isBot(player) && player.getClient() == null && player.getPlayerClass().getId() == 97' in refill
-assert 'isBot(opponent) && opponent.getClient() == null' in refill and 'opponent.getPlayerClass().getId() == 97' in refill
-assert 'TacticsPolicy.arenaMpFloorAllowed(cardinalBot, cardinalOpponentBot)' in refill
+assert 'return false;' in refill
+assert 'SETTINGS.isRestoreMp() && bot.getPlayerClass().getId() == 97' in m
 reach=body(t,'public static synchronized int tacticalApproachRange(')
 assert reach.index('!resources(bot, skill)')<reach.index('tranceReach = range')
 assert 'skill.checkCondition(bot, enemy, false)' in reach # only ordinary readiness/conditions contribute

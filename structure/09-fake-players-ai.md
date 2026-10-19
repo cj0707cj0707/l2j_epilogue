@@ -1,5 +1,7 @@
 # 09. Система ботов FakePlayersAI (`game\data\scripts\custom\fakeplayersai\`)
 
+> **Текущее состояние58:** активная Олимпиада150с; все19 классов кайтят invul-мили; штатнаяMP, кроме infiniteMP Cardinal; прежние−90% regen иHP101 отменены. Противнику бота97 — native3282 на первую минуту. Более ранние разделы ниже описывают историю; при расхождении приоритет у [58](58-olympiad-150s-invulnerability-kite-native-mana-and-clarity.md).
+
 > Движение под страхом у игроков/ботов/саммонов: [23](23-bounded-fear-movement.md). Общий обработчик Fear, фиксированный радиус отступления, гарантированный возврат.
 
 > BotTactics отвечает исключительно за тактическое управление ботами на арене (Олимпиада и тренировочная арена). Логика спауна, ресурсов, набора скиллов и принудительного сброса — в других файлах системы.
@@ -391,3 +393,8 @@ Soultaker95 отходит от свободных мили-противнико
 ## Обновление57: откаты Trance/Bluff по умолчанию
 
 Bluff358: native reuse8000мс вместо удвоенного16000, для игроков и ботов всех dagger-классов. Trance1394: XML уже содержит исходный1000мс; в `BotTactics` удалён дополнительный `nextCardinalTrance`/3с timer, включая выбор навыка и pursuit range. Native cooldown/conditions/cast, reaction/backoff и sleep-retreat остаются. Chance+30/+15, эпик+6 и Prominence10с не менялись. Карта файлов/проверки/установка: [57](57-default-trance-and-bluff-cooldowns.md).
+
+
+## 58. Олимпиада150с / invul-кайт / обычная MP / Maximum Clarity
+
+`InvulnerableMeleeKite` — отдельный общий MoveTo по кругу450 перед наступлением/legacy131; защита собственного каста и освобождение управления после invul. `BotTactics.prepare` запускает боевой отсчёт и `CardinalArenaSupport.start`: native Skill3282/1, self-effect противнику на60с, once-only с точным BuffInfo cleanup. Ни FuncMul0.10, ни HP101, ни общего MP-floor; Cardinal97 full-MP остаётся. `BotManager` не доливает MP остальным классам периодически вне боя. Полная карта файлов, совместимость с пятью core-патчами, тесты/установка/откат: [58](58-olympiad-150s-invulnerability-kite-native-mana-and-clarity.md).

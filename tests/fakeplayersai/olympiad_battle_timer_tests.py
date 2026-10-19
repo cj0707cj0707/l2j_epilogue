@@ -51,7 +51,7 @@ with tempfile.TemporaryDirectory(prefix='timer55-') as directory:
  assert old.count('i2s')==1 and old.replace('i2s','nop')==new
  assert 'Field BATTLE_PERIOD:J' in new and 'long 10000l' in new and 'Method org/l2jmobius/gameserver/mechanics/olympiad/OlympiadGame.validateWinner:()V' in new
  # Interpret the verified native increment with/without its narrowing, not a substituted game rule.
- for limit in [90000,360000]:
+ for limit in [90000,150000,360000]:
   counter=0;iterations=0
   while counter<limit and iterations<1000:counter+=10000;iterations+=1
   assert iterations==limit//10000 and counter==limit
@@ -59,19 +59,19 @@ with tempfile.TemporaryDirectory(prefix='timer55-') as directory:
   for _ in range(1000):counter=((counter+10000+32768)%65536)-32768;assert counter<limit
  config=d/'TimerConfigCheck.java';config.write_text('''class TimerConfigCheck{public static void main(String[]a)throws Exception{
  org.l2jmobius.gameserver.config.OlympiadConfig.load();
- if(org.l2jmobius.gameserver.config.OlympiadConfig.OLYMPIAD_BATTLE!=90000)throw new AssertionError("config90s");
+ if(org.l2jmobius.gameserver.config.OlympiadConfig.OLYMPIAD_BATTLE!=150000)throw new AssertionError("config150s");
  Class<?> t=Class.forName("org.l2jmobius.gameserver.mechanics.olympiad.OlympiadGameTask");var f=t.getDeclaredField("BATTLE_PERIOD");f.setAccessible(true);
- if(f.getLong(null)!=90000)throw new AssertionError("native static battle period");
- System.out.println("PASS: real OlympiadConfig.load and patched native task BATTLE_PERIOD=90000; JVM -Xverify:all");}}''')
+ if(f.getLong(null)!=150000)throw new AssertionError("native static battle period");
+ System.out.println("PASS: real OlympiadConfig.load and patched native task BATTLE_PERIOD=150000; JVM -Xverify:all");}}''')
  compiler=d/'Compile.java';compiler.write_text('import javax.tools.ToolProvider;class Compile{public static void main(String[]a){System.exit(ToolProvider.getSystemJavaCompiler().run(null,System.out,System.err,a));}}')
  cp=os.pathsep.join([str(jar),*map(str,sorted((R/'libs').glob('*.jar')))])
  run(['java',compiler,'-cp',cp,'-d',d/'classes',config])
  print(run(['java','-Xverify:all','-cp',str(d/'classes')+os.pathsep+cp,'TimerConfigCheck'],cwd=R/'game'))
  scripts=[R/'game/data/scripts/handlers/EffectMasterHandler.java',*sorted((R/'game/data/scripts/handlers/skill/effects').glob('*.java')),*sorted((R/'game/data/scripts/custom').rglob('*.java'))]
  run(['java',compiler,'-cp',cp,'-d',d/'all',*scripts])
- print('PASS: only native i2s replaced by nop; unchanged cleanup/winner logic; 9x10s at90s, no signed-short overflow at90/360s; all custom/effect scripts compile against five-patch core')
+ print('PASS: only native i2s replaced by nop; unchanged cleanup/winner logic; 15x10s at150s, no signed-short overflow at90/150/360s; all custom/effect scripts compile against five-patch core')
 assert (R/'libs/GameServer.jar').read_bytes()==original
 for name,sep in [('GameServerTask.sh','/'),('InstallDebuffGuard.cmd','\\')]:
  s=(R/'game'/name).read_text();assert 'olympiad-battle-timer'+sep+'InstallOlympiadBattleTimer.java' in s
  assert s.index('observer-cleanup'+sep+'InstallObserverCleanup.java')<s.index('olympiad-battle-timer'+sep+'InstallOlympiadBattleTimer.java')
-print('PASS: Linux/Windows five-patch fail-closed startup chain; 90s applies to active Olympiad, not TrainingArena')
+print('PASS: Linux/Windows five-patch fail-closed startup chain; 150s applies to active Olympiad, not TrainingArena')

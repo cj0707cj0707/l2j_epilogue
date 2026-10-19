@@ -47,7 +47,6 @@ public final class ArenaCombatRules
     {
         if(!managed(bot)||enemy==null||preset==null)return false;
         CardinalTrance.apply(bot); // discard a legacy private template; keep native enchant/resistance rules
-        drainMage(bot,preset);
         if(!managed(enemy)){clearBoundary(bot.getObjectId());return false;}
         int[] c=center(bot);
         if(c==null||!access())return true; // never allow unbounded bot/bot combat on an unsupported core
@@ -68,27 +67,9 @@ public final class ArenaCombatRules
         }
         catch(ReflectiveOperationException e){throw new IllegalStateException("Arena boundary binding failed",e);}
     }
-    static boolean exhausted(Player bot,BotClassPreset preset)
-    {
-        if(bot==null||preset==null||bot.getClient()!=null||!bot.isOnline()||bot.isAlikeDead()||preset.getClassId()==97
-            ||bot.getPlayerClass().getId()!=preset.getClassId()||(!preset.isCaster()&&!bot.getPlayerClass().isMage()))return false;
-        if(bot.getCurrentMp()<=0)return true;
-        boolean offense=false;
-        for(int id:preset.getRotation())
-        {
-            Skill skill=bot.getKnownSkill(id);
-            if(skill==null||BotSpawner.isOpenerOnlySkill(id)||skill.isPassive()||skill.isToggle()||skill.isSuicideAttack()
-                ||(!skill.hasNegativeEffect()&&!skill.isDebuff()))continue;
-            offense=true;
-            if(bot.getCurrentMp()>=bot.getStat().getMpInitialConsume(skill)+bot.getStat().getMpConsume(skill))return false;
-        }
-        return offense;
-    }
-    static void drainMage(Player bot,BotClassPreset preset)
-    {
-        // Never heal a mage who is already below101; no CP/MP/cooldown changes.
-        if(exhausted(bot,preset)&&bot.getCurrentHp()>101)bot.setCurrentHp(101);
-    }
+    /** Compatibility hooks: no artificial HP penalty or MP refill on exhaustion. */
+    static boolean exhausted(Player bot,BotClassPreset preset) { return false; }
+    static void drainMage(Player bot,BotClassPreset preset) { }
     /** Short chord of the450 ring; transition from inside/outside is bounded too. */
     static Location orbit(int x,int y,int z,int enemyX,int enemyY,int cx,int cy,int step,int direction)
     {

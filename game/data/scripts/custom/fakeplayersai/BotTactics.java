@@ -67,6 +67,9 @@ public final class BotTactics
 		boolean trainingBerserkerMode, pendingRushLoop;
 		final TacticsPolicy.CardinalProminence cardinalProminence = new TacticsPolicy.CardinalProminence();
 		final CardinalArenaSupport cardinalSupport = new CardinalArenaSupport();
+		final InvulnerableMeleeKite invulnerableKite = new InvulnerableMeleeKite();
+		boolean invulnerableLease, invulnerablePreviousOwned;
+		long combatStartedAt;
 		final ManaAutoAttackSupport manaAutoAttack = new ManaAutoAttackSupport();
 		int arenaCenterX, arenaCenterY;
 		boolean hasArenaCenter;
@@ -97,6 +100,7 @@ public final class BotTactics
 				if (time - e.getValue().seen <= TTL_MS) return false;
 				ArenaCombatRules.clear(e.getKey());
 				e.getValue().cardinalSupport.clear();
+				e.getValue().invulnerableKite.stop();
 				e.getValue().manaAutoAttack.clear();
 				return true;
 			});
@@ -304,13 +308,14 @@ public final class BotTactics
 		State removed = STATES.remove(botId);
 		if (removed != null) removed.cardinalSupport.clear();
 		if (removed != null) removed.manaAutoAttack.clear();
+		if (removed != null) removed.invulnerableKite.stop();
 	}
 	public static synchronized String describe(int botId)
 	{
 		final State s = STATES.get(botId);
 		return "tactics:" + getDifficulty(botId) + ":owned=" + (s != null && s.owned)
 			+ ":pending=" + (s == null ? 0 : s.pendingId) + ":backoffs=" + (s == null ? 0 : s.failures.size())
-			+ ":cardinalRegen=" + (s != null && s.cardinalSupport.active());
+			+ ":cardinalClarity=" + (s != null && s.cardinalSupport.active());
 	}
 
 	/** TrainingArena must authorize an isolated pair. Client-backed humans are NEVER bots. */
@@ -356,19 +361,50 @@ public final class BotTactics
 			if (s != null) { forget(bot.getObjectId()); }
 			return false;
 		}
+		if (ArenaCombatRules.update(bot, enemy, preset)) return true;
+		if (tickInvulnerableMelee(bot, enemy, preset, ranked)) return true;
 		// Existing Rush/retreat/phase driver retains total ownership.
 		if (ranked && preset.getClassId() == 131) { return false; }
-		if (ArenaCombatRules.update(bot, enemy, preset)) return true;
 		final long time = now();
 		s = state(bot.getObjectId(), time);
 		prepare(bot, enemy, s, time);
 		s.summonAttack.tick(bot, enemy, time);
-		if (preset.getClassId() == CARDINAL_CLASS_ID) s.cardinalSupport.bind(bot, enemy);
-		else s.cardinalSupport.clear();
 		s.manaAutoAttack.update(bot, preset);
 		claim(bot, s);
 		return act(bot, enemy, preset, s, time, false);
 	}
+
+    /** Universal arena override, including ranked131 and legacy parent drivers. */
+    public static synchronized boolean tickInvulnerableMelee(Player bot, Player enemy, BotClassPreset preset, boolean ranked)
+    {
+        if (bot == null || preset == null || !valid(bot, enemy, ranked, STATES.get(bot.getObjectId()))) return false;
+        if (ArenaCombatRules.update(bot, enemy, preset)) return true;
+        final long time = now();
+        final State s = state(bot.getObjectId(), time);
+        prepare(bot, enemy, s, time);
+        final boolean required = enemy.isInvul() && meleeOpponent(enemy);
+        if (!required && !s.invulnerableLease) return false;
+        if (required && !s.invulnerableLease)
+        { s.invulnerablePreviousOwned = s.owned; s.invulnerableLease = true; }
+        pollAttempt(bot, enemy, s, time);
+        restoreCardinalMana(bot, preset);
+        if (s.invulnerableLease && !required)
+        {
+            s.invulnerableKite.stop();
+            // Protect an in-flight self-targeted cleanse even when enemy invul expires mid-cast.
+            if (bot.isCastingNow() || bot.isCastingSimultaneouslyNow()) return true;
+            s.owned = s.invulnerablePreviousOwned; s.invulnerableLease = false;
+            s.nextStep = 0; s.nextDecision = 0; return false;
+        }
+        claim(bot, s);
+        if (bot.isCastingNow() || bot.isCastingSimultaneouslyNow()) return true;
+        if (soulCleanse(bot, enemy, preset, s, time) || escapeShackle(bot, enemy, preset, s, time)) return true;
+        return invulnerableMelee(bot, enemy, s, time);
+    }
+    private static boolean invulnerableMelee(Player bot, Player enemy, State s, long time)
+    {
+        return s.invulnerableKite.tick(bot, enemy, time, enemy.isInvul() && meleeOpponent(enemy));
+    }
 
 	/** Frequent active-match hook; shares the same3s clock with maintenance/training. */
 	public static synchronized void tickSummonAttack(Player bot, Player enemy, boolean ranked)
@@ -487,6 +523,8 @@ public final class BotTactics
 		final int game = bot.isInOlympiadMode() ? bot.getOlympiadGameId() : -1;
 		if (s.enemy != enemy.getObjectId() || s.game != game || s.instance != bot.getInstanceId())
 		{
+			if (s.invulnerableLease) { s.owned = s.invulnerablePreviousOwned; s.invulnerableLease = false; }
+			s.invulnerableKite.reset();
 			if (s.cleanseLease) { s.owned = false; s.cleanseLease = false; }
 			s.cardinalSupport.clear();
 			s.manaAutoAttack.clear();
@@ -496,12 +534,14 @@ public final class BotTactics
 			s.arenaCenterX = center != null ? center[0] : 0;
 			s.arenaCenterY = center != null ? center[1] : 0;
 			s.hasArenaCenter = center != null;
+			s.combatStartedAt = time; s.invulnerableKite.reset(); s.invulnerableLease = false;
 			s.trainingBurst.reset(); s.trainingBerserkerMode = false; s.dominatorCp.reset(); s.dominatorPressure.reset(); s.sleepRetreat.reset(); s.summonAttack.reset(); s.controlRetreat.reset();
 			s.tankDefense.reset(time); s.rushLoop.clear(); s.nextRushStep = time; s.pendingRushLoop = false; s.rushMoving = false; s.rushDirectionX = 0; s.rushDirectionY = 0;
 			s.sleepObserved = -1; s.nextDecision = time; s.nextStep = time; s.pendingId = 0; s.failures.clear(); s.enemyCasting = false; s.moveUntil = 0;
 			s.cardinalProminence.reset();
 			s.fleeingSamples = 0; s.offensiveActionsSinceStep = 2; s.previousDistance = -1; s.nextHabitSample = time;
 		}
+		if (bot.getPlayerClass().getId() == CARDINAL_CLASS_ID) s.cardinalSupport.start(bot, enemy, s.combatStartedAt, time);
 		final double hp = bot.getCurrentHp() / Math.max(1, bot.getMaxHp());
 		final int hpBand = hp < .35 ? 0 : hp < .65 || defenseThreat(bot, enemy) && cpRatio(bot) < .35 ? 1 : 2;
 		if (hpBand != s.hpBand) { s.hpBand = hpBand; s.hpObserved = time; }
@@ -527,6 +567,7 @@ public final class BotTactics
 		restoreCardinalMana(bot, preset);
 		if (soulCleanse(bot, enemy, preset, s, time)) return true;
 		if (escapeShackle(bot, enemy, preset, s, time)) return true;
+		if (!defenseOnly && invulnerableMelee(bot, enemy, s, time)) return true;
 		if (trainingBerserker && (bot.isOutOfControl() || bot.isAllSkillsDisabled() || s.pendingId != 0))
 		{
 			stopBasicAttack(bot); // no auto continuation under cast/CC; never abort a cast

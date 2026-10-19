@@ -164,8 +164,8 @@ public class ArenaOrbitTranceManaTest
             Method floor=BotManager.class.getDeclaredMethod("olympiadMpFloorAllowed",Player.class);floor.setAccessible(true);
             check(!(boolean)floor.invoke(null,p),"no managed class has legacy MP refill");roster.remove(p.getObjectId());
             boolean mage=preset.getClassId()!=97&&(preset.isCaster()||p.getPlayerClass().isMage());
-            check(ArenaCombatRules.exhausted(p,preset)==mage,"all19-class mage/physical/Cardinal policy");
-            ArenaCombatRules.drainMage(p,preset);check(p.getCurrentHp()==(mage?101:5000),"zero MP only mage HP becomes101");
+            check(!ArenaCombatRules.exhausted(p,preset),"all19-class mage/physical/Cardinal policy");
+            ArenaCombatRules.drainMage(p,preset);check(p.getCurrentHp()==5000,"native MP exhaustion never changes HP");
             check(p.getCurrentMp()==0&&p.getCurrentCp()==0,"no MP/CP change");
             hp(p,50);ArenaCombatRules.drainMage(p,preset);check(p.getCurrentHp()==50,"never heal a mage below101");
             Player human=actor(preset.getClassId(),ranked,true);mp(human,0);ArenaCombatRules.drainMage(human,preset);check(human.getCurrentHp()==5000,"human HP untouched");
@@ -178,7 +178,7 @@ public class ArenaOrbitTranceManaTest
             }
             if(mage&&minimum>0&&minimum<Integer.MAX_VALUE)
             {
-                mp(p,minimum-1);check(ArenaCombatRules.exhausted(p,preset),"MP insufficient for all learned offense counts as exhaustion");
+                mp(p,minimum-1);check(!ArenaCombatRules.exhausted(p,preset),"unpayable skills never trigger artificial exhaustion penalty");
                 mp(p,minimum);check(!ArenaCombatRules.exhausted(p,preset),"exact payable skill unlocks normal HP behavior");
             }
         }
