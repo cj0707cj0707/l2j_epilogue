@@ -68,6 +68,7 @@ public final class BotTactics
 		final TacticsPolicy.CardinalProminence cardinalProminence = new TacticsPolicy.CardinalProminence();
 		final CardinalArenaSupport cardinalSupport = new CardinalArenaSupport();
 		final InvulnerableMeleeKite invulnerableKite = new InvulnerableMeleeKite();
+		final InvulnerableMeleeKite survivalKite = new InvulnerableMeleeKite();
 		boolean invulnerableLease, invulnerablePreviousOwned;
 		long combatStartedAt;
 		final ManaAutoAttackSupport manaAutoAttack = new ManaAutoAttackSupport();
@@ -101,6 +102,7 @@ public final class BotTactics
 				ArenaCombatRules.clear(e.getKey());
 				e.getValue().cardinalSupport.clear();
 				e.getValue().invulnerableKite.stop();
+				e.getValue().survivalKite.stop();
 				e.getValue().manaAutoAttack.clear();
 				return true;
 			});
@@ -309,6 +311,7 @@ public final class BotTactics
 		if (removed != null) removed.cardinalSupport.clear();
 		if (removed != null) removed.manaAutoAttack.clear();
 		if (removed != null) removed.invulnerableKite.stop();
+		if (removed != null) removed.survivalKite.stop();
 	}
 	public static synchronized String describe(int botId)
 	{
@@ -397,6 +400,7 @@ public final class BotTactics
             s.nextStep = 0; s.nextDecision = 0; return false;
         }
         claim(bot, s);
+        if (CardinalSurvival.active(bot, enemy)) return act(bot, enemy, preset, s, time, false);
         if (bot.isCastingNow() || bot.isCastingSimultaneouslyNow()) return true;
         if (soulCleanse(bot, enemy, preset, s, time) || escapeShackle(bot, enemy, preset, s, time)) return true;
         return invulnerableMelee(bot, enemy, s, time);
@@ -524,7 +528,7 @@ public final class BotTactics
 		if (s.enemy != enemy.getObjectId() || s.game != game || s.instance != bot.getInstanceId())
 		{
 			if (s.invulnerableLease) { s.owned = s.invulnerablePreviousOwned; s.invulnerableLease = false; }
-			s.invulnerableKite.reset();
+			s.invulnerableKite.reset(); s.survivalKite.reset();
 			if (s.cleanseLease) { s.owned = false; s.cleanseLease = false; }
 			s.cardinalSupport.clear();
 			s.manaAutoAttack.clear();
@@ -553,6 +557,9 @@ public final class BotTactics
 
 	private static boolean act(Player bot, Player enemy, BotClassPreset preset, State s, long time, boolean defenseOnly)
 	{
+		BotControlChance.apply(bot);
+		final boolean survival = !defenseOnly && CardinalSurvival.active(bot, enemy);
+		if (!survival) s.survivalKite.stop();
 		final boolean trainingBerserker = !defenseOnly && preset.getClassId() == 131 && !bot.isInOlympiadMode()
 			&& s.trainingEnemy == enemy.getObjectId() && s.trainingInstance == bot.getInstanceId();
 		s.trainingBerserkerMode = trainingBerserker;
@@ -567,7 +574,7 @@ public final class BotTactics
 		restoreCardinalMana(bot, preset);
 		if (soulCleanse(bot, enemy, preset, s, time)) return true;
 		if (escapeShackle(bot, enemy, preset, s, time)) return true;
-		if (!defenseOnly && invulnerableMelee(bot, enemy, s, time)) return true;
+		if (!defenseOnly && !survival && invulnerableMelee(bot, enemy, s, time)) return true;
 		if (trainingBerserker && (bot.isOutOfControl() || bot.isAllSkillsDisabled() || s.pendingId != 0))
 		{
 			stopBasicAttack(bot); // no auto continuation under cast/CC; never abort a cast
@@ -577,6 +584,11 @@ public final class BotTactics
 		// Real casts and CC are never aborted or replaced, including by urgent heals.
 		if (bot.isCastingNow() || bot.isOutOfControl() || bot.isAllSkillsDisabled()) { return !defenseOnly; }
 		if (s.pendingId != 0) { return !defenseOnly; }
+        if (survival && bot.isAffectedBySkill(1418))
+        {
+            // Celestial is removed on any action EXCEPT movement. Do not waste it by casting.
+            stopBasicAttack(bot); s.survivalKite.tick(bot, enemy, time, true); return true;
+        }
 		final boolean sleeping = enemy.isSleeping();
         final BuffInfo meleeControl = !defenseOnly && bot.getPlayerClass().getId() == 115 && meleeOpponent(enemy)
             ? DominatorControlRetreat.control(bot, enemy) : null;
@@ -586,7 +598,7 @@ public final class BotTactics
         if (controlHold) stopBasicAttack(bot);
 		// Actual landed own sleep, never a mere accepted request or another caster's effect.
 		final boolean ownSleep = !defenseOnly && !controlHold && SleepRetreat.ownSleep(bot, enemy) != null;
-		if (!defenseOnly && !controlHold && s.sleepRetreat.tick(bot, enemy, time, s.hasArenaCenter ? new int[]{s.arenaCenterX, s.arenaCenterY} : ArenaCombatRules.center(bot))) return true;
+		if (!defenseOnly && !survival && !controlHold && s.sleepRetreat.tick(bot, enemy, time, s.hasArenaCenter ? new int[]{s.arenaCenterX, s.arenaCenterY} : ArenaCombatRules.center(bot))) return true;
 		final boolean manaFallback = !defenseOnly && needsManaAutoAttack(bot, preset) && allowsBasicAttack(bot, preset);
 		final boolean dominator = preset.getClassId() == 115;
 		final boolean pressure = !defenseOnly && dominatorRangedPressure(bot, enemy, preset);
@@ -600,7 +612,12 @@ public final class BotTactics
 		// Never let a perpetually re-queued basic swing starve skills/defenses.
 		// Forbidden basic attacks are cancelled immediately; real casts are untouched.
 		final double hp = bot.getCurrentHp() / Math.max(1, bot.getMaxHp());
-		if (time < s.nextDecision || !TacticsPolicy.reactionReady(difficulty(s), time, s.observed, hp < .35)) { return !defenseOnly; }
+		if (time < s.nextDecision || !TacticsPolicy.reactionReady(difficulty(s), time, s.observed, hp < .35))
+        {
+            // Reaction latency must never pause the universal invulnerable-melee escape.
+            if (survival) invulnerableMelee(bot, enemy, s, time);
+            return !defenseOnly;
+        }
 		final boolean visible = GeoEngine.getInstance().canSeeTarget(bot, enemy);
 		final double distance = bot.calculateDistance2D(enemy);
 		final boolean pressureClosing = pressure && !ownSleep && (!visible || distance > tacticalApproachRange(bot, enemy, preset));
@@ -637,6 +654,8 @@ public final class BotTactics
 		if (controlHold && bot.getKnownSkill(1245) != null) skills.put(1245, bot.getKnownSkill(1245));
         Skill shadow = bot.getKnownSkill(821);
         if (!defenseOnly && shadow != null && daggerShadow(bot, enemy, preset, shadow)) skills.put(821, shadow);
+        if (survival) for (int id : new int[]{1394,1418,1230,1218})
+        { Skill learned=bot.getKnownSkill(id); if(learned!=null)skills.put(id,learned); }
 		int chargeDemand = 4;
 		for (Skill skill : skills.values())
 		{
@@ -651,6 +670,7 @@ public final class BotTactics
 		boolean offenseAvailable = false;
 		for (Skill skill : skills.values())
 		{
+			if (survival && !CardinalSurvival.allowed(skill.getId())) continue;
 			if (controlHold && skill.getId() != 1245 && !TacticsPolicy.dominatorCpSkill(skill.getId())) continue;
 			if (BotSpawner.isOpenerOnlySkill(skill.getId())) { continue; } // training as well as ranked
 			// Body Reconstruction (833): Doombringer-exclusive HP-threshold self-heal.
@@ -665,7 +685,7 @@ public final class BotTactics
 			final boolean timedPool = timedTank && BotSpawner.isTankDefenseSkill(skill.getId());
 			if (timedPool && !s.tankDefense.due(time)) { continue; }
 			if (trainingBerserker && !trainingRushActive && !s.trainingBurst.allowsSkill(skill.getId(), distance, skills.containsKey(793))) { continue; }
-			final TacticsPolicy.Kind detected = pressure && skill.getId() == 1105 ? TacticsPolicy.Kind.SLOW : kind(skill);
+			final TacticsPolicy.Kind detected = survival && skill.getId() == 1418 ? TacticsPolicy.Kind.DEFENSE : pressure && skill.getId() == 1105 ? TacticsPolicy.Kind.SLOW : kind(skill);
 			final boolean direct = directDamage(skill);
 			final TacticsPolicy.Kind kind = dominator && sleeping && (!pressure || !pressureControl(skill)) && sleepElapsed >= 5000 && direct ? TacticsPolicy.Kind.DAMAGE : detected;
 			if (kind == null || (defenseOnly && kind != TacticsPolicy.Kind.HEAL && kind != TacticsPolicy.Kind.DEFENSE)) { continue; }
@@ -707,7 +727,7 @@ public final class BotTactics
 			if (skill.getFlyType() == FlyType.CHARGE && (bot.isMovementDisabled() || !GeoEngine.getInstance().canMoveToTarget(bot.getX(), bot.getY(), bot.getZ(), enemy.getX(), enemy.getY(), enemy.getZ(), bot.getInstanceId()))) { continue; }
 			// During enemy invulnerability, DAMAGE-kind skills are still submitted (engine handles immunity).
 			// CC/slow kinds are suppressed — they cannot land on invulnerable targets anyway.
-			final boolean offBlocked = protectedSleep || (enemy.isInvul() && kind != TacticsPolicy.Kind.DAMAGE);
+			final boolean offBlocked = protectedSleep || (enemy.isInvul() && (survival || kind != TacticsPolicy.Kind.DAMAGE));
 			if (!self && TacticsPolicy.allowed(kind, ready, true, visible, active, offBlocked, conditions, interrupt)) { offenseAvailable = true; }
 			if (!TacticsPolicy.allowed(kind, ready, inRange, visible, active, offBlocked, conditions, interrupt)) { continue; }
 			// Actual Backstab/FatalBlow handlers own positional rules and the admin bot success roll.
@@ -738,7 +758,7 @@ public final class BotTactics
 		// CP heal may interrupt any phase; the owed offensive action follows this phase, not random damage.
 		final int cpChoice = pressure && options.stream().anyMatch(o -> o.id() == cpProposed && !self(o.kind())) ? -1 : cpProposed;
 		final int pressureChoice = pressure ? s.dominatorPressure.choose(options, pressureControls, pressureCurses, sleeping || enemy.isStunned()) : -1;
-		final int cardinalChoice = s.cardinalProminence.choose(preset.getClassId(), options, time);
+		final int cardinalChoice = survival ? CardinalSurvival.choose(options, hp) : s.cardinalProminence.choose(preset.getClassId(), options, time);
 		final int shadowChoice = !defenseOnly && options.stream().anyMatch(o -> o.id() == 821) ? 821 : -1;
 		final int recoveryChoice = options.stream().filter(o -> preset.getClassId() == 90 && o.id() == 69 || preset.getClassId() == 131 && o.id() == 833).mapToInt(TacticsPolicy.Option::id).findFirst().orElse(-1);
 		final int selected = recoveryChoice >= 0 ? recoveryChoice : cardinalChoice >= 0 ? cardinalChoice : shadowChoice >= 0 ? shadowChoice : cpChoice >= 0 ? cpChoice : pressureChoice >= 0 ? pressureChoice : tankChoice >= 0 ? tankChoice : trainingRushActive
@@ -750,6 +770,14 @@ public final class BotTactics
 		for (TacticsPolicy.Option o : options) { if (o.id() == selected) { chosen = o.kind(); break; } }
 		final boolean urgent = shadowChoice >= 0 || cardinalChoice >= 0 || chosen == TacticsPolicy.Kind.HEAL || chosen == TacticsPolicy.Kind.DEFENSE
 			|| (chosen == TacticsPolicy.Kind.CONTROL && interruptReady && s.enemyCasting);
+        if (survival && chosen != TacticsPolicy.Kind.HEAL && chosen != TacticsPolicy.Kind.DEFENSE)
+        {
+            // Healing/shield preempt a retreat; an actual landed sleep still gives the old range retreat.
+            if (s.sleepRetreat.tick(bot, enemy, time, arenaCenter)) return true;
+            if (invulnerableMelee(bot, enemy, s, time)) return true;
+            boolean escape = !ownSleep && distance < 450 && selected != 1394;
+            if (s.survivalKite.tick(bot, enemy, time, escape)) return true;
+        }
 		// No recovery retreat/flank/kite when MP cannot pay any offensive skill.
 		// Parents still enforce real range, LOS, sleep, weapon and arena authority.
 		if (trainingRushActive && selected < 0) { stopBasicAttack(bot); return true; }
@@ -759,7 +787,7 @@ public final class BotTactics
 		final boolean trainingPressure = TacticsPolicy.trainingBerserkerPressure(trainingBerserker && !trainingRushActive,
 			allowsBasicAttack(bot, preset), bot.isMovementDisabled() || bot.isOutOfControl() || bot.isAllSkillsDisabled() || bot.isDisabled(),
 			sleeping, enemy.isInvul(), visible, enemy.isAutoAttackable(bot), bot.isCastingNow() || bot.isCastingSimultaneouslyNow() || s.pendingId != 0);
-        if (!defenseOnly && (!sleeping || dominator || preset.getClassId() == CARDINAL_CLASS_ID) && !pressure && !ownSleep && !controlHold && !urgent && time >= s.nextStep && !trainingPressure && step(bot, enemy, preset, s, time, distance, visible, hp, offenseReady, offenseAvailable)) { return true; }
+        if (!defenseOnly && !survival && (!sleeping || dominator || preset.getClassId() == CARDINAL_CLASS_ID) && !pressure && !ownSleep && !controlHold && !urgent && time >= s.nextStep && !trainingPressure && step(bot, enemy, preset, s, time, distance, visible, hp, offenseReady, offenseAvailable)) { return true; }
 		if (selected >= 0)
 		{
 			final Skill skill = skills.get(selected);
@@ -788,6 +816,7 @@ public final class BotTactics
 			// Self targeting remains until cast resolves; next offensive action restores enemy.
 			return true;
 		}
+		if (survival) { stopBasicAttack(bot); return true; } // never yield forbidden offense/chase
 		if (controlHold) return true; // no parent autoattack/chase/Hammer Crush under own melee control
 		if (ownSleep) return true; // no parent chase back into the sleeping target after retreat
 		if (pressure && pressureClosing && !bot.isMovementDisabled() && !bot.isOutOfControl()) { s.moveUntil = 0; return false; }

@@ -7,9 +7,10 @@ def run(cmd,cwd):
  p=subprocess.run(cmd,cwd=cwd,capture_output=True,text=True,timeout=240)
  if p.returncode:print(p.stdout[-4000:]);print(p.stderr[-6000:]);raise SystemExit(p.returncode)
  return p.stdout.strip()
-# Only debuff overrides are removed. Dagger damage-success and tank defense rules are deliberately untouched.
+# Structure59: broad fixed gates stay removed; only three scoped bot controls use15. Dagger/tank-defense rules stay untouched.
 m=(S/'BotManager.java').read_text();tr=(S/'CardinalTrance.java').read_text();sp=(S/'BotSpawner.java').read_text();tc=(R/'game/data/scripts/handlers/skill/effects/TargetCancel.java').read_text()
 assert 'FIXED_DEBUFF_RATE_PLAYERS.add' not in m and 'isTankBotDebuffSuccess' not in m+tc
+assert 'BotControlChance.apply(bot)' in tr
 assert 'minChance' not in tr and 'maxChance' not in tr and 'new Skill(' not in tr
 assert 'return Formulas.calcProbability(_chance, effector, effected, skill);' in tc
 assert sp.index('if (debuffChance > 0) targetLevel')<sp.index('else if (damage) targetLevel')

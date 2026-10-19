@@ -847,6 +847,7 @@ public class BotSpawner
 
 	public static boolean tacticalSkillAllowed(Player player, Player enemy, Skill skill, boolean self)
 	{
+		if (CardinalSurvival.active(player, enemy) && !CardinalSurvival.allowed(skill.getId())) return false;
 		if (skill.getId() == ESCAPE_SHACKLE_ID || isOpenerOnlySkill(skill.getId())) return false;
 		if (player.isInOlympiadMode())
 		{

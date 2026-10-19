@@ -61,12 +61,12 @@ public class ArenaOrbitTranceManaTest
         {
             Skill original=SkillData.getInstance().getSkill(1394,level);check(original!=null,"native Trance level "+level);
             learn(p,original);CardinalTrance.apply(p);
-            check(p.getKnownSkill(1394)==original,"exact native template, no fixed65 copy");
+            Skill scoped=p.getKnownSkill(1394);check(scoped!=original&&scoped.getLevel()==level&&scoped.getActivateRate()==15,"bot-only15 copy, same native level");
             // Reproduce an old private template and verify runtime repair without changing enchant.
             org.l2jmobius.gameserver.util.StatSet set=new org.l2jmobius.gameserver.util.StatSet();
             set.set("skill_id",1394);set.set("level",level);set.set("operateType","A2");set.set("targetType","ONE");set.set("activateRate",65);set.set("minChance",65);set.set("maxChance",65);
-            learn(p,new Skill(set));CardinalTrance.apply(p);check(p.getKnownSkill(1394)==original,"legacy private template removed");
-            CardinalTrance.apply(p);check(p.getKnownSkill(1394)==original,"idempotent native repair");
+            learn(p,new Skill(set));CardinalTrance.apply(p);check(p.getKnownSkill(1394)==scoped,"legacy private template replaced with15");
+            CardinalTrance.apply(p);check(p.getKnownSkill(1394)==scoped,"idempotent scoped15 repair");
             Player human=actor(97,true,true);Skill privateSkill=new Skill(set);learn(human,privateSkill);CardinalTrance.apply(human);
             check(human.getKnownSkill(1394)==privateSkill,"human skill untouched");
         }

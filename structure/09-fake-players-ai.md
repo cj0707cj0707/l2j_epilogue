@@ -1,6 +1,6 @@
 # 09. Система ботов FakePlayersAI (`game\data\scripts\custom\fakeplayersai\`)
 
-> **Текущее состояние58:** активная Олимпиада150с; все19 классов кайтят invul-мили; штатнаяMP, кроме infiniteMP Cardinal; прежние−90% regen иHP101 отменены. Противнику бота97 — native3282 на первую минуту. Более ранние разделы ниже описывают историю; при расхождении приоритет у [58](58-olympiad-150s-invulnerability-kite-native-mana-and-clarity.md).
+> **Текущее состояние59:** базовые правила58 сохранены; пока на противнике бота97 действующий3282, только1394/1418/1230/1218 с приоритетом выживания. Bot-only Trance97, Dreaming Spirit115 иFear115 —15%, остальные nativeChance. При расхождении с историей ниже приоритет у [59](59-cardinal-clarity-survival-and-fixed-control-chance.md) и [58](58-olympiad-150s-invulnerability-kite-native-mana-and-clarity.md).
 
 > Движение под страхом у игроков/ботов/саммонов: [23](23-bounded-fear-movement.md). Общий обработчик Fear, фиксированный радиус отступления, гарантированный возврат.
 
@@ -398,3 +398,10 @@ Bluff358: native reuse8000мс вместо удвоенного16000, для и
 ## 58. Олимпиада150с / invul-кайт / обычная MP / Maximum Clarity
 
 `InvulnerableMeleeKite` — отдельный общий MoveTo по кругу450 перед наступлением/legacy131; защита собственного каста и освобождение управления после invul. `BotTactics.prepare` запускает боевой отсчёт и `CardinalArenaSupport.start`: native Skill3282/1, self-effect противнику на60с, once-only с точным BuffInfo cleanup. Ни FuncMul0.10, ни HP101, ни общего MP-floor; Cardinal97 full-MP остаётся. `BotManager` не доливает MP остальным классам периодически вне боя. Полная карта файлов, совместимость с пятью core-патчами, тесты/установка/откат: [58](58-olympiad-150s-invulnerability-kite-native-mana-and-clarity.md).
+
+
+## Обновление59: выживание Cardinal и три шанса15%
+
+`CardinalSurvival.java` определяет режим по фактическому BuffInfo3282 и whitelist1394/1418/1230/1218; `BotTactics` выбирает защиту/лечение раньше контроля/урона, сохраняет nativeCelestial движением, не отдаёт запрещённую атаку родителю и очищает survivalKite. `BotSpawner.tacticalSkillAllowed` дублирует guard, `BotManager` включает общий путь при3282 даже без TacticalAI toggle.
+
+`BotControlChance.java` создаёт отдельные неперсистентные15% копии1394 для97 и1097/1092 для115; `CardinalTrance.java` — совместимая точка входа. NativeSkillData/игроки/другие дебаффы/откаты не меняются. Файловая карта, точные приоритеты, ограничения/проверки/установка: [59](59-cardinal-clarity-survival-and-fixed-control-chance.md).

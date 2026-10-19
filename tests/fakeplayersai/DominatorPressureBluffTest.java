@@ -21,7 +21,7 @@ public class DominatorPressureBluffTest extends BerserkerSoulCleanseTest {
     public static boolean request(Player p,Skill s,boolean force,boolean shift) {
         Trace t=traces.get(p); t.requests++;t.castTarget=p.getTarget();last=s.getId();
         verify(force&&shift,"ordinary forced shift cast, never native walk-to-cast");
-        verify(p.getTarget()==((s.getId()==1306||s.getId()==1510||s.getId()==453)?p:targetEnemy),"correct self/enemy cast target");
+        verify(p.getTarget()==((s.getId()==1306||s.getId()==1510||s.getId()==453||s.getId()==1218||s.getId()==1418)?p:targetEnemy),"correct self/enemy cast target");
         if(t.accept)p.setCastingNow(true);return t.accept;
     }
     static Player targetEnemy;

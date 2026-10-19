@@ -28,6 +28,8 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 ## Последнее обновление
 
+[59. Cardinal: выживание против Clarity; три bot-only дебаффа15%](59-cardinal-clarity-survival-and-fixed-control-chance.md) — пока на противнике действующий3282, только Trance/Celestial Shield/Prominence/Greater Battle Heal с приоритетом защиты. Trance97, Dreaming Spirit115 иFear115: фикс15%, без изменения навыков игроков; карта файлов, тесты, установка. Это исключение к nativeChance из56/58.
+
 [58. Олимпиада150с, кайт invul-мили, штатная MP и Maximum Clarity](58-olympiad-150s-invulnerability-kite-native-mana-and-clarity.md) — все19 классов; Cardinal infinite MP сохранена,−90% regen и HP101 отменены; противник97 получает native3282 на60с от старта, без повторного обновления. Карта файлов, тесты и установка.
 
 [57. Штатные откаты Trance и Bluff](57-default-trance-and-bluff-cooldowns.md) — Bluff8000мс вместо16000 для игроков/ботов; убран отдельный3с AI-delay Trance, native reuse1000мс сохранён. Chance/эпик и остальные механики без изменений.
