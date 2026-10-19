@@ -6,7 +6,7 @@ import org.l2jmobius.gameserver.entity.Location;
 import org.l2jmobius.gameserver.entity.actor.Player;
 import org.l2jmobius.gameserver.geoengine.GeoEngine;
 
-/** Arena-authorized caller only. No attacks/casts while a melee opponent is invulnerable. */
+/** Arena-authorized caller only. Movement-only escape from invulnerable melee or a tank under native strong defense. */
 final class InvulnerableMeleeKite
 {
     private WeakReference<Player> actor = new WeakReference<>(null);

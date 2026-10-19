@@ -1870,7 +1870,7 @@ public class BotManager
 				}
 				final Player opponent = getOlympiadOpponent(bot);
 				if (opponent != null) CombatAnalytics.watch(bot, opponent);
-				if ((TacticalSettings.isEnabled() || CardinalSurvival.active(bot, opponent)) && (opponent != null))
+				if ((TacticalSettings.isEnabled() || CardinalSurvival.active(bot, opponent) || TacticsPolicy.tankClass(preset.getClassId())) && (opponent != null))
 				{
 					if (!BotTactics.isOwned(bot.getObjectId()) && !bot.isCastingNow() && !bot.isCastingSimultaneouslyNow()) bot.setTarget(opponent);
 					if (BotTactics.tick(bot, opponent, preset, true)) continue;

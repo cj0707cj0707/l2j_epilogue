@@ -377,7 +377,7 @@ public final class BotTactics
 		return act(bot, enemy, preset, s, time, false);
 	}
 
-    /** Universal arena override, including ranked131 and legacy parent drivers. */
+    /** Universal arena escape: invulnerable melee OR tank with native110/368/760, including ranked131. */
     public static synchronized boolean tickInvulnerableMelee(Player bot, Player enemy, BotClassPreset preset, boolean ranked)
     {
         if (bot == null || preset == null || !valid(bot, enemy, ranked, STATES.get(bot.getObjectId()))) return false;
@@ -385,7 +385,7 @@ public final class BotTactics
         final long time = now();
         final State s = state(bot.getObjectId(), time);
         prepare(bot, enemy, s, time);
-        final boolean required = enemy.isInvul() && meleeOpponent(enemy);
+        final boolean required = (enemy.isInvul() && meleeOpponent(enemy)) || TankClassMechanics.defendedTank(enemy);
         if (!required && !s.invulnerableLease) return false;
         if (required && !s.invulnerableLease)
         { s.invulnerablePreviousOwned = s.owned; s.invulnerableLease = true; }
@@ -407,7 +407,7 @@ public final class BotTactics
     }
     private static boolean invulnerableMelee(Player bot, Player enemy, State s, long time)
     {
-        return s.invulnerableKite.tick(bot, enemy, time, enemy.isInvul() && meleeOpponent(enemy));
+        return s.invulnerableKite.tick(bot, enemy, time, (enemy.isInvul() && meleeOpponent(enemy)) || TankClassMechanics.defendedTank(enemy));
     }
 
 	/** Frequent active-match hook; shares the same3s clock with maintenance/training. */
@@ -656,6 +656,9 @@ public final class BotTactics
         if (!defenseOnly && shadow != null && daggerShadow(bot, enemy, preset, shadow)) skills.put(821, shadow);
         if (survival) for (int id : new int[]{1394,1418,1230,1218})
         { Skill learned=bot.getKnownSkill(id); if(learned!=null)skills.put(id,learned); }
+        // Learned class mechanics remain available with persisted rotation overrides.
+        for (int id : TankClassMechanics.skills(bot.getPlayerClass().getId()))
+        { Skill learned=bot.getKnownSkill(id); if(learned!=null)skills.put(id,learned); }
 		int chargeDemand = 4;
 		for (Skill skill : skills.values())
 		{
@@ -671,6 +674,7 @@ public final class BotTactics
 		for (Skill skill : skills.values())
 		{
 			if (survival && !CardinalSurvival.allowed(skill.getId())) continue;
+            if (!TankClassMechanics.allowed(bot, skill.getId())) continue;
 			if (controlHold && skill.getId() != 1245 && !TacticsPolicy.dominatorCpSkill(skill.getId())) continue;
 			if (BotSpawner.isOpenerOnlySkill(skill.getId())) { continue; } // training as well as ranked
 			// Body Reconstruction (833): Doombringer-exclusive HP-threshold self-heal.
@@ -685,7 +689,7 @@ public final class BotTactics
 			final boolean timedPool = timedTank && BotSpawner.isTankDefenseSkill(skill.getId());
 			if (timedPool && !s.tankDefense.due(time)) { continue; }
 			if (trainingBerserker && !trainingRushActive && !s.trainingBurst.allowsSkill(skill.getId(), distance, skills.containsKey(793))) { continue; }
-			final TacticsPolicy.Kind detected = survival && skill.getId() == 1418 ? TacticsPolicy.Kind.DEFENSE : pressure && skill.getId() == 1105 ? TacticsPolicy.Kind.SLOW : kind(skill);
+			final TacticsPolicy.Kind detected = TankClassMechanics.support(skill.getId()) ? TacticsPolicy.Kind.DEFENSE : survival && skill.getId() == 1418 ? TacticsPolicy.Kind.DEFENSE : pressure && skill.getId() == 1105 ? TacticsPolicy.Kind.SLOW : kind(skill);
 			final boolean direct = directDamage(skill);
 			final TacticsPolicy.Kind kind = dominator && sleeping && (!pressure || !pressureControl(skill)) && sleepElapsed >= 5000 && direct ? TacticsPolicy.Kind.DAMAGE : detected;
 			if (kind == null || (defenseOnly && kind != TacticsPolicy.Kind.HEAL && kind != TacticsPolicy.Kind.DEFENSE)) { continue; }
@@ -696,7 +700,7 @@ public final class BotTactics
 			final boolean self = self(kind);
 			// PARTY_CLAN may include a same-clan/party opponent. Never heal/buff them;
 			// query ordinary targets without changing the target or skill implementation.
-			if (self && (skill.getId() == 1305 || skill.getId() == 1414)
+			if (self && (skill.getId() == 1305 || skill.getId() == 1414 || skill.getId() == 785 || skill.getId() == 789)
 				&& !TacticsPolicy.selfOnlyTargets(bot, skill.getTargetList(bot, false, bot))) { continue; }
 			final boolean cpSupport = dominator && kind == TacticsPolicy.Kind.HEAL && TacticsPolicy.dominatorCpSkill(skill.getId()) && skill.hasEffectType(EffectType.CPHEAL);
 			if (cpSupport && !(controlHold ? TacticsPolicy.dominatorControlCpNeeded(cpRatio(bot)) : TacticsPolicy.dominatorCpNeeded(cpRatio(bot)))) { continue; }
@@ -725,7 +729,8 @@ public final class BotTactics
 			final boolean resource = resources(bot, skill) && (self || !weaponUnavailable(bot) || !skill.isPhysical());
 			final boolean conditions = resource && skill.checkCondition(bot, self ? bot : enemy, false);
 			if (skill.getFlyType() == FlyType.CHARGE && (bot.isMovementDisabled() || !GeoEngine.getInstance().canMoveToTarget(bot.getX(), bot.getY(), bot.getZ(), enemy.getX(), enemy.getY(), enemy.getZ(), bot.getInstanceId()))) { continue; }
-			// During enemy invulnerability, DAMAGE-kind skills are still submitted (engine handles immunity).
+			// The universal escape above already preempts invulnerable melee / strong-defense tanks.
+            // Against other invulnerable ranged targets the legacy engine handles DAMAGE immunity.
 			// CC/slow kinds are suppressed — they cannot land on invulnerable targets anyway.
 			final boolean offBlocked = protectedSleep || (enemy.isInvul() && (survival || kind != TacticsPolicy.Kind.DAMAGE));
 			if (!self && TacticsPolicy.allowed(kind, ready, true, visible, active, offBlocked, conditions, interrupt)) { offenseAvailable = true; }
@@ -733,7 +738,7 @@ public final class BotTactics
 			// Actual Backstab/FatalBlow handlers own positional rules and the admin bot success roll.
 			final boolean cardinalHealUrgent = preset.getClassId() == CARDINAL_CLASS_ID && skill.getId() == CARDINAL_HEAL_ID && hp < 0.95;
 			final boolean recoveryHeal = preset.getClassId() == 90 && skill.getId() == 69 || preset.getClassId() == 131 && skill.getId() == 833;
-			final double base = recoveryHeal || cardinalHealUrgent ? 300 : timedPool ? 210 : cpSupport ? 145 : dominator && sleeping && sleepElapsed >= 5000 && direct ? 135 : kind == TacticsPolicy.Kind.DEFENSE
+			final double base = recoveryHeal || cardinalHealUrgent ? 300 : TankClassMechanics.support(skill.getId()) ? 230 : timedPool ? 210 : cpSupport ? 145 : dominator && sleeping && sleepElapsed >= 5000 && direct ? 135 : kind == TacticsPolicy.Kind.DEFENSE
 				? TacticsPolicy.defenseScore(hp, cpRatio(bot), visible && defenseThreat(bot, enemy))
 				: kind == TacticsPolicy.Kind.HEAL && skill.hasEffectType(EffectType.CPHEAL) && !skill.hasEffectType(EffectType.HEAL)
 					? TacticsPolicy.score(kind, new TacticsPolicy.Context(cpRatio(bot), context.enemyHp(), distance, sleeping, s.enemyCasting, interruptReady, context.enemyMoving(), window, context.needsCharges()))
@@ -760,15 +765,16 @@ public final class BotTactics
 		final int pressureChoice = pressure ? s.dominatorPressure.choose(options, pressureControls, pressureCurses, sleeping || enemy.isStunned()) : -1;
 		final int cardinalChoice = survival ? CardinalSurvival.choose(options, hp) : s.cardinalProminence.choose(preset.getClassId(), options, time);
 		final int shadowChoice = !defenseOnly && options.stream().anyMatch(o -> o.id() == 821) ? 821 : -1;
-		final int recoveryChoice = options.stream().filter(o -> preset.getClassId() == 90 && o.id() == 69 || preset.getClassId() == 131 && o.id() == 833).mapToInt(TacticsPolicy.Option::id).findFirst().orElse(-1);
-		final int selected = recoveryChoice >= 0 ? recoveryChoice : cardinalChoice >= 0 ? cardinalChoice : shadowChoice >= 0 ? shadowChoice : cpChoice >= 0 ? cpChoice : pressureChoice >= 0 ? pressureChoice : tankChoice >= 0 ? tankChoice : trainingRushActive
+		final int tankMechanicChoice = TankClassMechanics.choose(options);
+		final int recoveryChoice = tankMechanicChoice == 406 ? 406 : options.stream().filter(o -> preset.getClassId() == 90 && o.id() == 69 || preset.getClassId() == 131 && o.id() == 833).mapToInt(TacticsPolicy.Option::id).findFirst().orElse(-1);
+		final int selected = recoveryChoice >= 0 ? recoveryChoice : cardinalChoice >= 0 ? cardinalChoice : shadowChoice >= 0 ? shadowChoice : cpChoice >= 0 ? cpChoice : pressureChoice >= 0 ? pressureChoice : tankMechanicChoice >= 0 ? tankMechanicChoice : tankChoice >= 0 ? tankChoice : trainingRushActive
 			? options.stream().anyMatch(option -> option.id() == 793) ? 793 : -1
 			: trainingBerserker
 			? s.trainingBurst.choose(options, distance, skills.containsKey(793), difficulty(s), random.nextDouble(), random.nextDouble())
 			: TacticsPolicy.select(options, difficulty(s), random.nextDouble(), random.nextDouble());
 		TacticsPolicy.Kind chosen = null;
 		for (TacticsPolicy.Option o : options) { if (o.id() == selected) { chosen = o.kind(); break; } }
-		final boolean urgent = shadowChoice >= 0 || cardinalChoice >= 0 || chosen == TacticsPolicy.Kind.HEAL || chosen == TacticsPolicy.Kind.DEFENSE
+		final boolean urgent = tankMechanicChoice >= 0 || shadowChoice >= 0 || cardinalChoice >= 0 || chosen == TacticsPolicy.Kind.HEAL || chosen == TacticsPolicy.Kind.DEFENSE
 			|| (chosen == TacticsPolicy.Kind.CONTROL && interruptReady && s.enemyCasting);
         if (survival && chosen != TacticsPolicy.Kind.HEAL && chosen != TacticsPolicy.Kind.DEFENSE)
         {

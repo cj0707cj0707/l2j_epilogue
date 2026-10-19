@@ -14,9 +14,9 @@ h = t[t.index('private static boolean escapeShackle('):t.index('private static v
 assert '!bot.isRooted()' in h
 assert all(x not in h for x in ['applyEffects(', 'stopSkillEffects(', 'enableSkill(', 'setCurrentMp(', 'abortCast('])
 assert 'getAutoSkills().remove(Integer.valueOf(ESCAPE_SHACKLE_ID))' in b
-assert 'preset.getBuffs()) if (skillId != ESCAPE_SHACKLE_ID)' in b
+assert 'preset.getBuffs()) if (skillId != ESCAPE_SHACKLE_ID && !TankClassMechanics.skill(skillId))' in b
 assert 'autoBuffs.removeIf(skillId -> skillId == ESCAPE_SHACKLE_ID' in b
-assert 'if (skillId == ESCAPE_SHACKLE_ID) continue;' in b
+assert 'if (skillId == ESCAPE_SHACKLE_ID || TankClassMechanics.skill(skillId)) continue;' in b
 with tempfile.TemporaryDirectory(prefix='escape49-') as directory:
     d = Path(directory)
     compiler = d / 'Compile.java'
