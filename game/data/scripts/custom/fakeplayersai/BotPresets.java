@@ -81,6 +81,9 @@ public class BotPresets
 		14165, 14163, 14164
 	};
 	
+	// Persistent jewelry preset for every roster/training class, independent of S80/S84 armor.
+	private static final int[] EPIC_JEWELS = {6660, 6658, 6659, 6657, 6656}; // Queen Ant, Baium, Zaken, Valakas, Antharas
+
 	// Weapons per WeaponKind: {vesper, dynasty}.
 	private static final int[][] WEAPONS =
 	{
@@ -250,7 +253,7 @@ public class BotPresets
 				337, 1532, 1078, 1157, 1387
 			});
 		// Cardinal: Trance-kite + Mana Burn loop. Heals self at HP < 95%.
-		// Trance (1394): bot-only 65% min/max/activateRate template; shared XML and human skill unchanged.
+		// Trance (1394): ordinary native template; maximum real Chance enchant, no fixed bot-only roll.
 		// Rotation: Trance (1394), Mana Burn (1398), Prominence (1230), Magical BackFire (1396), Mana Storm (1399).
 		// Buffs: Prayer (1307), Greater Battle Heal (1218 - self only when HP low).
 		// Mana Storm (1399) remains a normal MP drain. Opponent regMp x0.10 is
@@ -895,7 +898,7 @@ public class BotPresets
 	
 	public static int[] getJewelryIds()
 	{
-		return BotManager.getSettings().isUseS84() ? VESPER_JEWELS : DYNASTY_JEWELS;
+		return EPIC_JEWELS.clone();
 	}
 	
 	public static int getShotId(BotClassPreset preset)
@@ -965,6 +968,7 @@ public class BotPresets
 		{
 			ids.add(id);
 		}
+		for (int id : EPIC_JEWELS) ids.add(id);
 		final int[] result = new int[ids.size()];
 		for (int i = 0; i < ids.size(); i++)
 		{

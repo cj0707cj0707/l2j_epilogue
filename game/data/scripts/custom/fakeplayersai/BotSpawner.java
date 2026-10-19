@@ -433,11 +433,13 @@ public class BotSpawner
 
 	public static int applySkillEnchants(Player player)
 	{
-		if (player == null) return 0;
+		if (player == null || player.getClient() != null) return 0;
+		// Legacy core hook is dormant: no managed bot may retain the old fixed25% gate.
+		org.l2jmobius.gameserver.mechanics.stats.Formulas.FIXED_DEBUFF_RATE_PLAYERS.remove(player.getObjectId());
 		final List<Skill> knownSkills = new ArrayList<>();
 		for (Skill skill : player.getAllSkills())
 			if (skill != null) knownSkills.add(skill);
-		int enchanted = 0, skipped = 0, duelCount = 0, penaltyCount = 0;
+		int enchanted = 0, skipped = 0, duelCount = 0, penaltyCount = 0, chanceCount = 0;
 		for (Skill skill : knownSkills)
 		{
 			final int skillId = skill.getId();
@@ -472,7 +474,9 @@ public class BotSpawner
 				else if (damage && (powerLevel == 0) && label.startsWith("Enchant ")) powerLevel = maxLevel;
 			}
 			final int targetLevel;
-			if (damage) targetLevel = (duelLevel > 0) ? duelLevel : ((powerLevel > 0) ? powerLevel : chanceLevel);
+			final int debuffChance = debuffChanceLevel(baseSkill, learn);
+			if (debuffChance > 0) targetLevel = debuffChance;
+			else if (damage) targetLevel = (duelLevel > 0) ? duelLevel : ((powerLevel > 0) ? powerLevel : chanceLevel);
 			else if (basePenalty > 0.0) targetLevel = penaltyLevel;
 			else targetLevel = (powerLevel > 0) ? powerLevel : chanceLevel;
 			if (targetLevel == 0) { skipped++; continue; }
@@ -481,13 +485,32 @@ public class BotSpawner
 			if (targetSkill == null) continue;
 			player.addSkill(targetSkill, true);
 			enchanted++;
-			if (damage && (targetLevel == duelLevel)) duelCount++;
+			if (debuffChance > 0) chanceCount++;
+			else if (damage && (targetLevel == duelLevel)) duelCount++;
 			else if (!damage && (targetLevel == penaltyLevel)) penaltyCount++;
 		}
 		BotRecoveryRules.applyPhoenixSacrifice(player);
 		CardinalTrance.apply(player);
-		LOGGER.info("FakePlayersAI: skill-ench " + player.getName() + ": enchanted " + enchanted + " skills (" + duelCount + " damage->Duel, " + penaltyCount + " self-restricting->Decrease Penalty), " + skipped + " unenchanted.");
+		LOGGER.info("FakePlayersAI: skill-ench " + player.getName() + ": enchanted " + enchanted + " skills (" + duelCount + " damage->Duel, " + chanceCount + " debuff->Chance, " + penaltyCount + " self-restricting->Decrease Penalty), " + skipped + " unenchanted.");
 		return enchanted;
+	}
+
+	/** Chance wins over damage/Duel for harmful skills, including damage+control.
+	 * Only real loaded routes up to the native maximum (+30 or +15); no fake levels. */
+	static int debuffChanceLevel(Skill base, EnchantSkillLearn learn)
+	{
+		if (base == null || learn == null || base.isPassive() || base.getTargetType() == TargetType.SELF
+			|| !(base.isDebuff() || base.hasNegativeEffect())) return 0;
+		final List<Integer> routes = new ArrayList<>(learn.getAllRoutes());
+		Collections.sort(routes);
+		for (int route : routes)
+		{
+			int level = getRouteMaxLevel(learn, route);
+			Skill candidate = level == 0 ? null : SkillData.getInstance().getSkill(base.getId(), level);
+			if (candidate != null && getRouteLabel(base, candidate, route).equals("Chance")
+				&& candidate.getActivateRate() > base.getActivateRate()) return level;
+		}
+		return 0;
 	}
 
 	private static int getRouteMaxLevel(EnchantSkillLearn learn, int route)
@@ -1151,7 +1174,8 @@ public class BotSpawner
 		if (shield > 0) required.add(shield);
 		final int weapon = BotPresets.getWeaponId(preset, settings.isUseS84());
 		if (weapon > 0) required.add(weapon);
-		for (int jewel : BotPresets.getJewelryIds()) required.add(jewel);
+		// Jewelry migration must not destroy/recreate the existing weapon or armor.
+		ensurePresetJewelry(player);
 		String reason = null;
 		for (int itemId : required)
 		{
@@ -1174,6 +1198,40 @@ public class BotSpawner
 			LOGGER.info("FakePlayersAI: gear-check " + player.getName() + ": re-equipping (" + reason + ").");
 			equipGear(player, preset);
 		}
+	}
+
+	/** Persistent five-slot preset. Reuse owned epic items; never reset armor/weapon to migrate jewels. */
+	public static void ensurePresetJewelry(Player player)
+	{
+		if (player == null || player.getClient() != null) return;
+		final int[] ids = BotPresets.getJewelryIds();
+		final int enchant = BotManager.getSettings().getEnchantJewel();
+		boolean correct = true;
+		for (int id : ids)
+		{
+			Item item = player.getInventory().getPaperdollItemByItemId(id);
+			if (item == null || item.getEnchantLevel() != enchant) { correct = false; break; }
+		}
+		if (correct) return;
+		// Paperdoll listeners remove old jewelry stats normally; old items remain in inventory.
+		for (Item item : new ArrayList<>(player.getInventory().getPaperdollItems()))
+			if (item != null && isJewelry(item))
+			{
+				player.getInventory().unEquipItemInSlot(item.getLocationSlot());
+				item.updateDatabase();
+			}
+		for (int id : ids)
+		{
+			Item item = player.getInventory().getItemByItemId(id);
+			if (item == null) item = player.getInventory().addItem(ItemProcessType.REWARD, id, 1, player, null);
+			if (item == null) throw new IllegalStateException("Missing epic jewelry template " + id);
+			item.setEnchantLevel(enchant);
+			player.getInventory().equipItem(item);
+			item.updateDatabase();
+			if (!item.isEquipped()) throw new IllegalStateException("Cannot equip epic jewelry " + id);
+		}
+		player.refreshOverloaded();
+		player.updateAndBroadcastStatus();
 	}
 
 	public static void equipGear(Player player, BotClassPreset preset)
@@ -1271,6 +1329,7 @@ public class BotSpawner
 		if (item == null) { LOGGER.warning("FakePlayersAI: item " + itemId + " not found in ItemData."); return; }
 		if (enchant > 0) item.setEnchantLevel(enchant);
 		if (item.isEquipable()) player.getInventory().equipItem(item);
+		item.updateDatabase(); // persist enchant and paperdoll slot, not only the initial item insert
 	}
 
 	private static void giveConsumables(Player player, BotClassPreset preset)

@@ -60,33 +60,24 @@ public class ArenaOrbitTranceManaTest
         for(int level:new int[]{10,101,130,201,230})
         {
             Skill original=SkillData.getInstance().getSkill(1394,level);check(original!=null,"native Trance level "+level);
-            learn(p,original);CardinalTrance.apply(p);Skill copy=p.getKnownSkill(1394);
-            check(copy!=original&&copy.getLevel()==level,"independent template preserves enchant level");
-            check(copy.getActivateRate()==65&&copy.getMinChance()==65&&copy.getMaxChance()==65,"fixed65 and no100% bypass");
-            check(copy.getAbnormalTime()==original.getAbnormalTime()&&copy.getReuseDelay()==original.getReuseDelay(),"native duration/reuse unchanged");
-            check(copy.getMpConsume()==original.getMpConsume()&&copy.getMpInitialConsume()==original.getMpInitialConsume(),"native MP costs unchanged");
-            check(copy.getBasicProperty()==BaseStat.MEN&&copy.getTraitType()==TraitType.SLEEP,"real resistance-formula branch retained");
-            check(copy.getEffects(EffectScope.GENERAL).equals(original.getEffects(EffectScope.GENERAL)),"same Sleep/DefenceTrait effects");
-            CardinalTrance.apply(p);check(copy==p.getKnownSkill(1394),"idempotent runtime repair");
-            Player human=actor(97,true,true);learn(human,original);CardinalTrance.apply(human);check(human.getKnownSkill(1394)==original,"human enchant untouched");
+            learn(p,original);CardinalTrance.apply(p);
+            check(p.getKnownSkill(1394)==original,"exact native template, no fixed65 copy");
+            // Reproduce an old private template and verify runtime repair without changing enchant.
+            org.l2jmobius.gameserver.util.StatSet set=new org.l2jmobius.gameserver.util.StatSet();
+            set.set("skill_id",1394);set.set("level",level);set.set("operateType","A2");set.set("targetType","ONE");set.set("activateRate",65);set.set("minChance",65);set.set("maxChance",65);
+            learn(p,new Skill(set));CardinalTrance.apply(p);check(p.getKnownSkill(1394)==original,"legacy private template removed");
+            CardinalTrance.apply(p);check(p.getKnownSkill(1394)==original,"idempotent native repair");
+            Player human=actor(97,true,true);Skill privateSkill=new Skill(set);learn(human,privateSkill);CardinalTrance.apply(human);
+            check(human.getKnownSkill(1394)==privateSkill,"human skill untouched");
         }
-        check(SkillData.getInstance().getSkill(1394,230).getActivateRate()==100,"original +30 Chance really bypasses roll");
-        // Execute the actual core resistance formula, not a copied random policy.
-        Skill copy=p.getKnownSkill(1394);int passed=0;
-        check(Double.isFinite(p.getMAtk(target,copy))&&target.getMDef(p,copy)>0,"finite real-player stats: matk="+p.getMAtk(target,copy)+" mdef="+target.getMDef(p,copy));
         Skill nativeChance=SkillData.getInstance().getSkill(1394,230);
-        for(int i=0;i<100;i++)check(Formulas.calcEffectSuccess(p,target,nativeChance),"native +30 Chance bypass reproduces100%");
-        for(int i=0;i<10000;i++)if(Formulas.calcEffectSuccess(p,target,copy))passed++;
-        check(passed>6100&&passed<6900,"native65% sample: "+passed+"/10000");
-        Object change=new Object();p.addStatFunc(new FuncMul(Stat.MAGIC_ATTACK,0x70,change,100,null));
-        target.addStatFunc(new FuncMul(Stat.MAGIC_DEFENCE,0x70,change,100,null));
-        passed=0;for(int i=0;i<10000;i++)if(Formulas.calcEffectSuccess(p,target,copy))passed++;
-        check(passed>6100&&passed<6900,"changed stats still clamped65: "+passed+"/10000");
-        p.removeStatsOwner(change);target.removeStatsOwner(change);
+        check(nativeChance.getActivateRate()==100,"native +30 Chance activateRate100 preserved, not a private guarantee");
+        for(int i=0;i<100;i++)check(Formulas.calcEffectSuccess(p,target,nativeChance),"native high-activate branch, no fixed65 clamp");
         Object immunity=new Object();target.addStatFunc(new org.l2jmobius.gameserver.mechanics.stats.functions.FuncSet(Stat.DEBUFF_IMMUNITY,0x70,immunity,1,null));
-        for(int i=0;i<100;i++)check(!Formulas.calcEffectSuccess(p,target,copy),"native debuff immunity still wins");target.removeStatsOwner(immunity);
+        for(int i=0;i<100;i++)check(!Formulas.calcEffectSuccess(p,target,nativeChance),"debuff immunity still wins");target.removeStatsOwner(immunity);
         target.getStat().getTraitsInvul()[TraitType.SLEEP.ordinal()]=1;
-        for(int i=0;i<100;i++)check(!Formulas.calcEffectSuccess(p,target,copy),"absolute sleep immunity not bypassed by65%");
+        for(int i=0;i<100;i++)check(Formulas.calcEffectSuccess(p,target,nativeChance),"native activate100 bypasses trait calculation; do not add a private clamp");
+        for(int i=0;i<100;i++)check(!Formulas.calcEffectSuccess(p,target,SkillData.getInstance().getSkill(1394,10)),"ordinary base Trance still uses native sleep immunity");
     }
     static void orbit()
     {

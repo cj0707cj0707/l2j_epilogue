@@ -1,5 +1,8 @@
 # 41. Trance65%, круговой кайт, граница бот–бот и истощение магов
 
+> **Исторический документ. Обновление56 отменяет private65%-ный Trance:** теперь родной SkillData1394 с Chance+30 (native activateRate100 и fast-path до обычных сопротивлений; DEBUFF_IMMUNITY остаётся предварительным запретом). Старые объяснения65% и иммунитетов ниже не являются текущим поведением. Геометрия, boundary и MP-логика сохранены. Актуальные тесты и установка: [56](56-native-debuff-chance-and-permanent-epic-jewelry.md).
+
+
 17.10.2026. База: `c52fe37b3ebde02b267daa2970ed5293ee3fa982`.
 Резерв: `backup/before-trance-orbit-mana-rules-2026-10-17`.
 

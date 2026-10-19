@@ -46,7 +46,7 @@ public final class ArenaCombatRules
     static synchronized boolean update(Player bot,Player enemy,BotClassPreset preset)
     {
         if(!managed(bot)||enemy==null||preset==null)return false;
-        CardinalTrance.apply(bot); // also repairs a legacy/native/enchant replacement during a live fight
+        CardinalTrance.apply(bot); // discard a legacy private template; keep native enchant/resistance rules
         drainMage(bot,preset);
         if(!managed(enemy)){clearBoundary(bot.getObjectId());return false;}
         int[] c=center(bot);

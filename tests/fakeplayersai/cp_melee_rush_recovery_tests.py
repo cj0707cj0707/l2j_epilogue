@@ -11,7 +11,7 @@ assert 'if (chargeClosing && !self(kind)) { continue; }' in t
 assert 'chargeClosing && !bot.isMovementDisabled() && !bot.isOutOfControl()) return false' in t
 assert 'TacticsPolicy.chargeMeleeRecoveryAllowed(strictMeleePressure(bot, enemy, preset)' in t
 assert 'if (trainingRushActive && skill.getId() != 793)' in t
-assert t.index('if (trainingRushActive && selected < 0)')<t.index('if (manaFallback && selected < 0')
+assert t.index('if (trainingRushActive && selected < 0)')<t.index('if (!controlHold && manaFallback && selected < 0')
 for name in ['enumaDone','crushingDone','disarmDone']:
     assert 'if (state.'+name+' && ' in m, 'burst latch must rearm on native reuse readiness'
 with tempfile.TemporaryDirectory(prefix='cp-melee-rush-') as d:

@@ -234,31 +234,9 @@ public class BotManager
 	public static final int DAGGER_SKILL_SUCCESS_PERCENT = 70;
 
 	// ------------------------------------------------------------------
-	// Tank bots (fixed 25% debuff success chance + defense reduced by 50%)
+	// Tank class identity for the existing defense rule (not a probability override).
 	// ------------------------------------------------------------------
-
-	/**
-	 * The tank classes of the roster: Phoenix Knight (90), Hell Knight (91), Shillien
-	 * Templar (106). All DEBUFF skills cast by bots of these classes (stuns, roots,
-	 * silence, fear, slows, stat-down debuffs...) land with the FIXED chance
-	 * TANK_DEBUFF_RATE_PERCENT instead of the retail resistance formula - the retail
-	 * formula let tank bots keep players locked in permanent crowd control and win
-	 * almost every fight.
-	 */
-	private static final int[] TANK_DEBUFF_CLASSES =
-	{
-		90, // Phoenix Knight
-		91, // Hell Knight
-		106, // Shillien Templar
-	};
-
-	/**
-	 * The fixed success chance (%) of every debuff cast by a tank bot. The roll is
-	 * performed in the core (Formulas.calcEffectSuccess) for all continuous debuffs and
-	 * in the instant effect handlers (e.g. TargetCancel) for the instant ones; debuff
-	 * immunity of the target still blocks the debuff completely.
-	 */
-	public static final int TANK_DEBUFF_RATE_PERCENT = 25;
+	private static final int[] TANK_CLASS_IDS = {90, 91, 106};
 
 	// ------------------------------------------------------------------
 	// Tank bots (defense reduced by 50%)
@@ -2918,12 +2896,12 @@ public class BotManager
 		{
 			return null;
 		}
-		// Gear integrity: every required piece (Vesper weapon/armor/jewelry per settings) must
+		// Gear integrity: weapon/armor per tier settings; permanent five-piece epic jewelry must
 		// be equipped and must pass its item conditions (a restricted piece - e.g. the
 		// Kamael-incompatible Vesper heavy - would be unequipped by the core right at the
 		// olympiad arena entry). Re-equips the preset set when something is wrong. Idempotent.
 		BotSpawner.ensurePresetGear(bot, preset);
-		// Skill enchant policy (Power/Chance to the route maximum) - covers both freshly
+		// Skill enchant policy (debuff Chance first, others unchanged, real route maximum) - covers both freshly
 		// created bots and bots restored from the registry/database. Idempotent.
 		BotSpawner.applyClassSkills(bot);
 		BotSpawner.applyBotOnlySkills(bot, preset);
@@ -2939,8 +2917,7 @@ public class BotManager
 		// Universal passive (Subclass Counter Celestial, skill 655) for freshly created
 		// bots; bots restored via Player.load receive it from the core restoreSkills().
 		BotSpawner.applyCounterCelestial(bot);
-		// Tank bots: fixed 25% debuff success chance (core Formulas gate); non-tank bots
-		// are (re)removed, so class overrides applied between registrations stay correct.
+		// All bots: clear the legacy fixed25% gate; use native skill/resistance/enchant rules.
 		updateTankDebuffRegistration(bot, preset);
 		// Tank bots: P.Def/M.Def reduced by 50% (admin rule) - two MUL stat functions with
 		// a dedicated owner; non-tank bots get the functions removed the same way.
@@ -3169,7 +3146,7 @@ public class BotManager
 			return false;
 		}
 		final int classId = getBotClassId(player);
-		for (int tankClassId : TANK_DEBUFF_CLASSES)
+		for (int tankClassId : TANK_CLASS_IDS)
 		{
 			if (tankClassId == classId)
 			{
@@ -3179,58 +3156,10 @@ public class BotManager
 		return false;
 	}
 
-	/**
-	 * The fixed tank-bot debuff roll used by the instant debuff effect handlers
-	 * (handlers.skill.effects, e.g. TargetCancel of Shield Slam/Shield Bash): tank bots
-	 * pass the roll with TANK_DEBUFF_RATE_PERCENT probability, everyone else falls
-	 * through to the caller's own retail logic. Continuous debuffs do not reach the
-	 * effect handlers - they are decided in the core (Formulas.calcEffectSuccess).
-	 * @param effector the casting player
-	 * @return true when a tank bot passed the fixed 25% roll
-	 */
-	public static boolean isTankBotDebuffSuccess(Player effector)
-	{
-		if (!isTankBot(effector))
-		{
-			return false;
-		}
-		return Rnd.get(100) < TANK_DEBUFF_RATE_PERCENT;
-	}
-
-	/**
-	 * Registers/unregisters the bot in the core fixed-debuff-chance gate
-	 * (Formulas.FIXED_DEBUFF_RATE_PLAYERS): tank bots are added, all other bots removed.
-	 * Called on every bot registration and despawn; also fixes bots of classes changed
-	 * through //bot overrides.
-	 * @param bot the bot
-	 * @param preset the bot's class preset
-	 */
+	/** Clear only this bot's legacy fixed-debuff registration. Native formulas apply. */
 	public static void updateTankDebuffRegistration(Player bot, BotClassPreset preset)
 	{
-		if ((bot == null) || (preset == null))
-		{
-			return;
-		}
-		
-		boolean isTank = false;
-		final int classId = preset.getClassId();
-		for (int tankClassId : TANK_DEBUFF_CLASSES)
-		{
-			if (tankClassId == classId)
-			{
-				isTank = true;
-				break;
-			}
-		}
-		
-		if (isTank)
-		{
-			Formulas.FIXED_DEBUFF_RATE_PLAYERS.add(bot.getObjectId());
-		}
-		else
-		{
-			Formulas.FIXED_DEBUFF_RATE_PLAYERS.remove(bot.getObjectId());
-		}
+		if (bot != null) Formulas.FIXED_DEBUFF_RATE_PLAYERS.remove(bot.getObjectId());
 	}
 
 	/**
@@ -3257,7 +3186,7 @@ public class BotManager
 
 		boolean isTank = false;
 		final int classId = preset.getClassId();
-		for (int tankClassId : TANK_DEBUFF_CLASSES)
+		for (int tankClassId : TANK_CLASS_IDS)
 		{
 			if (tankClassId == classId)
 			{

@@ -164,7 +164,7 @@ public class AdminBot implements IAdminCommandHandler
 				{
 					count += BotSpawner.applySkillEnchants(bot);
 				}
-				sendMain(activeChar, "Заточено скиллов (Power/Chance до максимума маршрута): " + count + ". Новым ботам заточка выдаётся автоматически.");
+				sendMain(activeChar, "Заточено скиллов (дебафы: Chance, остальные: прежний маршрут; до native максимума): " + count + ". Новым ботам заточка выдаётся автоматически.");
 				break;
 			}
 			case "olympiad":

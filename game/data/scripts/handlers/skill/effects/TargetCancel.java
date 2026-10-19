@@ -23,8 +23,6 @@ import org.l2jmobius.gameserver.mechanics.skill.Skill;
 import org.l2jmobius.gameserver.mechanics.stats.Formulas;
 import org.l2jmobius.gameserver.util.StatSet;
 
-import custom.fakeplayersai.BotManager;
-
 /**
  * Target Cancel effect implementation.
  * @author -Nemesiss-, Adry_85
@@ -43,13 +41,6 @@ public class TargetCancel extends AbstractEffect
 	@Override
 	public boolean calcSuccess(Creature effector, Creature effected, Skill skill)
 	{
-		// FakePlayersAI tank bots: the target cancel of Shield Slam / Shield Bash belongs
-		// to the debuff block of the skill - a failed fixed 25% roll must be a FAILURE
-		// (no fallthrough to the retail roll), everyone else keeps the retail probability.
-		if (effector.isPlayer() && BotManager.isTankBot(effector.asPlayer()))
-		{
-			return BotManager.isTankBotDebuffSuccess(effector.asPlayer());
-		}
 		return Formulas.calcProbability(_chance, effector, effected, skill);
 	}
 	

@@ -63,8 +63,8 @@ BotSpawner, BotManager и TrainingArena при добавлении Cardinal н�
 | `getArmorSet(preset, vesper)` | `(vesper?VESPER:DYNASTY)[gear].clone()` | int[5]: chest,legs,helm,gloves,boots |
 | `getShieldId(preset, vesper)` | `getShield(vesper)` или 0 | 0 для двуручных/луков/магов/арбалетов |
 | `getWeaponId(preset, vesper)` | `getWeapon(preset, vesper)` | учитывает weaponOverride |
-| `getJewelryIds()` | `getJewels(BotManager.getSettings().isUseS84())` | без параметра vesper |
-| `getAllGearIds()` | все ID из dynasty+vesper таблиц | для уничтожения старого снаряжения |
+| `getJewelryIds()` | `EPIC_JEWELS.clone()` | Актуально с56: пять эпиков, независимо от tier |
+| `getAllGearIds()` | все ID из dynasty+vesper таблиц + EPIC_JEWELS | для уничтожения старого снаряжения |
 | `getPotionId()` | `POTION_HEAL` (1539) | — |
 | `getCpPotionId()` | `POTION_CP` (5592) | — |
 | `getFighterShotId()` | `SOULSHOT_S` (1467) | — |
@@ -87,7 +87,8 @@ BotSpawner, BotManager и TrainingArena при добавлении Cardinal н�
 | Vesper ROBE | 13434 | 13444 | 13139 | 13445 | 13446 |
 
 ### Щит: Dynasty 9441, Vesper 13471 (только SWORD-классы)
-### Украшения: Dynasty {9457, 9455, 9456}, Vesper {14165, 14163, 14164}
+### Украшения: постоянный эпик +6 (обновление56)
+Queen Ant6660, Baium6658, Zaken6659, Valakas6657, Antharas6656. Два кольца, две серьги, ожерелье для всех19 классов, включая training. `EnchantJewel=6`; `UseS84` не переключает бижутерию. Старые Dynasty/Vesper ID сохранены только для совместимости/cleanup. Jewel-only migration сохраняет оружие/броню. Подробности: [56](56-native-debuff-chance-and-permanent-epic-jewelry.md).
 ### Расходники: SOULSHOT_S=1467, SPIRITSHOT_S=2514, BLESSED_SPIRITSHOT_S=3952, ARROW_S=1345, BOLT_S=9637, POTION_HEAL=1539, POTION_CP=5592
 
 ## Пресеты классов
@@ -267,7 +268,7 @@ BotSpawner, BotManager и TrainingArena при добавлении Cardinal н�
 - `getArmorSet(preset, vesper)` → возвращает `int[5]` (все части брони)
 - `getShieldId(preset, vesper)` → 0 кроме SWORD-классов
 - `getWeaponId(preset, vesper)` → учитывает weaponOverride
-- `getJewelryIds()` → `getJewels(BotManager.getSettings().isUseS84())`
+- Исторически `getJewelryIds()` зависел от tier; с56 → `EPIC_JEWELS.clone()` независимо от UseS84.
 - `getAllGearIds()` → все ID из dynasty+vesper для cleanup
 - `getPotionId()` → 1539, `getCpPotionId()` → 5592
 - `getFighterShotId()` → 1467, `getBlessedSpiritshotId()` → 3952
@@ -376,3 +377,12 @@ Soultaker95 отходит от свободных мили-противнико
 ## 55. Dominator под своим контролем мили-цели; Shadow Step;90с Олимпиада
 
 [Полная карта файлов/проверки/установка](55-dominator-melee-control-shadow-step-and-90s-olympiad.md). `DominatorControlRetreat` распознаёт актуальный собственный ROOT или STUN от260 по мили-цели, ведёт115 к центральной стороне на200 внутри450. До снятия эффекта разрешены только1245 и1305/1306; нет Hammer/chase/autos/других curses. CP-cast допускается до превышения85%, вне режима остаётся50%. На своём сне без этого контроля действует прежний300ед. отход54. В `BotTactics` изученный821 получает первый наступательный выбор для93/101/108 против mage/caster-пресетов, с native600/MP/reuse/root/LOS/geodata. `OlympiadBattle=90000` требует нового `olympiad-battle-timer` installer: native short-counter переполнялся и не достигал лимита. Пятый патч меняет только i2s→nop в native runGame; обновить вместе все installer/launchers и полностью перезапустить.
+
+
+## Обновление56: native Chance и постоянная бижутерия
+
+Сняты tank25% (continuous и TargetCancel) и private Trance65%. `BotSpawner.applySkillEnchants` предпочитает реальную Chance-ветку для harmful-навыков, в том числе damage+control: +30 либо native максимум+15. Нет Chance — нет выдуманной заточки. Человеческие навыки не перезатачиваются. Trance1394/230 имеет native activateRate100; это штатный fast-path ядра, а не новый искусственный clamp.
+
+`BotPresets.getJewelryIds` задаёт все пять эпиков; `BotSpawner.ensurePresetJewelry` мигрирует только украшения сохранённых ботов, переиспользует имеющиеся и сохраняет enchant/слоты. Новые roster/training-боты используют тот же пресет. Парсер skill/buff overrides не связан с экипировкой.
+
+Канонический список19 классов/навыков, текущие ограничения и ответственность файлов — [структура56](56-native-debuff-chance-and-permanent-epic-jewelry.md). Старые записи журнала выше описывают историю, не текущую политику бижутерии/шансов.
