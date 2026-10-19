@@ -43,7 +43,7 @@ assert reach.index('!resources(bot, skill)')<reach.index('tranceReach = range')
 assert 'skill.checkCondition(bot, enemy, false)' in reach # only ordinary readiness/conditions contribute
 assert 'TacticsPolicy.cardinalSleepException(preset.getClassId(), id)' in reach
 assert 'TacticsPolicy.cardinalApproachRange(preset.getClassId(), reach, tranceReach)' in reach
-assert 'time >= s.nextCardinalTrance' in reach
+assert 'nextCardinalTrance' not in t, 'Trance availability must use native cooldown, not a second bot-only timer'
 act=body(t,'private static boolean act(')
 assert act.count('restoreCardinalMana(bot, preset);') == 2, 'refill both casting and normal ticks'
 casting=act[act.index('if (bot.isCastingNow()'):act.index('if (!defenseOnly && !allowsBasicAttack')]

@@ -6,10 +6,14 @@ R=Path(__file__).resolve().parents[2];T=Path(__file__).parent
 path='game/data/stats/skills/00300-00399.xml'
 old=ET.fromstring(subprocess.check_output(['git','show','HEAD:'+path],cwd=R,text=True));new=ET.parse(R/path).getroot()
 # Baseline-independent invariant: changing358 reuse must not touch any other XML value.
-old.find("skill[@id='358']/reuseDelay").text='16000'
+old.find("skill[@id='358']/reuseDelay").text='8000'
 assert ET.tostring(old)==ET.tostring(new)
+# Native Trance XML is already restored; do not rewrite its full 99-skill document.
+trance=ET.parse(R/'game/data/stats/skills/01300-01399.xml').getroot().find("skill[@id='1394']")
+assert trance.findtext('reuseDelay')=='1000'
 source=R/'game/data/scripts/custom/fakeplayersai'
 t=(source/'BotTactics.java').read_text()
+assert 'nextCardinalTrance' not in t
 assert 's.dominatorPressure.reset();' in t and 's.dominatorPressure.resolved(s.pendingId, paid,' in t
 for driver in ['BotManager.java','TrainingArena.java']:
     text=(source/driver).read_text()

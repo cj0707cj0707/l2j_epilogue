@@ -65,7 +65,6 @@ public final class BotTactics
 		double pendingMp, pendingHp;
 		int pendingCharges, pendingX, pendingY;
 		boolean trainingBerserkerMode, pendingRushLoop;
-		long nextCardinalTrance;
 		final TacticsPolicy.CardinalProminence cardinalProminence = new TacticsPolicy.CardinalProminence();
 		final CardinalArenaSupport cardinalSupport = new CardinalArenaSupport();
 		final ManaAutoAttackSupport manaAutoAttack = new ManaAutoAttackSupport();
@@ -289,8 +288,7 @@ public final class BotTactics
 			final boolean aura = skill.getTargetType() == TargetType.AURA || skill.getTargetType() == TargetType.FRONT_AURA || skill.getTargetType() == TargetType.BEHIND_AURA;
 			final double range = TacticsPolicy.effectiveRange(aura, skill.getCastRange(), skill.getAffectRange(), bot.getPhysicalAttackRange(), bot.getTemplate().getCollisionRadius());
 			if (range <= 0) { continue; }
-			if (preset.getClassId() == CARDINAL_CLASS_ID && id == CARDINAL_TRANCE_ID
-				&& (s == null || time >= s.nextCardinalTrance)) tranceReach = range;
+			if (preset.getClassId() == CARDINAL_CLASS_ID && id == CARDINAL_TRANCE_ID) tranceReach = range;
 			reach = reach < 0 ? range : ranged ? Math.max(reach, range) : Math.min(reach, range);
 			if (directDamage(skill)) { directReach = Math.max(directReach, range); }
 		}
@@ -501,7 +499,7 @@ public final class BotTactics
 			s.trainingBurst.reset(); s.trainingBerserkerMode = false; s.dominatorCp.reset(); s.dominatorPressure.reset(); s.sleepRetreat.reset(); s.summonAttack.reset(); s.controlRetreat.reset();
 			s.tankDefense.reset(time); s.rushLoop.clear(); s.nextRushStep = time; s.pendingRushLoop = false; s.rushMoving = false; s.rushDirectionX = 0; s.rushDirectionY = 0;
 			s.sleepObserved = -1; s.nextDecision = time; s.nextStep = time; s.pendingId = 0; s.failures.clear(); s.enemyCasting = false; s.moveUntil = 0;
-			s.nextCardinalTrance = 0; s.cardinalProminence.reset();
+			s.cardinalProminence.reset();
 			s.fleeingSamples = 0; s.offensiveActionsSinceStep = 2; s.previousDistance = -1; s.nextHabitSample = time;
 		}
 		final double hp = bot.getCurrentHp() / Math.max(1, bot.getMaxHp());
@@ -620,7 +618,6 @@ public final class BotTactics
 			// (defenseOnly=true via tickDefense) paths.
 			if (!BotRecoveryRules.selfHealAllowed(bot, skill)) { continue; }
 			if (preset.getClassId() == CARDINAL_CLASS_ID) {
-				if (skill.getId() == CARDINAL_TRANCE_ID && time < s.nextCardinalTrance) { continue; }
 				if (skill.getId() == CARDINAL_PROMINENCE_ID && !s.cardinalProminence.ready(time)) { continue; }
 			}
 			if (trainingRushActive && skill.getId() != 793) { continue; }
@@ -739,7 +736,6 @@ public final class BotTactics
 			{
 				if (trainingRushActive && selected == 793) { s.rushLoop.loopRequestAccepted(); }
 				if (preset.getClassId() == CARDINAL_CLASS_ID) {
-					if (selected == CARDINAL_TRANCE_ID) { s.nextCardinalTrance = time + 3000; }
 					if (selected == CARDINAL_PROMINENCE_ID) { s.cardinalProminence.accepted(time); }
 				}
 				CombatAnalytics.tacticalRequest(bot.getObjectId(), chosen.name());

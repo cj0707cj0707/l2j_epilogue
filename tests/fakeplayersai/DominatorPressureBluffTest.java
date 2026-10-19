@@ -94,10 +94,40 @@ public class DominatorPressureBluffTest extends BerserkerSoulCleanseTest {
             actAt(p,e,s,150000);verify(last==1245,"adequateCP: damage after curse, no unnecessary CP cast");finish(p,e,s,155000);
             Player melee=actor(131,ranked,true);verify(BotTactics.tacticalApproachRange(p,melee,BotPresets.getPresetByClassId(115))>40,"melee opponent keeps existing ranged approach");
         }
-        // Native general SkillData sees new reuse for all skill levels, actors share it.
+        // Native general SkillData sees restored default reuse for all skill levels, actors share it.
         for(int level:new int[]{1,101,105,110,115}){
-            Skill bluff=SkillData.getInstance().getSkill(358,level);verify(bluff!=null&&bluff.getReuseDelay()==16000,"native358 reuse16s level"+level);
-            for(int cid:new int[]{93,101,108})for(boolean human:new boolean[]{true,false}){Player p=actor(cid,true,human);learn(p,bluff);verify(p.getKnownSkill(358).getReuseDelay()==16000,"player and bot use same358 template");}
+            Skill bluff=SkillData.getInstance().getSkill(358,level);verify(bluff!=null&&bluff.getReuseDelay()==8000,"native358 default reuse8s level"+level);
+            for(int cid:new int[]{93,101,108})for(boolean human:new boolean[]{true,false}){Player p=actor(cid,true,human);learn(p,bluff);verify(p.getKnownSkill(358).getReuseDelay()==8000,"player and bot use same358 template");}
+        }
+    }
+    static void tranceDefaults()throws Exception {
+        for(int level:new int[]{1,10,101,115,130,201,215,230}){
+            Skill trance=SkillData.getInstance().getSkill(1394,level);
+            verify(trance!=null&&trance.getReuseDelay()==1000,"native1394 default reuse1s level"+level);
+            verify(trance.getHitTime()==3000,"cast time is not cooldown and remains3s");
+        }
+        // Actual act/poll in both arenas: completed/resisted cast is retried before the
+        // removed3s AI delay, but native disabled-skill state still blocks selection.
+        Skill trance=SkillData.getInstance().getSkill(1394,230);
+        for(boolean ranked:new boolean[]{false,true}){
+            Player p=bot(97,ranked,false),e=actor(94,ranked,true);targetEnemy=e;location(p,0);location(e,200);
+            f(Creature.class,"_zones").set(e,new byte[64]);
+            f(Player.class,"_mountType").set(p,org.l2jmobius.gameserver.entity.actor.enums.player.MountType.NONE);
+            p.setPrivateStoreType(org.l2jmobius.gameserver.entity.actor.enums.player.PrivateStoreType.NONE);
+            float[] mana=new float[256];Arrays.fill(mana,1000);f(p.getTemplate().getClass(),"_baseMp").set(p.getTemplate(),mana);
+            f(org.l2jmobius.gameserver.entity.actor.stat.PlayerStat.class,"_oldMaxMp").setInt(p.getStat(),1000);
+            p.setTarget(e);hp(p,10000);learn(p,trance);Object s=fresh();f(state,"nextStep").setLong(s,Long.MAX_VALUE);
+            var preset=BotPresets.getPresetByClassId(97);
+            last=0;act.invoke(null,p,e,preset,s,10000L,false);
+            verify(last==1394,"ready native Trance requested");finish(p,e,s,10500);
+            @SuppressWarnings("unchecked") Map<Integer,Long> disabled=(Map<Integer,Long>)f(Creature.class,"_disabledSkills").get(p);
+            disabled.put(trance.getReuseHashCode(),System.currentTimeMillis()+60000);
+            verify(BotTactics.tacticalApproachRange(p,e,preset)!=600,"native cooldown excludes Trance from short approach");
+            last=0;act.invoke(null,p,e,preset,s,11100L,false);verify(last==0,"native reuse still blocks Trance");
+            disabled.put(trance.getReuseHashCode(),System.currentTimeMillis()-1);
+            verify(BotTactics.tacticalApproachRange(p,e,preset)==600,"expired native cooldown enables Trance approach");
+            last=0;act.invoke(null,p,e,preset,s,11500L,false);
+            verify(last==1394,"no extra3s timer after accepted Trance; ordinary native readiness only");finish(p,e,s,12000);
         }
     }
     public static void main(String[]args)throws Exception {
@@ -107,6 +137,6 @@ public class DominatorPressureBluffTest extends BerserkerSoulCleanseTest {
         act=BotTactics.class.getDeclaredMethod("act",Player.class,Player.class,BotClassPreset.class,state,long.class,boolean.class);act.setAccessible(true);
         poll=BotTactics.class.getDeclaredMethod("pollAttempt",Player.class,Player.class,state,long.class);poll.setAccessible(true);
         var geo=java.nio.file.Files.createTempDirectory("pressure53-geodata-");org.l2jmobius.gameserver.config.GeoEngineConfig.GEODATA_PATH=geo;org.l2jmobius.gameserver.geoengine.GeoEngine.getInstance();java.nio.file.Files.delete(geo);
-        policies();integration();System.out.println("PASS: "+checks+" Bluff native reuse and Dominator actual act/poll/rotation pressure checks; no live server");
+        policies();integration();tranceDefaults();System.out.println("PASS: "+checks+" Bluff native reuse and Dominator actual act/poll/rotation pressure checks; no live server");
     }
 }
