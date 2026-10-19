@@ -38,7 +38,7 @@ def guards(s):
                    'TacticsPolicy.tankSupportAllowed(tankClosing, immobilizingSupport(skill))',
                    'TacticsPolicy.tankActionChoice(options, tankStuns, tankRoots, tankMelee, tankSelected,',
                    '!enemy.isMovementDisabled() && !enemy.isOutOfControl()', 'TacticsPolicy.tankPursuit(tank, allowsBasicAttack(bot, preset)',
-                   's.tankDefense.observed(activeStrong)', 's.tankDefense.choose(options, time, activeStrong != 0)',
+                   's.tankDefense.observed(activeStrong)', 's.tankDefense.choose(options, time, activeStrong != 0, enemy.isMageClass())',
                    'resources(bot, skill)', 'skill.checkCondition(bot, self ? bot : enemy, false)',
                    'BotSpawner.getTacticalRotation(bot, enemy)', 'BotSpawner.getTacticalDefenses(bot, enemy)'):
         assert marker in act,marker
@@ -52,7 +52,11 @@ def guards(s):
     assert '760' not in support,'plain mage armor must not be falsely self-root classified'
     step=s[s.index('private static boolean step('):]
     assert 'TacticsPolicy.tankRecoveryAllowed(TacticsPolicy.tankClass(preset.getClassId()), weaponUnavailable(bot))' in step
-    for bad in ('setCurrentMp(', 'setXYZ(', 'setHeading(', 'abortCast(', 'applyEffects(', 'setAbnormalTime('): assert bad not in s,bad
+    assert s.count('bot.setCurrentMp(maximum);') == 1
+    mana=s[s.index('private static void restoreCardinalMana('):s.index('private static void stopBasicAttack(')]
+    assert 'preset.getClassId() != CARDINAL_CLASS_ID' in mana and 'bot.getClient() != null' in mana
+    guarded=s.replace('bot.setCurrentMp(maximum);','')
+    for bad in ('setCurrentMp(', 'setXYZ(', 'setHeading(', 'abortCast(', 'applyEffects(', 'setAbnormalTime('): assert bad not in guarded,bad
 
 def main():
     audit(); guards((SRC/'BotTactics.java').read_text())

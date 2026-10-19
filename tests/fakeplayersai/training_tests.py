@@ -62,7 +62,7 @@ assert 'if (!s.active) s.player.setImmobilized(false);' in t, 'release only trai
 
 assert 'BotTactics.allowsBasicAttack(b, preset)' in t and 'if (basicAttack &&' in t
 assert 'boolean chaseAttack = basicAttack && preset.getClassId() != 131 && !closeControlTank;' in t, 'training131 AND tanks must reach strict skill range without attack hysteresis'
-assert 'boolean closeControlTank = preset.getClassId() == 90 || preset.getClassId() == 91 || preset.getClassId() == 106 || preset.getClassId() == 113;' in t, 'strict melee routing remains scoped to tanks and Titan'
+assert 'boolean closeControlTank = preset.getClassId() == 90 || preset.getClassId() == 91 || preset.getClassId() == 106 || preset.getClassId() == 113 || BotTactics.strictMeleePressure(b, p, preset);' in t, 'strict melee routing includes the current scoped charge-melee rules'
 assert 'OlympiadChase.updateTraining(b, p, range, chaseAttack,' in t, 'dagger/disarm fallback cannot autoattack'
 assert t.count('BotSpawner.applyPreCombatOpeners(') == 1, 'exactly one explicit training opener call site'
 assert t.index('s.openersApplied = true;') < t.index('BotSpawner.applyPreCombatOpeners(') < t.index('s.active = true')

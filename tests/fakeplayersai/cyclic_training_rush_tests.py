@@ -15,8 +15,10 @@ def guards(source):
     poll=source[source.index('private static void pollAttempt('):source.index('private static boolean hasAppliedStun(')]
     assert 'distance < 1' not in move,'core exact-zero landing must not clear original lease'
     assert 's.rushLoop.clear()' not in move,'temporary inability must hold original until actualend/replacement'
-    assert 's.rushDirectionX, s.rushDirectionY' in move
-    assert 'attempt < 8' in move and 'TrainingArena.inside(x, y)' in move and 'canMoveToTarget(' in move
+    assert 'RushStunSupport.retreat(bot.getX(), bot.getY(), bot.getZ(), enemy.getX(), enemy.getY(), center[0], center[1], radius)' in move
+    geometry=(SRC/'RushStunSupport.java').read_text()
+    assert 'i<24' in geometry and 'distance>=220' in geometry
+    assert 'TrainingArena.inside(x, y)' in move and 'canMoveToTarget(' in move
     assert 's.rushLoop.retryRetreat(time)' in move and 'return -2' in move
     assert 's.rushLoop.resolvedLoopLanding(original, original != null, paid,' in poll
     assert 's.pendingId == 793 && s.pendingRushLoop' in poll
@@ -29,11 +31,21 @@ def guards(source):
     assert act.index('s.pendingX = bot.getX(); s.pendingY = bot.getY();')<act.index('bot.useMagic(skill, true, true)')
     assert 'if (ranked && preset.getClassId() == 131) { return false; }' in source
     for required in ('resources(bot, skill)', 'skill.checkCondition(bot, self ? bot : enemy, false)',
-                     'weaponUnavailable(bot)', 'effect.getEffector() == bot', 'hasAppliedStun(effect)',
-                     '!effect.isRemoved() && effect.isInUse()', 'bot.isCastingNow() || bot.isCastingSimultaneouslyNow()'):
+                     'weaponUnavailable(bot)',
+                     'bot.isCastingNow() || bot.isCastingSimultaneouslyNow()'):
         assert required in source,required
+    assert 'return RushStunSupport.stun(enemy);' in source
+    stun=(SRC/'RushStunSupport.java').read_text()
+    for required in ('!enemy.isStunned()', 'info.isRemoved()', '!info.isInUse()', 'info.getEffected()!=enemy',
+                     'getBuffInfoByAbnormalType(info.getSkill().getAbnormalType())!=info',
+                     '!effect.isInstant()', 'effect.getEffectType()==EffectType.STUN', 'EffectFlag.STUNNED.getMask()'):
+        assert required in stun,required
+    assert source.count('bot.setCurrentMp(maximum);') == 1
+    mana=source[source.index('private static void restoreCardinalMana('):source.index('private static void stopBasicAttack(')]
+    assert 'preset.getClassId() != CARDINAL_CLASS_ID' in mana and 'bot.getClient() != null' in mana
+    guarded=source.replace('bot.setCurrentMp(maximum);','')
     for forbidden in ('setXYZ(', 'setHeading(', 'setAbnormalTime(', 'setCurrentMp(', 'abortCast(', 'applyEffects(', 'startAutoPlay(', 'startAutoUseTask('):
-        assert forbidden not in source,forbidden
+        assert forbidden not in guarded,forbidden
 
 def main():
     guards((SRC/'BotTactics.java').read_text())

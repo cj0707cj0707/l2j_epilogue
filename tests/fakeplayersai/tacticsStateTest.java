@@ -99,7 +99,7 @@ public final class tacticsStateTest
 			if (skill.getTargetType().name().contains("AURA"))
 				check(skill.getCastRange()==-1 && skill.getAffectRange()>0,"actual aura defaults are negative cast + positive affect radius "+id);
 		}
-		check(classes.size()==18,"all eighteen presets audited, not representative examples");
+		check(classes.size()==19,"all nineteen presets audited, not representative examples");
 		check(rows>200 && attackRows>120,"exhaustive actual XML skill fixture coverage");
 		System.out.println("PASS: "+rows+" actual XML preset entries; "+attackRows+" learned rotation classifications across "+classes.size()+" classes");
 	}

@@ -237,23 +237,36 @@ final class TacticsPolicy
 	static final class DominatorPressure
 	{
 		private boolean opened;
+		private int controlRequests;
+		private final java.util.Map<Integer, Integer> curseRequests = new java.util.HashMap<>();
 		private final java.util.Set<Integer> curses = new java.util.HashSet<>();
-		void reset() { opened = false; curses.clear(); }
-		boolean curseDone(int id) { return curses.contains(id); }
+		void reset() { opened = false; controlRequests = 0; curses.clear(); curseRequests.clear(); }
+		void requested(int id, boolean control, boolean curse)
+		{
+			if (control) controlRequests = Math.min(2, controlRequests + 1);
+			else if (curse && curseRequests.size() < 128) curseRequests.merge(id, 1, (a,b) -> Math.min(2,a+b));
+		}
+
+		boolean curseDone(int id) { return curses.contains(id) || curseRequests.getOrDefault(id, 0) >= 2; }
 		boolean opened() { return opened; }
+		boolean controlFinished() { return opened || controlRequests >= 2; }
 		int choose(List<Option> legal, List<Integer> controls, List<Integer> debuffs, boolean controlled)
 		{
-			if (!opened && !controlled)
+			if (!controlFinished() && !controlled)
 				for (Option o : legal) if (controls.contains(o.id)) return o.id;
-			for (Option o : legal) if (debuffs.contains(o.id) && !curses.contains(o.id)) return o.id;
+			for (Option o : legal) if (debuffs.contains(o.id) && !curseDone(o.id)) return o.id;
 			for (Option o : legal) if (o.kind == Kind.DAMAGE && !controls.contains(o.id)) return o.id;
 			return -1;
 		}
 		void resolved(int id, boolean executed, boolean control, boolean curse, boolean damage)
 		{
-			if (!executed) return;
-			if (control) opened = true;
-			else if (curse) { opened = true; if (curses.size() < 128) curses.add(id); }
+			resolved(id, executed, executed, control, curse, damage);
+		}
+		void resolved(int id, boolean completed, boolean landed, boolean control, boolean curse, boolean damage)
+		{
+			if (!completed) return;
+			if (control && landed) opened = true;
+			else if (curse && landed) { if (curses.size() < 128) curses.add(id); }
 			else if (damage) reset();
 		}
 	}
@@ -266,6 +279,7 @@ final class TacticsPolicy
 	{
 		private boolean owesAttack;
 		void reset() { owesAttack = false; }
+		boolean owesAttack() { return owesAttack; }
 		void resolved(int id, boolean executed, boolean offensive)
 		{
 			if (!executed) { return; }

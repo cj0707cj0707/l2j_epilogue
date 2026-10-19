@@ -37,7 +37,7 @@ public class TankChaseWiringRegression {
  static class AI {void setIntentionAttack(Player p){attacks++;}}
  static class BotClassPreset {int id;BotClassPreset(int i){id=i;}int getClassId(){return id;}}
  static class BotPresets {static BotClassPreset getPresetByClassId(int i){return new BotClassPreset(i);}}
- static class BotTactics {static boolean basic=true;static int tacticalApproachRange(Player b,Player p,BotClassPreset c){return 50;}
+ static class BotTactics {static boolean basic=true;static boolean strictMeleePressure(Player b,Player p,BotClassPreset c){return c.id==88||c.id==114;}static int tacticalApproachRange(Player b,Player p,BotClassPreset c){return 50;}
   static boolean allowsBasicAttack(Player b,BotClassPreset p){return basic;}static boolean tick(Player b,Player p,BotClassPreset c,boolean rank){return false;}}
  static class OlympiadCombatGate {static boolean ready(Player p){return ready;}static void hold(Player p){}}
  static class OlympiadChase {static void forget(int id){}static void update(Player b,Player p,int r,boolean a,int x,int y,double rad,boolean manage){held=r;captured=a;}
@@ -55,7 +55,7 @@ public class TankChaseWiringRegression {
   // The original branch demonstrably admits a +60 no-route dead band when attackInRange=true.
   check(rangeHolds(60,40,true,true),"baseline engaged60/hold40 retains no-route band");
   check(!rangeHolds(60,40,false,true),"strict caller must keep pursuing beyond actual40 range");
-  for(int id:new int[]{90,91,106,113})for(boolean basic:new boolean[]{false,true}){
+  for(int id:new int[]{88,90,91,106,113,114})for(boolean basic:new boolean[]{false,true}){
    Player bot=new Player();bot.id=id;BotTactics.basic=basic;
    captured=true;held=-1;moveForOlympiadChase(bot,500,true);
    check(!captured,"ranked tank disables attack hysteresis id="+id);check(held==40,"ranked uses actual close envelope, not500");
@@ -67,13 +67,13 @@ public class TankChaseWiringRegression {
    check(attacks==(basic?1:0),"legal close ordinary auto remains owned by training caller");
   }
   BotTactics.basic=true;
-  for(int id:new int[]{88,92,108,131}){
+  for(int id:new int[]{92,108,131}){
    Player bot=new Player();bot.id=id;moveForOlympiadChase(bot,500,true);
    check(captured,"ranked non-tank behavior remains unchanged id="+id);
    attacks=0;training(bot,foe,new BotClassPreset(id));check(captured==(id!=131),"training previous131-only exception preserved id="+id);
   }
   sight=false;BotTactics.basic=true;
-  for(int id:new int[]{90,91,106,113})for(double distance:new double[]{30,60}){
+  for(int id:new int[]{88,90,91,106,113,114})for(double distance:new double[]{30,60}){
    Player bot=new Player();bot.id=id;bot.distance=distance;attacks=0;
    training(bot,foe,new BotClassPreset(id));check(attacks==0,"blocked sight never permits training manual hit, near or far");
    check(!captured,"blocked-sight tank remains strict movement-only");

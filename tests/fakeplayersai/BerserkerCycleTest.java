@@ -36,7 +36,7 @@ public class BerserkerCycleTest
 		check(!c.rushPending() && !c.canRush(10500), "timeout releases phase with retry backoff");
 
 		c = new BerserkerCycle();
-		check(!c.canRetreat(0, 50), "no running away under point-blank pressure");
+		check(c.canRetreat(0, 50), "current bounded retreat also opens a point-blank gap");
 		check(c.canRetreat(0, 150), "short gap can be opened");
 		check(!c.canRetreat(0, 300), "already in rush range: no pointless retreat");
 		c.beginRetreat(0, 150);
@@ -49,7 +49,8 @@ public class BerserkerCycleTest
 		check(!c.retreatUnproductive(6750, 200), "productive gap opening may continue");
 		check(c.retreatUnproductive(7500, 210), "absolute 1.5s retreat limit");
 		c.beginRetreat(8000, 180);
-		check(c.retreatUnproductive(8250, 90), "pressed retreat turns to fight immediately");
+		check(!c.retreatUnproductive(8250, 90), "pressed retreat gets the same brief opportunity");
+        check(c.retreatUnproductive(8750, 90), "pressed retreat with no progress stops after750ms");
 		check(!c.canRetreat(9000, 220), "220 is engagement/rush threshold, not retreat");
 		check(BerserkerCycle.shouldPressFinish(200,0,1000,0,150), "low resources: finish instead of retreat");
         check(!BerserkerCycle.shouldPressFinish(200,1000,1000,1000,150), "low HP but high CP is not a finish window");

@@ -6,7 +6,12 @@ R=Path(__file__).resolve().parents[2];T=Path(__file__).parent;S=R/'game/data/scr
 source=(S/'BotTactics.java').read_text()
 def pool(s):
     a=s.index('final Map<Integer, Skill> skills = new LinkedHashMap<>();',s.index('private static boolean act('));b=s.index('int chargeDemand = 4;',a)
-    return s[a:b]
+    pool=s[a:b]
+    # This regression isolates mandatory833 injection; all other candidate families
+    # are compiled and tested through the real act() integration regressions.
+    import re
+    match=re.search(r'if \(preset.getClassId\(\) == 131 && bot.getKnownSkill\(833\) != null\) skills.put\(833, bot.getKnownSkill\(833\)\);', pool)
+    return 'final Map<Integer, Skill> skills = new LinkedHashMap<>();\n' + (match.group(0) if match else '')
 previous=subprocess.check_output(['git','show','7a93669bdf6ce7952795b4714da1fd858c8d90f4:game/data/scripts/custom/fakeplayersai/BotTactics.java'],text=True,cwd=R)
 assert 'skills.put(833' not in pool(previous) and 'skills.put(833' in pool(source)
 # Inclusion is unconditional on HP; the existing native eligibility/priority gates

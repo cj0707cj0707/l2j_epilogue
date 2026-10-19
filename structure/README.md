@@ -28,6 +28,8 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 ## Последнее обновление
 
+[62. Приоритет выживания и регрессии аудита](62-combat-survival-priorities-and-audit-regressions.md) — исправлены только1/3/4/5/9/12: спасательные self-касты перед движением, rooted131, ограниченные попытки115, полный тестовый агрегатор и актуальная карта файлов.
+
 [61. Phoenix: Flame Icon первым, Sacrifice запрещён под иконами](61-phoenix-flame-first-and-no-sacrifice-under-icons.md) — готовый785 раньше406/69;406 резерв lowHP; под785/406 запрет69 вAI,cast guard иHeal execution. Карта файлов, проверки и установка.
 
 [60. Кайт защиты танков и native классовые механики](60-tank-defense-kiting-and-native-class-mechanics.md) — все19 классов кайтят танка под110/368/760; Phoenix:406 при lowHP и784→5562/3→785, Hell:761→5561/3→762, Shillien:788→5564/3→789. Родные условия/ресурсы, карта файлов и тесты.
@@ -98,6 +100,7 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 | Файл | Содержание |
 |---|---|
+| [62-combat-survival-priorities-and-audit-regressions.md](62-combat-survival-priorities-and-audit-regressions.md) | Текущие приоритеты выживания, root131, бюджет контроля115, восстановленные регрессии и установка |
 | [58-olympiad-150s-invulnerability-kite-native-mana-and-clarity.md](58-olympiad-150s-invulnerability-kite-native-mana-and-clarity.md) | Текущее:150с, всеобщий invul-кайт мили, обычнаяMP, native3282/60с, карта и установка |
 | [57-default-trance-and-bluff-cooldowns.md](57-default-trance-and-bluff-cooldowns.md) | Отмена увеличенного Bluff reuse и отдельного Cardinal Trance timer; штатные параметры, тесты и установка |
 | [56-native-debuff-chance-and-permanent-epic-jewelry.md](56-native-debuff-chance-and-permanent-epic-jewelry.md) | Native дебаффы вместо25%/65%, Chance+30/+15 по19 классам и постоянные пять эпиков+6 |
@@ -105,7 +108,7 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 | [47-dagger-rear-approach-two-seconds.md](47-dagger-rear-approach-two-seconds.md) | Заход кинжальщиков за спину: реальное движение, интервал2000мс, приоритеты, geodata и отличие от recovery |
 | [39-low-mana-physical-autoattack.md](39-low-mana-physical-autoattack.md) | Оружейная автоатака при нехватке MP, исключения магов/Cardinal, временный MP-расход обычного выстрела |
 | [38-cardinal-unlimited-arena-mana.md](38-cardinal-unlimited-arena-mana.md) | Кардинал: неисчерпаемая MP только боту в активной тренировке/Олимпиаде, сохранение regMp противника |
-| [37-cardinal-olympiad-training-parity.md](37-cardinal-olympiad-training-parity.md) | Кардинал: отличия родительских драйверов, Trance-дальность, реальное -90% regMp и lifecycle эффекта |
+| [37-cardinal-olympiad-training-parity.md](37-cardinal-olympiad-training-parity.md) | Кардинал: отличия родительских драйверов, Trance-дальность и историческое -90% regMp (отменено в58), lifecycle эффекта |
 | [36-cardinal-name-and-prominence.md](36-cardinal-name-and-prominence.md) | Кардинал: безопасное имя без цифр, ручная выдача Prominence только боту и тактический интервал10с |
 | [35-character-login-skill-xml-recovery.md](35-character-login-skill-xml-recovery.md) | Вход после выбора персонажа: повреждённый XML1300–1399, восстановление, карта файлов и регрессии |
 | [01-root-structure.md](01-root-structure.md) | Корневые папки сервера: `game`, `login`, `libs`, `db_installer`, `backup`, `images` |

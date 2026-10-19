@@ -1,4 +1,4 @@
-/* Contextual arena combat. One owner, real useMagic; scoped Cardinal opponent-regeneration rule. */
+/* Contextual arena combat. One owner, real useMagic; native MP with the scoped Cardinal exception and opening Clarity. */
 package custom.fakeplayersai;
 
 import java.util.ArrayList;
@@ -6,6 +6,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Consumer;
+import org.l2jmobius.gameserver.mechanics.events.EventType;
+import org.l2jmobius.gameserver.mechanics.events.holders.actor.creature.OnCreatureDamageDealt;
+import org.l2jmobius.gameserver.mechanics.events.listeners.ConsumerEventListener;
 
 import org.l2jmobius.gameserver.ai.Intention;
 import org.l2jmobius.gameserver.entity.Location;
@@ -26,7 +30,8 @@ import org.l2jmobius.gameserver.taskmanagers.AutoUseTaskManager;
  * Call on the parent's serialized arena pass after the pre-start opener.
  * true means no generic move/attack this tick (including sleep/reaction/CC holds).
  * false permits generic pursuit/attack, NOT restarting auto engines while isOwned.
- * State is bounded to 2048 bots/64 failures; effect identity uses only a weak reference.
+ * State is bounded to 2048 bots/64 failures; retreat effect identity uses weak references.
+ * A pending damage observer retains its two actors only until cast resolution/context cleanup.
  */
 public final class BotTactics
 {
@@ -49,6 +54,33 @@ public final class BotTactics
 		int count;
 		long until;
 	}
+	/** One native direct-damage observation per pending Dominator cast. Callback takes
+	 * no tactical/analytics locks and never retains the pooled event payload. */
+	private static final class CastEvidence
+	{
+		private final Player bot, enemy;
+		private final int skillId;
+		private final ConsumerEventListener listener;
+		volatile boolean hit;
+		CastEvidence(Player bot, Player enemy, int skillId)
+		{
+			this.bot = bot; this.enemy = enemy; this.skillId = skillId;
+			Consumer<OnCreatureDamageDealt> consumer = this::observe;
+			listener = new ConsumerEventListener(bot, EventType.ON_CREATURE_DAMAGE_DEALT, consumer, BotTactics.class);
+			bot.addListener(listener);
+		}
+		void observe(OnCreatureDamageDealt e)
+		{
+			if (e.getAttacker() == bot && e.getTarget() == enemy && e.getSkill() != null
+				&& e.getSkill().getId() == skillId && !e.isDamageOverTime()
+				&& Double.isFinite(e.getDamage()) && e.getDamage() > 0) hit = true;
+		}
+		void close() { bot.removeListener(listener); }
+	}
+	private static void clearEvidence(State s)
+	{
+		if (s.pendingEvidence != null) { s.pendingEvidence.close(); s.pendingEvidence = null; }
+	}
 	private static final class State
 	{
 		TacticsPolicy.Difficulty difficulty; // null follows the global default; training overrides are explicit.
@@ -63,6 +95,8 @@ public final class BotTactics
 		int pendingId;
 		boolean pendingSelf, pendingDebuff, sawCast;
 		double pendingMp, pendingHp;
+		double pendingCompletionMp;
+		CastEvidence pendingEvidence;
 		int pendingCharges, pendingX, pendingY;
 		boolean trainingBerserkerMode, pendingRushLoop;
 		final TacticsPolicy.CardinalProminence cardinalProminence = new TacticsPolicy.CardinalProminence();
@@ -104,6 +138,7 @@ public final class BotTactics
 				e.getValue().invulnerableKite.stop();
 				e.getValue().survivalKite.stop();
 				e.getValue().manaAutoAttack.clear();
+				clearEvidence(e.getValue());
 				return true;
 			});
 			nextSweep = time + 60_000;
@@ -308,6 +343,7 @@ public final class BotTactics
 	{
 		ArenaCombatRules.clear(botId);
 		State removed = STATES.remove(botId);
+		if (removed != null) clearEvidence(removed);
 		if (removed != null) removed.cardinalSupport.clear();
 		if (removed != null) removed.manaAutoAttack.clear();
 		if (removed != null) removed.invulnerableKite.stop();
@@ -403,6 +439,7 @@ public final class BotTactics
         if (CardinalSurvival.active(bot, enemy)) return act(bot, enemy, preset, s, time, false);
         if (bot.isCastingNow() || bot.isCastingSimultaneouslyNow()) return true;
         if (soulCleanse(bot, enemy, preset, s, time) || escapeShackle(bot, enemy, preset, s, time)) return true;
+        if (supportBeforeMovement(bot, enemy, preset, s, time)) return true;
         return invulnerableMelee(bot, enemy, s, time);
     }
     private static boolean invulnerableMelee(Player bot, Player enemy, State s, long time)
@@ -532,6 +569,7 @@ public final class BotTactics
 			if (s.cleanseLease) { s.owned = false; s.cleanseLease = false; }
 			s.cardinalSupport.clear();
 			s.manaAutoAttack.clear();
+			clearEvidence(s);
 			s.enemy = enemy.getObjectId(); s.game = game; s.instance = bot.getInstanceId();
 			s.anchorX = bot.getX(); s.anchorY = bot.getY(); s.observed = time;
 			final int[] center = ArenaCombatRules.center(bot);
@@ -555,11 +593,30 @@ public final class BotTactics
 		s.enemyCasting = casting;
 	}
 
-	private static boolean act(Player bot, Player enemy, BotClassPreset preset, State s, long time, boolean defenseOnly)
+	/** A rooted ranked Berserker can cast legal stationary skills without lending permanent ownership. */
+	public static synchronized boolean tickRootedBerserker(Player bot, Player enemy, BotClassPreset preset)
+	{
+		if (preset == null || preset.getClassId() != 131 || !bot.isMovementDisabled()
+			|| !valid(bot, enemy, true, STATES.get(bot.getObjectId()))) return false;
+		final long time = now(); final State s = state(bot.getObjectId(), time);
+		prepare(bot, enemy, s, time);
+		// Preserve the existing live-STUN Rush-only phase delegated to RushStunSupport.
+		if (ownRushStun(bot, enemy) != null) return true;
+		return act(bot, enemy, preset, s, time, false);
+	}
+
+	private static boolean supportBeforeMovement(Player bot, Player enemy, BotClassPreset preset, State s, long time)
+	{
+		// Movement alone preserves Celestial; never replace a live cast or a pending request.
+		if (bot.isAffectedBySkill(1418) || s.pendingId != 0 || bot.isOutOfControl() || bot.isAllSkillsDisabled()) return false;
+		return act(bot, enemy, preset, s, time, true, true);
+	}
+
+	private static boolean act(Player bot, Player enemy, BotClassPreset preset, State s, long time, boolean defenseOnly, boolean movingSupport)
 	{
 		BotControlChance.apply(bot);
-		final boolean survival = !defenseOnly && CardinalSurvival.active(bot, enemy);
-		if (!survival) s.survivalKite.stop();
+		final boolean survival = (!defenseOnly || movingSupport) && CardinalSurvival.active(bot, enemy);
+		if (!survival && !movingSupport) s.survivalKite.stop();
 		final boolean trainingBerserker = !defenseOnly && preset.getClassId() == 131 && !bot.isInOlympiadMode()
 			&& s.trainingEnemy == enemy.getObjectId() && s.trainingInstance == bot.getInstanceId();
 		s.trainingBerserkerMode = trainingBerserker;
@@ -574,7 +631,12 @@ public final class BotTactics
 		restoreCardinalMana(bot, preset);
 		if (soulCleanse(bot, enemy, preset, s, time)) return true;
 		if (escapeShackle(bot, enemy, preset, s, time)) return true;
-		if (!defenseOnly && !survival && invulnerableMelee(bot, enemy, s, time)) return true;
+		if (!defenseOnly && !survival)
+		{
+			final boolean mustKite = (enemy.isInvul() && meleeOpponent(enemy)) || TankClassMechanics.defendedTank(enemy);
+			if (mustKite && supportBeforeMovement(bot, enemy, preset, s, time)) return true;
+			if (invulnerableMelee(bot, enemy, s, time)) return true; // also releases the previous route when protection ends
+		}
 		if (trainingBerserker && (bot.isOutOfControl() || bot.isAllSkillsDisabled() || s.pendingId != 0))
 		{
 			stopBasicAttack(bot); // no auto continuation under cast/CC; never abort a cast
@@ -590,14 +652,16 @@ public final class BotTactics
             stopBasicAttack(bot); s.survivalKite.tick(bot, enemy, time, true); return true;
         }
 		final boolean sleeping = enemy.isSleeping();
-        final BuffInfo meleeControl = !defenseOnly && bot.getPlayerClass().getId() == 115 && meleeOpponent(enemy)
+        final BuffInfo meleeControl = (!defenseOnly || movingSupport) && bot.getPlayerClass().getId() == 115 && meleeOpponent(enemy)
             ? DominatorControlRetreat.control(bot, enemy) : null;
         final boolean controlHold = meleeControl != null;
         final int[] arenaCenter = s.hasArenaCenter ? new int[]{s.arenaCenterX, s.arenaCenterY} : ArenaCombatRules.center(bot);
+        if (!defenseOnly && meleeControl != null && supportBeforeMovement(bot, enemy, preset, s, time)) return true;
         if (!defenseOnly && s.controlRetreat.tick(bot, meleeControl, time, arenaCenter)) return true;
         if (controlHold) stopBasicAttack(bot);
 		// Actual landed own sleep, never a mere accepted request or another caster's effect.
 		final boolean ownSleep = !defenseOnly && !controlHold && SleepRetreat.ownSleep(bot, enemy) != null;
+		if (ownSleep && !survival && supportBeforeMovement(bot, enemy, preset, s, time)) return true;
 		if (!defenseOnly && !survival && !controlHold && s.sleepRetreat.tick(bot, enemy, time, s.hasArenaCenter ? new int[]{s.arenaCenterX, s.arenaCenterY} : ArenaCombatRules.center(bot))) return true;
 		final boolean manaFallback = !defenseOnly && needsManaAutoAttack(bot, preset) && allowsBasicAttack(bot, preset);
 		final boolean dominator = preset.getClassId() == 115;
@@ -693,9 +757,13 @@ public final class BotTactics
 			final boolean direct = directDamage(skill);
 			final TacticsPolicy.Kind kind = dominator && sleeping && (!pressure || !pressureControl(skill)) && sleepElapsed >= 5000 && direct ? TacticsPolicy.Kind.DAMAGE : detected;
 			if (kind == null || (defenseOnly && kind != TacticsPolicy.Kind.HEAL && kind != TacticsPolicy.Kind.DEFENSE)) { continue; }
+			// Rescue casts must not immobilize the escaping bot or spend a tick building icon charges.
+			if (movingSupport && (!self(kind) || immobilizingSupport(skill) || skill.getId() == 368
+				|| skill.getId() == 784 || skill.getId() == 761 || skill.getId() == 788
+				|| kind == TacticsPolicy.Kind.HEAL && !TacticsPolicy.dominatorCpSkill(skill.getId()) && hp >= .65)) continue;
 			if (chargeClosing && !self(kind)) { continue; }
 			if (pressure && !self(kind) && (pressureClosing
-				|| pressureControl(skill) && (s.dominatorPressure.opened() || enemy.isSleeping() || enemy.isStunned())
+				|| pressureControl(skill) && (s.dominatorPressure.controlFinished() || enemy.isSleeping() || enemy.isStunned())
 				|| pressureCurse(skill) && s.dominatorPressure.curseDone(skill.getId()))) { continue; }
 			final boolean self = self(kind);
 			// PARTY_CLAN may include a same-clan/party opponent. Never heal/buff them;
@@ -704,6 +772,7 @@ public final class BotTactics
 				&& !TacticsPolicy.selfOnlyTargets(bot, skill.getTargetList(bot, false, bot))) { continue; }
 			final boolean cpSupport = dominator && kind == TacticsPolicy.Kind.HEAL && TacticsPolicy.dominatorCpSkill(skill.getId()) && skill.hasEffectType(EffectType.CPHEAL);
 			if (cpSupport && !(controlHold ? TacticsPolicy.dominatorControlCpNeeded(cpRatio(bot)) : TacticsPolicy.dominatorCpNeeded(cpRatio(bot)))) { continue; }
+			if (movingSupport && controlHold && cpSupport && s.dominatorCp.owesAttack()) continue;
 			final boolean tankStun = tank && !self && skill.hasEffectType(EffectType.STUN);
 			final boolean tankRoot = tank && !self && skill.hasEffectType(EffectType.ROOT);
 			if (tank && !TacticsPolicy.tankClosingSkillAllowed(tankClosing, self, kind, tankStun || tankRoot)) { continue; }
@@ -805,7 +874,12 @@ public final class BotTactics
 			bot.setTarget(self ? bot : enemy);
 			s.pendingMp = bot.getCurrentMp(); s.pendingHp = bot.getCurrentHp(); s.pendingCharges = bot.getCharges();
 			s.pendingX = bot.getX(); s.pendingY = bot.getY();
+			// Native initial MP is paid at beginCast; regular MP only at onMagicHitTimer.
+			s.pendingCompletionMp = Math.max(0, bot.getStat().getMpInitialConsume(skill)) + Math.max(0, bot.getStat().getMpConsume(skill));
+			if (pressure) s.dominatorPressure.requested(selected, pressureControl(skill), pressureCurse(skill));
 			s.pendingRushLoop = trainingRushActive;
+			clearEvidence(s);
+			if (pressure && directDamage(skill)) s.pendingEvidence = new CastEvidence(bot, enemy, selected);
 			final boolean accepted = bot.useMagic(skill, true, true); // shiftPressed: NEVER walk into range.
 			s.nextDecision = time + difficulty(s).reactionMs;
 			if (accepted)
@@ -819,10 +893,11 @@ public final class BotTactics
                     s.offensiveActionsSinceStep = Math.min(4,s.offensiveActionsSinceStep+1);
 				s.pendingId = selected; s.pendingAt = time; s.pendingSelf = self; s.pendingDebuff = skill.isDebuff() && !directDamage(skill); s.sawCast = bot.isCastingNow();
 			}
-			else { failure(s, selected, time); bot.setTarget(enemy); }
+			else { clearEvidence(s); failure(s, selected, time); bot.setTarget(enemy); }
 			// Self targeting remains until cast resolves; next offensive action restores enemy.
 			return true;
 		}
+		if (defenseOnly) return false; // no legal rescue: immediately continue the existing route
 		if (survival) { stopBasicAttack(bot); return true; } // never yield forbidden offense/chase
 		if (controlHold) return true; // no parent autoattack/chase/Hammer Crush under own melee control
 		if (ownSleep) return true; // no parent chase back into the sleeping target after retreat
@@ -849,6 +924,11 @@ public final class BotTactics
 		if (!defenseOnly && chargeClosing && !bot.isMovementDisabled() && !bot.isOutOfControl()) return false;
 		if (!defenseOnly && !offenseAvailable) { stopBasicAttack(bot); return true; }
 		return false;
+	}
+
+	private static boolean act(Player bot, Player enemy, BotClassPreset preset, State s, long time, boolean defenseOnly)
+	{
+		return act(bot, enemy, preset, s, time, defenseOnly, false);
 	}
 
 	/** Active validated arena tick only. Poll the previous cast BEFORE refilling so
@@ -922,12 +1002,25 @@ public final class BotTactics
 		if (skill != null)
 		{
 			if (dominatorRangedPressure(bot, enemy, BotPresets.getPresetByClassId(bot.getPlayerClass().getId())))
-				s.dominatorPressure.resolved(s.pendingId, paid, pressureControl(skill), pressureCurse(skill), directDamage(skill));
+			{
+				// Starting a cast, initial MP and reuse alone do NOT prove a completed opener.
+				// Require an actual own effect or the full native initial+hit MP debit.
+				final boolean ownEffect = hasOwnEffect(s.pendingSelf ? bot : enemy, bot, skill);
+				final boolean completed = ownEffect || s.pendingEvidence != null && s.pendingEvidence.hit || s.pendingCompletionMp > 0 && bot.getCurrentMp() <= s.pendingMp - s.pendingCompletionMp;
+				s.dominatorPressure.resolved(s.pendingId, completed, ownEffect, pressureControl(skill), pressureCurse(skill), directDamage(skill));
+			}
 			final TacticsPolicy.Kind resolvedKind = kind(skill);
 			s.dominatorCp.resolved(s.pendingId, paid, resolvedKind == TacticsPolicy.Kind.DAMAGE || resolvedKind == TacticsPolicy.Kind.CONTROL || resolvedKind == TacticsPolicy.Kind.SLOW);
 		}
+		clearEvidence(s);
 		s.pendingId = 0;
 		bot.setTarget(enemy);
+	}
+	private static boolean hasOwnEffect(Player target, Player caster, Skill skill)
+	{
+		for (BuffInfo effect : target.getEffectList().getEffects())
+			if (effect != null && !effect.isRemoved() && effect.getEffector() == caster && effect.getSkill().getId() == skill.getId() && effect.isInUse()) return true;
+		return false;
 	}
 	private static boolean hasAppliedStun(BuffInfo effect)
 	{

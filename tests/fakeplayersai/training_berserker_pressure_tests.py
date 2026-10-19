@@ -31,8 +31,12 @@ def integration_guards(source):
     assert poll.index('s.trainingBurst.resolved')<poll.index('s.pendingId = 0;')
     assert 's.trainingBurst.reset(); s.trainingBerserkerMode = false;' in source
     assert 'MAX_BOTS = 2048' in source and 'TTL_MS = 30 * 60_000L' in source
+    assert source.count('bot.setCurrentMp(maximum);') == 1
+    mana=source[source.index('private static void restoreCardinalMana('):source.index('private static void stopBasicAttack(')]
+    assert 'preset.getClassId() != CARDINAL_CLASS_ID' in mana and 'bot.getClient() != null' in mana
+    guarded=source.replace('bot.setCurrentMp(maximum);','')
     for forbidden in ('abortCast(', 'setXYZ(', 'setHeading(', 'setCurrentMp(', 'startAutoPlay(', 'startAutoUseTask(', 'setOlympiadMode(', 'setOlympiadStart('):
-        assert forbidden not in source, forbidden
+        assert forbidden not in guarded, forbidden
 
 def xml_guards():
     skills={int(s.get('id')):s for p in (ROOT/'game/data/stats/skills').glob('*.xml') for s in ET.parse(p).getroot().findall('skill')}

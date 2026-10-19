@@ -35,7 +35,7 @@ source='''package custom.fakeplayersai;
 import java.util.*;
 class BotSpawner {
 static int checks; static void check(boolean b){checks++;if(!b)throw new AssertionError("check "+checks);}
-static final int VENGEANCE_ID=368;
+static final int VENGEANCE_ID=368, ESCAPE_SHACKLE_ID=453;
 static final int[] TANK_DEFENSE_PHYSICAL={368,110,350,439,527,112,82,86},TANK_DEFENSE_MAGIC={368,760,913,351,72,916},TANK_DEFENSE_ALL={110,368,760,350,439,527,112,82,86,913,351,72,916};
 enum EffectScope {GENERAL,SELF,PVP} enum TargetType {SELF,ONE,AURA,PARTY}
 record AbstractEffect(String name){String getName(){return name;}}
@@ -68,9 +68,11 @@ static class BotManager {static int getBotClassId(Player p){return p.cid;}}
 static boolean isTacticalTank(Player p){return p!=null&&(p.cid==90||p.cid==91||p.cid==106);}
 static boolean containsId(int[] a,int id){return Arrays.stream(a).anyMatch(x->x==id);}static boolean isTankDefenseSkill(int id){return containsId(TANK_DEFENSE_ALL,id);}
 static boolean isOpenerOnlySkill(int id){return false;}static boolean isChantOfVictoryFamily(int id){return false;}static boolean isOlympiadChantBanned(Player p,int id){return false;}static boolean isLongSelfBuff(Player p,int id){return false;}
+static class CardinalSurvival {static boolean active(Player p,Player e){return false;}static boolean allowed(int id){return true;}}
+static class TankClassMechanics {static boolean allowed(Player p,int id){return true;}static boolean skill(int id){return false;}}
 '''+ '\n'.join(parts)+'''
 static int legacyCandidate(Player player,BotClassPreset preset,WorldObject opponent,int[] desiredPool,boolean activeMatch){
-'''+candidate+'''return candidate;}
+'''+ 'final boolean opponentMage=opponent!=null&&opponent.isCreature()&&opponent.asCreature().isPlayer()&&opponent.asCreature().asPlayer().isMageClass();\n'+candidate+'''return candidate;}
 public static void main(String[]args){
  for(int id:new int[]{90,91,106})BotPresets.all.put(id,new BotClassPreset(BotClassPreset.WeaponKind.SWORD));
  BotPresets.all.put(200,new BotClassPreset(BotClassPreset.WeaponKind.MAGIC));BotPresets.all.put(201,new BotClassPreset(BotClassPreset.WeaponKind.BOW));BotPresets.all.put(202,new BotClassPreset(BotClassPreset.WeaponKind.CROSSBOW));BotPresets.all.put(203,new BotClassPreset(BotClassPreset.WeaponKind.SWORD));

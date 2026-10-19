@@ -5,8 +5,14 @@ import os, subprocess, sys, tempfile
 from lxml import etree
 ROOT=Path(__file__).resolve().parents[2]
 DATA=ROOT/'game/data'
-for script in ('character_login_skill_data_tests.py','cardinal_name_prominence_tests.py','cardinal_arena_parity_tests.py','low_mana_autoattack_tests.py','combat_recovery_rules_tests.py','arena_orbit_trance_mana_tests.py','run_bot_combat_tests.py','tactics_tests.py','training_tests.py','run_olympiad_gate_tests.py','fear_tests.py','training_selfbuff_tests.py','run_training_peace_zones_tests.py','training_berserker_pressure_tests.py','debuff_no_refresh_tests.py','debuff_installer_startup_tests.py','training_entry_heal_tests.py','run_ranked_rush_original_stun_tests.py','tank_defense_rush_identity_tests.py','cyclic_training_rush_tests.py','run_ranked_cyclic_rush_lifecycle_tests.py','tank_close_control_tests.py','tank_chase_integration_tests.py','tank_ranged_defense_tests.py','dominator_arena_buff_tests.py','dominator_cp_titan_pressure_tests.py'):
-    subprocess.run([sys.executable,str(Path(__file__).with_name(script))],cwd=ROOT,check=True)
+failed=[]
+scripts=sorted(p for p in Path(__file__).parent.glob('*tests.py') if p.name!='suite_tests.py')
+for script in scripts:
+    print('RUN:',script.name,flush=True)
+    result=subprocess.run([sys.executable,str(script)],cwd=ROOT)
+    if result.returncode: failed.append(script.name)
+assert not failed, f'Failed {len(failed)}/{len(scripts)} regression entrypoints: {failed}'
+print(f'PASS: {len(scripts)} complete regression entrypoints',flush=True)
 for name,xsd in [('GiranServices.xml','spawns.xsd')]+[(f'GiranService{i}.xml','npcs.xsd') for i in (1008000,1009000,1010000,1011000)]:
     file=DATA/('spawns/Others' if xsd=='spawns.xsd' else 'stats/npcs/custom')/name
     etree.XMLSchema(etree.parse(str(DATA/'xsd'/xsd))).assertValid(etree.parse(str(file)))

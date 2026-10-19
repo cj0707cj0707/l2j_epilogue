@@ -25,7 +25,7 @@ assert 'TacticsPolicy.cardinalSleepException(preset.getClassId(), skill.getId())
 assert 'skill.getId() == CARDINAL_PROMINENCE_ID && !s.cardinalProminence.ready(time)' in tactics
 assert 's.cardinalProminence.reset();' in tactics
 assert 'final int selected = recoveryChoice >= 0 ? recoveryChoice : cardinalChoice >= 0 ? cardinalChoice' in tactics
-assert 'final boolean urgent = cardinalChoice >= 0 ||' in tactics
+assert 'shadowChoice >= 0 || cardinalChoice >= 0 || chosen == TacticsPolicy.Kind.HEAL' in tactics
 act = tactics[tactics.index('private static boolean act('):tactics.index('private static void stopBasicAttack(')]
 assert act.index('TacticsPolicy.allowed(kind, ready, inRange') < act.index('s.cardinalProminence.choose(') < act.index('step(bot, enemy') < act.index('bot.useMagic(skill, true, true)')
 assert act.index('bot.useMagic(skill, true, true)') < act.index('if (accepted)') < act.index('s.cardinalProminence.accepted(time)')

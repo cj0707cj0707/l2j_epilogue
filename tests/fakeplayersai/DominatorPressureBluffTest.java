@@ -21,7 +21,7 @@ public class DominatorPressureBluffTest extends BerserkerSoulCleanseTest {
     public static boolean request(Player p,Skill s,boolean force,boolean shift) {
         Trace t=traces.get(p); t.requests++;t.castTarget=p.getTarget();last=s.getId();
         verify(force&&shift,"ordinary forced shift cast, never native walk-to-cast");
-        verify(p.getTarget()==((s.getId()==69||s.getId()==1306||s.getId()==1510||s.getId()==453||s.getId()==1218||s.getId()==1418||TankClassMechanics.support(s.getId()))?p:targetEnemy),"correct self/enemy cast target");
+        verify(p.getTarget()==((s.getId()==69||s.getId()==833||s.getId()==1305||s.getId()==1306||s.getId()==1510||s.getId()==453||s.getId()==1218||s.getId()==1418||TankClassMechanics.support(s.getId()))?p:targetEnemy),"correct self/enemy cast target");
         if(t.accept)p.setCastingNow(true);return t.accept;
     }
     static Player targetEnemy;
@@ -37,7 +37,11 @@ public class DominatorPressureBluffTest extends BerserkerSoulCleanseTest {
 
     static Skill nativeSkill(int id){return SkillData.getInstance().getSkill(id,SkillData.getInstance().getMaxLevel(id));}
     static void location(Player p,int x)throws Exception {f(org.l2jmobius.gameserver.entity.WorldObject.class,"_location").set(p,new Location(x,0,0,0,10));}
-    static void finish(Player p,Player e,Object s,long now)throws Exception {p.setCastingNow(false);poll.invoke(null,p,e,s,now);}
+    static void finish(Player p,Player e,Object s,long now)throws Exception {p.setCastingNow(false);
+        Skill skill=p.getKnownSkill(f(state,"pendingId").getInt(s));
+        if(skill!=null) mp(p,f(state,"pendingMp").getDouble(s)-p.getStat().getMpInitialConsume(skill)-p.getStat().getMpConsume(skill));
+        poll.invoke(null,p,e,s,now);
+    }
     static void actAt(Player p,Player e,Object s,long now)throws Exception {last=0;act.invoke(null,p,e,BotPresets.getPresetByClassId(115),s,now,false);}
     static void policies(){
         var d=new TacticsPolicy.DominatorPressure();
@@ -45,7 +49,7 @@ public class DominatorPressureBluffTest extends BerserkerSoulCleanseTest {
         for(int i=0;i<100;i++){
             d.reset();verify(d.choose(legal,List.of(1097),List.of(1367,1246),false)==1097,"control before high score damage");
             d.resolved(1097,false,true,false,false);verify(!d.opened(),"rejected request cannot advance");
-            d.resolved(1097,true,true,false,false);verify(d.opened(),"executed resisted control advances, no indefinite sleep retry");
+            d.resolved(1097,true,true,false,false);verify(d.opened(),"compatibility overload explicitly represents a completed landed control");
             verify(d.choose(legal,List.of(1097),List.of(1367,1246),false)==1367,"first effective rotation curse");
             d.resolved(1367,true,false,true,false);verify(d.choose(legal,List.of(1097),List.of(1367,1246),true)==1246,"remaining curse even during sleep");
             d.resolved(1246,true,false,true,false);verify(d.choose(legal,List.of(1097),List.of(1367,1246),true)==1245,"damage after curses");
@@ -67,11 +71,11 @@ public class DominatorPressureBluffTest extends BerserkerSoulCleanseTest {
             Object s=fresh();verify(BotTactics.tacticalApproachRange(p,e,BotPresets.getPresetByClassId(115))<=40,"close range vs mage/archer "+cid);
             actAt(p,e,s,10000);verify(last==0,"no ranged drain/sleep before closing");
             location(e,30);actAt(p,e,s,20000);            verify(last==1097,"actual act prioritizes sleep over earlier1245 in effective rotation");
-            finish(p,e,s,25000);actAt(p,e,s,30000);verify(last==1367,"actual completed control -> first curse, even resisted control");
-            finish(p,e,s,35000);actAt(p,e,s,40000);verify(last==1245,"actual curse -> damage, never repeated curse/sleep");
-            finish(p,e,s,45000);flags(e,EffectFlag.SLEEP.getMask());actAt(p,e,s,50000);verify(last==1367,"sleep kept for curses regardless old5s timer");
-            finish(p,e,s,55000);actAt(p,e,s,60000);verify(last==1245,"damage after available curses breaks sleep");finish(p,e,s,65000);flags(e,0);
-            // A rejected opener is not treated as an executed stage.
+            finish(p,e,s,25000);verify(!((TacticsPolicy.DominatorPressure)f(state,"dominatorPressure").get(s)).opened(),"completed resisted control is not a landed opener");
+            actAt(p,e,s,30000);verify(last==1097,"one bounded control retry after resist");finish(p,e,s,35000);
+            for(long clock:new long[]{40000,50000}){actAt(p,e,s,clock);verify(last==1367,"bounded curse attempts after exhausted control budget");finish(p,e,s,clock+5000);}
+            actAt(p,e,s,60000);verify(last==1245,"damage after bounded resisted control/curse, never infinite sleep");finish(p,e,s,65000);
+            // A rejected opener does not claim a landed stage; backoff still applies.
             s=fresh();traces.get(p).accept=false;actAt(p,e,s,70000);verify(last==1097&&f(state,"pendingId").getInt(s)==0,"rejection stays out of pending phase");
             traces.get(p).accept=true;actAt(p,e,s,75000);verify(last==1097,"retry opener after ordinary failure backoff");finish(p,e,s,80000);
             // Native silence/resources/reuse still gate both opening and rotation.
@@ -88,10 +92,10 @@ public class DominatorPressureBluffTest extends BerserkerSoulCleanseTest {
             s=fresh();learn(p,nativeSkill(1306));f(org.l2jmobius.gameserver.entity.actor.status.PlayerStatus.class,"_currentCp").setDouble(p.getStatus(),2000);
             actAt(p,e,s,110000);verify(last==1306&&p.getTarget()==p,"lowCP support interrupts opening, real self target");finish(p,e,s,115000);
             actAt(p,e,s,120000);verify(last==1097,"afterCP follow control phase, not CP-weave damage override");finish(p,e,s,125000);
-            actAt(p,e,s,130000);verify(last==1306,"maintain lowCP between control and curse");finish(p,e,s,135000);
-            actAt(p,e,s,140000);verify(last==1367,"CP support did not reset completed opener");finish(p,e,s,145000);
+            actAt(p,e,s,130000);verify(last==1306,"maintain lowCP between control attempts");finish(p,e,s,135000);
+            actAt(p,e,s,140000);verify(last==1097,"CP support did not consume/reset the control retry budget");finish(p,e,s,145000);
             f(org.l2jmobius.gameserver.entity.actor.status.PlayerStatus.class,"_currentCp").setDouble(p.getStatus(),6000);
-            actAt(p,e,s,150000);verify(last==1245,"adequateCP: damage after curse, no unnecessary CP cast");finish(p,e,s,155000);
+            actAt(p,e,s,150000);verify(last==1367,"adequateCP: bounded curse follows control budget, no unnecessary CP cast");finish(p,e,s,155000);
             Player melee=actor(131,ranked,true);verify(BotTactics.tacticalApproachRange(p,melee,BotPresets.getPresetByClassId(115))>40,"melee opponent keeps existing ranged approach");
         }
         // Native general SkillData sees restored default reuse for all skill levels, actors share it.

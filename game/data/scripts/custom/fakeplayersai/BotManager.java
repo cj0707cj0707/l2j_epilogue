@@ -2249,9 +2249,15 @@ public class BotManager
 
 	private static boolean driveBerserkerStep(Player bot, BotClassPreset preset, BerserkerState state, Creature enemy, long now)
 	{
-		if (bot.isMovementDisabled() || bot.isOutOfControl() || bot.isAllSkillsDisabled())
+		if (bot.isOutOfControl() || bot.isAllSkillsDisabled())
 		{
 			return true; // CC is real: no aborting a cast or changing phase under control.
+		}
+		if (bot.isMovementDisabled())
+		{
+			stopBerserkerEngines(bot, state);
+			if (enemy.isPlayer()) BotTactics.tickRootedBerserker(bot, enemy.asPlayer(), preset);
+			return true; // root forbids movement, not legal stationary magic/physical skills
 		}
 		final Skill rush = bot.getKnownSkill(BERSERKER_RUSH_IMPACT_ID);
 		if (rush == null)

@@ -14,7 +14,7 @@ assert trance.findtext('reuseDelay')=='1000'
 source=R/'game/data/scripts/custom/fakeplayersai'
 t=(source/'BotTactics.java').read_text()
 assert 'nextCardinalTrance' not in t
-assert 's.dominatorPressure.reset();' in t and 's.dominatorPressure.resolved(s.pendingId, paid,' in t
+assert 's.dominatorPressure.reset();' in t and 's.dominatorPressure.resolved(s.pendingId, completed, ownEffect,' in t
 for driver in ['BotManager.java','TrainingArena.java']:
     text=(source/driver).read_text()
     assert 'BotTactics.tick(' in text and 'BotTactics.tacticalApproachRange(' in text

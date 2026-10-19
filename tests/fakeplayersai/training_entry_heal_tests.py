@@ -19,7 +19,7 @@ gate=method(b,'public static boolean tacticalSkillAllowed(')
 source='''import java.util.*;
 class TrainingEntryHealRegression {
 static int checks; static void check(boolean b){checks++;if(!b)throw new AssertionError("check "+checks);}
-static int VENGEANCE_ID=368;
+static int VENGEANCE_ID=368, ESCAPE_SHACKLE_ID=453;
 static int[] TANK_DEFENSE_ALL={110,368,760,350,439,527,112,82,86,913,351,72,916};
 static int[] TANK_DEFENSE_PHYSICAL={368,110,350,439,527,112,82,86},TANK_DEFENSE_MAGIC={368,760,913,351,72,916};
 static class Player {
@@ -34,6 +34,8 @@ static boolean tankMovementDefenseAllowed(Player enemy,Skill skill){return true;
 static boolean isOpenerOnlySkill(int id){return false;}static boolean isTacticalTank(Player p){return p.tank;}
 static boolean isTankDefenseSkill(int id){return containsId(TANK_DEFENSE_ALL,id);}static boolean isChantOfVictoryFamily(int id){return false;}static boolean isOlympiadChantBanned(Player p,int id){return false;}
 static boolean isLongSelfBuff(Player p,int id){return false;}static boolean containsId(int[] list,int id){return Arrays.stream(list).anyMatch(v->v==id);}
+static class CardinalSurvival {static boolean active(Player p,Player e){return false;}static boolean allowed(int id){return true;}}
+static class TankClassMechanics {static boolean allowed(Player p,int id){return true;}static boolean skill(int id){return false;}}
 '''+heal+'\n'+strong+'\n'+gate+'''
 public static void main(String[]args){
  for(int cid=0;cid<=140;cid++)for(boolean bot:new boolean[]{false,true})for(double before:new double[]{0,0.15,0.7,1}){
