@@ -28,6 +28,8 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 ## Последнее обновление
 
+[57. Штатные откаты Trance и Bluff](57-default-trance-and-bluff-cooldowns.md) — Bluff8000мс вместо16000 для игроков/ботов; убран отдельный3с AI-delay Trance, native reuse1000мс сохранён. Chance/эпик и остальные механики без изменений.
+
 [56. Родные дебаффы/Chance и постоянный эпик+6](56-native-debuff-chance-and-permanent-epic-jewelry.md) — убраны tank25% и private Trance65%; реальные Chance+30/+15, полный список навыков19 классов; пять эпиков всем ботам, безопасная миграция и карта файлов.
 
 [55. Dominator: root/stun→200→Steal/CP; Shadow Step; Олимпиада90с](55-dominator-melee-control-shadow-step-and-90s-olympiad.md) — scoped CP до>85%,821 первым против кастеров, пятый core-патч переполнения таймера и обновлённая установка.
@@ -88,6 +90,7 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 | Файл | Содержание |
 |---|---|
+| [57-default-trance-and-bluff-cooldowns.md](57-default-trance-and-bluff-cooldowns.md) | Отмена увеличенного Bluff reuse и отдельного Cardinal Trance timer; штатные параметры, тесты и установка |
 | [56-native-debuff-chance-and-permanent-epic-jewelry.md](56-native-debuff-chance-and-permanent-epic-jewelry.md) | Native дебаффы вместо25%/65%, Chance+30/+15 по19 классам и постоянные пять эпиков+6 |
 | [48-berserker-emergency-soul-cleanse.md](48-berserker-emergency-soul-cleanse.md) | Срочное магическое самоочищение берсеркера131 при руте/запрете физических навыков, приоритеты и ownership |
 | [47-dagger-rear-approach-two-seconds.md](47-dagger-rear-approach-two-seconds.md) | Заход кинжальщиков за спину: реальное движение, интервал2000мс, приоритеты, geodata и отличие от recovery |
@@ -129,7 +132,7 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 - [54: Отход после сна; повторная атака саммона](54-post-sleep-retreat-and-summon-attack-pulse.md): маршрут внутри450, Cardinal — реальная дальность1398, Dominator —300; общий3000мс native attack pulse без resummon.
 
-- [53: Bluff ×2 reuse и Dominator против дальнего боя](53-bluff-reuse-and-dominator-ranged-pressure.md): общий358 —16с; бот115 — сближение → сон/стан → проклятия → атака с поддержкой CP.
+- [53: Bluff ×2 reuse и Dominator против дальнего боя](53-bluff-reuse-and-dominator-ranged-pressure.md): исторический358 —16с (в57 возвращён8с); бот115 — сближение → сон/стан → проклятия → атака с поддержкой CP.
 
 ## Куда смотреть при типовых задачах
 
