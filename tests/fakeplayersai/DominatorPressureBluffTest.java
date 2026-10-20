@@ -68,7 +68,7 @@ public class DominatorPressureBluffTest extends BerserkerSoulCleanseTest {
             if(cid==134)e.addStatFunc(new org.l2jmobius.gameserver.mechanics.stats.functions.FuncAdd(org.l2jmobius.gameserver.mechanics.stats.Stat.POWER_ATTACK_RANGE,0x10,new Object(),500,null));
             f(Player.class,"_mountType").set(p,org.l2jmobius.gameserver.entity.actor.enums.player.MountType.NONE);p.setTarget(e);hp(p,10000);
             for(int id:new int[]{1245,1097,1367})learn(p,nativeSkill(id));
-            Object s=fresh();verify(BotTactics.tacticalApproachRange(p,e,BotPresets.getPresetByClassId(115))<=40,"close range vs mage/archer "+cid);
+            Object s=fresh();verify(BotTactics.tacticalApproachRange(p,e,BotPresets.getPresetByClassId(115))==600,"Dreaming Spirit range vs mage/archer "+cid);
             actAt(p,e,s,10000);verify(last==0,"no ranged drain/sleep before closing");
             location(e,30);actAt(p,e,s,20000);            verify(last==1097,"actual act prioritizes sleep over earlier1245 in effective rotation");
             finish(p,e,s,25000);verify(!((TacticsPolicy.DominatorPressure)f(state,"dominatorPressure").get(s)).opened(),"completed resisted control is not a landed opener");
@@ -87,7 +87,7 @@ public class DominatorPressureBluffTest extends BerserkerSoulCleanseTest {
             f(org.l2jmobius.gameserver.entity.item.Weapon.class,"_type").set(p.getActiveWeaponItem(),org.l2jmobius.gameserver.entity.item.type.WeaponType.BLUNT);
             f(org.l2jmobius.gameserver.entity.itemcontainer.Inventory.class,"_wearedMask").setInt(p.getInventory(),org.l2jmobius.gameserver.entity.item.type.WeaponType.BLUNT.mask());
             disabled.put(p.getKnownSkill(1097).getReuseHashCode(),System.currentTimeMillis()+60000);
-            actAt(p,e,s,101000);verify(last==260,"ready legal native Hammer Crush opens when sleep is unavailable");finish(p,e,s,106000);disabled.clear();
+            actAt(p,e,s,101000);verify(last==1367,"ranged target: Hammer Crush forbidden, ready curse follows unavailable sleep");finish(p,e,s,106000);disabled.clear();
             @SuppressWarnings("unchecked") Map<Integer,Skill> known=(Map<Integer,Skill>)f(Creature.class,"_skills").get(p);known.remove(260);
             s=fresh();learn(p,nativeSkill(1306));f(org.l2jmobius.gameserver.entity.actor.status.PlayerStatus.class,"_currentCp").setDouble(p.getStatus(),2000);
             actAt(p,e,s,110000);verify(last==1306&&p.getTarget()==p,"lowCP support interrupts opening, real self target");finish(p,e,s,115000);

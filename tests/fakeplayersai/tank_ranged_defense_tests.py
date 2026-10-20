@@ -68,6 +68,8 @@ static class BotManager {static int getBotClassId(Player p){return p.cid;}}
 static boolean isTacticalTank(Player p){return p!=null&&(p.cid==90||p.cid==91||p.cid==106);}
 static boolean containsId(int[] a,int id){return Arrays.stream(a).anyMatch(x->x==id);}static boolean isTankDefenseSkill(int id){return containsId(TANK_DEFENSE_ALL,id);}
 static boolean isOpenerOnlySkill(int id){return false;}static boolean isChantOfVictoryFamily(int id){return false;}static boolean isOlympiadChantBanned(Player p,int id){return false;}static boolean isLongSelfBuff(Player p,int id){return false;}
+// No bot115 STUN candidates in this isolated fixture; native stun admission is covered by control_pursuit_trance_kite_tests.py.
+static class BotTactics {static boolean dominatorStunAllowed(Player p,Player e,Skill s){return true;}}
 static class CardinalSurvival {static boolean active(Player p,Player e){return false;}static boolean allowed(int id){return true;}}
 static class TankClassMechanics {static boolean allowed(Player p,int id){return true;}static boolean skill(int id){return false;}}
 '''+ '\n'.join(parts)+'''

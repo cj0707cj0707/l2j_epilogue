@@ -70,6 +70,14 @@ final class TacticsPolicy
 		return classId == 97 && legalTranceRange > 0 ? Math.min(normalRange, legalTranceRange) : normalRange;
 	}
 
+    /** Caller scopes this to a close, vulnerable melee pursuer. Only native-legal candidates. */
+    static int cardinalTranceKiteChoice(List<Option> legal, double hp)
+    {
+        for (int id : new int[]{hp < .65 ? 1418 : -1, hp < .95 ? 1218 : -1, 1394})
+            if (id > 0 && legal.stream().anyMatch(o -> o.id() == id)) return id;
+        return -1;
+    }
+
 	/** Ranked Cardinal encounters follow training: no automatic full-MP floor on either bot. */
 	static boolean arenaMpFloorAllowed(boolean cardinalBot, boolean cardinalOpponentBot)
 	{

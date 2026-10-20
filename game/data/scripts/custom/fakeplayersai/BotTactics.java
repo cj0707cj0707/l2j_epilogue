@@ -279,6 +279,17 @@ public final class BotTactics
         return bot.getClient() == null && bot.getPlayerClass().getId() == cid && (cid == 93 || cid == 101 || cid == 108)
             && skill.getId() == 821 && (enemy.isMageClass() || target != null && target.isCaster());
     }
+    /** Shared candidate guard: this AI restriction never modifies a human Dominator's skills. */
+    public static boolean dominatorStunAllowed(Player bot, Player enemy, Skill skill)
+    {
+        return bot.getClient() != null || bot.getPlayerClass().getId() != 115
+            || !skill.hasEffectType(EffectType.STUN) || enemy == null || meleeOpponent(enemy);
+    }
+    private static boolean cardinalTrancePressure(Player bot, Player enemy, BotClassPreset preset)
+    {
+        return bot.getClient() == null && preset.getClassId() == CARDINAL_CLASS_ID && bot.getKnownSkill(1394) != null
+            && !enemy.isInvul() && !enemy.isSleeping() && meleeOpponent(enemy) && bot.calculateDistance2D(enemy) < 450;
+    }
     private static boolean pressureControl(Skill skill)
 	{
 		return skill.hasEffectType(EffectType.SLEEP, EffectType.STUN);
@@ -296,8 +307,9 @@ public final class BotTactics
 	public static synchronized int tacticalApproachRange(Player bot, Player enemy, BotClassPreset preset)
 	{
 		if (bot == null || enemy == null || preset == null) { return 40; }
-		if (dominatorRangedPressure(bot, enemy, preset))
-			return TacticsPolicy.tankApproachRange(bot.getPhysicalAttackRange(), bot.getTemplate().getCollisionRadius());
+		// Ranged opponents are controlled with Dreaming Spirit, never chased into Hammer Crush range.
+		if (dominatorRangedPressure(bot, enemy, preset) && bot.getKnownSkill(1097) != null)
+			return TacticsPolicy.boundedApproachRange(bot.getMagicalAttackRange(bot.getKnownSkill(1097)));
 		if (TacticsPolicy.tankClass(preset.getClassId()) || strictMeleePressure(bot, enemy, preset))
 			return TacticsPolicy.tankApproachRange(bot.getPhysicalAttackRange(), bot.getTemplate().getCollisionRadius());
 		if (needsManaAutoAttack(bot, preset))
@@ -619,7 +631,8 @@ public final class BotTactics
 	{
 		BotControlChance.apply(bot);
 		final boolean survival = (!defenseOnly || movingSupport) && CardinalSurvival.active(bot, enemy);
-		if (!survival && !movingSupport) s.survivalKite.stop();
+        final boolean cardinalKiting = !defenseOnly && cardinalTrancePressure(bot, enemy, preset);
+		if (!survival && !cardinalKiting && !movingSupport) s.survivalKite.stop();
         s.clarityWindow.observe(bot, enemy);
         final BuffInfo bluffStun = BluffRear.stun(bot, enemy);
         final boolean bluffHold = bluffStun != null;
@@ -844,7 +857,9 @@ public final class BotTactics
 		// CP heal may interrupt any phase; the owed offensive action follows this phase, not random damage.
 		final int cpChoice = pressure && options.stream().anyMatch(o -> o.id() == cpProposed && !self(o.kind())) ? -1 : cpProposed;
 		final int pressureChoice = pressure ? s.dominatorPressure.choose(options, pressureControls, pressureCurses, sleeping || enemy.isStunned()) : -1;
-		final int cardinalChoice = survival ? s.clarityWindow.choose(options, hp) : s.cardinalProminence.choose(preset.getClassId(), options, time);
+        final int tranceKiteChoice = cardinalKiting ? TacticsPolicy.cardinalTranceKiteChoice(options, hp) : -1;
+		final int cardinalChoice = survival ? s.clarityWindow.choose(options, hp)
+            : tranceKiteChoice >= 0 ? tranceKiteChoice : s.cardinalProminence.choose(preset.getClassId(), options, time);
 		final int shadowChoice = !defenseOnly && options.stream().anyMatch(o -> o.id() == 821) ? 821 : -1;
 		final int tankMechanicChoice = TankClassMechanics.choose(options);
 		// A legal charged Flame wins over both low-HP Angelic and Sacrifice; no waiting for unavailable charges.
@@ -858,12 +873,14 @@ public final class BotTactics
 		for (TacticsPolicy.Option o : options) { if (o.id() == selected) { chosen = o.kind(); break; } }
 		final boolean urgent = tankMechanicChoice >= 0 || shadowChoice >= 0 || cardinalChoice >= 0 || chosen == TacticsPolicy.Kind.HEAL || chosen == TacticsPolicy.Kind.DEFENSE
 			|| (chosen == TacticsPolicy.Kind.CONTROL && interruptReady && s.enemyCasting);
-        if (survival && chosen != TacticsPolicy.Kind.HEAL && chosen != TacticsPolicy.Kind.DEFENSE)
+        if ((survival || cardinalKiting) && chosen != TacticsPolicy.Kind.HEAL && chosen != TacticsPolicy.Kind.DEFENSE)
         {
-            // Healing/shield preempt a retreat; an actual landed sleep still gives the old range retreat.
-            if (s.sleepRetreat.tick(bot, enemy, time, arenaCenter)) return true;
+            // A ready Trance interrupts the owned route; move only in the gaps until sleep lands.
+            // Preserve structure64's owed wake combo ahead of another Trance under Clarity.
+            if (survival && s.sleepRetreat.tick(bot, enemy, time, arenaCenter)) return true;
             if (invulnerableMelee(bot, enemy, s, time)) return true;
-            boolean escape = !ownSleep && distance < 450 && selected != 1394;
+            final boolean wakeCombo = survival && (selected == 1398 || selected == 1230);
+            boolean escape = !ownSleep && distance < 450 && selected != 1394 && !wakeCombo;
             if (s.survivalKite.tick(bot, enemy, time, escape)) return true;
         }
 		// No recovery retreat/flank/kite when MP cannot pay any offensive skill.

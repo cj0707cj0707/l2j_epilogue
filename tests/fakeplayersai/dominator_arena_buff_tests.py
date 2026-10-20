@@ -43,6 +43,8 @@ static boolean containsId(int[]a,int id){return Arrays.stream(a).anyMatch(v->v==
 static void applyOpeningSelfBuff(Player p,int id){if(p.known.containsKey(id)&&p.effects.active.add(id))p.grants++;}
 static boolean isTacticalTank(Player p){return false;}static boolean isTankDefenseSkill(int id){return false;}static boolean isStrongTankDefenseSkill(int id){return false;}
 static boolean tankMovementDefenseAllowed(Player enemy,Skill skill){return true;}static boolean isOpenerOnlySkill(int id){return false;}static boolean isDanceOrSong(Player p,int id){return false;}
+// This isolated1414 fixture has no STUN skills; the native STUN gate is covered by control_pursuit_trance_kite_tests.py.
+static class BotTactics {static boolean dominatorStunAllowed(Player p,Player e,Skill s){return true;}}
 static class CardinalSurvival {static boolean active(Player p,Player e){return false;}static boolean allowed(int id){return true;}}
 static class TankClassMechanics {static boolean allowed(Player p,int id){return true;}static boolean skill(int id){return false;}}
 '''+ '\n'.join(methods)+'''
