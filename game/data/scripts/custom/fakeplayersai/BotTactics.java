@@ -272,6 +272,18 @@ public final class BotTactics
 		return bot != null && enemy != null && preset != null && bot.getClient() == null
 			&& preset.getClassId() == 115 && bot.getPlayerClass().getId() == 115 && !meleeOpponent(enemy);
 	}
+    /** Strong-defense escape may pause for a native-legal Dreaming Spirit, not generic offense. */
+    private static boolean dominatorTankSleepReady(Player bot,Player enemy,BotClassPreset preset,State s,long time)
+    {
+        if(bot.getClient()!=null||preset.getClassId()!=115||bot.getPlayerClass().getId()!=115
+            ||!TankClassMechanics.defendedTank(enemy)||enemy.isSleeping()||enemy.isInvul())return false;
+        Skill skill=bot.getKnownSkill(1097);Failure f=s.failures.get(1097);
+        return skill!=null&&!bot.isAllSkillsDisabled()&&!bot.isOutOfControl()&&!bot.isMuted()
+            &&!bot.isSkillDisabled(skill)&&(f==null||time>=f.until)
+            &&(!bot.isInOlympiadMode()||!skill.isBlockedInOlympiad())
+            &&resources(bot,skill)&&skill.checkCondition(bot,enemy,false)
+            &&inRange(bot,enemy,skill,bot.calculateDistance2D(enemy))&&GeoEngine.getInstance().canSeeTarget(bot,enemy);
+    }
 	private static boolean daggerShadow(Player bot, Player enemy, BotClassPreset preset, Skill skill)
     {
         int cid = preset.getClassId();
@@ -703,6 +715,7 @@ public final class BotTactics
         s.cardinalTrancePriority = !defenseOnly && !healPriority && !prominencePriority && CardinalSurvival.tranceTarget(bot,enemy)
             && (cardinalNoKite || cardinalTranceReady(bot,enemy,s,time));
         final boolean trancePriority = s.cardinalTrancePriority;
+        final boolean tankSleepPriority = movingSupport && dominatorTankSleepReady(bot,enemy,preset,s,time);
 		if (!survival && !cardinalKiting && !movingSupport) s.survivalKite.stop();
         final BuffInfo bluffStun = BluffRear.stun(bot, enemy);
         final boolean bluffHold = bluffStun != null;
@@ -850,6 +863,7 @@ public final class BotTactics
         { Skill learned=bot.getKnownSkill(id); if(learned!=null)skills.put(id,learned); }
         if (healPriority) skills.put(CARDINAL_HEAL_ID,bot.getKnownSkill(CARDINAL_HEAL_ID));
         if (trancePriority) skills.put(1394, bot.getKnownSkill(1394));
+        if (tankSleepPriority) skills.put(1097,bot.getKnownSkill(1097));
         if (prominencePriority) skills.put(CARDINAL_PROMINENCE_ID,bot.getKnownSkill(CARDINAL_PROMINENCE_ID));
         // Learned class mechanics remain available with persisted rotation overrides.
         for (int id : TankClassMechanics.skills(bot.getPlayerClass().getId()))
@@ -870,13 +884,14 @@ public final class BotTactics
 		{
 			if (!CardinalSurvival.skillAllowed(bot,skill.getId())) continue;
             if (healPriority && skill.getId()!=CARDINAL_HEAL_ID) continue;
+            if (tankSleepPriority && skill.getId()!=1097) continue;
             if (trancePriority && skill.getId() != 1394) continue;
             if (survival && !CardinalSurvival.allowed(skill.getId())) continue;
             if (survival && skill.getId() == 1398 && !s.clarityWindow.manaBurn(enemy)) continue;
             if (preset.getClassId()==CARDINAL_CLASS_ID && skill.getId()==CARDINAL_PROMINENCE_ID && !CardinalSurvival.prominenceAllowed(bot,enemy)) continue;
             if (bluffHold && (defenseOnly || skill.getId() != 531 && !(skill.isPhysical() && directDamage(skill)))) continue;
             if (!TankClassMechanics.allowed(bot, skill.getId())) continue;
-			if (controlHold && skill.getId() != 1245 && !TacticsPolicy.dominatorCpSkill(skill.getId())) continue;
+			if (controlHold && !(tankSleepPriority && skill.getId()==1097) && skill.getId() != 1245 && !TacticsPolicy.dominatorCpSkill(skill.getId())) continue;
 			if (BotSpawner.isOpenerOnlySkill(skill.getId())) { continue; } // training as well as ranked
 			// Body Reconstruction (833): Doombringer-exclusive HP-threshold self-heal.
 			// Activate at40% HP or below; the shared guard also protects legacy auto-use.
@@ -893,9 +908,9 @@ public final class BotTactics
 			final TacticsPolicy.Kind detected = TankClassMechanics.support(skill.getId()) ? TacticsPolicy.Kind.DEFENSE : pressure && skill.getId() == 1105 ? TacticsPolicy.Kind.SLOW : kind(skill);
 			final boolean direct = directDamage(skill);
 			final TacticsPolicy.Kind kind = dominator && sleeping && (!pressure || !pressureControl(skill)) && sleepElapsed >= 5000 && direct ? TacticsPolicy.Kind.DAMAGE : detected;
-			if (kind == null || (defenseOnly && kind != TacticsPolicy.Kind.HEAL && kind != TacticsPolicy.Kind.DEFENSE)) { continue; }
+			if (kind == null || (defenseOnly && !tankSleepPriority && kind != TacticsPolicy.Kind.HEAL && kind != TacticsPolicy.Kind.DEFENSE)) { continue; }
 			// Rescue casts must not immobilize the escaping bot or spend a tick building icon charges.
-			if (movingSupport && (!self(kind) || immobilizingSupport(skill) || skill.getId() == 368
+			if (movingSupport && !tankSleepPriority && (!self(kind) || immobilizingSupport(skill) || skill.getId() == 368
 				|| skill.getId() == 784 || skill.getId() == 761 || skill.getId() == 788
 				|| kind == TacticsPolicy.Kind.HEAL && !TacticsPolicy.dominatorCpSkill(skill.getId()) && hp >= .65)) continue;
 			if (chargeClosing && !self(kind)) { continue; }
@@ -976,14 +991,14 @@ public final class BotTactics
 		final int tankMechanicChoice = TankClassMechanics.choose(options);
 		// A legal charged Flame wins over both low-HP Angelic and Sacrifice; no waiting for unavailable charges.
 		final int recoveryChoice = (tankMechanicChoice == 785 || tankMechanicChoice == 406) ? tankMechanicChoice : options.stream().filter(o -> preset.getClassId() == 90 && o.id() == 69 || preset.getClassId() == 131 && o.id() == 833).mapToInt(TacticsPolicy.Option::id).findFirst().orElse(-1);
-		final int selected = prominencePriority && options.stream().anyMatch(o -> o.id()==CARDINAL_PROMINENCE_ID) ? CARDINAL_PROMINENCE_ID : recoveryChoice >= 0 ? recoveryChoice : cardinalChoice >= 0 ? cardinalChoice : shadowChoice >= 0 ? shadowChoice : cpChoice >= 0 ? cpChoice : pressureChoice >= 0 ? pressureChoice : tankMechanicChoice >= 0 ? tankMechanicChoice : tankChoice >= 0 ? tankChoice : trainingRushActive
+		final int selected = tankSleepPriority && options.stream().anyMatch(o -> o.id()==1097) ? 1097 : prominencePriority && options.stream().anyMatch(o -> o.id()==CARDINAL_PROMINENCE_ID) ? CARDINAL_PROMINENCE_ID : recoveryChoice >= 0 ? recoveryChoice : cardinalChoice >= 0 ? cardinalChoice : shadowChoice >= 0 ? shadowChoice : cpChoice >= 0 ? cpChoice : pressureChoice >= 0 ? pressureChoice : tankMechanicChoice >= 0 ? tankMechanicChoice : tankChoice >= 0 ? tankChoice : trainingRushActive
 			? options.stream().anyMatch(option -> option.id() == 793) ? 793 : -1
 			: trainingBerserker
 			? s.trainingBurst.choose(options, distance, skills.containsKey(793), difficulty(s), random.nextDouble(), random.nextDouble())
 			: TacticsPolicy.select(options, difficulty(s), random.nextDouble(), random.nextDouble());
 		TacticsPolicy.Kind chosen = null;
 		for (TacticsPolicy.Option o : options) { if (o.id() == selected) { chosen = o.kind(); break; } }
-		final boolean urgent = selected==CARDINAL_PROMINENCE_ID && preset.getClassId()==CARDINAL_CLASS_ID || tankMechanicChoice >= 0 || shadowChoice >= 0 || cardinalChoice >= 0 || chosen == TacticsPolicy.Kind.HEAL || chosen == TacticsPolicy.Kind.DEFENSE
+		final boolean urgent = tankSleepPriority && selected==1097 || selected==CARDINAL_PROMINENCE_ID && preset.getClassId()==CARDINAL_CLASS_ID || tankMechanicChoice >= 0 || shadowChoice >= 0 || cardinalChoice >= 0 || chosen == TacticsPolicy.Kind.HEAL || chosen == TacticsPolicy.Kind.DEFENSE
 			|| (chosen == TacticsPolicy.Kind.CONTROL && interruptReady && s.enemyCasting);
         if (!prominencePriority && !cardinalNoKite && !trancePriority && (survival || cardinalKiting) && chosen != TacticsPolicy.Kind.HEAL && chosen != TacticsPolicy.Kind.DEFENSE)
         {
@@ -1008,7 +1023,13 @@ public final class BotTactics
 		if (selected >= 0)
 		{
 			final Skill skill = skills.get(selected);
-			// Caller deliberately lends the phase to this single genuine defensive cast.
+			// Stop only the old escape route, after live-cast/pending/CC and native legality checks.
+            if(tankSleepPriority && selected==1097)
+            {
+                s.invulnerableKite.stop(); s.survivalKite.stop(); s.moveUntil=0;
+                if(bot.isMoving())bot.getAI().setIntentionIdle();
+            }
+            // Caller lends the phase to recovery, or this narrowly admitted tank-control cast.
 			if (defenseOnly) { AutoUseTaskManager.getInstance().stopAutoUseTask(bot); AutoPlayTaskManager.getInstance().stopAutoPlay(bot); }
 			final boolean self = self(chosen);
 			stopBasicAttack(bot); // end auto loop before requesting an ordinary cast
