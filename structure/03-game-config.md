@@ -34,7 +34,8 @@
 | `Scripts.xml` | Управление загрузкой скриптов |
 | `Interface.ini` | GUI-консоль |
 | `hexid.txt` | Ключ авторизации GS на LS (ServerID=2, секрет) |
-| `default-ipconfig.xml` | Шаблон внешних IP (работает только под именем `ipconfig.xml`) |
+| `ipconfig.xml` | Активная локальная конфигурация:127.0.0.1; без внешнего HTTP-автоопределения (см.71) |
+| `default-ipconfig.xml` | Неактивный образец IP-конфигурации |
 | `chatfilter.txt` | Слова чат-фильтра (фильтр выключен) |
 | `Custom\` | 44 `.ini` кастомных модов — см. низ документа |
 
@@ -237,7 +238,7 @@ UseItem 0 (выкл), RollDice 42, ItemPetSummon 16, HeroVoice 100, GlobalChat 5
 - **DynamicExpRates.xml**: уровни 1–87, все множители exp/sp = 1.
 - **BotReportPunishments.xml**: жалобы 25/75/100/125/150/175 → дебаффы 6038–6057.
 - **chatfilter.txt**: слова фильтра (фильтр выключен, UseChatFilter=False).
-- **default-ipconfig.xml**: активен только под именем `ipconfig.xml`; сейчас все адреса 127.0.0.1 — локальный режим.
+- **ipconfig.xml**: активная ручная настройка127.0.0.1 для клиента на том же ПК; исключает HTTP-автоопределение внешнего IP. **default-ipconfig.xml** — только неактивный образец, его LAN-заглушки не используются. См.[71 — локальная сеть без ожидания внешнего IP](71-local-ipconfig-no-external-detection.md).
 - **hexid.txt**: `HexID=<секрет>` и `ServerID=2` (хотя `RequestServerID=1`; см. [04-login-server.md](04-login-server.md)).
 
 ## Каталог Custom (`game\config\Custom`) — 44 файла

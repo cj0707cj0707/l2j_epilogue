@@ -68,4 +68,4 @@ LoginServer — первый контакт клиента: авторизаци
 ## Связанные конфиги GameServer
 
 - `game\config\Server.ini` — куда подключаться (`LoginHost = 127.0.0.1`, `LoginPort = 9014`), свой порт `GameserverPort = 7777`, `RequestServerID = 1`, лимит онлайна, разрешённые протоколы клиента (**152** — это протокол Gracia Epilogue), плановые рестарты.
-- `game\config\default-ipconfig.xml` — автоопределение внешних/внутренних IP (для игры через интернет переименовывается в `ipconfig.xml` и правится).
+- `game\config\ipconfig.xml` — активная ручная конфигурация адреса GameServer127.0.0.1 для игры на том же ПК; отключает внешний HTTP-запрос при старте GS. `default-ipconfig.xml` — неактивный образец. Bind/порты LoginServer не менялись. См.[71](71-local-ipconfig-no-external-detection.md).

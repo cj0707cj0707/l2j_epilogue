@@ -28,6 +28,8 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 ## Последнее обновление
 
+- [71 — Локальный IP без внешнего автоопределения](71-local-ipconfig-no-external-detection.md): активный `game/config/ipconfig.xml` с127.0.0.1 вместо HTTP-запроса внешнего IP при старте; native тест, карта файлов и установка.
+
 - [70 — Bluff: базовый откат12с (+50%)](70-bluff-reuse12s.md):8000→12000мс для игроков и ботов, включая Chance101–115; native регрессии, карта файлов и установка. AI обхода не менялся.
 
 - [69 — Cardinal/Dominator: строго фиксированный шанс сна20%](69-cardinal-dominator-fixed-sleep20.md):1394/1097 с20/20/20; защита от старого общего25%-gate; аудит M.Atk/эпика/заточки/резистов и native тесты. Fear15%, Celestial/Bluff без изменений.
@@ -116,6 +118,7 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 | Файл | Содержание |
 |---|---|
+| [71-local-ipconfig-no-external-detection.md](71-local-ipconfig-no-external-detection.md) | Локальный IP127.0.0.1, отключение внешнего автоопределения, native тест и установка |
 | [70-bluff-reuse12s.md](70-bluff-reuse12s.md) | Bluff358: базовый reuse12с вместо8с, все Chance-уровни; проверки и установка |
 | [69-cardinal-dominator-fixed-sleep20.md](69-cardinal-dominator-fixed-sleep20.md) | Текущие20% для Trance1394 и Dreaming Spirit1097; аудит формулы, старого gate, native тесты; карта файлов/установка |
 | [68-passive-barrier-trance25-and-bluff-rear.md](68-passive-barrier-trance25-and-bluff-rear.md) | Актуально:1418 кайт;5576 Trance до сна/окончания эффекта; шанс см.69; Bluff обход/спина/без автоатаки; тесты/установка |
