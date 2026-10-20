@@ -168,7 +168,7 @@ public class ClarityBluffPhaseTest extends CombatPriorityAuditTest {
  }
  static void edgeRear()throws Exception {
   for(int cid:new int[]{93,101,108})for(boolean ranked:new boolean[]{false,true})for(boolean human:new boolean[]{false,true})
-   for(int h:new int[]{0,8192,16384,24576,32768,40960,49152,57344,65535})for(int edge:new int[]{430,445}) {
+   for(int h:new int[]{0,8192,16384,24576,32768,40960,49152,57344,65535})for(int edge:new int[]{430,445,600,900}) {
    int cx=-20939,cy=-210729;double angle=h*2*Math.PI/65536.0;
    Player p=owner(cid,ranked),e=actor(94,ranked,human);foeReady(p,e);
    at(p,cx+(int)Math.round(350*Math.cos(angle)),cy+(int)Math.round(350*Math.sin(angle)));
@@ -178,7 +178,7 @@ public class ClarityBluffPhaseTest extends CombatPriorityAuditTest {
    for(int n=0;n<24&&!BluffRear.ready(p,e);n++) {
     route.tick(p,e,applied,10000+n*200,new int[]{cx,cy,0});
     if(p.isMoving()) {
-     verify(Math.hypot(ai.requested.getX()-cx,ai.requested.getY()-cy)<=449,"edge route stays inside449");
+     verify(Math.hypot(ai.requested.getX()-cx,ai.requested.getY()-cy)<=ArenaCombatRules.attackRadius(p),"offensive rear route uses arena envelope, not kite449");
      double length=Math.hypot(ai.requested.getX()-p.getX(),ai.requested.getY()-p.getY());
      verify(length<=161,"ordinary bounded movement, never teleport");
      at(p,ai.requested.getX(),ai.requested.getY());f(Creature.class,"_move").set(p,null);

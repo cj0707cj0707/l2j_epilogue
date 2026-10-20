@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Structure75: all-opponent Cardinal control, fixed20% sleeps and rear-only Bluff regressions."""
+"""Structure77: melee pursuit boundaries plus Cardinal/control/rear-only Bluff regressions."""
 from pathlib import Path
 import os, subprocess, tempfile, shutil, argparse
 parser=argparse.ArgumentParser()
 parser.add_argument("--bluff-only",action="store_true",help="Run only the native rear-phase fixture after compiling all scripts")
 parser.add_argument("--cardinal-only",action="store_true",help="Run Cardinal center/hold/proc public-hook regression only")
 parser.add_argument("--trance-only",action="store_true",help="Run Cardinal75 all-opponent/Clarity/shield priority fixture only")
+parser.add_argument("--pursuit-only",action="store_true",help="Run structure77 melee pursuit/native boundary fixture only")
 parser.add_argument("--prominence-only",action="store_true",help="Run Cardinal76 strict90/10s healthy nuke priority fixture only")
 options=parser.parse_args()
 R=Path(__file__).resolve().parents[2];T=Path(__file__).parent
@@ -43,7 +44,7 @@ with tempfile.TemporaryDirectory(prefix='passive-bluff68-') as directory:
                *sorted((R / 'game/data/scripts/handlers/skill/targets').glob('*.java')),
                *sorted((R / 'game/data/scripts/custom').rglob('*.java')),
                *[T / name for name in ['LowManaAutoAttackTest.java', 'CombatRecoveryRulesTest.java',
-                                        'ArenaOrbitTranceManaTest.java', 'BerserkerSoulCleanseTest.java', 'DominatorPressureBluffTest.java', 'DaggerRearApproachTest.java', 'DominatorCpTitanPressureRegression.java', 'CpMeleeRushRecoveryTest.java', 'PostSleepSummonTest.java', 'DominatorControlShadowTest.java', 'ArenaInvulnerabilityClarityTest.java', 'CardinalSurvivalControlChanceTest.java', 'NativeDebuffEpicTest.java', 'TankMechanicsKiteTest.java', 'CombatPriorityAuditTest.java', 'ClarityBluffPhaseTest.java', 'ControlPursuitTranceKiteTest.java', 'CardinalSleepPriorityTest.java', 'CardinalAlwaysTranceTest.java', 'CardinalProminencePriorityTest.java']]]
+                                        'ArenaOrbitTranceManaTest.java', 'BerserkerSoulCleanseTest.java', 'DominatorPressureBluffTest.java', 'DaggerRearApproachTest.java', 'DominatorCpTitanPressureRegression.java', 'CpMeleeRushRecoveryTest.java', 'PostSleepSummonTest.java', 'DominatorControlShadowTest.java', 'ArenaInvulnerabilityClarityTest.java', 'CardinalSurvivalControlChanceTest.java', 'NativeDebuffEpicTest.java', 'TankMechanicsKiteTest.java', 'CombatPriorityAuditTest.java', 'ClarityBluffPhaseTest.java', 'ControlPursuitTranceKiteTest.java', 'CardinalSleepPriorityTest.java', 'CardinalAlwaysTranceTest.java', 'CardinalProminencePriorityTest.java', 'MeleePursuitBoundaryTest.java']]]
 
     def run(command, cwd):
         result = subprocess.run(command, cwd=cwd, capture_output=True, text=True, timeout=180)
@@ -54,7 +55,7 @@ with tempfile.TemporaryDirectory(prefix='passive-bluff68-') as directory:
         return result.stdout.strip()
 
     run(['java', str(compiler), '-cp', cp, '-d', str(d / 'classes'), *map(str, sources)], R)
-    suites=['CardinalProminencePriorityTest'] if options.prominence_only else ['CardinalAlwaysTranceTest'] if options.trance_only else ['CardinalSleepPriorityTest'] if options.cardinal_only else ['ClarityBluffPhaseTest'] if options.bluff_only else ['ControlPursuitTranceKiteTest','CardinalSurvivalControlChanceTest','ArenaOrbitTranceManaTest','NativeDebuffEpicTest','ClarityBluffPhaseTest','TankMechanicsKiteTest','CombatPriorityAuditTest','CardinalSleepPriorityTest','DominatorPressureBluffTest','PostSleepSummonTest','CardinalAlwaysTranceTest','CardinalProminencePriorityTest']
+    suites=['MeleePursuitBoundaryTest'] if options.pursuit_only else ['CardinalProminencePriorityTest'] if options.prominence_only else ['CardinalAlwaysTranceTest'] if options.trance_only else ['CardinalSleepPriorityTest'] if options.cardinal_only else ['ClarityBluffPhaseTest'] if options.bluff_only else ['ControlPursuitTranceKiteTest','CardinalSurvivalControlChanceTest','ArenaOrbitTranceManaTest','NativeDebuffEpicTest','ClarityBluffPhaseTest','TankMechanicsKiteTest','CombatPriorityAuditTest','CardinalSleepPriorityTest','DominatorPressureBluffTest','PostSleepSummonTest','CardinalAlwaysTranceTest','CardinalProminencePriorityTest','MeleePursuitBoundaryTest']
     for name in suites:
         print(run(['java', '-cp', str(d / 'classes') + os.pathsep + cp, 'custom.fakeplayersai.'+name, str(R / 'game'), *([str(d/'audit68.md')] if name=='NativeDebuffEpicTest' else [])], R / 'game'), flush=True)
     print('PASS: all custom/effect scripts compile')

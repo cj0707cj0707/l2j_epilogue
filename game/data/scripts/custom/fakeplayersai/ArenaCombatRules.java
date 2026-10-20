@@ -38,6 +38,19 @@ public final class ArenaCombatRules
     {
         if(clear!=null)try{clear.invoke(null,id);}catch(ReflectiveOperationException e){throw new IllegalStateException(e);}
     }
+    /** A class role, not its current weapon override: bows/casters do not get melee pursuit. */
+    static boolean meleeClass(Player bot)
+    {
+        BotClassPreset preset=bot==null?null:BotPresets.getPresetByClassId(bot.getPlayerClass().getId());
+        if(preset==null||preset.isCaster())return false;
+        return switch(preset.getWeaponKind())
+        {
+            case SWORD,TWO_HAND,POLE,DAGGER,DUAL,FIST,RAPIER,ANCIENT -> true;
+            default -> false;
+        };
+    }
+    /** Existing chase safety envelope, not the450 kite disk and not a wall bypass. */
+    static double attackRadius(Player bot) { return bot.isInOlympiadMode()?2000:TrainingArena.arenaRadius(); }
     static double retreatRadius(Player bot,org.l2jmobius.gameserver.entity.actor.Creature enemy,double normal)
     { return managed(bot)&&enemy!=null&&enemy.isPlayer()&&managed(enemy.asPlayer())?450:normal; }
     static int[] center(Player bot)
@@ -52,12 +65,14 @@ public final class ArenaCombatRules
         if(c==null||!access())return true; // never allow unbounded bot/bot combat on an unsupported core
         try
         {
-            // Admit both bots together, before either class-specific driver runs.
-            bind.invoke(null,bot,enemy,c[0],c[1]);bind.invoke(null,enemy,bot,c[0],c[1]);
-            // Initial arena spawn points can be outside460. Normalize on admission;
-            // subsequent core position commits/charge landings are clamped as well.
+            // Resolve each participant's OWN role, including when the opponent's driver runs first.
+            // The old global460 clamp must not turn the kite ring into a wall for melee attack paths.
             for(Player actor:new Player[]{bot,enemy})
             {
+                if(meleeClass(actor)) { clearBoundary(actor.getObjectId()); continue; }
+                Player opponent=actor==bot?enemy:bot;
+                bind.invoke(null,actor,opponent,c[0],c[1]);
+                // Only actors retaining the radial rule may be normalized on admission.
                 if(Math.hypot((double)actor.getX()-c[0],(double)actor.getY()-c[1])<=460)continue;
                 actor.stopMove(null);
                 actor.setXYZ(actor.getX(),actor.getY(),actor.getZ());

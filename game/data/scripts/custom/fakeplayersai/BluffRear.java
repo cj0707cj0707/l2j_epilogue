@@ -80,7 +80,7 @@ final class BluffRear
         Location next = nextPoint(bot, enemy, center);
         if (next == null)
         {
-            status = "no-valid-bounded-route";
+            status = "no-valid-attack-route";
             if (blockedAt == 0) blockedAt = time;
             else if (time - blockedAt >= 2000)
             {
@@ -105,8 +105,8 @@ final class BluffRear
 
     /** Plan the WHOLE arc, not merely a locally legal next waypoint.
      * Exact180deg is preferred, but the native rear sector is wider than that.
-     * Near an arena edge, a diagonal/closer rear point can be legal when all
-     * exact180deg points are outside the boundary. Never walk back and forth
+     * Use the existing whole-arena chase envelope, NOT the kite circle: an
+     * offensive rear approach may legitimately cross450/460. Never walk back and forth
      * between two locally legal points whose common final goal is unreachable. */
     private static Location nextPoint(Player bot, Player enemy, int[] center)
     {
@@ -122,7 +122,7 @@ final class BluffRear
                 double goalAngle=rear+Math.toRadians(offset);
                 int reach=Math.min(35,radius);
                 Location goal=point(enemy,reach,goalAngle,bot.getZ());
-                if (!inside(goal,center) || !TacticsPolicy.behind(enemy.getX(),enemy.getY(),enemy.getHeading(),goal.getX(),goal.getY())
+                if (!inside(bot,goal,center) || !TacticsPolicy.behind(enemy.getX(),enemy.getY(),enemy.getHeading(),goal.getX(),goal.getY())
                     || Math.hypot((double)goal.getX()-enemy.getX(),(double)goal.getY()-enemy.getY())>40) continue;
                 for (int direction : new int[]{preferred,-preferred})
                 {
@@ -139,7 +139,7 @@ final class BluffRear
                     boolean valid=true;
                     for (Location node : route)
                     {
-                        if (!inside(node,center)) { valid=false; break; }
+                        if (!inside(bot,node,center)) { valid=false; break; }
                         if (Math.hypot((double)node.getX()-previous.getX(),(double)node.getY()-previous.getY())<1) continue;
                         if (!GeoEngine.getInstance().canMoveToTarget(previous.getX(),previous.getY(),previous.getZ(),node.getX(),node.getY(),node.getZ(),bot.getInstanceId()))
                         { valid=false; break; }
@@ -159,8 +159,8 @@ final class BluffRear
     {
         return new Location(enemy.getX()+(int)Math.round(radius*Math.cos(angle)),enemy.getY()+(int)Math.round(radius*Math.sin(angle)),z);
     }
-    private static boolean inside(Location point,int[] center)
+    private static boolean inside(Player bot,Location point,int[] center)
     {
-        return Math.hypot((double)point.getX()-center[0],(double)point.getY()-center[1])<=449;
+        return Math.hypot((double)point.getX()-center[0],(double)point.getY()-center[1])<=ArenaCombatRules.attackRadius(bot);
     }
 }

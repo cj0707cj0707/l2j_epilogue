@@ -149,7 +149,7 @@ public class ArenaOrbitTranceManaTest
             for(Player a:List.of(p,enemy))
             {
                 xy=(int[])clamp.invoke(null,a,c[0]+5000,c[1]+5000);
-                check(Math.hypot(xy[0]-c[0],xy[1]-c[1])<=460,"both bots protected before either class driver");
+                check(ArenaCombatRules.meleeClass(a) ? xy[0]==c[0]+5000&&xy[1]==c[1]+5000 : Math.hypot(xy[0]-c[0],xy[1]-c[1])<=460,"own class role controls radial binding before either driver: melee pursuit unbound, ranged bounded");
                 ArenaCombatRules.clear(a.getObjectId());roster.remove(a.getObjectId());
             }
         }
