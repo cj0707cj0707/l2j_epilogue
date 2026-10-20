@@ -100,6 +100,7 @@ public final class BotRecoveryRules
         if (event == null || !managed(event.getCaster()) || event.getSkill()==null) return null;
         final Player actor=event.getCaster().asPlayer();
         Player victim=event.getTarget()!=null&&event.getTarget().isPlayer()?event.getTarget().asPlayer():null;
+        if (event.getSkill().getId()==1230 && actor.getPlayerClass().getId()==97 && arenaManaged(actor) && !CardinalSurvival.prominenceAllowed(actor,victim)) return new TerminateReturn(true,true,true);
         if (victim!=null && victim!=actor && actor.getPlayerClass().getId()==97 && arenaManaged(actor) && victim.isSleeping()) return new TerminateReturn(true,true,true);
         if (victim!=null&&blockedBluffStrike(actor,victim,event.getSkill())) return new TerminateReturn(true,true,true);
         if (!healing(event.getSkill())) return null;

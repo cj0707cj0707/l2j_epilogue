@@ -297,6 +297,19 @@ public final class BotTactics
             &&(!bot.isInOlympiadMode()||!skill.isBlockedInOlympiad())
             &&resources(bot,skill)&&skill.checkCondition(bot,enemy,false);
     }
+    /** Only a fully legal, in-range native nuke may override the normal Trance priority. */
+    private static boolean cardinalProminenceReady(Player bot,Player enemy,State s,long time)
+    {
+        if(bot.getClient()!=null||bot.getPlayerClass().getId()!=CARDINAL_CLASS_ID
+            ||!CardinalSurvival.prominenceAllowed(bot,enemy)||!s.cardinalProminence.ready(time))return false;
+        Skill skill=bot.getKnownSkill(CARDINAL_PROMINENCE_ID);
+        Failure f=s.failures.get(CARDINAL_PROMINENCE_ID);
+        return skill!=null&&!bot.isAllSkillsDisabled()&&!bot.isOutOfControl()
+            &&!bot.isSkillDisabled(skill)&&(f==null||time>=f.until)
+            &&(!bot.isInOlympiadMode()||!skill.isBlockedInOlympiad())
+            &&resources(bot,skill)&&skill.checkCondition(bot,enemy,false)
+            &&inRange(bot,enemy,skill,bot.calculateDistance2D(enemy))&&GeoEngine.getInstance().canSeeTarget(bot,enemy);
+    }
     private static boolean pressureControl(Skill skill)
 	{
 		return skill.hasEffectType(EffectType.SLEEP, EffectType.STUN);
@@ -670,9 +683,10 @@ public final class BotTactics
         s.clarityWindow.observe(bot, enemy);
         final boolean cardinalSleeping = !defenseOnly && preset.getClassId() == CARDINAL_CLASS_ID && enemy.isSleeping();
         final boolean cardinalNoKite = CardinalSurvival.noKite(bot);
-        // New rule75: any legal ready Trance wins over heal/wake combo for every opponent.
+        // Rule76: a legal ready Prominence at >90% HP precedes Trance, regardless of Clarity.
+        final boolean prominencePriority = !defenseOnly && cardinalProminenceReady(bot,enemy,s,time);
         // While protected, even native reuse/silence gaps must not fall back to fleeing.
-        s.cardinalTrancePriority = !defenseOnly && CardinalSurvival.tranceTarget(bot,enemy)
+        s.cardinalTrancePriority = !defenseOnly && !prominencePriority && CardinalSurvival.tranceTarget(bot,enemy)
             && (cardinalNoKite || cardinalTranceReady(bot,enemy,s,time));
         final boolean trancePriority = s.cardinalTrancePriority;
 		if (!survival && !cardinalKiting && !movingSupport) s.survivalKite.stop();
@@ -693,7 +707,7 @@ public final class BotTactics
 		restoreCardinalMana(bot, preset);
 		if (soulCleanse(bot, enemy, preset, s, time)) return true;
 		if (escapeShackle(bot, enemy, preset, s, time)) return true;
-		if (!defenseOnly && !cardinalNoKite && !cardinalSleeping && !s.clarityWindow.pending() && !survival && !trancePriority && !bluffHold && !CardinalSurvival.ownCelestial(bot))
+		if (!defenseOnly && !prominencePriority && !cardinalNoKite && !cardinalSleeping && !s.clarityWindow.pending() && !survival && !trancePriority && !bluffHold && !CardinalSurvival.ownCelestial(bot))
 		{
 			final boolean mustKite = (enemy.isInvul() && meleeOpponent(enemy)) || TankClassMechanics.defendedTank(enemy);
 			if (mustKite && supportBeforeMovement(bot, enemy, preset, s, time)) return true;
@@ -708,6 +722,11 @@ public final class BotTactics
 		// Real casts and CC are never aborted or replaced, including by urgent heals.
 		if (bot.isCastingNow() || bot.isOutOfControl() || bot.isAllSkillsDisabled()) { return !defenseOnly; }
 		if (s.pendingId != 0) { return !defenseOnly; }
+        if (!defenseOnly && prominencePriority)
+        {
+            s.invulnerableKite.stop(); s.survivalKite.stop(); s.moveUntil=0;
+            if(bot.isMoving())bot.getAI().setIntentionIdle();
+        }
         if (!defenseOnly && cardinalNoKite)
         {
             s.invulnerableKite.stop(); s.survivalKite.stop(); s.moveUntil=0;
@@ -803,6 +822,7 @@ public final class BotTactics
         if (survival) for (int id : new int[]{1394,1418,1398,1230,1218})
         { Skill learned=bot.getKnownSkill(id); if(learned!=null)skills.put(id,learned); }
         if (trancePriority) skills.put(1394, bot.getKnownSkill(1394));
+        if (prominencePriority) skills.put(CARDINAL_PROMINENCE_ID,bot.getKnownSkill(CARDINAL_PROMINENCE_ID));
         // Learned class mechanics remain available with persisted rotation overrides.
         for (int id : TankClassMechanics.skills(bot.getPlayerClass().getId()))
         { Skill learned=bot.getKnownSkill(id); if(learned!=null)skills.put(id,learned); }
@@ -823,7 +843,7 @@ public final class BotTactics
 			if (trancePriority && skill.getId() != 1394) continue;
             if (survival && !CardinalSurvival.allowed(skill.getId())) continue;
             if (survival && skill.getId() == 1398 && !s.clarityWindow.manaBurn(enemy)) continue;
-            if (survival && skill.getId() == 1230 && !s.clarityWindow.prominence(enemy)) continue;
+            if (preset.getClassId()==CARDINAL_CLASS_ID && skill.getId()==CARDINAL_PROMINENCE_ID && !CardinalSurvival.prominenceAllowed(bot,enemy)) continue;
             if (bluffHold && (defenseOnly || skill.getId() != 531 && !(skill.isPhysical() && directDamage(skill)))) continue;
             if (!TankClassMechanics.allowed(bot, skill.getId())) continue;
 			if (controlHold && skill.getId() != 1245 && !TacticsPolicy.dominatorCpSkill(skill.getId())) continue;
@@ -926,16 +946,16 @@ public final class BotTactics
 		final int tankMechanicChoice = TankClassMechanics.choose(options);
 		// A legal charged Flame wins over both low-HP Angelic and Sacrifice; no waiting for unavailable charges.
 		final int recoveryChoice = (tankMechanicChoice == 785 || tankMechanicChoice == 406) ? tankMechanicChoice : options.stream().filter(o -> preset.getClassId() == 90 && o.id() == 69 || preset.getClassId() == 131 && o.id() == 833).mapToInt(TacticsPolicy.Option::id).findFirst().orElse(-1);
-		final int selected = recoveryChoice >= 0 ? recoveryChoice : cardinalChoice >= 0 ? cardinalChoice : shadowChoice >= 0 ? shadowChoice : cpChoice >= 0 ? cpChoice : pressureChoice >= 0 ? pressureChoice : tankMechanicChoice >= 0 ? tankMechanicChoice : tankChoice >= 0 ? tankChoice : trainingRushActive
+		final int selected = prominencePriority && options.stream().anyMatch(o -> o.id()==CARDINAL_PROMINENCE_ID) ? CARDINAL_PROMINENCE_ID : recoveryChoice >= 0 ? recoveryChoice : cardinalChoice >= 0 ? cardinalChoice : shadowChoice >= 0 ? shadowChoice : cpChoice >= 0 ? cpChoice : pressureChoice >= 0 ? pressureChoice : tankMechanicChoice >= 0 ? tankMechanicChoice : tankChoice >= 0 ? tankChoice : trainingRushActive
 			? options.stream().anyMatch(option -> option.id() == 793) ? 793 : -1
 			: trainingBerserker
 			? s.trainingBurst.choose(options, distance, skills.containsKey(793), difficulty(s), random.nextDouble(), random.nextDouble())
 			: TacticsPolicy.select(options, difficulty(s), random.nextDouble(), random.nextDouble());
 		TacticsPolicy.Kind chosen = null;
 		for (TacticsPolicy.Option o : options) { if (o.id() == selected) { chosen = o.kind(); break; } }
-		final boolean urgent = tankMechanicChoice >= 0 || shadowChoice >= 0 || cardinalChoice >= 0 || chosen == TacticsPolicy.Kind.HEAL || chosen == TacticsPolicy.Kind.DEFENSE
+		final boolean urgent = selected==CARDINAL_PROMINENCE_ID && preset.getClassId()==CARDINAL_CLASS_ID || tankMechanicChoice >= 0 || shadowChoice >= 0 || cardinalChoice >= 0 || chosen == TacticsPolicy.Kind.HEAL || chosen == TacticsPolicy.Kind.DEFENSE
 			|| (chosen == TacticsPolicy.Kind.CONTROL && interruptReady && s.enemyCasting);
-        if (!cardinalNoKite && !trancePriority && (survival || cardinalKiting) && chosen != TacticsPolicy.Kind.HEAL && chosen != TacticsPolicy.Kind.DEFENSE)
+        if (!prominencePriority && !cardinalNoKite && !trancePriority && (survival || cardinalKiting) && chosen != TacticsPolicy.Kind.HEAL && chosen != TacticsPolicy.Kind.DEFENSE)
         {
             // A ready Trance interrupts the owned route; move only in the gaps until sleep lands.
             // A native-unavailable Trance may leave the old wake combo as fallback.

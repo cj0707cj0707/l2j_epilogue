@@ -39,7 +39,7 @@ public class ControlPursuitTranceKiteTest extends ClarityBluffPhaseTest {
  }
  static void tranceGaps()throws Exception {
   for(boolean ranked:new boolean[]{false,true})for(boolean human:new boolean[]{false,true})for(boolean clarity:new boolean[]{false,true}) {
-   Player e=actor(88,ranked,human),p=cardinal(e,ranked,1394,1398,1230,1218,1418);Object s=arena(p,e);if(!clarity)clear(e,3282);
+   Player e=actor(88,ranked,human),p=cardinal(e,ranked,1394,1398,1230,1218,1418);Object s=arena(p,e);disable(p,1230);if(!clarity)clear(e,3282);
    hp(p,10000);disable(p,1418);disable(p,1394);
    verify(run(p,e,s,10000)&&last==0&&p.isMoving(),"Trance reuse gap: ordinary ring movement, not stationary nuke spam");
    MoveAI ai=(MoveAI)p.getAI();int moves=ai.requests;int[] c=ArenaCombatRules.center(p);
@@ -58,18 +58,18 @@ public class ControlPursuitTranceKiteTest extends ClarityBluffPhaseTest {
  }
  static void closeWakeCombo()throws Exception {
   for(boolean ranked:new boolean[]{false,true})for(boolean human:new boolean[]{false,true}) {
-   Player e=actor(88,ranked,human),p=cardinal(e,ranked,1394,1398,1230,1218,1418);Object s=arena(p,e);disable(p,1418);hp(p,10000);
+   Player e=actor(88,ranked,human),p=cardinal(e,ranked,1394,1398,1230,1218,1418);Object s=arena(p,e);disable(p,1230);disable(p,1418);hp(p,10000);
    appliedSleep(p,e,97);run(p,e,s,10000);disable(p,1394);clearSleep(e);f(Creature.class,"_move").set(p,null);int[] c=ArenaCombatRules.center(p);at(p,c[0]+80,c[1]);at(e,c[0],c[1]);
-   verify(run(p,e,s,15000)&&last==1398,"Trance cooldown: close wake Mana Burn before kite");finish(p,e,s,20000);
+   verify(run(p,e,s,15000)&&last==1398,"Trance cooldown: close wake Mana Burn before kite");finish(p,e,s,20000);disabled(p).remove(p.getKnownSkill(1230).getReuseHashCode());
    verify(run(p,e,s,25000)&&last==1230,"Trance cooldown: close wake Prominence before kite");finish(p,e,s,30000);
-   disabled(p).remove(p.getKnownSkill(1394).getReuseHashCode());verify(run(p,e,s,35000)&&last==1394,"close waking melee: after combo resleep, not movement");
+   disable(p,1230);disabled(p).remove(p.getKnownSkill(1394).getReuseHashCode());verify(run(p,e,s,35000)&&last==1394,"close waking melee: after combo resleep, not movement");
   }
  }
  static void proc(Player p)throws Exception {nativeSkill(5576).applyEffects(p,p,true,5);p.setInvul(true);}
  static void ownInvulnerability()throws Exception {
   verify(nativeSkill(5576).getAbnormalTime()==5&&!nativeSkill(5576).isRemovedOnAnyActionExceptMove(),"native proc duration and no action removal");
   for(boolean ranked:new boolean[]{false,true})for(boolean human:new boolean[]{false,true})for(boolean clarity:new boolean[]{false,true})for(int cid:new int[]{108,93,101,94}) {
-   Player e=actor(cid,ranked,human),p=cardinal(e,ranked,1394,1398,1230,1218,1418);Object s=arena(p,e);if(!clarity)clear(e,3282);hp(p,1000);
+   Player e=actor(cid,ranked,human),p=cardinal(e,ranked,1394,1398,1230,1218,1418);Object s=arena(p,e);disable(p,1230);if(!clarity)clear(e,3282);hp(p,1000);
    effects(p);nativeSkill(1418).applyEffects(p,p,true,10);p.setInvul(true);
    verify(run(p,e,s,10000)&&last==1394&&!p.isMoving()&&f(state,"cardinalTrancePriority").getBoolean(s),"own1418: Trance, no kite, with/without Clarity");finish(p,e,s,11000);
    proc(p);verify(run(p,e,s,12000)&&last==1394&&!p.isMoving(),"overlapping own1418+proc5576: Trance, no kite");finish(p,e,s,13000);clear(p,1418);
@@ -84,7 +84,7 @@ public class ControlPursuitTranceKiteTest extends ClarityBluffPhaseTest {
    appliedSleep(p,e,97);verify(run(p,e,s,44000)&&last!=1394&&!f(state,"cardinalTrancePriority").getBoolean(s),"actual sleep ends phase while proc remains, never refresh sleep");
   }
   for(boolean ranked:new boolean[]{false,true}) {
-   Player e=actor(108,ranked,true),p=cardinal(e,ranked,1394,1398,1230,1218,1418);clear(e,3282);Object s=arena(p,e);hp(p,10000);disable(p,1394);disable(p,1418);effects(p);
+   Player e=actor(108,ranked,true),p=cardinal(e,ranked,1394,1398,1230,1218,1418);clear(e,3282);Object s=arena(p,e);disable(p,1230);hp(p,10000);disable(p,1394);disable(p,1418);effects(p);
    verify(run(p,e,s,10000)&&p.isMoving(),"ordinary reuse-gap kite before proc");proc(p);
    verify(run(p,e,s,12000)&&last==0&&!p.isMoving(),"proc interrupts existing kite even on reuse");
    disabled(p).remove(p.getKnownSkill(1394).getReuseHashCode());verify(run(p,e,s,14000)&&last==1394,"ready Trance after stopped route");finish(p,e,s,19000);

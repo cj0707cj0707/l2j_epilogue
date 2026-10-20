@@ -40,8 +40,8 @@ public class CardinalSleepPriorityTest extends ControlPursuitTranceKiteTest {
    verify(Math.abs(Math.hypot(ai.requested.getX()-e.getX(),ai.requested.getY()-e.getY())-wanted)<2,"retreat uses native Mana Burn range capped by arena");
    arrive(p,ai);for(int n=0;n<10;n++)verify(run(p,e,s,14000+n*500)&&last==0&&!p.isMoving()&&ai.requests==oldMoves+2,"arrived: HOLD until sleep ends, including own1418 and both shields");
    verify(!BotSpawner.tacticalSkillAllowed(p,e,nativeSkill(1398),false)&&!BotSpawner.tacticalSkillAllowed(p,e,nativeSkill(1230),false),"shared candidate guard protects sleep with/without Clarity");
-   clearSleep(e);clear(p,1418);clear(p,5576);p.setInvul(false);disable(p,1418);disable(p,1394);
-   verify(run(p,e,s,25000)&&last==1398&&!p.isMoving(),"actual wake with Trance on reuse: Mana Burn, with or without Clarity");finish(p,e,s,30000);
+   clearSleep(e);clear(p,1418);clear(p,5576);p.setInvul(false);disable(p,1418);disable(p,1394);disable(p,1230);
+   verify(run(p,e,s,25000)&&last==1398&&!p.isMoving(),"actual wake with Trance on reuse: Mana Burn, with or without Clarity");finish(p,e,s,30000);disabled(p).remove(p.getKnownSkill(1230).getReuseHashCode());
    verify(run(p,e,s,35000)&&last==1230,"then one ready Prominence, not premature resleep");finish(p,e,s,40000);
    var w=(CardinalSurvival.Window)f(state,"clarityWindow").get(s);verify(!w.pending(),"combo consumed, cannot repeat without another actual sleep");
   }
@@ -50,7 +50,7 @@ public class CardinalSleepPriorityTest extends ControlPursuitTranceKiteTest {
   Map<Integer,Player> roster=(Map<Integer,Player>)f(BotManager.class,"BOTS").get(null);
   Set<Integer> training=(Set<Integer>)f(TrainingArena.class,"BOTS").get(null);
   for(boolean ranked:new boolean[]{false,true})for(boolean human:new boolean[]{false,true}) {
-   Player e=actor(108,ranked,human),p=cardinal(e,ranked,1394,1398,1230,1218,1418);effects(p);clear(e,3282);hp(p,10000);Object local=arena(p,e);
+   Player e=actor(108,ranked,human),p=cardinal(e,ranked,1394,1398,1230,1218,1418);effects(p);clear(e,3282);hp(p,10000);Object local=arena(p,e);disable(p,1230);
    if(ranked)roster.put(p.getObjectId(),p);else {training.add(p.getObjectId());BotTactics.initializeTraining(p,e);}
    if(!human)roster.put(e.getObjectId(),e);
    try {

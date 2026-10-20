@@ -34,6 +34,12 @@ final class CardinalSurvival
     }
     static boolean passiveTrance(Player bot,Player enemy)
     { return tranceTarget(bot,enemy)&&bot.isInvul()&&live(bot,5576); }
+    /** Bot97 only: strict >90%, awake and vulnerable target; Clarity is irrelevant. */
+    static boolean prominenceAllowed(Player bot,Player enemy)
+    {
+        if(bot==null||bot.getClient()!=null||bot.getPlayerClass().getId()!=97)return true;
+        return enemy!=null&&bot.getCurrentHp()>bot.getMaxHp()*.90&&!enemy.isSleeping()&&!enemy.isInvul();
+    }
     static boolean allowed(int id) { return id==1394||id==1418||id==1398||id==1230||id==1218; }
     /** Per-pair live-effect history, not accepted casts or a guessed sleep timer. */
     static final class Window

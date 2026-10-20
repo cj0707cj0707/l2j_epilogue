@@ -19,9 +19,9 @@ public class ClarityBluffPhaseTest extends CombatPriorityAuditTest {
  }
  static void clarity()throws Exception{
   for(boolean ranked:new boolean[]{false,true})for(boolean human:new boolean[]{false,true}){
-   Player e=actor(94,ranked,human),p=cardinal(e,ranked,1394,1398,1218,1418,1230,1396);Object s=centered();
-   verify(run(p,e,s,10000)&&last==1394,"Clarity opener is Trance, not Mana Burn/Prominence");finish(p,e,s,15000);
-   disable(p,1394);disable(p,1418);hp(p,10000);asleep(p,e,s,20000);
+   Player e=actor(94,ranked,human),p=cardinal(e,ranked,1394,1398,1218,1418,1230,1396);Object s=centered();disable(p,1230);
+   verify(run(p,e,s,10000)&&last==1394,"Clarity opener with Prominence on reuse: Trance, not Mana Burn");finish(p,e,s,15000);
+   disable(p,1394);disable(p,1418);disable(p,1230);hp(p,10000);asleep(p,e,s,20000);
    // Already retreated: stay asleep at range, still no burn on the landed Trance.
    at(p,-440,0);f(Creature.class,"_move").set(p,null);run(p,e,s,25000);verify(last==0,"arrived after Trance: preserve sleep, no Mana Burn");
    clearSleep(e);f(Creature.class,"_move").set(p,null);at(p,-449,0);at(e,30,0);
@@ -44,9 +44,9 @@ public class ClarityBluffPhaseTest extends CombatPriorityAuditTest {
   for(boolean ranked:new boolean[]{false,true})for(boolean human:new boolean[]{false,true})for(int mode:new int[]{0,1,2,3}) {
    Player e=actor(94,ranked,human),p=cardinal(e,ranked,1394,1398,1230,1218,1418,1396);Object s=centered();
    hp(p,10000);disable(p,1418);at(p,-449,0);at(e,30,0);
-   appliedSleep(p,e,97);run(p,e,s,10000);disable(p,1394);clearSleep(e);f(Creature.class,"_move").set(p,null);
+   appliedSleep(p,e,97);run(p,e,s,10000);disable(p,1394);disable(p,1230);clearSleep(e);f(Creature.class,"_move").set(p,null);
    verify(run(p,e,s,15000)&&last==1398,"wake with Trance on reuse: Mana Burn, both arenas/target kinds");
-   int requests=traces.get(p).requests;run(p,e,s,15100);verify(traces.get(p).requests==requests&&p.isCastingNow(),"pending Mana Burn: no duplicate/premature Prominence/Trance");finish(p,e,s,20000);
+   int requests=traces.get(p).requests;run(p,e,s,15100);verify(traces.get(p).requests==requests&&p.isCastingNow(),"pending Mana Burn: no duplicate/premature Prominence/Trance");finish(p,e,s,20000);disabled(p).remove(p.getKnownSkill(1230).getReuseHashCode());
    if(mode==1)disable(p,1230);
    if(mode==2)((TacticsPolicy.CardinalProminence)f(state,"cardinalProminence").get(s)).accepted(23000);
    if(mode==3){hp(p,5000);verify(run(p,e,s,25000)&&last==1218,"recovery preempts owed Prominence");finish(p,e,s,26000);hp(p,10000);}

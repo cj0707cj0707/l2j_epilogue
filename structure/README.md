@@ -28,6 +28,8 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 ## Последнее обновление
 
+- [76 — Cardinal: готовый Prominence приHP>90%](76-cardinal-prominence-above90-priority.md):1230 раньше Trance/хила/кайта при бодрствующей уязвимой цели, включая Clarity; ровно90% запрещено, интервал10с сохранён; shared/native guards, карта файлов и тесты.
+
 - [75 — Олимпиада210с; Cardinal: всегда готовый Trance, без кайта под Celestial](75-cardinal-always-trance-no-shield-kite-and-210s.md): +60с активного боя;1394 против всех классов независимо от Clarity; под1418/5576 не кайтить даже при сне цели. Заменяет противоречащие правила68/74; карта файлов, тесты и установка.
 
 - [74 — Cardinal: центр → ожидание сна → Mana Burn/Prominence](74-cardinal-sleep-center-hold-and-wake-combo.md): обязательный приоритет сна над кайтом/щитами, native маршрут через центр, запрет будить цель кастом/автоатакой, wake-комбо без зависимости от Clarity; карта файлов, тесты и установка.
