@@ -6,6 +6,7 @@ import org.l2jmobius.gameserver.data.xml.SkillData;
 import org.l2jmobius.gameserver.entity.actor.Player;
 import org.l2jmobius.gameserver.mechanics.skill.EffectScope;
 import org.l2jmobius.gameserver.mechanics.skill.Skill;
+import org.l2jmobius.gameserver.mechanics.stats.Formulas;
 import org.l2jmobius.gameserver.util.StatSet;
 
 /** Only bot97/1394 and bot115/1097,1092. Independent templates, never SkillData/DB writes.
@@ -20,6 +21,9 @@ final class BotControlChance
     {
         if(bot==null||bot.getClient()!=null)return;
         int cid=bot.getPlayerClass().getId();
+        // The legacy core-wide25% gate runs BEFORE the per-skill clamp. Never let
+        // a stale registration replace these scoped probabilities. No global rate edit.
+        if(cid==97||cid==115)Formulas.FIXED_DEBUFF_RATE_PLAYERS.remove(bot.getObjectId());
         if(cid==97)apply(bot,1394);else if(cid==115){apply(bot,1097);apply(bot,1092);}
     }
     private static void apply(Player bot,int id)
@@ -27,8 +31,9 @@ final class BotControlChance
         Skill known=bot.getKnownSkill(id);if(known==null)return;
         Skill original=SkillData.getInstance().getSkill(id,known.getLevel());
         if(original==null)throw new IllegalStateException("Missing native control "+id+"/"+known.getLevel());
-        // User policy: Trance 15+10 percentage points; Dominator unchanged.
-        int chance=id==1394 ? 25 : 15;
+        // Fixed20% per eligible sleep cast; Fear retains its existing15%.
+        // Native enchant/epic/M.Atk/shot/level multipliers run BEFORE min=max.
+        int chance=id==1092 ? 15 : 20;
         Skill copy=COPIES.get(original);
         if(copy==null)
         {

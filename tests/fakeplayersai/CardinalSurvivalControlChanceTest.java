@@ -18,24 +18,57 @@ public class CardinalSurvivalControlChanceTest extends ArenaInvulnerabilityClari
   for(int[] pair:new int[][]{{97,1394},{115,1097},{115,1092}})for(int level:new int[]{1,SkillData.getInstance().getMaxLevel(pair[1]),130,230}) {
    Skill original=SkillData.getInstance().getSkill(pair[1],level);if(original==null)continue;
    int rate=original.getActivateRate();Player p=actor(pair[0],true,false),e=actor(94,true,true);learn(p,original);BotControlChance.apply(p);Skill copy=p.getKnownSkill(pair[1]);
-   verify(copy!=original&&copy.getActivateRate()==(pair[0]==97?25:15)&&copy.getMinChance()==copy.getActivateRate()&&copy.getMaxChance()==copy.getActivateRate(),"scoped chance fields");
+   verify(copy!=original&&copy.getActivateRate()==(pair[1]==1092?15:20)&&copy.getMinChance()==copy.getActivateRate()&&copy.getMaxChance()==copy.getActivateRate(),"scoped chance fields");
    for(Field field:Skill.class.getDeclaredFields()) {
     if(Modifier.isStatic(field.getModifiers())||Set.of("_activateRate","_minChance","_maxChance","_effectLists","_effectTypes").contains(field.getName()))continue;
     field.setAccessible(true);verify(Objects.deepEquals(field.get(original),field.get(copy)),"native field preserved "+pair[1]+"/"+level+" "+field.getName()+" original="+field.get(original)+" copy="+field.get(copy));
    }
    for(EffectScope scope:EffectScope.values())verify(Objects.equals(original.getEffects(scope),copy.getEffects(scope)),"all original effects preserved");
    BotControlChance.apply(p);verify(p.getKnownSkill(pair[1]).getLevel()==level&&original.getActivateRate()==rate,"idempotent, shared SkillData unchanged");
-   BotControlChance.apply(p);verify(p.getKnownSkill(pair[1])==copy,"cached fixed25/15 copy is idempotent");
+   BotControlChance.apply(p);verify(p.getKnownSkill(pair[1])==copy,"cached fixed20/15 copy is idempotent");
    for(boolean human:new boolean[]{false,true}) {Player wrong=actor(human?pair[0]:94,true,human);learn(wrong,original);BotControlChance.apply(wrong);verify(wrong.getKnownSkill(pair[1])==original,"human and other class unchanged");}
    Player empty=actor(pair[0],false,false);BotControlChance.apply(empty);verify(empty.getKnownSkill(pair[1])==null,"does not learn absent skills");
    for(int profile:new int[]{100,10000}) {
     Object owner=new Object();e.addStatFunc(new FuncSet(Stat.MAGIC_DEFENCE,0x70,owner,profile,null));int successes=0;
     for(int i=0;i<8000;i++){BotControlChance.apply(p);if(Formulas.calcEffectSuccess(p,e,p.getKnownSkill(pair[1])))successes++;}
-    verify(successes>(pair[0]==97?1760:960)&&successes<(pair[0]==97?2240:1440),"real formula stays near scoped25/15% across stats "+pair[1]+" level"+level+" successes"+successes);e.removeStatsOwner(owner);
+    verify(successes>(pair[1]==1092?960:1360)&&successes<(pair[1]==1092?1440:1840),"real formula stays near scoped20/15% across stats "+pair[1]+" level"+level+" successes"+successes);e.removeStatsOwner(owner);
    }
    Object immune=new Object();e.addStatFunc(new FuncSet(Stat.DEBUFF_IMMUNITY,0x70,immune,1,null));for(int i=0;i<100;i++)verify(!Formulas.calcEffectSuccess(p,e,copy),"native debuff immunity wins");e.removeStatsOwner(immune);
    e.getStat().getTraitsInvul()[copy.getTraitType().ordinal()]=1;for(int i=0;i<100;i++)verify(!Formulas.calcEffectSuccess(p,e,copy),"native trait immunity wins");
   }
+ }
+ /** A hostile combination of legacy registration and real native chance multipliers. */
+ static void fixedSleepAudit()throws Exception {
+  int legacy=Formulas.FIXED_DEBUFF_RATE_PERCENT;
+  try{
+   // If the old early gate were still active, every one of these rolls would pass.
+   Formulas.FIXED_DEBUFF_RATE_PERCENT=100;
+   for(int[] pair:new int[][]{{97,1394},{115,1097}})for(boolean ranked:new boolean[]{false,true})for(boolean human:new boolean[]{false,true})
+    for(int level:new int[]{1,SkillData.getInstance().getMaxLevel(pair[1]),130,230}) {
+     Skill original=SkillData.getInstance().getSkill(pair[1],level);if(original==null)continue;
+     Player p=actor(pair[0],ranked,false),e=actor(94,ranked,human);learn(p,original);
+     Formulas.FIXED_DEBUFF_RATE_PLAYERS.add(p.getObjectId());BotControlChance.apply(p);
+     verify(!Formulas.FIXED_DEBUFF_RATE_PLAYERS.contains(p.getObjectId())&&Formulas.FIXED_DEBUFF_RATE_PERCENT==100,"clear only legacy actor registration, never change shared rate");
+     Skill fixed=p.getKnownSkill(pair[1]);
+     verify(fixed.getActivateRate()==20&&fixed.getMinChance()==20&&fixed.getMaxChance()==20&&fixed.getBasicProperty()!=org.l2jmobius.gameserver.mechanics.stats.BaseStat.NONE&&fixed.isDebuff(),"20/20/20, non-NONE base property: no guaranteed-success path");
+     for(int profile:new int[]{0,1,2}) {
+      Object bonus=new Object();
+      p.addStatFunc(new FuncSet(Stat.MAGIC_ATTACK,0x70,bonus,profile==1?1e12:profile==2?1:1000,null));
+      e.addStatFunc(new FuncSet(Stat.MAGIC_DEFENCE,0x70,bonus,profile==1?1:profile==2?1e9:1000,null));
+      e.addStatFunc(new FuncSet(Stat.DEBUFF_VULN,0x70,bonus,profile==1?10000:profile==2?-100:1,null));
+      int trait=fixed.getTraitType().ordinal();p.getStat().getAttackTraits()[trait]=profile==1?3:1;e.getStat().getDefenceTraits()[trait]=profile==2?10:1;
+      verify(profile!=1||Formulas.calcGeneralTraitBonus(p,e,fixed.getTraitType(),false)>1,"actual sleep-trait bonus is amplified in boost profile");
+      int passed=0;for(int n=0;n<8000;n++)if(Formulas.calcEffectSuccess(p,e,fixed))passed++;
+      verify(passed>1360&&passed<1840,"strict20% after stats/trait/vulnerability, native+Chance, both arenas/targets: "+pair[1]+"/"+level+" profile="+profile+" passed="+passed);
+      p.removeStatsOwner(bonus);e.removeStatsOwner(bonus);
+     }
+     // Restore a legacy65/100 private template and repair at the shared entry point.
+     for(int old:new int[]{25,65,100}) {
+      org.l2jmobius.gameserver.util.StatSet set=new org.l2jmobius.gameserver.util.StatSet();set.set("skill_id",pair[1]);set.set("level",level);set.set("operateType","A2");set.set("targetType","ONE");set.set("activateRate",old);
+      learn(p,new Skill(set));BotControlChance.apply(p);verify(p.getKnownSkill(pair[1])==fixed,"old private high chance is replaced, not reused or stacked");
+     }
+    }
+  }finally{Formulas.FIXED_DEBUFF_RATE_PERCENT=legacy;}
  }
  static Player cardinal(Player e,boolean ranked,int...ids)throws Exception {
   Player p=owner(97,ranked);effects(e);SkillData.getInstance().getSkill(3282,1).applyEffects(e,e,true,60);f(Creature.class,"_zones").set(e,new byte[64]);p.setTarget(e);at(p,0,0);at(e,30,0);f(Creature.class,"_ai").set(p,new MoveAI(p));for(int id:ids)learn(p,nativeSkill(id));return p;
@@ -87,6 +120,6 @@ public class CardinalSurvivalControlChanceTest extends ArenaInvulnerabilityClari
   handlers.EffectMasterHandler.main(new String[0]);skill=SkillData.getInstance().getSkill(1510,1);recordingType();state=Class.forName("custom.fakeplayersai.BotTactics$State");
   act=BotTactics.class.getDeclaredMethod("act",Player.class,Player.class,BotClassPreset.class,state,long.class,boolean.class);act.setAccessible(true);poll=BotTactics.class.getDeclaredMethod("pollAttempt",Player.class,Player.class,state,long.class);poll.setAccessible(true);
   var geo=java.nio.file.Files.createTempDirectory("cardinal59-geo-");org.l2jmobius.gameserver.config.GeoEngineConfig.GEODATA_PATH=geo;org.l2jmobius.gameserver.geoengine.GeoEngine.getInstance();java.nio.file.Files.delete(geo);
-  chance();rotation();guards();nativeClarity();kiting();System.out.println("PASS: "+checks+" Cardinal survival, 25/15% native-formula, immutable templates, previous Clarity/kiting checks; no live server");System.exit(0);
+  chance();fixedSleepAudit();rotation();guards();nativeClarity();kiting();System.out.println("PASS: "+checks+" Cardinal survival, 20/15% native-formula, immutable templates, previous Clarity/kiting checks; no live server");System.exit(0);
  }
 }

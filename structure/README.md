@@ -28,7 +28,9 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 ## Последнее обновление
 
-- [68 — Пассивный барьер: Trance25%; Bluff: реальная спина без автоатаки](68-passive-barrier-trance25-and-bluff-rear.md):1418 — кайт;655→5576 — попытки сна только на время эффекта;25%=15+10; обход цели, проверки каста/удара и карта файлов.
+- [69 — Cardinal/Dominator: строго фиксированный шанс сна20%](69-cardinal-dominator-fixed-sleep20.md):1394/1097 с20/20/20; защита от старого общего25%-gate; аудит M.Atk/эпика/заточки/резистов и native тесты. Fear15%, Celestial/Bluff без изменений.
+
+- [68 — Пассивный барьер; Bluff: реальная спина без автоатаки](68-passive-barrier-trance25-and-bluff-rear.md):1418 — кайт;655→5576 — попытки сна только на время эффекта; шансы актуализированы69; обход цели, проверки каста/удара и карта файлов.
 
 - [67 — История отменённой интерпретации](67-cardinal-invulnerability-trance-and-chance.md): поведение и шанс из67 исправлены в68.
 
@@ -112,7 +114,8 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 | Файл | Содержание |
 |---|---|
-| [68-passive-barrier-trance25-and-bluff-rear.md](68-passive-barrier-trance25-and-bluff-rear.md) | Актуально:1418 кайт;5576 Trance до сна/окончания эффекта;25%; Bluff обход/спина/без автоатаки; тесты/установка |
+| [69-cardinal-dominator-fixed-sleep20.md](69-cardinal-dominator-fixed-sleep20.md) | Текущие20% для Trance1394 и Dreaming Spirit1097; аудит формулы, старого gate, native тесты; карта файлов/установка |
+| [68-passive-barrier-trance25-and-bluff-rear.md](68-passive-barrier-trance25-and-bluff-rear.md) | Актуально:1418 кайт;5576 Trance до сна/окончания эффекта; шанс см.69; Bluff обход/спина/без автоатаки; тесты/установка |
 | [67-cardinal-invulnerability-trance-and-chance.md](67-cardinal-invulnerability-trance-and-chance.md) | История ошибочной интерпретации; отменена68 |
 | [66-ordered-olympiad-bot-battles.md](66-ordered-olympiad-bot-battles.md) | Заказ пары классов у Trainer, ожидание без повторной регистрации, native матч/наблюдатель, шестая стадия core и тесты |
 | [62-combat-survival-priorities-and-audit-regressions.md](62-combat-survival-priorities-and-audit-regressions.md) | Текущие приоритеты выживания, root131, бюджет контроля115, восстановленные регрессии и установка |

@@ -1,4 +1,6 @@
-# 68. Пассивный барьер Cardinal: Trance25%; Bluff: обход и удары со спины
+# 68. Пассивный барьер Cardinal; Bluff: обход и удары со спины
+
+> **Шансы обновлены69:** Trance1394 Cardinal и Dreaming Spirit1097 Dominator теперь фикс20%; Fear1092 остаётся15%. Правила Celestial/Bluff этой главы сохранены. См. [69 — фиксированные20% сна](69-cardinal-dominator-fixed-sleep20.md).
 
 Исправляет неверную интерпретацию67. Здесь текущие правила для ботов на олимпиаде и тренировочной арене. Шансы/навыки игроков, native XML, БД, JAR и запуск сервера не изменены. Заказные бои66 и существующие шесть core-патчей сохранены.
 
@@ -10,9 +12,9 @@
 - **Фактический сон либо окончание/удаление5576 прекращает фазу.** Старая фиксация «до сна даже после снятия защиты» удалена. Если сон не прошёл за время защиты, возвращается стандартная ротация. На следующем тике после фактического сна работают прежние retreat/Clarity/wake-комбо; ожидаемый/принятый каст сам по себе не считается сном.
 - При одновременных1418+5576 выбран кайт, чтобы не снимать собственный1418. Если он закончится, а5576 ещё жив, становится доступна фаза Trance. По неуязвимому противнику бесполезный Trance не спамится.
 
-## 2. Trance:15% +10 процентных пунктов =25%
+## 2. Вероятности (актуализировано69)
 
-`BotControlChance` создаёт одну кэшированную неперсистентную копию native1394 каждого изученного уровня для bot97: `activateRate=minChance=maxChance=25`. Случайный выбор16/17% из67 удалён. Native уровень/заточка, эффекты, target, MP, cast/reuse сохраняются; оригинальный SkillData не мутируется. Родные иммунитеты остаются в силе —25% не гарантируют сон через иммунитет. Dreaming Spirit1097 и Fear1092 бота115 остаются15%; человеческие персонажи не изменены.
+`BotControlChance` создаёт кэшированные неперсистентные копии:1394 для bot97 и1097 для bot115 с `activateRate=minChance=maxChance=20`. Fear1092 для bot115 остаётся15%. Случайные16/17% из67 и Trance25%/Dreaming Spirit15% из первоначальной68 больше не действуют. Native уровни/заточки, эффекты, target, MP и reuse сохранены; SkillData не мутируется. Полные иммунитеты/запреты каста сохраняются. Аудит модификаторов, старого общего25%-gate и усиленные тесты — в[69 — фиксированные20% сна](69-cardinal-dominator-fixed-sleep20.md).
 
 ## 3. Bluff93/101/108: стан → обойти → умения со спины
 
@@ -32,7 +34,7 @@
 | --- | --- |
 | `game/data/scripts/custom/fakeplayersai/CardinalSurvival.java` | Различает живые5576 и1418; условие краткой фазы Trance, без защёлки после окончания5576 |
 | `game/data/scripts/custom/fakeplayersai/BotTactics.java` | Реальные фазы Celestial/Trance; обязательный Bluff-owner до общего кайта; фильтр ударов после реального подхода |
-| `game/data/scripts/custom/fakeplayersai/BotControlChance.java` | Кэшированная scoped-копия1394 на25%,1097/1092 на15%, без записи вБД |
+| `game/data/scripts/custom/fakeplayersai/BotControlChance.java` | Кэшированные scoped-копии1394/1097 на20%,1092 на15% (обновлено69), без записи вБД |
 | `game/data/scripts/custom/fakeplayersai/CardinalTrance.java` | Совместимая точка входа; комментарий к25% |
 | `game/data/scripts/custom/fakeplayersai/ArenaCombatRules.java` | Общий вызов scoped-политики; комментарий к25% |
 | `game/data/scripts/custom/fakeplayersai/BluffRear.java` | Проверка native собственного358-STUN, реальной спины/40u, дуговой пошаговый маршрут и перепланирование |
@@ -56,7 +58,7 @@
 Runner компилирует все custom/effect/target Java-скрипты против поставляемого GameServer.jar; debuff/boundary патчи применяются только к временной тестовой копии JAR. Затем запускает семь Java-наборов:
 
 - `ControlPursuitTranceKiteTest`: оба щита по отдельности/пересечение, резист/повтор, снятие5576 без сна, фактический сон, новый proc, native cast и range/LOS/CC; обе арены, human/bot, с/без Clarity.
-- `CardinalSurvivalControlChanceTest`:25/15%, реальные броски native Formulas, иммунитеты, сохранность SkillData/уровней/эффектов.
+- `CardinalSurvivalControlChanceTest`:20/15% (69), реальные броски native Formulas, иммунитеты, сохранность SkillData/уровней/эффектов.
 - `ClarityBluffPhaseTest`: три класса93/101/108, обе арены и цели human/bot, native358-STUN, промежуточные движения и фактическое прибытие за спину, запреты автоатаки/каста через настоящий global listener и Backstab/FatalBlow execution,0MP/root/истечение стана/чужой стан; прежняя Clarity-цепочка.
 - `ArenaOrbitTranceManaTest`, `NativeDebuffEpicTest`, `TankMechanicsKiteTest`, `CombatPriorityAuditTest`: регрессии орбиты/границы, MP, native навыков/эпика, танков и приоритетов.
 

@@ -253,7 +253,7 @@ public class BotPresets
 				337, 1532, 1078, 1157, 1387
 			});
 		// Cardinal: Trance-kite + Mana Burn loop. Heals self at HP < 95%.
-		// Trance (1394): bot97-only15% through BotControlChance; native player template/reuse unchanged.
+		// Trance (1394): bot97-only fixed20% through BotControlChance; native player template/reuse unchanged.
 		// Rotation: Trance (1394), Mana Burn (1398), Prominence (1230), Magical BackFire (1396), Mana Storm (1399).
 		// Buffs: Prayer (1307), Greater Battle Heal (1218 - self only when HP low).
 		// Mana Storm (1399) remains a normal MP drain; opponent MP regeneration is native.

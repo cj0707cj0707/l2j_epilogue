@@ -46,7 +46,7 @@ public final class ArenaCombatRules
     static synchronized boolean update(Player bot,Player enemy,BotClassPreset preset)
     {
         if(!managed(bot)||enemy==null||preset==null)return false;
-        CardinalTrance.apply(bot); // scoped25% Trance / 15% Dominator controls for97/115; all other native enchant/resistance rules stay intact
+        CardinalTrance.apply(bot); // scoped20% Trance/Dreaming Spirit, 15% Fear for97/115; all other native enchant/resistance rules stay intact
         if(!managed(enemy)){clearBoundary(bot.getObjectId());return false;}
         int[] c=center(bot);
         if(c==null||!access())return true; // never allow unbounded bot/bot combat on an unsupported core

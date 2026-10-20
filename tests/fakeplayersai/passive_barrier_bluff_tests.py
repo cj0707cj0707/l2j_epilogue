@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Structure68: passive barrier/25% Trance and mandatory rear-only Bluff regressions."""
+"""Structure68/69: passive barrier/fixed20% sleeps and mandatory rear-only Bluff regressions."""
 from pathlib import Path
 import os, subprocess, tempfile, shutil
 R=Path(__file__).resolve().parents[2];T=Path(__file__).parent
@@ -8,7 +8,9 @@ tactics=(S/'BotTactics.java').read_text();manager=(S/'BotManager.java').read_tex
 survival=(S/'CardinalSurvival.java').read_text();chance=(S/'BotControlChance.java').read_text()
 assert 'live(bot,5576)' in survival and '!ownCelestial(bot)' in survival and 'live(bot,1418)' in survival
 assert 'CardinalSurvival.passiveTrance(bot, enemy)' in tactics
-assert 'int chance=id==1394 ? 25 : 15;' in chance and 'ThreadLocalRandom' not in chance
+assert 'int chance=id==1092 ? 15 : 20;' in chance and 'ThreadLocalRandom' not in chance
+assert 'Formulas.FIXED_DEBUFF_RATE_PLAYERS.remove(bot.getObjectId())' in chance
+assert all(f's.set("{key}",chance)' in chance for key in ['activateRate','minChance','maxChance'])
 for signature in ['private static void combatTick(', 'private static void olympiadChaseTick(']:
     section=manager[manager.index(signature):]
     assert section.index('BotTactics.tickBluffRear(')<section.index('BotTactics.tickInvulnerableMelee(')
@@ -18,7 +20,7 @@ assert 'EventType.ON_CREATURE_ATTACK' in recovery and 'arenaManaged(event.getAtt
 for name in ['Backstab', 'FatalBlow']:
     effect=(R/f'game/data/scripts/handlers/skill/effects/{name}.java').read_text()
     assert effect.index('blockedBluffStrike(')<effect.index('Formulas.calcBackstabDamage(' if name=='Backstab' else 'Formulas.calcBlowDamage(')
-print('PASS: passive/own shield distinction, 25% policy, Bluff priority/owner and native event/execution guard wiring',flush=True)
+print('PASS: passive/own shield distinction, 20% sleep policy, Bluff priority/owner and native event/execution guard wiring',flush=True)
 with tempfile.TemporaryDirectory(prefix='passive-bluff68-') as directory:
     d=Path(directory)
     compiler = d / 'Compile.java'
