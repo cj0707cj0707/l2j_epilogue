@@ -1,0 +1,97 @@
+package custom.fakeplayersai;
+import java.io.File;
+import java.util.*;
+import org.l2jmobius.commons.config.ThreadConfig;
+import org.l2jmobius.gameserver.config.ServerConfig;
+import org.l2jmobius.gameserver.data.xml.SkillData;
+import org.l2jmobius.gameserver.entity.actor.*;
+import org.l2jmobius.gameserver.entity.item.Weapon;
+import org.l2jmobius.gameserver.entity.item.type.WeaponType;
+import org.l2jmobius.gameserver.mechanics.effects.EffectFlag;
+import org.l2jmobius.gameserver.mechanics.skill.*;
+import org.l2jmobius.gameserver.mechanics.skill.enums.SkillFinishType;
+import sun.misc.Unsafe;
+import static custom.fakeplayersai.ArenaOrbitTranceManaTest.*;
+/** Native templates/conditions/applied effects, recording cast/move only, no live server. */
+public class ClarityBluffPhaseTest extends CombatPriorityAuditTest {
+ static void asleep(Player p,Player e,Object s,long time)throws Exception{
+  appliedSleep(p,e,97);run(p,e,s,time);verify(last!=1398&&last!=1230&&last!=1396,"Clarity: never burn/nuke/backfire a sleeping target");p.setCastingNow(false);f(state,"pendingId").setInt(s,0);
+ }
+ static void clarity()throws Exception{
+  for(boolean ranked:new boolean[]{false,true})for(boolean human:new boolean[]{false,true}){
+   Player e=actor(94,ranked,human),p=cardinal(e,ranked,1394,1398,1218,1418,1230,1396);Object s=centered();
+   verify(run(p,e,s,10000)&&last==1394,"Clarity opener is Trance, not Mana Burn/Prominence");finish(p,e,s,15000);
+   disable(p,1394);disable(p,1418);hp(p,10000);asleep(p,e,s,20000);
+   // Already retreated: stay asleep at range, still no burn on the landed Trance.
+   at(p,-440,0);f(Creature.class,"_move").set(p,null);run(p,e,s,25000);verify(last==0,"arrived after Trance: preserve sleep, no Mana Burn");
+   clearSleep(e);f(Creature.class,"_move").set(p,null);at(p,-449,0);at(e,30,0);
+   verify(run(p,e,s,30000)&&last==1398,"after actual Trance ended, legal Mana Burn with Clarity still active: actual="+last);finish(p,e,s,35000);
+   // Survival recovery wins even in the open Mana Burn window.
+   hp(p,5000);verify(run(p,e,s,40000)&&last==1218,"waking target: recovery before Mana Burn");finish(p,e,s,45000);hp(p,10000);
+   asleep(p,e,s,50000);verify(!BotSpawner.tacticalSkillAllowed(p,e,nativeSkill(1398),false),"shared candidate guard also protects live sleep");
+   verify(!((CardinalSurvival.Window)f(state,"clarityWindow").get(s)).manaBurn(e),"new real Trance closes previous burn window");
+   clearSleep(e);clear(e,3282);f(Creature.class,"_move").set(p,null);at(p,0,0);at(e,30,0);disabled(p).clear();
+   @SuppressWarnings("unchecked") Map<Integer,Skill> skills=(Map<Integer,Skill>)f(Creature.class,"_skills").get(p);skills.remove(1394);skills.remove(1398);skills.remove(1218);skills.remove(1418);
+   verify(run(p,e,s,60000)&&last==1230,"Clarity gone: ordinary Prominence resumes");finish(p,e,s,65000);
+   Player onlyBurn=cardinal(actor(94,ranked,human),ranked,1398);Player target=(Player)onlyBurn.getTarget();
+   verify(run(onlyBurn,target,centered(),10000)&&last==0,"no observed successful Trance: no fabricated wake window");
+   CardinalSurvival.Window w=new CardinalSurvival.Window();w.observe(onlyBurn,target);verify(!w.manaBurn(target),"no actual sleep history on a fresh pair");
+   BuffInfo sleep=appliedSleep(onlyBurn,target,97);w.observe(onlyBurn,target);clearSleep(target);w.observe(onlyBurn,target);verify(w.manaBurn(target),"real removal opens wake window");
+   clear(target,3282);w.observe(onlyBurn,target);nativeSkill(3282).applyEffects(target,target,true,60);w.observe(onlyBurn,target);verify(!w.manaBurn(target),"new Clarity instance cannot inherit old wake state");
+  }
+ }
+ static BuffInfo bluff(Player p,Player e)throws Exception{
+  BuffInfo b=DominatorControlShadowTest.applied(p,e,260);f(BuffInfo.class,"_skill").set(b,nativeSkill(358));return b;
+ }
+ @SuppressWarnings("unchecked") static void daggers()throws Exception{
+  for(int cid:new int[]{93,101,108})for(boolean ranked:new boolean[]{false,true})for(boolean human:new boolean[]{false,true}){
+   Player p=owner(cid,ranked),e=actor(94,ranked,human);foeReady(p,e);at(p,80,0);at(e,0,0);f(Weapon.class,"_type").set(p.getActiveWeaponItem(),WeaponType.DAGGER);
+   // Native using-kind condition reads inventory mask, not the fists fallback alone.
+   var item=(org.l2jmobius.gameserver.entity.item.instance.Item)unsafe.allocateInstance(org.l2jmobius.gameserver.entity.item.instance.Item.class);
+   f(item.getClass(),"_itemTemplate").set(item,p.getActiveWeaponItem());
+   ((org.l2jmobius.gameserver.entity.item.instance.Item[])f(org.l2jmobius.gameserver.entity.itemcontainer.Inventory.class,"_paperdoll").get(p.getInventory()))[org.l2jmobius.gameserver.entity.itemcontainer.Inventory.PAPERDOLL_RHAND]=item;
+   f(org.l2jmobius.gameserver.entity.itemcontainer.Inventory.class,"_wearedMask").setInt(p.getInventory(),WeaponType.DAGGER.mask());
+   for(int id:new int[]{358,30,531,821,412,453})learn(p,nativeSkill(id));BuffInfo b=bluff(p,e);Object s=centered();MoveAI ai=(MoveAI)p.getAI();
+   verify(BluffRear.stun(p,e)==b,"only real current own358 STUN enters the phase");
+   // Even a stale ATTACK intention must not issue Idle while a native cast is already running.
+   for(boolean simultaneous:new boolean[]{false,true}){
+    f(org.l2jmobius.gameserver.ai.AbstractAI.class,"_intention").set(ai,org.l2jmobius.gameserver.ai.Intention.ATTACK);
+    if(simultaneous)p.setCastingSimultaneouslyNow(true);else p.setCastingNow(true);
+    verify(run(p,e,s,9000)&&last==0&&ai.getIntention()==org.l2jmobius.gameserver.ai.Intention.ATTACK&&p.getTarget()==e,"own Bluff: no Idle/retarget/duplicate during existing cast");
+    p.setCastingNow(false);p.setCastingSimultaneouslyNow(false);
+   }
+   ai.setIntentionIdle();f(state,"nextDecision").setLong(s,Long.MAX_VALUE);
+   verify(run(p,e,s,10000)&&last==0&&p.isMoving(),"rear movement preempts ready blows/Shadow Step and reaction gate");
+   int requests=ai.requests;int gx=ai.requested.getX(),gy=ai.requested.getY();verify(gx<0&&Math.hypot(gx,gy)<=40,"native rear goal is inside circle AND native40 strike reach");
+   at(p,50,0);verify(run(p,e,s,10100)&&last==0&&ai.requests==requests,"partial movement is NOT a completed rear approach");
+   at(p,gx,gy);f(Creature.class,"_move").set(p,null);f(state,"nextDecision").setLong(s,0);
+   verify(run(p,e,s,12000)&&(last==30||last==531),"only after actual rear arrival: blow or Critical Wound actual="+last+" cid="+cid+" ranked="+ranked+" behind="+TacticsPolicy.behind(e.getX(),e.getY(),e.getHeading(),p.getX(),p.getY())+" mp="+p.getCurrentMp()+" condition30="+nativeSkill(30).checkCondition(p,e,false)+" condition531="+nativeSkill(531).checkCondition(p,e,false));finish(p,e,s,17000);
+   Map<Integer,Skill> known=(Map<Integer,Skill>)f(Creature.class,"_skills").get(p);known.remove(30);
+   verify(run(p,e,s,20000)&&last==531,"only Critical Wound remains legal, not Bluff/Shadow/selfbuff");finish(p,e,s,25000);
+   mp(p,0);verify(!BotTactics.allowsBasicAttack(p,BotPresets.getPresetByClassId(cid)),"Bluff STUN forbids even zero-MP autoattack fallback");
+   verify(run(p,e,s,30000)&&last==0,"no MP: hold, never yield an autoattack or fake skill");
+   b.setInUse(false);verify(BluffRear.stun(p,e)==null,"inactive358 not a live stun phase");b.setInUse(true);
+   flags(e,0);verify(BluffRear.stun(p,e)==null,"BuffInfo alone without native stun flag is insufficient");flags(e,EffectFlag.STUNNED.getMask());
+   f(BuffInfo.class,"_effector").set(b,actor(cid,ranked,false));verify(BluffRear.stun(p,e)==null,"another caster's Bluff is not ours");f(BuffInfo.class,"_effector").set(b,p);
+   f(BuffInfo.class,"_skill").set(b,nativeSkill(260));verify(BluffRear.stun(p,e)==null,"another own stun is not Bluff");f(BuffInfo.class,"_skill").set(b,nativeSkill(358));
+   clearSleep(e);verify(BluffRear.stun(p,e)==null&&BotTactics.allowsBasicAttack(p,BotPresets.getPresetByClassId(cid)),"stun ended: ordinary low-MP fallback restored");
+   // Being in the rear sector alone is not enough: close to actual native strike reach.
+   mp(p,10000);at(p,-120,0);bluff(p,e);s=centered();f(state,"nextDecision").setLong(s,Long.MAX_VALUE);
+   verify(run(p,e,s,35000)&&last==0&&p.isMoving(),"rear but out of native40 reach: finish ordinary approach before strikes");
+   clearSleep(e);f(Creature.class,"_move").set(p,null);
+   // Expiry midway through rear movement releases just this phase's route.
+   mp(p,10000);at(p,80,0);bluff(p,e);s=centered();f(state,"nextDecision").setLong(s,Long.MAX_VALUE);run(p,e,s,40000);verify(p.isMoving(),"new actual Bluff can start a new approach");
+   clearSleep(e);f(state,"nextStep").setLong(s,Long.MAX_VALUE);run(p,e,s,40100);verify(!p.isMoving(),"expired Bluff releases owned route before ordinary tactics");
+   // A genuine movement prohibition cannot be turned into a free rear teleport/cast.
+   at(p,80,0);bluff(p,e);flags(p,EffectFlag.ROOTED.getMask());s=centered();verify(run(p,e,s,50000)&&last==0&&!p.isMoving(),"root prevents rear approach; no premature blows or unrelated cast");flags(p,0);
+   clearSleep(e);
+  }
+ }
+ public static void main(String[]args){try{
+  ServerConfig.DATAPACK_ROOT=new File(args[0]);ThreadConfig.THREADS_FOR_LOADING=false;unsafe=(Unsafe)f(Unsafe.class,"theUnsafe").get(null);f(LowManaAutoAttackTest.class,"unsafe").set(null,unsafe);CpMeleeRushRecoveryTest.unsafe=unsafe;
+  handlers.EffectMasterHandler.main(new String[0]);skill=SkillData.getInstance().getSkill(1510,1);recordingType();state=Class.forName("custom.fakeplayersai.BotTactics$State");
+  act=BotTactics.class.getDeclaredMethod("act",Player.class,Player.class,BotClassPreset.class,state,long.class,boolean.class);act.setAccessible(true);poll=BotTactics.class.getDeclaredMethod("pollAttempt",Player.class,Player.class,state,long.class);poll.setAccessible(true);
+  var geo=java.nio.file.Files.createTempDirectory("phase63-geodata-");org.l2jmobius.gameserver.config.GeoEngineConfig.GEODATA_PATH=geo;org.l2jmobius.gameserver.geoengine.GeoEngine.getInstance();java.nio.file.Files.delete(geo);
+  clarity();daggers();System.out.println("PASS: "+checks+" native Clarity/Trance/wake-ManaBurn and all3 dagger own-Bluff rear/skills-only checks; no live server");System.exit(0);
+ }catch(Throwable e){e.printStackTrace();System.exit(1);}}
+}

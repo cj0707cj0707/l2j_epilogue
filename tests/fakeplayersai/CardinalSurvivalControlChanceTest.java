@@ -41,7 +41,7 @@ public class CardinalSurvivalControlChanceTest extends ArenaInvulnerabilityClari
  }
  static void rotation()throws Exception {
   for(boolean ranked:new boolean[]{false,true})for(boolean human:new boolean[]{false,true})for(int cid:new int[]{88,94,97,115}) {
-   for(int[] scenario:new int[][]{{10000,30,1394},{5000,30,1418},{9000,30,1218},{10000,800,1230}}) {
+   for(int[] scenario:new int[][]{{10000,30,1394},{5000,30,1418},{9000,30,1218},{10000,800,0}}) {
     Player e=actor(cid,ranked,human),p=cardinal(e,ranked,1394,1418,1230,1218,1398,1396,1399,1307,1217);hp(p,scenario[0]);at(e,scenario[1],0);
     verify(CardinalSurvival.active(p,e),"actual3282 triggers both arenas/all targets");
     Object s=centered();verify(run(p,e,s,10000)&&last==scenario[2],"survival priority expected"+scenario[2]+" actual"+last+" hp"+scenario[0]);p.setCastingNow(false);
@@ -60,7 +60,7 @@ public class CardinalSurvivalControlChanceTest extends ArenaInvulnerabilityClari
    p.setCastingNow(true);int before=ai.requests;verify(run(p,e,centered(),21000)&&p.isCastingNow()&&ai.requests==before,"never abort real cast");p.setCastingNow(false);
    Player healthy=cardinal(actor(88,ranked,true),ranked,1230,1398);Player victim=(Player)healthy.getTarget();victim.setInvul(true);verify(run(healthy,victim,centered(),30000)&&last==0,"no offense against invulnerable target");
   }
-  for(int id:new int[]{1398,1396,1399,1307,1217,1510})verify(!CardinalSurvival.allowed(id),"strict four-skill whitelist "+id);
+  for(int id:new int[]{1230,1396,1399,1307,1217,1510})verify(!CardinalSurvival.allowed(id),"strict four-skill whitelist "+id);
  }
  @SuppressWarnings("unchecked") static void guards()throws Exception {
   for(boolean ranked:new boolean[]{false,true}) {
@@ -72,7 +72,7 @@ public class CardinalSurvivalControlChanceTest extends ArenaInvulnerabilityClari
    hp(p,10000);verify(run(p,e,centered(),20000)&&last==0,"all allowed on cooldown: kite, not forbidden skill");
    MoveAI ai=(MoveAI)p.getAI();int before=ai.requests;flags(p,org.l2jmobius.gameserver.mechanics.effects.EffectFlag.ROOTED.getMask());verify(run(p,e,centered(),21000)&&last==0&&ai.requests==before,"own root prevents survival movement");flags(p,0);disabled.clear();
    flags(p,org.l2jmobius.gameserver.mechanics.effects.EffectFlag.MUTED.getMask());verify(run(p,e,centered(),22000)&&last==0,"native magic silence prevents four casts");flags(p,0);
-   for(int id:new int[]{1398,1396,1399,1307})verify(!BotSpawner.tacticalSkillAllowed(p,e,nativeSkill(id),false),"shared guard rejects "+id);
+   for(int id:new int[]{1230,1396,1399,1307})verify(!BotSpawner.tacticalSkillAllowed(p,e,nativeSkill(id),false),"shared guard rejects "+id);
    SkillData.getInstance().getSkill(3282,1).applyEffects(e,e,true,90);verify(CardinalSurvival.active(p,e),"later independent3282 remains a live mode trigger");
    BuffInfo b=e.getEffectList().getBuffInfoBySkillId(3282);b.setInUse(false);verify(!CardinalSurvival.active(p,e),"inactive BuffInfo not sufficient");b.setInUse(true);
    verify(!CardinalSurvival.active(actor(97,ranked,true),e)&&!CardinalSurvival.active(owner(115,ranked),e),"not humans or other bot classes");

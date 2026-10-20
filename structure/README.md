@@ -28,6 +28,8 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 ## Последнее обновление
 
+[63. Cardinal: Clarity/Trance; кинжальщики: Bluff → спина → удары](63-cardinal-clarity-trance-and-dagger-bluff-rear.md) — survival безProminence/Backfire, Mana Burn только после фактического окончанияTrance; собственный358-STUN требует реального обхода до ударов/531, без автоатаки даже при0MP. Актуальная карта файлов и установка.
+
 [62. Приоритет выживания и регрессии аудита](62-combat-survival-priorities-and-audit-regressions.md) — исправлены только1/3/4/5/9/12: спасательные self-касты перед движением, rooted131, ограниченные попытки115, полный тестовый агрегатор и актуальная карта файлов.
 
 [61. Phoenix: Flame Icon первым, Sacrifice запрещён под иконами](61-phoenix-flame-first-and-no-sacrifice-under-icons.md) — готовый785 раньше406/69;406 резерв lowHP; под785/406 запрет69 вAI,cast guard иHeal execution. Карта файлов, проверки и установка.

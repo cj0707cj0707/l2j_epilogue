@@ -14,9 +14,9 @@ step = code[code.index('private static boolean step('):]
 assert step.index('s.nextStep = time + 2000;') < step.index('canMoveToTarget(') < step.index('setIntentionMoveTo(')
 assert 'if (!armedDagger) s.nextStep = time + 1500;' in step
 assert 'time < s.nextStep' in step and 'if (length > 160)' in step
-assert 'if (!defenseOnly && !survival && (!sleeping' in code and '&& !urgent && time >= s.nextStep' in code
+assert 'if (!defenseOnly && !bluffHold && !survival && (!sleeping' in code and '&& !urgent && time >= s.nextStep' in code
 assert 'bot.isCastingNow() || bot.isOutOfControl() || bot.isAllSkillsDisabled()' in code
-assert 'if (s.pendingId != 0)' in code and 'if (!controlHold && manaFallback && selected < 0 && !sleeping)' in code
+assert 'if (s.pendingId != 0)' in code and 'if (!bluffHold && !controlHold && manaFallback && selected < 0 && !sleeping)' in code
 assert not any(x in step for x in ['teleToLocation(', 'setXYZ(', 'setHeading('])
 
 with tempfile.TemporaryDirectory(prefix='dagger47-') as directory:

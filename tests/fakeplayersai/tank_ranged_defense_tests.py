@@ -56,7 +56,7 @@ static class Player extends Creature {
  int cid;boolean mage,olympiad,started=true,tank=true;double distance;Set<Integer> active=new HashSet<>(),disabled=new HashSet<>();Map<Integer,Skill> known=new HashMap<>();AutoUse auto=new AutoUse();
  Player(int cid){this.cid=cid;}PlayerClass getPlayerClass(){return new PlayerClass(cid);}boolean isMageClass(){return mage;}
  Skill getKnownSkill(int id){return known.get(id);}AutoUse getAutoUseSettings(){return auto;}boolean isInOlympiadMode(){return olympiad;}boolean isOlympiadStart(){return started;}
- boolean isAffectedBySkill(int id){return active.contains(id);}boolean isSkillDisabled(Skill sk){return disabled.contains(sk.id);}
+ boolean isSleeping(){return false;}boolean isAffectedBySkill(int id){return active.contains(id);}boolean isSkillDisabled(Skill sk){return disabled.contains(sk.id);}
 }
 static class BotClassPreset {
  enum WeaponKind {SWORD,MAGIC,BOW,CROSSBOW};WeaponKind weapon;boolean override;int[] buffs={368,110,350,760},rotation={368,110};

@@ -26,7 +26,7 @@ static class Player {
  int cid,broadcasts;boolean bot,olympiad,started=true,mage,tank=true;double hp,mp,cp,maxHp=1000,maxMp=800,maxCp=600;Set<Integer> active=new HashSet<>();
  double getMaxHp(){return maxHp;}double getMaxMp(){return maxMp;}double getMaxCp(){return maxCp;}
  void setCurrentHp(double v){hp=v;}void setCurrentMp(double v){mp=v;}void setCurrentCp(double v){cp=v;}void broadcastUserInfo(){broadcasts++;}
- boolean isInOlympiadMode(){return olympiad;}boolean isOlympiadStart(){return started;}boolean isMageClass(){return mage;}boolean isAffectedBySkill(int id){return active.contains(id);}
+ boolean isInOlympiadMode(){return olympiad;}boolean isOlympiadStart(){return started;}boolean isMageClass(){return mage;}boolean isSleeping(){return false;}boolean isAffectedBySkill(int id){return active.contains(id);}
 }
 record Skill(int id){int getId(){return id;}boolean isDance(){return false;}}
 // This existing fixture isolates heal/exclusivity; the real role gate is tested by tank_ranged_defense_tests.py.
