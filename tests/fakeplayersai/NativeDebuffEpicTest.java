@@ -66,8 +66,8 @@ public class NativeDebuffEpicTest {
             Player p=actor(cid,true,false);Formulas.FIXED_DEBUFF_RATE_PLAYERS.add(p.getObjectId());
             BotManager.updateTankDebuffRegistration(p,BotPresets.getPresetByClassId(cid));check(!Formulas.FIXED_DEBUFF_RATE_PLAYERS.contains(p.getObjectId()),"no fixed25 registration for "+cid);
         }
-        Player p=actor(97,true,false);learn(p,data.getSkill(1394,230));CardinalTrance.apply(p);check(p.getKnownSkill(1394)!=data.getSkill(1394,230)&&p.getKnownSkill(1394).getLevel()==230,"bot-only15 preserves Chance30 level");
-        check(p.getKnownSkill(1394).getActivateRate()==15&&data.getSkill(1394,230).getActivateRate()==100,"only bot15, native unchanged");
+        Player p=actor(97,true,false);learn(p,data.getSkill(1394,230));CardinalTrance.apply(p);check(p.getKnownSkill(1394)!=data.getSkill(1394,230)&&p.getKnownSkill(1394).getLevel()==230,"bot-only16.5 preserves Chance30 level");
+        check(p.getKnownSkill(1394).getActivateRate()>=16&&p.getKnownSkill(1394).getActivateRate()<=17&&data.getSkill(1394,230).getActivateRate()==100,"only bot16.5, native unchanged");
         check(Arrays.equals(BotPresets.getJewelryIds(),new int[]{6660,6658,6659,6657,6656}),"five exact epic IDs");
         Method parse=BotPresets.class.getDeclaredMethod("parseIds",String.class);parse.setAccessible(true);
         check(Arrays.equals((int[])parse.invoke(null,"1394, 1398"),new int[]{1394,1398}),"rotation/buff override parser must not append equipment IDs");
@@ -151,7 +151,7 @@ public class NativeDebuffEpicTest {
             for(Skill skill:p.getAllSkills()) {
                 var learn=groups.getSkillEnchantmentBySkillId(skill.getId());if(learn==null)continue;
                 int level=BotSpawner.debuffChanceLevel(data.getSkill(skill.getId(),learn.getBaseLevel()),learn);
-                if(level>0){found++;check(BotControlChance.applies(preset.getClassId(),skill.getId()) ? skill.getLevel()==level&&skill.getActivateRate()==15 : skill==data.getSkill(skill.getId(),level),"native Chance except scoped bot15, "+preset.getClassName()+"/"+skill.getId());}
+                if(level>0){found++;check(BotControlChance.applies(preset.getClassId(),skill.getId()) ? skill.getLevel()==level&&skill.getActivateRate()>=(preset.getClassId()==97?16:15)&&skill.getActivateRate()<=(preset.getClassId()==97?17:15) : skill==data.getSkill(skill.getId(),level),"native Chance except scoped bot16.5/15, "+preset.getClassName()+"/"+skill.getId());}
             }
             check(found==expected,"no absent skill learned by Chance policy");int before=learnedWrites;BotSpawner.applySkillEnchants(p);check(learnedWrites==before,"enchant idempotence");
             // Pure nukes' debuff-enchant routes must not be mistaken for Chance.

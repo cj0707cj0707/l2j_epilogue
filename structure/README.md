@@ -28,6 +28,8 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 ## Последнее обновление
 
+- [67 — Cardinal: Trance под собственной неуязвимостью](67-cardinal-invulnerability-trance-and-chance.md): попытки до фактического сна без кайта, относительные +10% к шансу (15→16,5%), карта файлов и установка.
+
 - [66 — Заказные олимпийские бои бот–бот у Trainer](66-ordered-olympiad-bot-battles.md): два класса текущего пула, резерв до завершения обоих боёв, перенос через5с, свободная арена (приоритет15), автоматическое наблюдение; шестой core-патч, карта файлов и установка.
 
 - [65 — Dominator без стана дальних целей; Cardinal: Trance перед кайтом](65-dominator-ranged-stun-ban-and-cardinal-trance-kite.md).
@@ -108,6 +110,7 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 | Файл | Содержание |
 |---|---|
+| [67-cardinal-invulnerability-trance-and-chance.md](67-cardinal-invulnerability-trance-and-chance.md) | Собственная invul: Trance до сна вместо кайта; bot-only16,5%; тесты и карта файлов |
 | [66-ordered-olympiad-bot-battles.md](66-ordered-olympiad-bot-battles.md) | Заказ пары классов у Trainer, ожидание без повторной регистрации, native матч/наблюдатель, шестая стадия core и тесты |
 | [62-combat-survival-priorities-and-audit-regressions.md](62-combat-survival-priorities-and-audit-regressions.md) | Текущие приоритеты выживания, root131, бюджет контроля115, восстановленные регрессии и установка |
 | [58-olympiad-150s-invulnerability-kite-native-mana-and-clarity.md](58-olympiad-150s-invulnerability-kite-native-mana-and-clarity.md) | Текущее:150с, всеобщий invul-кайт мили, обычнаяMP, native3282/60с, карта и установка |

@@ -29,10 +29,10 @@ assert 'getBuffInfoBySkillId(3282)' in survival and '!b.isRemoved()&&b.isInUse()
 assert 'CardinalSurvival.active(bot, opponent)' in manager
 assert tactics.index('if (survival && !CardinalSurvival.allowed(skill.getId()))') < tactics.index('final boolean cardinalHealUrgent')
 assert 'if (survival) { stopBasicAttack(bot); return true; }' in tactics
-assert 'if (survival && bot.isAffectedBySkill(1418))' in tactics
+assert 'if (survival && bot.isAffectedBySkill(1418) && !invulTrance)' in tactics
 assert 'CardinalSurvival.active(player, enemy)' in (S/'BotSpawner.java').read_text()
 assert 'classId==97&&skillId==1394' in chance and 'classId==115&&(skillId==1097||skillId==1092)' in chance
-assert all(f's.set("{key}",15)' in chance for key in ['activateRate','minChance','maxChance'])
+assert all(f's.set("{key}",chance)' in chance for key in ['activateRate','minChance','maxChance'])
 assert 'bot.addSkill(copy,false)' in chance and 'getClient()!=null' in chance
 mechanics=(S/'TankClassMechanics.java').read_text()
 assert 'TankClassMechanics.defendedTank(enemy)' in tactics

@@ -2,6 +2,7 @@ package custom.fakeplayersai;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 import org.l2jmobius.gameserver.data.xml.SkillData;
 import org.l2jmobius.gameserver.entity.actor.Player;
 import org.l2jmobius.gameserver.mechanics.skill.EffectScope;
@@ -12,7 +13,7 @@ import org.l2jmobius.gameserver.util.StatSet;
  * These three native skills are simple A2/ONE/MEN controls without conditions/stat funcs. */
 final class BotControlChance
 {
-    private static final Map<Skill,Skill> COPIES = new HashMap<>();
+    private static final Map<Skill,Map<Integer,Skill>> COPIES = new HashMap<>();
     private BotControlChance() { }
     static boolean applies(int classId,int skillId)
     { return classId==97&&skillId==1394 || classId==115&&(skillId==1097||skillId==1092); }
@@ -27,7 +28,11 @@ final class BotControlChance
         Skill known=bot.getKnownSkill(id);if(known==null)return;
         Skill original=SkillData.getInstance().getSkill(id,known.getLevel());
         if(original==null)throw new IllegalStateException("Missing native control "+id+"/"+known.getLevel());
-        Skill copy=COPIES.get(original);
+        // Native chance fields are integers. Equal 16/17 rolls give exactly 16.5%
+        // in expectation (15% * 1.10), without rounding or changing global formulas.
+        int chance=id==1394 ? 16+ThreadLocalRandom.current().nextInt(2) : 15;
+        Map<Integer,Skill> variants=COPIES.computeIfAbsent(original,k->new HashMap<>());
+        Skill copy=variants.get(chance);
         if(copy==null)
         {
             StatSet s=new StatSet();
@@ -36,7 +41,7 @@ final class BotControlChance
             s.set("abnormalType",original.getAbnormalType().name());s.set("abnormalVisualEffect",id==1092?"TURN_FLEE":"SLEEP");
             s.set("abnormalLevel",original.getAbnormalLevel());s.set("abnormalTime",original.getAbnormalTime());s.set("trait",original.getTraitType().name());
             // Below100 avoids the native guaranteed-success fast path; min=max pins the roll.
-            s.set("activateRate",15);s.set("minChance",15);s.set("maxChance",15);
+            s.set("activateRate",chance);s.set("minChance",chance);s.set("maxChance",chance);
             s.set("castRange",original.getCastRange());s.set("effectRange",original.getEffectRange());s.set("effectPoint",original.getEffectPoint());
             s.set("hitTime",original.getHitTime());s.set("reuseDelay",original.getReuseDelay());s.set("staticReuse",original.isStaticReuse());
             s.set("isDebuff",true);s.set("isMagic",1);s.set("lvlBonusRate",original.getLvlBonusRate());s.set("magicLevel",original.getMagicLevel());
@@ -48,7 +53,7 @@ final class BotControlChance
                 var effects=original.getEffects(scope);
                 if(effects!=null)for(var effect:effects)copy.addEffect(scope,effect);
             }
-            COPIES.put(original,copy);
+            variants.put(chance,copy);
         }
         if(known!=copy)bot.addSkill(copy,false);
     }

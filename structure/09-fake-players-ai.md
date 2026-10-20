@@ -1,5 +1,8 @@
 # 09. Система ботов FakePlayersAI (`game\data\scripts\custom\fakeplayersai\`)
 
+> **Обновление67:** собственная неуязвимость Cardinal теперь запускает Trance до фактического сна вместо кайта; bot-only Trance15% →16,5% (относительные +10%). Dominator остаётся15%. Подробности и карта файлов: [67](67-cardinal-invulnerability-trance-and-chance.md).
+
+
 > **Текущее состояние 65:** бот115 не использует STUN/Hammer Crush по немили-целям; сближение к дальним противникам — до настоящей дальности Dreaming Spirit (обычно600), не40. Cardinal против близкого уязвимого мили: готовый Trance важнее бега/обычного урона, движение только между попытками до реального сна; лечение/щит и wake-комбо64 сохраняют приоритет. Подробная карта и проверки: [65](65-dominator-ranged-stun-ban-and-cardinal-trance-kite.md). При расхождении с историческими53/62–64 приоритет у65.
 > **Сохранено из 64:** под3282 после собственногоTrance цепочка1398→один готовый1230→1394; если1230 на native/AI cooldown, сразу переход кTrance; лечение/щит важнее ([64](64-cardinal-clarity-mana-burn-prominence-trance.md)). Сохранено из63: под3282 Cardinal выживает через Trance/лечение/щит,1398 только после окончания фактического собственногоTrance; у93/101/108 собственный358-STUN → реальный пробег за спину до дистанции удара → только удары/531, без автоатаки даже при0MP ([63](63-cardinal-clarity-trance-and-dagger-bluff-rear.md)). При расхождении с историческими59/62/63 приоритет у64. Сохранено из62: спасательные native self-умения перед кайтом/отходом; root не блокирует все умения ranked131; bounded контроль115 с отдельными requested/landed/exhausted-состояниями; актуальный полный агрегатор тестов ([62](62-combat-survival-priorities-and-audit-regressions.md)). Правила61: Phoenix: готовыйFlame Icon раньшеAngelic/Sacrifice; под406/785 самолечение69 запрещено ([61](61-phoenix-flame-first-and-no-sacrifice-under-icons.md)). правила58/59 сохранены. Все19 классов кайтят танков под110/368/760; Phoenix/Hell/Shillien используют родные lowHP/seed/stage3 механики. При расхождении с историей ниже приоритет у [60](60-tank-defense-kiting-and-native-class-mechanics.md), [59](59-cardinal-clarity-survival-and-fixed-control-chance.md) и [58](58-olympiad-150s-invulnerability-kite-native-mana-and-clarity.md).
 
@@ -408,7 +411,7 @@ Bluff358: native reuse8000мс вместо удвоенного16000, для и
 
 `CardinalSurvival.java` определяет режим по фактическому BuffInfo3282 и whitelist1394/1418/1230/1218; `BotTactics` выбирает защиту/лечение раньше контроля/урона, сохраняет nativeCelestial движением, не отдаёт запрещённую атаку родителю и очищает survivalKite. `BotSpawner.tacticalSkillAllowed` дублирует guard, `BotManager` включает общий путь при3282 даже без TacticalAI toggle.
 
-`BotControlChance.java` создаёт отдельные неперсистентные15% копии1394 для97 и1097/1092 для115; `CardinalTrance.java` — совместимая точка входа. NativeSkillData/игроки/другие дебаффы/откаты не меняются. Файловая карта, точные приоритеты, ограничения/проверки/установка: [59](59-cardinal-clarity-survival-and-fixed-control-chance.md).
+`BotControlChance.java` создаёт отдельные неперсистентные копии1394 для97 (16/17% равновероятно, среднее16,5%) и1097/1092 для115 (15%); `CardinalTrance.java` — совместимая точка входа. NativeSkillData/игроки/другие дебаффы/откаты не меняются. Файловая карта, точные приоритеты, ограничения/проверки/установка: [59](59-cardinal-clarity-survival-and-fixed-control-chance.md).
 
 
 ## Дополнение66: заказные бои бот–бот

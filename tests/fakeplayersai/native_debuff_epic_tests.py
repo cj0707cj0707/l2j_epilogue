@@ -7,7 +7,7 @@ def run(cmd,cwd):
  p=subprocess.run(cmd,cwd=cwd,capture_output=True,text=True,timeout=240)
  if p.returncode:print(p.stdout[-4000:]);print(p.stderr[-6000:]);raise SystemExit(p.returncode)
  return p.stdout.strip()
-# Structure59: broad fixed gates stay removed; only three scoped bot controls use15. Dagger/tank-defense rules stay untouched.
+# Structure67: broad fixed gates stay removed; scoped Trance16.5%, Dominator controls15%. Dagger/tank-defense rules stay untouched.
 m=(S/'BotManager.java').read_text();tr=(S/'CardinalTrance.java').read_text();sp=(S/'BotSpawner.java').read_text();tc=(R/'game/data/scripts/handlers/skill/effects/TargetCancel.java').read_text()
 assert 'FIXED_DEBUFF_RATE_PLAYERS.add' not in m and 'isTankBotDebuffSuccess' not in m+tc
 assert 'BotControlChance.apply(bot)' in tr

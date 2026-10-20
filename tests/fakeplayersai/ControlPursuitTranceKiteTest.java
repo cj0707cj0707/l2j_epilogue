@@ -65,11 +65,38 @@ public class ControlPursuitTranceKiteTest extends ClarityBluffPhaseTest {
    verify(run(p,e,s,35000)&&last==1394,"close waking melee: after combo resleep, not movement");
   }
  }
+ static void ownInvulnerability()throws Exception {
+  for(boolean ranked:new boolean[]{false,true})for(boolean human:new boolean[]{false,true})for(boolean clarity:new boolean[]{false,true})for(int cid:new int[]{108,93,101,94}) {
+   Player e=actor(cid,ranked,human),p=cardinal(e,ranked,1394,1398,1230,1218,1418);Object s=arena(p,e);if(!clarity)clear(e,3282);
+   hp(p,1000);effects(p);nativeSkill(1418).applyEffects(p,p,true,10);p.setInvul(true);
+   verify(run(p,e,s,10000)&&last==1394&&!p.isMoving(),"own Celestial: Trance before lowHP heal, shield, kite, damage cid"+cid);
+   int requests=traces.get(p).requests;run(p,e,s,10100);verify(traces.get(p).requests==requests&&p.isCastingNow(),"preserve in-flight Trance");finish(p,e,s,15000);
+   clear(p,1418);p.setInvul(false);disable(p,1394);
+   verify(run(p,e,s,17000)&&last==0&&!p.isMoving(),"shield removed on action/resisted Trance: wait reuse, never kite/heal/damage");
+   disabled(p).remove(p.getKnownSkill(1394).getReuseHashCode());
+   verify(run(p,e,s,19000)&&last==1394,"retry until actual sleep, not merely accepted cast");finish(p,e,s,24000);
+   appliedSleep(p,e,97);disable(p,1418);hp(p,5000);verify(run(p,e,s,26000)&&last==1218&&!f(state,"cardinalInvulTrance").getBoolean(s),"actual sleep restores normal rotation: cid="+cid+" clarity="+clarity+" last="+last+" latch="+f(state,"cardinalInvulTrance").getBoolean(s));finish(p,e,s,31000);
+  }
+  for(boolean ranked:new boolean[]{false,true}) {
+   Player e=actor(108,ranked,true),p=cardinal(e,ranked,1394,1398,1230,1218,1418);clear(e,3282);Object s=arena(p,e);hp(p,10000);disable(p,1394);disable(p,1418);
+   verify(run(p,e,s,10000)&&p.isMoving(),"before own shield: normal reuse-gap kite");
+   p.setInvul(true);verify(run(p,e,s,12000)&&last==0&&!p.isMoving(),"own invul interrupts already-owned kite even while Trance on reuse");
+   disabled(p).remove(p.getKnownSkill(1394).getReuseHashCode());verify(run(p,e,s,14000)&&last==1394,"ready Trance after stopping existing route");finish(p,e,s,19000);
+   p=cardinal(e,ranked,1394);s=arena(p,e);int[] c=ArenaCombatRules.center(p);at(p,c[0]+449,c[1]);at(e,c[0]-449,c[1]);p.setInvul(true);
+   verify(run(p,e,s,25000)&&last==0&&p.isMoving(),"distant target: bounded approach, never out-of-range cast");
+   MoveAI ai=(MoveAI)p.getAI();verify(ai.requested.getX()<p.getX()&&Math.hypot(ai.requested.getX()-c[0],ai.requested.getY()-c[1])<=449,"approach heads toward target inside arena");
+  }
+  // No native cast legality is bypassed by the urgent phase.
+  Player e=actor(108,true,true),p=cardinal(e,true,1394,1398,1218);clear(e,3282);Object s=arena(p,e);p.setInvul(true);
+  flags(p,org.l2jmobius.gameserver.mechanics.effects.EffectFlag.MUTED.getMask());verify(run(p,e,s,10000)&&last==0&&!p.isMoving(),"silence: hold, no cast/kite");flags(p,0);
+  e.setInvul(true);verify(run(p,e,s,15000)&&last==0,"enemy invulnerability never bypassed");e.setInvul(false);
+  verify(run(p,e,s,20000)&&last==1394,"enemy protection expired: Trance phase resumes");finish(p,e,s,25000);
+ }
  public static void main(String[]args){try{
   ServerConfig.DATAPACK_ROOT=new File(args[0]);ThreadConfig.THREADS_FOR_LOADING=false;unsafe=(Unsafe)f(Unsafe.class,"theUnsafe").get(null);f(LowManaAutoAttackTest.class,"unsafe").set(null,unsafe);CpMeleeRushRecoveryTest.unsafe=unsafe;
   handlers.EffectMasterHandler.main(new String[0]);skill=SkillData.getInstance().getSkill(1510,1);recordingType();state=Class.forName("custom.fakeplayersai.BotTactics$State");
   act=BotTactics.class.getDeclaredMethod("act",Player.class,Player.class,BotClassPreset.class,state,long.class,boolean.class);act.setAccessible(true);poll=BotTactics.class.getDeclaredMethod("pollAttempt",Player.class,Player.class,state,long.class);poll.setAccessible(true);
   var geo=java.nio.file.Files.createTempDirectory("control65-geodata-");org.l2jmobius.gameserver.config.GeoEngineConfig.GEODATA_PATH=geo;org.l2jmobius.gameserver.geoengine.GeoEngine.getInstance();java.nio.file.Files.delete(geo);
-  BotPresets.loadOverrides();dominatorTargets();tranceGaps();closeWakeCombo();System.out.println("PASS: "+checks+" native Dominator ranged-stun guard/600u pursuit and Cardinal ready-Trance/kite-gap/wake-combo checks; no live server");System.exit(0);
+  BotPresets.loadOverrides();dominatorTargets();tranceGaps();closeWakeCombo();ownInvulnerability();System.out.println("PASS: "+checks+" native Dominator ranged-stun guard/600u pursuit and Cardinal ready-Trance/kite-gap/wake-combo checks; no live server");System.exit(0);
  }catch(Throwable e){e.printStackTrace();System.exit(1);}}
 }
