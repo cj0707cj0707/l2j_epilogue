@@ -1,5 +1,7 @@
 # 80. Dominator: отход и ожидание сна; Archmage/Mystic Muse: приоритет Cancel
 
+> **Актуализация81:** [Root от танка временно прерывает кайт и включает обычную ротацию с места; после снятия root кайт возвращается только при необходимости](81-tank-root-stationary-rotation.md). Native дальность/LOS/MP/reuse/CC, запреты движения и HOLD спящей цели сохранены.
+
 База: `d91f637422f8bb8dfb0245a4db959a793946035d` (79). Резервная ветка: `backup/before-dominator-sleep-hold-mage-cancel-2026-10-20`.
 
 ## 1. Dominator против танка под усиленной защитой

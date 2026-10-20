@@ -27,14 +27,17 @@ final class TankClassMechanics
         BuffInfo b=p.getEffectList().getBuffInfoBySkillId(id);
         return b!=null&&!b.isRemoved()&&b.isInUse()?b:null;
     }
-    static boolean defendedTank(Player enemy)
+    static boolean tank(Player enemy)
     {
         if(enemy==null)return false;
         PlayerClass c=enemy.getPlayerClass();
         // Include human second/third-class tanks, including Eva (no bot preset here).
-        boolean tank=c.equalsOrChildOf(PlayerClass.PALADIN)||c.equalsOrChildOf(PlayerClass.DARK_AVENGER)
+        return c.equalsOrChildOf(PlayerClass.PALADIN)||c.equalsOrChildOf(PlayerClass.DARK_AVENGER)
             ||c.equalsOrChildOf(PlayerClass.TEMPLE_KNIGHT)||c.equalsOrChildOf(PlayerClass.SHILLIEN_KNIGHT);
-        if(!tank)return false;
+    }
+    static boolean defendedTank(Player enemy)
+    {
+        if(!tank(enemy))return false;
         return live(enemy,110)!=null||live(enemy,368)!=null||live(enemy,760)!=null;
     }
     static boolean sacrificeBlocked(Player bot)

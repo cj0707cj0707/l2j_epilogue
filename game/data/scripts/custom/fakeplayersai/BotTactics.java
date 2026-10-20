@@ -555,6 +555,8 @@ public final class BotTactics
         { s.invulnerablePreviousOwned = s.owned; s.invulnerableLease = true; }
         pollAttempt(bot, enemy, s, time);
         restoreCardinalMana(bot, preset);
+        // Retain the lease until ROOT ends even if the tank's defense expires first.
+        if(rootedByTank(bot,enemy)) { claim(bot,s);act(bot,enemy,preset,s,time,false);return true; }
         if (s.invulnerableLease && !required)
         {
             s.invulnerableKite.stop();
@@ -572,8 +574,24 @@ public final class BotTactics
         if (supportBeforeMovement(bot, enemy, preset, s, time)) return true;
         return invulnerableMelee(bot, enemy, s, time);
     }
+    /** Actual active ROOT from the current tank; never confuse stun, self-UD or a request with root. */
+    static boolean rootedByTank(Player bot,Player enemy)
+    {
+        if(bot==null||bot.getClient()!=null||!bot.isRooted()||!TankClassMechanics.tank(enemy))return false;
+        for(BuffInfo info:bot.getEffectList().getEffects())
+        {
+            if(info==null||info.isRemoved()||!info.isInUse()||info.getEffector()!=enemy||info.getEffected()!=bot
+                ||info.getSkill()==null||info.getEffects()==null
+                ||bot.getEffectList().getBuffInfoByAbnormalType(info.getSkill().getAbnormalType())!=info)continue;
+            for(var effect:info.getEffects())
+                if(!effect.isInstant()&&effect.getEffectType()==EffectType.ROOT
+                    &&(effect.getEffectFlags()&EffectFlag.ROOTED.getMask())!=0)return true;
+        }
+        return false;
+    }
     private static boolean invulnerableMelee(Player bot, Player enemy, State s, long time)
     {
+        if(rootedByTank(bot,enemy)){s.invulnerableKite.stop();return false;}
         return s.invulnerableKite.tick(bot, enemy, time, (enemy.isInvul() && meleeOpponent(enemy)) || TankClassMechanics.defendedTank(enemy));
     }
 
@@ -748,6 +766,7 @@ public final class BotTactics
 	{
 		BotControlChance.apply(bot);
 		final boolean survival = (!defenseOnly || movingSupport) && CardinalSurvival.active(bot, enemy);
+        final boolean rootedKite = !defenseOnly && rootedByTank(bot,enemy);
         final boolean cardinalKiting = !defenseOnly && cardinalTrancePressure(bot, enemy, preset);
         final boolean previousTrancePriority = s.cardinalTrancePriority;
         s.clarityWindow.observe(bot, enemy);
@@ -765,7 +784,7 @@ public final class BotTactics
 		if (!survival && !cardinalKiting && !movingSupport) s.survivalKite.stop();
         final BuffInfo bluffStun = BluffRear.stun(bot, enemy);
         final boolean bluffHold = bluffStun != null;
-		final boolean trainingBerserker = !defenseOnly && preset.getClassId() == 131 && !bot.isInOlympiadMode()
+		final boolean trainingBerserker = !defenseOnly && !rootedKite && preset.getClassId() == 131 && !bot.isInOlympiadMode()
 			&& s.trainingEnemy == enemy.getObjectId() && s.trainingInstance == bot.getInstanceId();
 		s.trainingBerserkerMode = trainingBerserker;
 		if (bot.isCastingNow() || bot.isCastingSimultaneouslyNow())
@@ -774,6 +793,11 @@ public final class BotTactics
 			restoreCardinalMana(bot, preset);
 			return true; // never Idle, cancel an attack, or retarget during a real cast
 		}
+        if(rootedKite)
+        {
+            s.invulnerableKite.stop();s.survivalKite.stop();s.moveUntil=0;
+            if(bot.isMoving())bot.getAI().setIntentionIdle();
+        }
 		if (!defenseOnly && !allowsBasicAttack(bot, preset)) { stopBasicAttack(bot); }
 		if (bluffHold) stopBasicAttack(bot); // never Idle/abort an already running real cast
 		pollAttempt(bot, enemy, s, time);
@@ -794,7 +818,7 @@ public final class BotTactics
         if (soulCleanse(bot, enemy, preset, s, time)) return true;
 		if (escapeShackle(bot, enemy, preset, s, time)) return true;
 		if (!defenseOnly && dominatorTankSleepHold(bot,enemy,preset,s,time)) return true;
-        if (!defenseOnly && !cancelPriority && !prominencePriority && !cardinalNoKite && !cardinalSleeping && !s.clarityWindow.pending() && !survival && !trancePriority && !bluffHold && !CardinalSurvival.ownCelestial(bot))
+        if (!defenseOnly && !rootedKite && !cancelPriority && !prominencePriority && !cardinalNoKite && !cardinalSleeping && !s.clarityWindow.pending() && !survival && !trancePriority && !bluffHold && !CardinalSurvival.ownCelestial(bot))
 		{
 			final boolean mustKite = (enemy.isInvul() && meleeOpponent(enemy)) || TankClassMechanics.defendedTank(enemy);
 			if (mustKite && supportBeforeMovement(bot, enemy, preset, s, time)) return true;
@@ -876,8 +900,8 @@ public final class BotTactics
 		final boolean tank = TacticsPolicy.tankClass(preset.getClassId());
 		final boolean timedTank = tank;
 		final boolean chargeMelee = strictMeleePressure(bot, enemy, preset);
-		final boolean chargeClosing = chargeMelee && (!visible || distance > TacticsPolicy.tankApproachRange(bot.getPhysicalAttackRange(), bot.getTemplate().getCollisionRadius()));
-		final boolean tankClosing = tank && (!visible || distance > TacticsPolicy.tankApproachRange(bot.getPhysicalAttackRange(), bot.getTemplate().getCollisionRadius()));
+		final boolean chargeClosing = !rootedKite && chargeMelee && (!visible || distance > TacticsPolicy.tankApproachRange(bot.getPhysicalAttackRange(), bot.getTemplate().getCollisionRadius()));
+		final boolean tankClosing = !rootedKite && tank && (!visible || distance > TacticsPolicy.tankApproachRange(bot.getPhysicalAttackRange(), bot.getTemplate().getCollisionRadius()));
 		final int activeStrong = bot.isAffectedBySkill(110) ? 110 : bot.isAffectedBySkill(368) ? 368 : bot.isAffectedBySkill(760) ? 760 : 0;
 		if (timedTank) { s.tankDefense.observed(activeStrong); }
 		final int rushAction = trainingBerserker ? trainingRushAction(bot, enemy, preset, s, time, distance, visible) : -1;
@@ -1049,7 +1073,7 @@ public final class BotTactics
 		for (TacticsPolicy.Option o : options) { if (o.id() == selected) { chosen = o.kind(); break; } }
 		final boolean urgent = cancelPriority && selected==1056 || tankSleepPriority && selected==1097 || selected==CARDINAL_PROMINENCE_ID && preset.getClassId()==CARDINAL_CLASS_ID || tankMechanicChoice >= 0 || shadowChoice >= 0 || cardinalChoice >= 0 || chosen == TacticsPolicy.Kind.HEAL || chosen == TacticsPolicy.Kind.DEFENSE
 			|| (chosen == TacticsPolicy.Kind.CONTROL && interruptReady && s.enemyCasting);
-        if (!prominencePriority && !cardinalNoKite && !trancePriority && (survival || cardinalKiting) && chosen != TacticsPolicy.Kind.HEAL && chosen != TacticsPolicy.Kind.DEFENSE)
+        if (!rootedKite && !prominencePriority && !cardinalNoKite && !trancePriority && (survival || cardinalKiting) && chosen != TacticsPolicy.Kind.HEAL && chosen != TacticsPolicy.Kind.DEFENSE)
         {
             // A ready Trance interrupts the owned route; move only in the gaps until sleep lands.
             // A native-unavailable Trance may leave the old wake combo as fallback.
@@ -1161,8 +1185,27 @@ public final class BotTactics
 
 	private static boolean act(Player bot, Player enemy, BotClassPreset preset, State s, long time, boolean defenseOnly)
 	{
-		return act(bot, enemy, preset, s, time, defenseOnly, false);
+        boolean handled=act(bot,enemy,preset,s,time,defenseOnly,false);
+        if(!defenseOnly&&rootedByTank(bot,enemy))
+        {
+            // Only the ordinary rotation's explicit auto fallback may swing, and only
+            // already in physical range. Never delegate a rooted bot to a chase driver.
+            if(!handled)stationaryAttack(bot,enemy,preset,s);
+            return true;
+        }
+        return handled;
 	}
+    private static void stationaryAttack(Player bot,Player enemy,BotClassPreset preset,State s)
+    {
+        if(!allowsBasicAttack(bot,preset)||bot.isOutOfControl()||bot.isAttackDisabled()||bot.isAlikeDead()
+            ||bot.isCastingNow()||bot.isCastingSimultaneouslyNow()||s.pendingId!=0
+            ||enemy.isSleeping()||enemy.isInvul()||!enemy.isAutoAttackable(bot)
+            ||!GeoEngine.getInstance().canSeeTarget(bot,enemy)
+            ||bot.calculateDistance3D(enemy)>bot.getPhysicalAttackRange()+bot.getTemplate().getCollisionRadius()+enemy.getTemplate().getCollisionRadius())
+        {stopBasicAttack(bot);return;}
+        bot.setTarget(enemy);
+        if(bot.getAI().getIntention()!=Intention.ATTACK)bot.getAI().setIntentionAttack(enemy);
+    }
 
 	/** Active validated arena tick only. Poll the previous cast BEFORE refilling so
 	 * its real MP payment remains observable. Never alter shared skill templates. */
