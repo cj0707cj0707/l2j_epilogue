@@ -4457,7 +4457,7 @@
 		<lvlBonusRate>1</lvlBonusRate>
 		<magicLevel>77</magicLevel>
 		<mpConsume>35</mpConsume>
-		<reuseDelay>8000</reuseDelay>
+		<reuseDelay>12000</reuseDelay>
 		<trait>DERANGEMENT</trait>
 		<enchant1 name="activateRate">#ench1ActivateRates</enchant1>
 		<enchant1 name="magicLevel">#enchMagicLvl</enchant1>

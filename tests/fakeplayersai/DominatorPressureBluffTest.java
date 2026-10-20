@@ -98,10 +98,10 @@ public class DominatorPressureBluffTest extends BerserkerSoulCleanseTest {
             actAt(p,e,s,150000);verify(last==1367,"adequateCP: bounded curse follows control budget, no unnecessary CP cast");finish(p,e,s,155000);
             Player melee=actor(131,ranked,true);verify(BotTactics.tacticalApproachRange(p,melee,BotPresets.getPresetByClassId(115))>40,"melee opponent keeps existing ranged approach");
         }
-        // Native general SkillData sees restored default reuse for all skill levels, actors share it.
-        for(int level:new int[]{1,101,105,110,115}){
-            Skill bluff=SkillData.getInstance().getSkill(358,level);verify(bluff!=null&&bluff.getReuseDelay()==8000,"native358 default reuse8s level"+level);
-            for(int cid:new int[]{93,101,108})for(boolean human:new boolean[]{true,false}){Player p=actor(cid,true,human);learn(p,bluff);verify(p.getKnownSkill(358).getReuseDelay()==8000,"player and bot use same358 template");}
+        // Native SkillData sees Bluff base reuse +50% (8s ->12s), including every Chance level.
+        for(int level:new int[]{1,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115}){
+            Skill bluff=SkillData.getInstance().getSkill(358,level);verify(bluff!=null&&bluff.getReuseDelay()==12000,"native358 base reuse12s (+50%) level"+level);
+            for(int cid:new int[]{93,101,108})for(boolean human:new boolean[]{true,false}){Player p=actor(cid,true,human);learn(p,bluff);verify(p.getKnownSkill(358).getReuseDelay()==12000,"player and bot use same358 template");}
         }
     }
     static void tranceDefaults()throws Exception {

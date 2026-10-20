@@ -28,6 +28,8 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 ## Последнее обновление
 
+- [70 — Bluff: базовый откат12с (+50%)](70-bluff-reuse12s.md):8000→12000мс для игроков и ботов, включая Chance101–115; native регрессии, карта файлов и установка. AI обхода не менялся.
+
 - [69 — Cardinal/Dominator: строго фиксированный шанс сна20%](69-cardinal-dominator-fixed-sleep20.md):1394/1097 с20/20/20; защита от старого общего25%-gate; аудит M.Atk/эпика/заточки/резистов и native тесты. Fear15%, Celestial/Bluff без изменений.
 
 - [68 — Пассивный барьер; Bluff: реальная спина без автоатаки](68-passive-barrier-trance25-and-bluff-rear.md):1418 — кайт;655→5576 — попытки сна только на время эффекта; шансы актуализированы69; обход цели, проверки каста/удара и карта файлов.
@@ -52,7 +54,7 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 [58. Олимпиада150с, кайт invul-мили, штатная MP и Maximum Clarity](58-olympiad-150s-invulnerability-kite-native-mana-and-clarity.md) — все19 классов; Cardinal infinite MP сохранена,−90% regen и HP101 отменены; противник97 получает native3282 на60с от старта, без повторного обновления. Карта файлов, тесты и установка.
 
-[57. Штатные откаты Trance и Bluff](57-default-trance-and-bluff-cooldowns.md) — Bluff8000мс вместо16000 для игроков/ботов; убран отдельный3с AI-delay Trance, native reuse1000мс сохранён. Chance/эпик и остальные механики без изменений.
+[57. Штатные откаты Trance и Bluff](57-default-trance-and-bluff-cooldowns.md) — история: Bluff8000мс вместо16000 для игроков/ботов (с70 база12000мс); убран отдельный3с AI-delay Trance, native reuse1000мс сохранён. Chance/эпик и остальные механики без изменений.
 
 [56. Родные дебаффы/Chance и постоянный эпик+6](56-native-debuff-chance-and-permanent-epic-jewelry.md) — убраны tank25% и private Trance65%; реальные Chance+30/+15, полный список навыков19 классов; пять эпиков всем ботам, безопасная миграция и карта файлов.
 
@@ -114,6 +116,7 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 | Файл | Содержание |
 |---|---|
+| [70-bluff-reuse12s.md](70-bluff-reuse12s.md) | Bluff358: базовый reuse12с вместо8с, все Chance-уровни; проверки и установка |
 | [69-cardinal-dominator-fixed-sleep20.md](69-cardinal-dominator-fixed-sleep20.md) | Текущие20% для Trance1394 и Dreaming Spirit1097; аудит формулы, старого gate, native тесты; карта файлов/установка |
 | [68-passive-barrier-trance25-and-bluff-rear.md](68-passive-barrier-trance25-and-bluff-rear.md) | Актуально:1418 кайт;5576 Trance до сна/окончания эффекта; шанс см.69; Bluff обход/спина/без автоатаки; тесты/установка |
 | [67-cardinal-invulnerability-trance-and-chance.md](67-cardinal-invulnerability-trance-and-chance.md) | История ошибочной интерпретации; отменена68 |
@@ -162,7 +165,7 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 - [54: Отход после сна; повторная атака саммона](54-post-sleep-retreat-and-summon-attack-pulse.md): маршрут внутри450, Cardinal — реальная дальность1398, Dominator —300; общий3000мс native attack pulse без resummon.
 
-- [53: Bluff ×2 reuse и Dominator против дальнего боя](53-bluff-reuse-and-dominator-ranged-pressure.md): исторический358 —16с (в57 возвращён8с); бот115 — сближение → сон/стан → проклятия → атака с поддержкой CP.
+- [53: Bluff ×2 reuse и Dominator против дальнего боя](53-bluff-reuse-and-dominator-ranged-pressure.md): исторический358 —16с (в57 возвращён8с, с70 —12с); бот115 — сближение → сон/стан → проклятия → атака с поддержкой CP.
 
 ## Куда смотреть при типовых задачах
 

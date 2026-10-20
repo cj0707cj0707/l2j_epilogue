@@ -6,7 +6,8 @@ R=Path(__file__).resolve().parents[2];T=Path(__file__).parent
 path='game/data/stats/skills/00300-00399.xml'
 old=ET.fromstring(subprocess.check_output(['git','show','HEAD:'+path],cwd=R,text=True));new=ET.parse(R/path).getroot()
 # Baseline-independent invariant: changing358 reuse must not touch any other XML value.
-old.find("skill[@id='358']/reuseDelay").text='8000'
+assert new.findtext("skill[@id='358']/reuseDelay")=='12000'
+old.find("skill[@id='358']/reuseDelay").text='12000'
 assert ET.tostring(old)==ET.tostring(new)
 # Native Trance XML is already restored; do not rewrite its full 99-skill document.
 trance=ET.parse(R/'game/data/stats/skills/01300-01399.xml').getroot().find("skill[@id='1394']")
