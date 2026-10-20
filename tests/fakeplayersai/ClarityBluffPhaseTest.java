@@ -150,11 +150,61 @@ public class ClarityBluffPhaseTest extends CombatPriorityAuditTest {
    clearSleep(e);
   }
  }
+
+ // Keep native PlayerAI.setIntentionMoveTo admission/queuing; only world movement is recorded.
+ static class NativeMoveAI extends org.l2jmobius.gameserver.ai.PlayerAI {
+  int requests;org.l2jmobius.gameserver.entity.Location requested;
+  NativeMoveAI(Player p){super(p);}
+  @Override public void stopFollow(){} // no follow scheduler in the isolated fixture
+  @Override public void clientStopAutoAttack(){} // no attack-stance scheduler in the isolated fixture
+  @Override protected void moveTo(int x,int y,int z){
+   requests++;requested=new org.l2jmobius.gameserver.entity.Location(x,y,z);
+   try {
+    Class<?> c=Class.forName("org.l2jmobius.gameserver.entity.actor.Creature$MoveData");var ctor=c.getDeclaredConstructor();ctor.setAccessible(true);Object m=ctor.newInstance();
+    c.getField("xDestination").setInt(m,x);c.getField("yDestination").setInt(m,y);c.getField("zDestination").setInt(m,z);f(Creature.class,"_move").set(_actor,m);
+   }catch(Exception e){throw new RuntimeException(e);}
+  }
+  @Override public void clientStopMoving(org.l2jmobius.gameserver.entity.Location loc){try{f(Creature.class,"_move").set(_actor,null);}catch(Exception e){throw new RuntimeException(e);}}
+ }
+ static void edgeRear()throws Exception {
+  for(int cid:new int[]{93,101,108})for(boolean ranked:new boolean[]{false,true})for(boolean human:new boolean[]{false,true})
+   for(int h:new int[]{0,8192,16384,24576,32768,40960,49152,57344,65535})for(int edge:new int[]{430,445}) {
+   int cx=-20939,cy=-210729;double angle=h*2*Math.PI/65536.0;
+   Player p=owner(cid,ranked),e=actor(94,ranked,human);foeReady(p,e);
+   at(p,cx+(int)Math.round(350*Math.cos(angle)),cy+(int)Math.round(350*Math.sin(angle)));
+   at(e,cx+(int)Math.round(edge*Math.cos(angle)),cy+(int)Math.round(edge*Math.sin(angle)));e.setHeading((h+32768)%65536);
+   int ex=e.getX(),ey=e.getY(),eh=e.getHeading();
+   NativeMoveAI ai=new NativeMoveAI(p);f(Creature.class,"_ai").set(p,ai);BuffInfo applied=bluff(p,e);BluffRear route=new BluffRear();
+   for(int n=0;n<24&&!BluffRear.ready(p,e);n++) {
+    route.tick(p,e,applied,10000+n*200,new int[]{cx,cy,0});
+    if(p.isMoving()) {
+     verify(Math.hypot(ai.requested.getX()-cx,ai.requested.getY()-cy)<=449,"edge route stays inside449");
+     double length=Math.hypot(ai.requested.getX()-p.getX(),ai.requested.getY()-p.getY());
+     verify(length<=161,"ordinary bounded movement, never teleport");
+     at(p,ai.requested.getX(),ai.requested.getY());f(Creature.class,"_move").set(p,null);
+    }
+   }
+   verify(BluffRear.ready(p,e),"edge: reach a feasible rear-sector point, not only exact180deg; cid="+cid+" edge="+edge+" h="+h+" pos="+p.getX()+","+p.getY());
+   verify(ai.requests>0&&p.calculateDistance2D(e)<=40,"native PlayerAI dispatch reaches rear within strike range");
+   verify(e.getX()==ex&&e.getY()==ey&&e.getHeading()==eh,"no victim movement or facing forgery");
+   // From this actual rear point the same production act can issue a skill.
+   // Native using-kind condition must see a real dagger paperdoll/mask.
+   f(Weapon.class,"_type").set(p.getActiveWeaponItem(),WeaponType.DAGGER);
+   var item=(org.l2jmobius.gameserver.entity.item.instance.Item)unsafe.allocateInstance(org.l2jmobius.gameserver.entity.item.instance.Item.class);
+   f(item.getClass(),"_itemTemplate").set(item,p.getActiveWeaponItem());
+   ((org.l2jmobius.gameserver.entity.item.instance.Item[])f(org.l2jmobius.gameserver.entity.itemcontainer.Inventory.class,"_paperdoll").get(p.getInventory()))[org.l2jmobius.gameserver.entity.itemcontainer.Inventory.PAPERDOLL_RHAND]=item;
+   f(org.l2jmobius.gameserver.entity.itemcontainer.Inventory.class,"_wearedMask").setInt(p.getInventory(),WeaponType.DAGGER.mask());
+   learn(p,nativeSkill(30));Object s=centered();f(state,"arenaCenterX").setInt(s,cx);f(state,"arenaCenterY").setInt(s,cy);
+   f(state,"nextDecision").setLong(s,0);verify(run(p,e,s,20000)&&last==30,"edge arrival releases production Backstab, not autoattack; actual="+last);
+   verify(!BotTactics.allowsBasicAttack(p,BotPresets.getPresetByClassId(cid)),"autoattack stays forbidden during own Bluff even behind");
+   p.setCastingNow(false);clearSleep(e);
+  }
+ }
  public static void main(String[]args){try{
   ServerConfig.DATAPACK_ROOT=new File(args[0]);ThreadConfig.THREADS_FOR_LOADING=false;unsafe=(Unsafe)f(Unsafe.class,"theUnsafe").get(null);f(LowManaAutoAttackTest.class,"unsafe").set(null,unsafe);CpMeleeRushRecoveryTest.unsafe=unsafe;
   handlers.EffectMasterHandler.main(new String[0]);skill=SkillData.getInstance().getSkill(1510,1);recordingType();state=Class.forName("custom.fakeplayersai.BotTactics$State");
   act=BotTactics.class.getDeclaredMethod("act",Player.class,Player.class,BotClassPreset.class,state,long.class,boolean.class);act.setAccessible(true);poll=BotTactics.class.getDeclaredMethod("pollAttempt",Player.class,Player.class,state,long.class);poll.setAccessible(true);
   var geo=java.nio.file.Files.createTempDirectory("phase63-geodata-");org.l2jmobius.gameserver.config.GeoEngineConfig.GEODATA_PATH=geo;org.l2jmobius.gameserver.geoengine.GeoEngine.getInstance();java.nio.file.Files.delete(geo);
-  clarity();wakeSequence();daggers();System.out.println("PASS: "+checks+" native Clarity/Trance/wake-ManaBurn and all3 dagger own-Bluff rear/skills-only checks; no live server");System.exit(0);
+  clarity();wakeSequence();daggers();edgeRear();System.out.println("PASS: "+checks+" native Clarity/Trance/wake-ManaBurn and all3 dagger own-Bluff rear/skills-only checks; no live server");System.exit(0);
  }catch(Throwable e){e.printStackTrace();System.exit(1);}}
 }

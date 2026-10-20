@@ -368,7 +368,8 @@ public final class BotTactics
 		final State s = STATES.get(botId);
 		return "tactics:" + getDifficulty(botId) + ":owned=" + (s != null && s.owned)
 			+ ":pending=" + (s == null ? 0 : s.pendingId) + ":backoffs=" + (s == null ? 0 : s.failures.size())
-			+ ":cardinalClarity=" + (s != null && s.cardinalSupport.active());
+			+ ":cardinalClarity=" + (s != null && s.cardinalSupport.active())
+            + ":bluffRear=" + (s == null ? "idle" : s.bluffRear.describe());
 	}
 
 	/** TrainingArena must authorize an isolated pair. Client-backed humans are NEVER bots. */

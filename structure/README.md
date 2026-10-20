@@ -28,6 +28,8 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 ## Последнее обновление
 
+- [72 — Bluff: достижимый маршрут за спину; Cardinal full epic+6](72-bluff-bounded-rear-route-and-cardinal-epic-check.md): полный проверенный обход и задний сектор у края вместо зацикливания; native PlayerAI/Backstab regression, точные5 эпиков+6 и повторная проверка локального IP.
+
 - [71 — Локальный IP без внешнего автоопределения](71-local-ipconfig-no-external-detection.md): активный `game/config/ipconfig.xml` с127.0.0.1 вместо HTTP-запроса внешнего IP при старте; native тест, карта файлов и установка.
 
 - [70 — Bluff: базовый откат12с (+50%)](70-bluff-reuse12s.md):8000→12000мс для игроков и ботов, включая Chance101–115; native регрессии, карта файлов и установка. AI обхода не менялся.
@@ -118,6 +120,7 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 | Файл | Содержание |
 |---|---|
+| [72-bluff-bounded-rear-route-and-cardinal-epic-check.md](72-bluff-bounded-rear-route-and-cardinal-epic-check.md) | Bluff: полный маршрут в задний сектор у края, диагностика; Cardinal5 эпиков+6, native регрессии и установка |
 | [71-local-ipconfig-no-external-detection.md](71-local-ipconfig-no-external-detection.md) | Локальный IP127.0.0.1, отключение внешнего автоопределения, native тест и установка |
 | [70-bluff-reuse12s.md](70-bluff-reuse12s.md) | Bluff358: базовый reuse12с вместо8с, все Chance-уровни; проверки и установка |
 | [69-cardinal-dominator-fixed-sleep20.md](69-cardinal-dominator-fixed-sleep20.md) | Текущие20% для Trance1394 и Dreaming Spirit1097; аудит формулы, старого gate, native тесты; карта файлов/установка |

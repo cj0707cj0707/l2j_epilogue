@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """Structure68/69: passive barrier/fixed20% sleeps and mandatory rear-only Bluff regressions."""
 from pathlib import Path
-import os, subprocess, tempfile, shutil
+import os, subprocess, tempfile, shutil, argparse
+parser=argparse.ArgumentParser()
+parser.add_argument("--bluff-only",action="store_true",help="Run only the native rear-phase fixture after compiling all scripts")
+options=parser.parse_args()
 R=Path(__file__).resolve().parents[2];T=Path(__file__).parent
 S=R/'game/data/scripts/custom/fakeplayersai'
 tactics=(S/'BotTactics.java').read_text();manager=(S/'BotManager.java').read_text()
@@ -46,6 +49,7 @@ with tempfile.TemporaryDirectory(prefix='passive-bluff68-') as directory:
         return result.stdout.strip()
 
     run(['java', str(compiler), '-cp', cp, '-d', str(d / 'classes'), *map(str, sources)], R)
-    for name in ['ControlPursuitTranceKiteTest','CardinalSurvivalControlChanceTest','ArenaOrbitTranceManaTest','NativeDebuffEpicTest','ClarityBluffPhaseTest','TankMechanicsKiteTest','CombatPriorityAuditTest']:
+    suites=['ClarityBluffPhaseTest'] if options.bluff_only else ['ControlPursuitTranceKiteTest','CardinalSurvivalControlChanceTest','ArenaOrbitTranceManaTest','NativeDebuffEpicTest','ClarityBluffPhaseTest','TankMechanicsKiteTest','CombatPriorityAuditTest']
+    for name in suites:
         print(run(['java', '-cp', str(d / 'classes') + os.pathsep + cp, 'custom.fakeplayersai.'+name, str(R / 'game'), *([str(d/'audit68.md')] if name=='NativeDebuffEpicTest' else [])], R / 'game'), flush=True)
     print('PASS: all custom/effect scripts compile')

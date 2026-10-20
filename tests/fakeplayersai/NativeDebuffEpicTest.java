@@ -133,6 +133,10 @@ public class NativeDebuffEpicTest {
     }
     static void skillsAndGear()throws Exception {
         var trees=SkillTreeData.getInstance();var data=SkillData.getInstance();var groups=EnchantSkillGroupsData.getInstance();
+        var configured=new BotSettings();configured.load();check(configured.getEnchantJewel()==6,"deployed repository config requests jewelry +6");
+        Set<Integer> expectedEpics=Set.of(6656,6659,6657,6658,6660);
+        Set<Integer> presetEpics=new HashSet<>();for(int id:BotPresets.getJewelryIds())presetEpics.add(id);
+        check(presetEpics.equals(expectedEpics),"exact Antharas/Zaken/Valakas/Baium/Queen Ant preset, independent of tier");
         for(var preset:BotPresets.getPresetList())for(boolean ranked:new boolean[]{false,true}) {
             Player p=recordingPlayer(preset.getClassId(),ranked);
             int expected=0;
@@ -163,7 +167,8 @@ public class NativeDebuffEpicTest {
             TestItem reuse=new TestItem(6658);reuse.setEnchantLevel(10);inv.own(reuse);
             BotSpawner.ensurePresetJewelry(p);
             Set<Integer> unique=new HashSet<>();for(var item:inv.getPaperdollItems())if(Arrays.stream(BotPresets.getJewelryIds()).anyMatch(id->id==item.getId())) {unique.add(item.getId());check(item.getEnchantLevel()==6,"epic +6 on paperdoll");}
-            check(unique.size()==5,"all five unique epics equipped, "+preset.getClassName()+" ranked="+ranked);
+            check(unique.equals(expectedEpics),"all five exact unique epics equipped, "+preset.getClassName()+" ranked="+ranked);
+            if(preset.getClassId()==97)System.out.println("PASS: Cardinal equipped Antharas/Zaken/Valakas/Baium/Queen Ant +6; ranked="+ranked+"; isolated native inventory, not live DB");
             check(inv.getPaperdollItemByItemId(6658)==reuse,"existing Baium reused, no duplicate");
             check(armor.isEquipped()&&armor.getEnchantLevel()==13&&weapon.isEquipped()&&weapon.getEnchantLevel()==19,"armor and weapon unchanged");
             check(inv.getPaperdollItemByItemId(14165)==null&&inv.getPaperdollItemByItemId(14163)==null&&inv.getPaperdollItemByItemId(14164)==null,"old jewels unequipped");
