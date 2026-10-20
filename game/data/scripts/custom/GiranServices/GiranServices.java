@@ -83,7 +83,20 @@ public final class GiranServices extends Script
         {
             if (npc.getId()==TRAINER)
             {
-                if (a.length==2 && a[0].equals("class"))
+                if (a.length==1 && a[0].equals("ordered")) page="ordered";
+                else if (a.length==2 && a[0].equals("orderedClasses") && (a[1].equals("1")||a[1].equals("2"))) page="orderedClasses"+a[1];
+                else if (a.length==3 && a[0].equals("orderedClass") && (a[1].equals("1")||a[1].equals("2")))
+                {
+                    int id=Integer.parseInt(a[2]);
+                    if(OrderedBattles.classes().stream().anyMatch(c->c.getClassId()==id))p.getVariables().set(PREFIX+"ordered"+a[1],id);
+                    page="ordered";
+                }
+                else if (a.length==1 && a[0].equals("orderedStart"))
+                {
+                    notice=OrderedBattles.start(p,p.getVariables().getInt(PREFIX+"ordered1",-1),p.getVariables().getInt(PREFIX+"ordered2",-1));
+                    page="ordered";
+                }
+                else if (a.length==2 && a[0].equals("class"))
                 {
                     int id = Integer.parseInt(a[1]);
                     if (BotPresets.getPresetByClassId(id)!=null) p.getVariables().set(PREFIX+"class",id);
@@ -172,8 +185,31 @@ public final class GiranServices extends Script
         else if (page.equals("stats")) body.append(CombatAnalytics.report(p)).append(button("Назад","main"));
         else if (npc.getId()==TRAINER)
         {
-            body.append("<font color=\"LEVEL\">Тренер и аналитик</font><br>Отдельная дуэль с ботом. Без рейтинговых очков и наград.<br>");
-            if (page.equals("classes"))
+            body.append("<font color=\"LEVEL\">Тренер и аналитик</font><br>");
+            if(!page.equals("ordered")&&!page.startsWith("orderedClasses"))body.append("Отдельная дуэль с ботом. Без рейтинговых очков и наград.<br>");
+            if(page.equals("ordered")||page.startsWith("orderedClasses"))
+            {
+                body.append("<font color=\"LEVEL\">Заказной бой ботов</font><br>Классы только из текущего пула. Оба закончат текущий бой, затем перенос через 5 секунд. Вы станете наблюдателем.<br>");
+                if(page.startsWith("orderedClasses"))
+                {
+                    String slot=page.endsWith("1")?"1":"2";
+                    for(BotClassPreset preset:OrderedBattles.classes())body.append(button(preset.getClassName(),"orderedClass "+slot+" "+preset.getClassId()));
+                    body.append(button("Назад","ordered"));
+                }
+                else
+                {
+                    for(int slot=1;slot<=2;slot++)
+                    {
+                        int selected=p.getVariables().getInt(PREFIX+"ordered"+slot,-1);
+                        BotClassPreset preset=BotPresets.getPresetByClassId(selected);
+                        body.append("Профессия №").append(slot).append(": ").append(preset==null?"не выбрана":escape(preset.getClassName())).append("<br>")
+                            .append(button("Выбрать профессию №"+slot,"orderedClasses "+slot));
+                    }
+                    body.append("Это штатный олимпийский матч: обычные очки и результат, не тренировочная дуэль.<br>")
+                        .append(button("Старт боя","orderedStart")).append(button("Назад","main"));
+                }
+            }
+            else if (page.equals("classes"))
             {
                 for (BotClassPreset preset:BotPresets.getPresetList()) body.append(button(preset.getClassName(),"class "+preset.getClassId()));
                 body.append(button("Назад","main"));
@@ -186,6 +222,7 @@ public final class GiranServices extends Script
                     .append(button("Выбрать класс","classes"));
                 for (String d:DIFFICULTIES) body.append(button(DIFF_NAMES.get(d),"difficulty "+d));
                 body.append("Снаряжение и уровень игрока не копируются и не меняются.<br>")
+                    .append(button("Заказной бой ботов","ordered"))
                     .append(button("Начать тренировку","start")).append(button("Повторить последний бой","repeat"))
                     .append(button("Моя статистика","stats")).append(button("Завершить тренировку","leave"))
                     .append("Без минимального HP/CP/MP; без саммона, боя и очереди. После запуска дуэли около 6 сек. — " + TacticalSettings.getTrainingPreparationSeconds() + " сек. на селфбаф; общий лимит 120 сек., включая подготовку.<br>")

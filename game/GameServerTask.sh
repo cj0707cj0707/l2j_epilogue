@@ -18,6 +18,8 @@ java --class-path "." -Dfile.encoding=UTF-8 core-patches/observer-cleanup/Instal
 
 java --class-path "." -Dfile.encoding=UTF-8 core-patches/olympiad-battle-timer/InstallOlympiadBattleTimer.java ../libs/GameServer.jar core-patches >> log/debuff-guard-install.log 2>&1 || { cat log/debuff-guard-install.log >&2; exit 1; }
 
+java --class-path "." -Dfile.encoding=UTF-8 core-patches/ordered-olympiad/InstallOrderedOlympiad.java ../libs/GameServer.jar core-patches >> log/debuff-guard-install.log 2>&1 || { cat log/debuff-guard-install.log >&2; exit 1; }
+
 while :; do
 	[ -f log/java0.log.0 ] && mv log/java0.log.0 "log/`date +%Y-%m-%d_%H-%M-%S`_java.log"
 	[ -f log/stdout.log ] && mv log/stdout.log "log/`date +%Y-%m-%d_%H-%M-%S`_stdout.log"

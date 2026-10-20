@@ -28,6 +28,8 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 ## Последнее обновление
 
+- [66 — Заказные олимпийские бои бот–бот у Trainer](66-ordered-olympiad-bot-battles.md): два класса текущего пула, резерв до завершения обоих боёв, перенос через5с, свободная арена (приоритет15), автоматическое наблюдение; шестой core-патч, карта файлов и установка.
+
 - [65 — Dominator без стана дальних целей; Cardinal: Trance перед кайтом](65-dominator-ranged-stun-ban-and-cardinal-trance-kite.md).
 
 [64. Cardinal: Mana Burn → Prominence → Trance под Clarity](64-cardinal-clarity-mana-burn-prominence-trance.md) — после собственного сна одна связка1398→готовый1230, затем1394; native/AI cooldown1230 пропускается без ожидания, лечение/щит выше цепочки. Карта файлов, тесты и установка.
@@ -106,6 +108,7 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 | Файл | Содержание |
 |---|---|
+| [66-ordered-olympiad-bot-battles.md](66-ordered-olympiad-bot-battles.md) | Заказ пары классов у Trainer, ожидание без повторной регистрации, native матч/наблюдатель, шестая стадия core и тесты |
 | [62-combat-survival-priorities-and-audit-regressions.md](62-combat-survival-priorities-and-audit-regressions.md) | Текущие приоритеты выживания, root131, бюджет контроля115, восстановленные регрессии и установка |
 | [58-olympiad-150s-invulnerability-kite-native-mana-and-clarity.md](58-olympiad-150s-invulnerability-kite-native-mana-and-clarity.md) | Текущее:150с, всеобщий invul-кайт мили, обычнаяMP, native3282/60с, карта и установка |
 | [57-default-trance-and-bluff-cooldowns.md](57-default-trance-and-bluff-cooldowns.md) | Отмена увеличенного Bluff reuse и отдельного Cardinal Trance timer; штатные параметры, тесты и установка |
@@ -156,6 +159,7 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 | Задача | Документ |
 |---|---|
+| Заказать бой между двумя классами ботов и автоматически наблюдать | `66-ordered-olympiad-bot-battles.md` |
 | Не входит после выбора персонажа; Skill1322/1320 отсутствует; NPE getAllAvailableSkills | `35-character-login-skill-xml-recovery.md` |
 | Поменять рейты (XP/SP/дроп/адена) | `03-game-config.md` → `Rates.ini` |
 | Изменить порт/IP/сетевые настройки | `03-game-config.md` → `Network.ini`, `Server.ini`; `04-login-server.md` |

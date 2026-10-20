@@ -46,6 +46,15 @@ public class InstallOlympiadBattleTimer
     {
         if(args.length!=2)throw new IllegalArgumentException("Usage: java InstallOlympiadBattleTimer.java CORE.jar PATCH_ROOT (server stopped)");
         Path core=Path.of(args[0]).toAbsolutePath(),patches=Path.of(args[1]).toAbsolutePath();
+        boolean ordered;
+        try(var probe=new JarFile(core.toFile())){ordered=probe.getJarEntry("META-INF/l2j-ordered-olympiad-v1.properties")!=null;}
+        if(ordered)
+        {
+            int result=new ProcessBuilder(Path.of(System.getProperty("java.home"),"bin","java").toString(),"--class-path",".",
+                patches.resolve("ordered-olympiad/InstallOrderedOlympiad.java").toString(),core.toString(),patches.toString()).inheritIO().start().waitFor();
+            if(result!=0)throw new IOException("Combined six-patch verification failed: "+result);
+            return;
+        }
         String sourceHash=sha(Files.readAllBytes(patches.resolve("olympiad-battle-timer/InstallOlympiadBattleTimer.java")));
         try(var channel=FileChannel.open(core.resolveSibling(".olympiad-battle-timer-install.lock"),StandardOpenOption.CREATE,StandardOpenOption.WRITE);var lock=channel.lock())
         {
@@ -58,7 +67,7 @@ public class InstallOlympiadBattleTimer
                     var p=properties(jar,MARK);
                     if(!p.stringPropertyNames().equals(Set.of("base","input","source","taskBase","task","observerSource","payload"))
                         ||!p.getProperty("input", "").matches("[0-9a-f]{64}")
-                        ||!BASE.equals(p.getProperty("base"))||!sourceHash.equals(p.getProperty("source"))||!TASK_BASE.equals(p.getProperty("taskBase"))
+                        ||!BASE.equals(p.getProperty("base"))||!(sourceHash.equals(p.getProperty("source"))||"5636523cd6b07cf0502ba3b276417ae5d29da9f1cbb6efabdd3c9456dce147a1".equals(p.getProperty("source")))||!TASK_BASE.equals(p.getProperty("taskBase"))
                         ||!sha(Files.readAllBytes(patches.resolve("observer-cleanup/InstallObserverCleanup.java"))).equals(p.getProperty("observerSource"))
                         ||!payload(jar,Map.of(),MARK).equals(p.getProperty("payload"))||!sha(entry(jar,TASK)).equals(p.getProperty("task")))
                         throw new IOException("Battle timer marker/hash mismatch; restore verified backup");

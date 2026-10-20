@@ -61,6 +61,7 @@ final class OlympiadRegistration
         int registered=0;long now=System.nanoTime()/1_000_000;
         for(Player bot:shuffled)
         {
+            if(OrderedBattles.held(bot.getObjectId())){DUE.remove(bot.getObjectId());continue;}
             if(bot.getClient()!=null)continue; // never schedule or top up a human
             try{bind.invoke(null,bot);}catch(ReflectiveOperationException e){throw new IllegalStateException(e);}
             boolean available=bot.isOnline()&&bot.isNoble()&&!bot.isAlikeDead()&&!bot.isTeleporting()

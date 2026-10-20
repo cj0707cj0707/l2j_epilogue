@@ -802,6 +802,8 @@ public class BotManager
 				
 				final boolean inOlympiad = bot.isInOlympiadMode() || olympiad.playerInStadia(bot);
 				
+				if (OrderedBattles.waitOutsideMatch(bot)) continue;
+
 				// Dead bots are handled by the dedicated 1-second reviveTick() pass.
 				if (bot.isAlikeDead())
 				{
@@ -1189,6 +1191,7 @@ public class BotManager
 				// Clientless teleports need this completion before readiness can become true.
 				// onTeleported stops engines; no combat decision happens before the gate.
 				if (bot.isTeleporting() && bot.getClient() == null) bot.onTeleported();
+				if (OrderedBattles.waitOutsideMatch(bot)) continue;
 				if (holdOlympiadIfNotReady(bot))
 				{
 					watchOlympiadMatch(bot, true);
@@ -1761,6 +1764,7 @@ public class BotManager
 			final Olympiad olympiad = Olympiad.getInstance();
 			for (Player bot : BOTS.values())
 			{
+				if (OrderedBattles.waitOutsideMatch(bot)) continue;
 				if (holdOlympiadIfNotReady(bot)) continue;
 				if (bot.isAlikeDead() || bot.isTeleporting())
 				{
@@ -1830,6 +1834,7 @@ public class BotManager
 		{
 			try
 			{
+				if (OrderedBattles.waitOutsideMatch(bot)) continue;
 				if (holdOlympiadIfNotReady(bot)) continue;
 				if (!bot.isInOlympiadMode() || !bot.isOlympiadStart() || bot.isAlikeDead() || bot.isTeleporting())
 				{
