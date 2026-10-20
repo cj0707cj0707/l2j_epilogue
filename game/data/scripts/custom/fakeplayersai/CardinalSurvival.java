@@ -1,7 +1,6 @@
 package custom.fakeplayersai;
 
 import java.util.List;
-import java.lang.ref.WeakReference;
 import org.l2jmobius.gameserver.entity.actor.Player;
 import org.l2jmobius.gameserver.mechanics.skill.BuffInfo;
 
@@ -33,17 +32,17 @@ final class CardinalSurvival
     /** Per-pair live-effect history, not accepted casts or a guessed sleep timer. */
     static final class Window
     {
-        private WeakReference<BuffInfo> clarity = new WeakReference<>(null);
         private boolean observedTrance, endedTrance;
         private int phase; //0: sleep,1: wake/Mana Burn,2: one Prominence opportunity,3: resleep
-        void reset() { clarity.clear(); observedTrance = false; endedTrance = false; phase = 0; }
+        void reset() { observedTrance = false; endedTrance = false; phase = 0; }
+        boolean pending() { return observedTrance || endedTrance && phase < 3; }
+        String describe() { return observedTrance ? "sleep" : endedTrance && phase == 1 ? "wake-mana" : endedTrance && phase == 2 ? "wake-prominence" : "rotation"; }
         void observe(Player bot, Player enemy)
         {
-            if (!active(bot, enemy)) { reset(); return; }
-            BuffInfo live = enemy.getEffectList().getBuffInfoBySkillId(3282);
-            if (clarity.get() != live) { reset(); clarity = new WeakReference<>(live); }
-            BuffInfo sleep = SleepRetreat.ownSleep(bot, enemy);
-            if (sleep != null && sleep.getSkill().getId() == 1394)
+            if (bot == null || enemy == null || bot.getClient() != null || bot.getPlayerClass().getId() != 97) { reset(); return; }
+            // Sleep/wake is independent of Clarity's presence or expiry. Pair changes reset in prepare.
+            BuffInfo sleep = SleepRetreat.cardinalSleep(bot, enemy);
+            if (sleep != null)
             { observedTrance = true; endedTrance = false; phase = 0; }
             else if (observedTrance && !enemy.isSleeping())
             { observedTrance = false; endedTrance = true; phase = 1; }
@@ -62,7 +61,11 @@ final class CardinalSurvival
         {
             for (int id : new int[]{hp<.65?1418:-1,hp<.95?1218:-1})
                 if (id > 0 && has(options,id)) return id;
-            if (phase == 1 && has(options,1398)) return 1398;
+            if (phase == 1)
+            {
+                if (has(options,1398)) return 1398;
+                phase = 2; // unavailable native skill: try the legal nuke, never force a cast
+            }
             if (phase == 2)
             {
                 if (has(options,1230)) return 1230;

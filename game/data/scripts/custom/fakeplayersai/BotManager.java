@@ -1473,6 +1473,7 @@ public class BotManager
 				withTarget++;
 
 				if (inOlympiad && target.isPlayer() && BotTactics.tickBluffRear(bot, target.asPlayer(), preset, true)) continue;
+				if (inOlympiad && target.isPlayer() && BotTactics.tickCardinalControl(bot, target.asPlayer(), preset, true)) continue;
 				if (inOlympiad && target.isPlayer() && BotTactics.tickInvulnerableMelee(bot, target.asPlayer(), preset, true)) continue;
 
 				// Opening curse: mage bots open the fight with the resist-lowering
@@ -1848,6 +1849,7 @@ public class BotManager
 				if (activeOpponent != null && ArenaCombatRules.update(bot, activeOpponent, preset)) { OlympiadCombatGate.hold(bot); continue; }
 				BotTactics.tickSummonAttack(bot, activeOpponent, true);
 				if (BotTactics.tickBluffRear(bot, activeOpponent, preset, true)) continue;
+				if (BotTactics.tickCardinalControl(bot, activeOpponent, preset, true)) continue;
 				if (BotTactics.tickInvulnerableMelee(bot, activeOpponent, preset, true)) continue;
 				final BerserkerState state = BERSERKER_STATES.get(bot.getObjectId());
 				if (state != null)

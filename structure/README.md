@@ -28,6 +28,8 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 ## Последнее обновление
 
+- [74 — Cardinal: центр → ожидание сна → Mana Burn/Prominence](74-cardinal-sleep-center-hold-and-wake-combo.md): обязательный приоритет сна над кайтом/щитами, native маршрут через центр, запрет будить цель кастом/автоатакой, wake-комбо без зависимости от Clarity; карта файлов, тесты и установка.
+
 - [73 — Bluff: фиксированный шанс стана40%](73-bluff-fixed-stun40.md): native min=max40 для игроков и ботов, все Chance-уровни; защита от старого общего gate, проверка штатной формулы и применения Stun. Разворот/сброс80%, reuse12с, обход72 сохранены.
 
 - [72 — Bluff: достижимый маршрут за спину; Cardinal full epic+6](72-bluff-bounded-rear-route-and-cardinal-epic-check.md): полный проверенный обход и задний сектор у края вместо зацикливания; native PlayerAI/Backstab regression, точные5 эпиков+6 и повторная проверка локального IP.
@@ -122,6 +124,7 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 | Файл | Содержание |
 |---|---|
+| [74-cardinal-sleep-center-hold-and-wake-combo.md](74-cardinal-sleep-center-hold-and-wake-combo.md) | Cardinal: приоритет сна, центр/удаление/ожидание, wake-комбо, passive Trance и native регрессии |
 | [73-bluff-fixed-stun40.md](73-bluff-fixed-stun40.md) | Bluff358: строгие40% стана, все Chance-уровни, native тесты и установка |
 | [72-bluff-bounded-rear-route-and-cardinal-epic-check.md](72-bluff-bounded-rear-route-and-cardinal-epic-check.md) | Bluff: полный маршрут в задний сектор у края, диагностика; Cardinal5 эпиков+6, native регрессии и установка |
 | [71-local-ipconfig-no-external-detection.md](71-local-ipconfig-no-external-detection.md) | Локальный IP127.0.0.1, отключение внешнего автоопределения, native тест и установка |

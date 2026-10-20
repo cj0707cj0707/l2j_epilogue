@@ -72,12 +72,17 @@ public class PostSleepSummonTest extends DominatorPressureBluffTest
             MoveAI ai=new MoveAI(p);f(Creature.class,"_ai").set(p,ai);Object s=centered();f(state,"nextDecision").setLong(s,Long.MAX_VALUE);
             BuffInfo sleep=appliedSleep(p,e,cid);verify(SleepRetreat.ownSleep(p,e)==sleep,"real current own applied SLEEP");
             verify(run(p,e,s,10000)&&ai.requests==1&&last==0,"actual retreat preempts reaction and offensive cast");
-            double wanted=cid==97?449:299;
-            verify(Math.abs(Math.hypot(ai.requested.getX()-e.getX(),ai.requested.getY()-e.getY())-wanted)<1,"Cardinal range capped by circle; Dominator300");
+            double wanted=cid==97?0:299;
+            verify(Math.abs(Math.hypot(ai.requested.getX()-e.getX(),ai.requested.getY()-e.getY())-wanted)<1,"Cardinal center first; Dominator300 unchanged");
             for(int i=1;i<=8;i++)verify(run(p,e,s,10000+i*100)&&ai.requests==1&&last==0,"entire running route owned, not a200ms step");
             int tx=ai.requested.getX(),ty=ai.requested.getY();at(p,tx,ty);f(Creature.class,"_move").set(p,null);
-            f(state,"nextDecision").setLong(s,0);verify(run(p,e,s,12000)&&last==(cid==97?1398:1367),"after arrival ordinary legal attack resumes;115 does not chase back40 into sleep cid="+cid+" last="+last+" casting="+p.isCastingNow());
-            finish(p,e,s,17000);verify(ai.requests==1,"one retreat for one effect, no repeated circle walking");
+            f(state,"nextDecision").setLong(s,0);
+            if(cid==97){
+                verify(run(p,e,s,12000)&&last==0&&ai.requests==2,"center arrival dispatches one opposite endpoint");
+                tx=ai.requested.getX();ty=ai.requested.getY();at(p,tx,ty);f(Creature.class,"_move").set(p,null);
+                verify(run(p,e,s,13000)&&last==0&&!p.isMoving(),"Cardinal holds landed sleep after retreat, never burns it early");
+            }else{verify(run(p,e,s,12000)&&last==1367,"Dominator keeps legal curse after arrival");finish(p,e,s,17000);}
+            verify(ai.requests==(cid==97?2:1),"one retreat per effect, no repeated circle walking");
             // Removed sleep stops ONLY the owned route; another AI move is never cancelled.
             at(p,80,0);clearSleep(e);appliedSleep(p,e,cid);s=centered();f(state,"nextDecision").setLong(s,Long.MAX_VALUE);run(p,e,s,20000);
             verify(p.isMoving(),"second distinct actual sleep starts new retreat");clearSleep(e);run(p,e,s,20100);verify(!p.isMoving(),"sleep ended: owned route released immediately");
@@ -97,7 +102,7 @@ public class PostSleepSummonTest extends DominatorPressureBluffTest
             Player p=owner(cid,false),e=actor(94,false,true);at(e,0,0);if(cid==97)learn(p,nativeSkill(1398));
             MoveAI ai=new MoveAI(p);f(Creature.class,"_ai").set(p,ai);ai.accept=false;
             BuffInfo sleep=appliedSleep(p,e,cid);SleepRetreat r=new SleepRetreat();int[] center={0,0};
-            verify(!r.tick(p,e,1000,center)&&ai.requests>0,"refused movement releases ordinary rotation");int before=ai.requests;
+            verify(!r.tick(p,e,1000,center)&&ai.requests>0,"refused movement reports false to caller; Cardinal caller still holds sleep");int before=ai.requests;
             for(long t:new long[]{1001,1200,1499})verify(!r.tick(p,e,t,center)&&ai.requests==before,"refused route has500ms backoff");
             ai.accept=true;verify(r.tick(p,e,1500,center)&&ai.requests==before+1,"accepted retry owns whole route");
             sleep.setInUse(false);verify(SleepRetreat.ownSleep(p,e)==null&&!r.tick(p,e,1600,center)&&!p.isMoving(),"inactive sleep releases owned route");sleep.setInUse(true);

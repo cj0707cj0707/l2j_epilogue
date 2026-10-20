@@ -369,7 +369,10 @@ public final class BotTactics
 		return "tactics:" + getDifficulty(botId) + ":owned=" + (s != null && s.owned)
 			+ ":pending=" + (s == null ? 0 : s.pendingId) + ":backoffs=" + (s == null ? 0 : s.failures.size())
 			+ ":cardinalClarity=" + (s != null && s.cardinalSupport.active())
-            + ":bluffRear=" + (s == null ? "idle" : s.bluffRear.describe());
+            + ":bluffRear=" + (s == null ? "idle" : s.bluffRear.describe())
+            + ":cardinalProcTrance=" + (s != null && s.cardinalInvulTrance)
+            + ":cardinalSleep=" + (s == null ? "idle" : s.sleepRetreat.describe())
+            + ":cardinalWake=" + (s == null ? "rotation" : s.clarityWindow.describe());
 	}
 
 	/** TrainingArena must authorize an isolated pair. Client-backed humans are NEVER bots. */
@@ -417,6 +420,7 @@ public final class BotTactics
 		}
 		if (ArenaCombatRules.update(bot, enemy, preset)) return true;
         if (tickBluffRear(bot, enemy, preset, ranked)) return true;
+        if (tickCardinalControl(bot, enemy, preset, ranked)) return true;
 		if (tickInvulnerableMelee(bot, enemy, preset, ranked)) return true;
 		// Existing Rush/retreat/phase driver retains total ownership.
 		if (ranked && preset.getClassId() == 131) { return false; }
@@ -437,6 +441,17 @@ public final class BotTactics
         final long time = now(); final State s = state(bot.getObjectId(), time);
         prepare(bot, enemy, s, time); claim(bot, s);
         return act(bot, enemy, preset, s, time, false);
+    }
+
+    /** Cardinal's shield/sleep/wake owns both arena drivers before generic kiting. */
+    public static synchronized boolean tickCardinalControl(Player bot,Player enemy,BotClassPreset preset,boolean ranked)
+    {
+        if (bot == null || preset == null || preset.getClassId() != CARDINAL_CLASS_ID || !valid(bot,enemy,ranked,STATES.get(bot.getObjectId()))) return false;
+        final long time=now(); final State s=state(bot.getObjectId(),time);
+        prepare(bot,enemy,s,time);
+        if (!enemy.isSleeping() && !CardinalSurvival.ownCelestial(bot) && !CardinalSurvival.passiveTrance(bot,enemy) && !s.clarityWindow.pending()) return false;
+        if (ArenaCombatRules.update(bot,enemy,preset)) return true;
+        claim(bot,s); return act(bot,enemy,preset,s,time,false);
     }
 
     /** Universal arena escape: invulnerable melee OR tank with native110/368/760, including ranked131. */
@@ -645,11 +660,12 @@ public final class BotTactics
 		final boolean survival = (!defenseOnly || movingSupport) && CardinalSurvival.active(bot, enemy);
         final boolean cardinalKiting = !defenseOnly && cardinalTrancePressure(bot, enemy, preset);
         final boolean previousInvulTrance = s.cardinalInvulTrance;
-        // No latch past the five-second proc: own1418 always remains movement-only.
-        s.cardinalInvulTrance = !defenseOnly && CardinalSurvival.passiveTrance(bot, enemy);
+        s.clarityWindow.observe(bot, enemy);
+        final boolean cardinalSleeping = !defenseOnly && preset.getClassId() == CARDINAL_CLASS_ID && enemy.isSleeping();
+        // A landed sleep owns movement; its owed wake combo precedes another proc-Trance.
+        s.cardinalInvulTrance = !defenseOnly && CardinalSurvival.passiveTrance(bot, enemy) && !s.clarityWindow.pending();
         final boolean invulTrance = s.cardinalInvulTrance;
 		if (!survival && !cardinalKiting && !movingSupport) s.survivalKite.stop();
-        s.clarityWindow.observe(bot, enemy);
         final BuffInfo bluffStun = BluffRear.stun(bot, enemy);
         final boolean bluffHold = bluffStun != null;
 		final boolean trainingBerserker = !defenseOnly && preset.getClassId() == 131 && !bot.isInOlympiadMode()
@@ -667,7 +683,7 @@ public final class BotTactics
 		restoreCardinalMana(bot, preset);
 		if (soulCleanse(bot, enemy, preset, s, time)) return true;
 		if (escapeShackle(bot, enemy, preset, s, time)) return true;
-		if (!defenseOnly && !survival && !invulTrance && !bluffHold && !CardinalSurvival.ownCelestial(bot))
+		if (!defenseOnly && !cardinalSleeping && !s.clarityWindow.pending() && !survival && !invulTrance && !bluffHold && !CardinalSurvival.ownCelestial(bot))
 		{
 			final boolean mustKite = (enemy.isInvul() && meleeOpponent(enemy)) || TankClassMechanics.defendedTank(enemy);
 			if (mustKite && supportBeforeMovement(bot, enemy, preset, s, time)) return true;
@@ -682,6 +698,17 @@ public final class BotTactics
 		// Real casts and CC are never aborted or replaced, including by urgent heals.
 		if (bot.isCastingNow() || bot.isOutOfControl() || bot.isAllSkillsDisabled()) { return !defenseOnly; }
 		if (s.pendingId != 0) { return !defenseOnly; }
+        if (cardinalSleeping)
+        {
+            // One center-crossing retreat, then HOLD. Never orbit, chase or wake with damage.
+            s.invulnerableKite.stop(); s.survivalKite.stop(); s.moveUntil=0;
+            stopBasicAttack(bot);
+            if (supportBeforeMovement(bot,enemy,preset,s,time)) return true;
+            s.sleepRetreat.tick(bot,enemy,time,s.hasArenaCenter ? new int[]{s.arenaCenterX,s.arenaCenterY} : ArenaCombatRules.center(bot));
+            return true; // including root/no route/arrived/missing effect; no generic fallback
+        }
+        if (!defenseOnly && preset.getClassId() == CARDINAL_CLASS_ID)
+            s.sleepRetreat.tick(bot,enemy,time,s.hasArenaCenter ? new int[]{s.arenaCenterX,s.arenaCenterY} : ArenaCombatRules.center(bot));
         if (invulTrance)
         {
             s.invulnerableKite.stop(); s.survivalKite.stop(); s.moveUntil = 0;
@@ -882,7 +909,7 @@ public final class BotTactics
 		final int cpChoice = pressure && options.stream().anyMatch(o -> o.id() == cpProposed && !self(o.kind())) ? -1 : cpProposed;
 		final int pressureChoice = pressure ? s.dominatorPressure.choose(options, pressureControls, pressureCurses, sleeping || enemy.isStunned()) : -1;
         final int tranceKiteChoice = cardinalKiting ? TacticsPolicy.cardinalTranceKiteChoice(options, hp) : -1;
-		final int cardinalChoice = survival ? s.clarityWindow.choose(options, hp)
+		final int cardinalChoice = survival || s.clarityWindow.pending() ? s.clarityWindow.choose(options, hp)
             : tranceKiteChoice >= 0 ? tranceKiteChoice : s.cardinalProminence.choose(preset.getClassId(), options, time);
 		final int shadowChoice = !defenseOnly && options.stream().anyMatch(o -> o.id() == 821) ? 821 : -1;
 		final int tankMechanicChoice = TankClassMechanics.choose(options);
@@ -902,8 +929,8 @@ public final class BotTactics
             // A ready Trance interrupts the owned route; move only in the gaps until sleep lands.
             // Preserve structure64's owed wake combo ahead of another Trance under Clarity.
             if (survival && s.sleepRetreat.tick(bot, enemy, time, arenaCenter)) return true;
-            if (invulnerableMelee(bot, enemy, s, time)) return true;
-            final boolean wakeCombo = survival && (selected == 1398 || selected == 1230);
+            if (!s.clarityWindow.pending() && invulnerableMelee(bot, enemy, s, time)) return true;
+            final boolean wakeCombo = s.clarityWindow.pending() && (selected == 1398 || selected == 1230);
             boolean escape = !ownSleep && distance < 450 && selected != 1394 && !wakeCombo;
             if (s.survivalKite.tick(bot, enemy, time, escape)) return true;
         }
@@ -937,7 +964,7 @@ public final class BotTactics
 			s.nextDecision = time + difficulty(s).reactionMs;
 			if (accepted)
 			{
-                if (survival) s.clarityWindow.requested(selected);
+                if (preset.getClassId() == CARDINAL_CLASS_ID) s.clarityWindow.requested(selected);
 				if (trainingRushActive && selected == 793) { s.rushLoop.loopRequestAccepted(); }
 				if (preset.getClassId() == CARDINAL_CLASS_ID) {
 					if (selected == CARDINAL_PROMINENCE_ID) { s.cardinalProminence.accepted(time); }

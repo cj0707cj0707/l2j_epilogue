@@ -19,8 +19,12 @@ final class SleepRetreat
     private boolean finished, moving;
     private int moveX, moveY;
     private long retryAt;
+    private boolean crossedCenter;
+    private Location cardinalEnd;
 
-    void reset() { sleep.clear(); finished = false; moving = false; retryAt = 0; }
+    void reset() { sleep.clear(); finished = false; moving = false; retryAt = 0; crossedCenter = false; cardinalEnd = null; }
+
+    String describe() { return sleep.get()==null ? "idle" : finished ? "hold" : crossedCenter ? "away" : "center"; }
 
     static BuffInfo ownSleep(Player bot, Player enemy)
     {
@@ -36,6 +40,58 @@ final class SleepRetreat
                     && (effect.getEffectFlags() & EffectFlag.SLEEP.getMask()) != 0) return info;
         }
         return null;
+    }
+
+    /** Any real current sleep protects Cardinal's target, even another caster's sleep. */
+    static BuffInfo cardinalSleep(Player bot, Player enemy)
+    {
+        if (bot == null || enemy == null || bot.getClient() != null || bot.getPlayerClass().getId() != 97 || !enemy.isSleeping()) return null;
+        for (BuffInfo info : enemy.getEffectList().getEffects())
+        {
+            if (info == null || info.isRemoved() || !info.isInUse() || info.getEffected() != enemy || info.getSkill() == null || info.getEffects() == null
+                || enemy.getEffectList().getBuffInfoByAbnormalType(info.getSkill().getAbnormalType()) != info) continue;
+            for (var effect : info.getEffects())
+                if (!effect.isInstant() && effect.getEffectType() == EffectType.SLEEP && (effect.getEffectFlags() & EffectFlag.SLEEP.getMask()) != 0) return info;
+        }
+        return null;
+    }
+
+    /** Opposite radial endpoint: both legs run through the actual arena center. */
+    static Location cardinalGoal(Player bot, Player enemy, int[] center)
+    {
+        double requested = distance(bot);
+        if (center == null || requested <= 0) return null;
+        double dx = (double)enemy.getX()-center[0], dy = (double)enemy.getY()-center[1], d = Math.hypot(dx,dy);
+        // Integer rounding must stay strictly inside449 at diagonal headings.
+        double radius = Math.clamp(requested-1-d,0,RADIUS-1);
+        if (d < 1) { dx = (double)bot.getX()-center[0]; dy = (double)bot.getY()-center[1]; }
+        double length = Math.hypot(dx,dy); if (length < 1) { dx=1; dy=0; length=1; }
+        return new Location(center[0]-(int)Math.round(dx*radius/length),center[1]-(int)Math.round(dy*radius/length),bot.getZ());
+    }
+
+    private boolean cardinalTick(Player bot,Player enemy,long time,int[] center)
+    {
+        if (center == null || finished) return false;
+        if (bot.isCastingNow() || bot.isCastingSimultaneouslyNow() || bot.isOutOfControl()) return false;
+        if (bot.isMovementDisabled()) { stopOwnedMove(bot); return false; }
+        if (cardinalEnd == null) cardinalEnd = cardinalGoal(bot,enemy,center);
+        if (cardinalEnd == null) return false;
+        double need = Math.hypot((double)cardinalEnd.getX()-enemy.getX(),(double)cardinalEnd.getY()-enemy.getY());
+        if (!crossedCenter && bot.calculateDistance2D(enemy) >= need-2
+            && Math.hypot((double)bot.getX()-center[0],(double)bot.getY()-center[1]) <= 450)
+        { stopOwnedMove(bot); finished=true; return false; }
+        if (!crossedCenter && Math.hypot((double)bot.getX()-center[0],(double)bot.getY()-center[1]) <= 5)
+        { stopOwnedMove(bot); crossedCenter=true; }
+        if (crossedCenter && Math.hypot((double)bot.getX()-cardinalEnd.getX(),(double)bot.getY()-cardinalEnd.getY()) <= 5)
+        { stopOwnedMove(bot); finished=true; return false; }
+        if (ownsMove(bot)) return true;
+        if (time < retryAt) return false;
+        retryAt=time+500;
+        Location next = crossedCenter ? cardinalEnd : new Location(center[0],center[1],bot.getZ());
+        if (Math.hypot((double)next.getX()-center[0],(double)next.getY()-center[1]) > 449
+            || !GeoEngine.getInstance().canMoveToTarget(bot.getX(),bot.getY(),bot.getZ(),next.getX(),next.getY(),next.getZ(),bot.getInstanceId())) return false;
+        bot.getAI().setIntentionMoveTo(next); moveX=next.getX(); moveY=next.getY(); moving=true;
+        return ownsMove(bot);
     }
 
     static double distance(Player bot)
@@ -80,12 +136,16 @@ final class SleepRetreat
 
     boolean tick(Player bot, Player enemy, long time, int[] center)
     {
-        BuffInfo effect = ownSleep(bot, enemy);
+        final boolean cardinal = bot.getClient() == null && bot.getPlayerClass().getId() == 97;
+        BuffInfo effect = cardinal ? cardinalSleep(bot, enemy) : ownSleep(bot, enemy);
         if (effect == null) { stopOwnedMove(bot); reset(); return false; }
         if (effect != sleep.get())
         {
             stopOwnedMove(bot); reset(); sleep = new WeakReference<>(effect);
+            // Take movement away from the previous kite once, never reset our route each tick.
+            if (cardinal && !bot.isCastingNow() && !bot.isCastingSimultaneouslyNow() && bot.isMoving()) bot.getAI().setIntentionIdle();
         }
+        if (cardinal) return cardinalTick(bot,enemy,time,center);
         if (center == null || finished) return false;
         if (bot.isCastingNow() || bot.isCastingSimultaneouslyNow() || bot.isOutOfControl()) return false;
         if (bot.isMovementDisabled()) { stopOwnedMove(bot); return false; }

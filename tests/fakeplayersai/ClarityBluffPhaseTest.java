@@ -37,7 +37,7 @@ public class ClarityBluffPhaseTest extends CombatPriorityAuditTest {
    verify(run(onlyBurn,target,centered(),10000)&&last==0,"no observed successful Trance: no fabricated wake window");
    CardinalSurvival.Window w=new CardinalSurvival.Window();w.observe(onlyBurn,target);verify(!w.manaBurn(target),"no actual sleep history on a fresh pair");
    BuffInfo sleep=appliedSleep(onlyBurn,target,97);w.observe(onlyBurn,target);clearSleep(target);w.observe(onlyBurn,target);verify(w.manaBurn(target),"real removal opens wake window");
-   clear(target,3282);w.observe(onlyBurn,target);nativeSkill(3282).applyEffects(target,target,true,60);w.observe(onlyBurn,target);verify(!w.manaBurn(target),"new Clarity instance cannot inherit old wake state");
+   clear(target,3282);w.observe(onlyBurn,target);nativeSkill(3282).applyEffects(target,target,true,60);w.observe(onlyBurn,target);verify(w.manaBurn(target),"Clarity replacement cannot discard the actually observed sleep/wake cycle");
   }
  }
  static void wakeSequence()throws Exception {
@@ -60,7 +60,7 @@ public class ClarityBluffPhaseTest extends CombatPriorityAuditTest {
   appliedSleep(p,e,97);w.observe(p,e);clearSleep(e);w.observe(p,e);
   var legal=List.of(new TacticsPolicy.Option(1394,TacticsPolicy.Kind.CONTROL,54),new TacticsPolicy.Option(1398,TacticsPolicy.Kind.DAMAGE,62),new TacticsPolicy.Option(1230,TacticsPolicy.Kind.DAMAGE,62));
   verify(w.choose(legal,1)==1398&&w.choose(legal,1)==1398,"unaccepted/rejected burn leaves first phase intact");w.requested(1398);verify(w.choose(legal,1)==1230,"accepted burn owes nuke, not another sleep");w.requested(1230);verify(w.choose(legal,1)==1394,"accepted nuke leaves only resleep");
-  clear(e,3282);w.observe(p,e);verify(!w.manaBurn(e)&&!w.prominence(e),"Clarity removal resets queued combo");
+  clear(e,3282);w.observe(p,e);verify(!w.manaBurn(e)&&!w.prominence(e),"completed combo stays consumed across Clarity removal");
  }
  static BuffInfo bluff(Player p,Player e)throws Exception{
   clearSleep(e);Skill spell=nativeSkill(358);learn(p,spell);BuffInfo b=new BuffInfo(p,e,spell);

@@ -91,7 +91,8 @@ public final class BotRecoveryRules
     static TerminateReturn bluffAttack(OnCreatureAttack event)
     {
         return event!=null&&arenaManaged(event.getAttacker())&&event.getTarget()!=null&&event.getTarget().isPlayer()
-            &&BluffRear.stun(event.getAttacker().asPlayer(),event.getTarget().asPlayer())!=null ? new TerminateReturn(true,true,true):null;
+            &&(BluffRear.stun(event.getAttacker().asPlayer(),event.getTarget().asPlayer())!=null
+                ||event.getAttacker().asPlayer().getPlayerClass().getId()==97&&event.getTarget().asPlayer().isSleeping()) ? new TerminateReturn(true,true,true):null;
     }
 
     static TerminateReturn guard(OnCreatureSkillUse event)
@@ -99,6 +100,7 @@ public final class BotRecoveryRules
         if (event == null || !managed(event.getCaster()) || event.getSkill()==null) return null;
         final Player actor=event.getCaster().asPlayer();
         Player victim=event.getTarget()!=null&&event.getTarget().isPlayer()?event.getTarget().asPlayer():null;
+        if (victim!=null && victim!=actor && actor.getPlayerClass().getId()==97 && arenaManaged(actor) && victim.isSleeping()) return new TerminateReturn(true,true,true);
         if (victim!=null&&blockedBluffStrike(actor,victim,event.getSkill())) return new TerminateReturn(true,true,true);
         if (!healing(event.getSkill())) return null;
         final Player bot = event.getCaster().asPlayer();
