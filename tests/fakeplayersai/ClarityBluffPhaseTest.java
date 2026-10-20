@@ -40,6 +40,28 @@ public class ClarityBluffPhaseTest extends CombatPriorityAuditTest {
    clear(target,3282);w.observe(onlyBurn,target);nativeSkill(3282).applyEffects(target,target,true,60);w.observe(onlyBurn,target);verify(!w.manaBurn(target),"new Clarity instance cannot inherit old wake state");
   }
  }
+ static void wakeSequence()throws Exception {
+  for(boolean ranked:new boolean[]{false,true})for(boolean human:new boolean[]{false,true})for(int mode:new int[]{0,1,2,3}) {
+   Player e=actor(94,ranked,human),p=cardinal(e,ranked,1394,1398,1230,1218,1418,1396);Object s=centered();
+   hp(p,10000);disable(p,1418);at(p,-449,0);at(e,30,0);
+   appliedSleep(p,e,97);run(p,e,s,10000);clearSleep(e);f(Creature.class,"_move").set(p,null);
+   verify(run(p,e,s,15000)&&last==1398,"wake: Mana Burn before a ready Trance, both arenas/target kinds");
+   int requests=traces.get(p).requests;run(p,e,s,15100);verify(traces.get(p).requests==requests&&p.isCastingNow(),"pending Mana Burn: no duplicate/premature Prominence/Trance");finish(p,e,s,20000);
+   if(mode==1)disable(p,1230);
+   if(mode==2)((TacticsPolicy.CardinalProminence)f(state,"cardinalProminence").get(s)).accepted(23000);
+   if(mode==3){hp(p,5000);verify(run(p,e,s,25000)&&last==1218,"recovery preempts owed Prominence");finish(p,e,s,26000);hp(p,10000);}
+   if(mode==0||mode==3){verify(run(p,e,s,27000)&&last==1230,"exactly one ready Prominence after Mana Burn, before Trance");finish(p,e,s,28000);}
+   at(p,0,0);at(e,30,0);f(Creature.class,"_move").set(p,null);
+   verify(run(p,e,s,30000)&&last==1394,"after Prominence or cooldown skip: return to Trance, never repeated burn/nuke");finish(p,e,s,35000);
+   var w=(CardinalSurvival.Window)f(state,"clarityWindow").get(s);verify(!w.manaBurn(e)&&!w.prominence(e),"resleep request cannot reuse previous wake window");
+  }
+  // Pure phase policy: rejected requests do not advance; heals never consume an owed nuke.
+  Player e=actor(94,false,true),p=cardinal(e,false,1394,1398,1230);var w=new CardinalSurvival.Window();
+  appliedSleep(p,e,97);w.observe(p,e);clearSleep(e);w.observe(p,e);
+  var legal=List.of(new TacticsPolicy.Option(1394,TacticsPolicy.Kind.CONTROL,54),new TacticsPolicy.Option(1398,TacticsPolicy.Kind.DAMAGE,62),new TacticsPolicy.Option(1230,TacticsPolicy.Kind.DAMAGE,62));
+  verify(w.choose(legal,1)==1398&&w.choose(legal,1)==1398,"unaccepted/rejected burn leaves first phase intact");w.requested(1398);verify(w.choose(legal,1)==1230,"accepted burn owes nuke, not another sleep");w.requested(1230);verify(w.choose(legal,1)==1394,"accepted nuke leaves only resleep");
+  clear(e,3282);w.observe(p,e);verify(!w.manaBurn(e)&&!w.prominence(e),"Clarity removal resets queued combo");
+ }
  static BuffInfo bluff(Player p,Player e)throws Exception{
   BuffInfo b=DominatorControlShadowTest.applied(p,e,260);f(BuffInfo.class,"_skill").set(b,nativeSkill(358));return b;
  }
@@ -92,6 +114,6 @@ public class ClarityBluffPhaseTest extends CombatPriorityAuditTest {
   handlers.EffectMasterHandler.main(new String[0]);skill=SkillData.getInstance().getSkill(1510,1);recordingType();state=Class.forName("custom.fakeplayersai.BotTactics$State");
   act=BotTactics.class.getDeclaredMethod("act",Player.class,Player.class,BotClassPreset.class,state,long.class,boolean.class);act.setAccessible(true);poll=BotTactics.class.getDeclaredMethod("pollAttempt",Player.class,Player.class,state,long.class);poll.setAccessible(true);
   var geo=java.nio.file.Files.createTempDirectory("phase63-geodata-");org.l2jmobius.gameserver.config.GeoEngineConfig.GEODATA_PATH=geo;org.l2jmobius.gameserver.geoengine.GeoEngine.getInstance();java.nio.file.Files.delete(geo);
-  clarity();daggers();System.out.println("PASS: "+checks+" native Clarity/Trance/wake-ManaBurn and all3 dagger own-Bluff rear/skills-only checks; no live server");System.exit(0);
+  clarity();wakeSequence();daggers();System.out.println("PASS: "+checks+" native Clarity/Trance/wake-ManaBurn and all3 dagger own-Bluff rear/skills-only checks; no live server");System.exit(0);
  }catch(Throwable e){e.printStackTrace();System.exit(1);}}
 }

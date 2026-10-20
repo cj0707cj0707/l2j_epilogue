@@ -727,7 +727,7 @@ public final class BotTactics
 		if (controlHold && bot.getKnownSkill(1245) != null) skills.put(1245, bot.getKnownSkill(1245));
         Skill shadow = bot.getKnownSkill(821);
         if (!defenseOnly && shadow != null && daggerShadow(bot, enemy, preset, shadow)) skills.put(821, shadow);
-        if (survival) for (int id : new int[]{1394,1418,1398,1218})
+        if (survival) for (int id : new int[]{1394,1418,1398,1230,1218})
         { Skill learned=bot.getKnownSkill(id); if(learned!=null)skills.put(id,learned); }
         // Learned class mechanics remain available with persisted rotation overrides.
         for (int id : TankClassMechanics.skills(bot.getPlayerClass().getId()))
@@ -748,6 +748,7 @@ public final class BotTactics
 		{
 			if (survival && !CardinalSurvival.allowed(skill.getId())) continue;
             if (survival && skill.getId() == 1398 && !s.clarityWindow.manaBurn(enemy)) continue;
+            if (survival && skill.getId() == 1230 && !s.clarityWindow.prominence(enemy)) continue;
             if (bluffHold && (defenseOnly || skill.getId() != 531 && !(skill.isPhysical() && directDamage(skill)))) continue;
             if (!TankClassMechanics.allowed(bot, skill.getId())) continue;
 			if (controlHold && skill.getId() != 1245 && !TacticsPolicy.dominatorCpSkill(skill.getId())) continue;
@@ -843,7 +844,7 @@ public final class BotTactics
 		// CP heal may interrupt any phase; the owed offensive action follows this phase, not random damage.
 		final int cpChoice = pressure && options.stream().anyMatch(o -> o.id() == cpProposed && !self(o.kind())) ? -1 : cpProposed;
 		final int pressureChoice = pressure ? s.dominatorPressure.choose(options, pressureControls, pressureCurses, sleeping || enemy.isStunned()) : -1;
-		final int cardinalChoice = survival ? CardinalSurvival.choose(options, hp) : s.cardinalProminence.choose(preset.getClassId(), options, time);
+		final int cardinalChoice = survival ? s.clarityWindow.choose(options, hp) : s.cardinalProminence.choose(preset.getClassId(), options, time);
 		final int shadowChoice = !defenseOnly && options.stream().anyMatch(o -> o.id() == 821) ? 821 : -1;
 		final int tankMechanicChoice = TankClassMechanics.choose(options);
 		// A legal charged Flame wins over both low-HP Angelic and Sacrifice; no waiting for unavailable charges.
@@ -895,6 +896,7 @@ public final class BotTactics
 			s.nextDecision = time + difficulty(s).reactionMs;
 			if (accepted)
 			{
+                if (survival) s.clarityWindow.requested(selected);
 				if (trainingRushActive && selected == 793) { s.rushLoop.loopRequestAccepted(); }
 				if (preset.getClassId() == CARDINAL_CLASS_ID) {
 					if (selected == CARDINAL_PROMINENCE_ID) { s.cardinalProminence.accepted(time); }

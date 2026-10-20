@@ -1,0 +1,35 @@
+# 64. Cardinal под Clarity: Mana Burn → Prominence → Trance
+
+Уточнение63 только для бота Cardinal97 на олимпиаде и тренировке. Пока у противника есть действующий3282, после фактического окончания собственного Trance последовательность следующая:
+
+1. **Mana Burn1398**, если законно доступен, раньше новой попыткиTrance.
+2. **Один Prominence1230**, если готов и проходит обычные условия применения.
+3. **Новая попытка Trance1394**. Повторно использовать1398/1230 в том же окне пробуждения нельзя; следующее окно создаётся только новым реально наложенным и закончившимся собственнымTrance.
+
+Если Prominence на native cooldown либо ещё не прошли существующие10с AI-интервала от его последнего принятого каста, он пропускается **без ожидания отката**: бот возвращается кTrance. Неизученное/непроходящееMP/LOS/range/condition умение также не используется. Если Mana Burn недоступен, сохраняется возможность снова усыпить, без выдуманного Prominence «послеManaBurn».
+
+Лечение и Celestial Shield по-прежнему важнее атакующей последовательности. Они не расходуют ожидающий шагProminence. Чужой/собственный действующий сон запрещает1398 и1230. При действующем собственномCelestial бот не сбивает щит атакой и сохраняет прежний кайт.
+
+Фаза продвигается после принятого сервером native-запроса умения, а не по отклонённой попытке. Следующий навык ждёт освобождения текущего/pending каста; одновременные запросы не создаются. Это порядок применения, не гарантия попадания/урона: родные резисты/прерывания сохраняются. После законченного либо прерванного принятогоManaBurn следующий шаг — возможностьProminence; после принятогоProminence —Trance.
+
+Окончание/снятие/замена3282 и смена пары/матча сбрасывают последовательность. После3282 работает прежняя обычная ротация. Magical Backfire под3282 остаётся запрещён. Механика кинжальщиков из63, шансы15%, reuse навыков, бесконечнаяMP Cardinal, экипировка и150с боя не менялись.
+
+## Карта файлов
+
+| Файл | Ответственность после64 |
+| --- | --- |
+| `game/data/scripts/custom/fakeplayersai/CardinalSurvival.java` | Пять потенциально разрешённых навыков; фазы sleep/wake-ManaBurn/one-Prominence/resleep; recovery выше цепочки, пропуск недоступногоProminence |
+| `game/data/scripts/custom/fakeplayersai/BotTactics.java` | Условный learned1230 вClarity; фазовые фильтры1398/1230 перед скорингом; детерминированный выбор и продвижение только accepted-request; прежние cast/pending/native-gates |
+| `game/data/scripts/custom/fakeplayersai/BotSpawner.java` | Общий candidate guard: подClarity и1398, и1230 запрещены по спящей цели |
+| `tests/fakeplayersai/ClarityBluffPhaseTest.java` | Дополнены ranked/training × player/bot сценарии: готовыйTrance не обгоняет1398→1230, нет дублей прикасте, recovery, native/AI cooldown skip, сброс окна; все прежниеBluff проверки сохранены |
+| `tests/fakeplayersai/CardinalSurvivalControlChanceTest.java` | Исторический статический whitelist допускает условный1230; реальное применение проверяет фазовый тест, запрет1396/прочих навыков сохраняется |
+| `structure/README.md`, `structure/09-fake-players-ai.md` | Текущие правила64 и указатели на историю63 |
+
+## Проверки / применение
+
+- `JAVA_TOOL_OPTIONS=-Xmx512m python3 tests/fakeplayersai/clarity_bluff_phase_tests.py`: **528 PASS**, включая неизменённые проверки всех3 кинжальщиков.
+- Полная компиляция `game/data/scripts`: **1237 Java-файлов, exit0**, на изолированном core после пяти прежних installers; runtime JAR не менялся.
+- Полный `suite_tests.py`: **48/48 regression entrypoints PASS**; NPC/spawn XSD, границы training zone и integration guards PASS; **34 preparation parser/HTML checks PASS**.
+- `git diff --check`: PASS.
+
+Тесты автономные, не заменяют live acceptance. На остановленном GameServer обновить согласованно **три Java-файла**: `CardinalSurvival`, `BotTactics`, `BotSpawner`; полностью перезапустить стандартным launcher. Новых runtime-файлов, конфигов, измененийJAR/БД нет. Откат — эти три файла из63, затем полный перезапуск.

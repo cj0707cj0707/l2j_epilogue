@@ -28,6 +28,8 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 ## Последнее обновление
 
+[64. Cardinal: Mana Burn → Prominence → Trance под Clarity](64-cardinal-clarity-mana-burn-prominence-trance.md) — после собственного сна одна связка1398→готовый1230, затем1394; native/AI cooldown1230 пропускается без ожидания, лечение/щит выше цепочки. Карта файлов, тесты и установка.
+
 [63. Cardinal: Clarity/Trance; кинжальщики: Bluff → спина → удары](63-cardinal-clarity-trance-and-dagger-bluff-rear.md) — survival безProminence/Backfire, Mana Burn только после фактического окончанияTrance; собственный358-STUN требует реального обхода до ударов/531, без автоатаки даже при0MP. Актуальная карта файлов и установка.
 
 [62. Приоритет выживания и регрессии аудита](62-combat-survival-priorities-and-audit-regressions.md) — исправлены только1/3/4/5/9/12: спасательные self-касты перед движением, rooted131, ограниченные попытки115, полный тестовый агрегатор и актуальная карта файлов.

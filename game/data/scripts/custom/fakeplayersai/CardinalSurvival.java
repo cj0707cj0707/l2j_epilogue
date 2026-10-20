@@ -15,13 +15,14 @@ final class CardinalSurvival
         BuffInfo b=enemy.getEffectList().getBuffInfoBySkillId(3282);
         return b!=null&&!b.isRemoved()&&b.isInUse();
     }
-    static boolean allowed(int id) { return id==1394||id==1418||id==1398||id==1218; }
+    static boolean allowed(int id) { return id==1394||id==1418||id==1398||id==1230||id==1218; }
     /** Per-pair live-effect history, not accepted casts or a guessed sleep timer. */
     static final class Window
     {
         private WeakReference<BuffInfo> clarity = new WeakReference<>(null);
         private boolean observedTrance, endedTrance;
-        void reset() { clarity.clear(); observedTrance = false; endedTrance = false; }
+        private int phase; //0: sleep,1: wake/Mana Burn,2: one Prominence opportunity,3: resleep
+        void reset() { clarity.clear(); observedTrance = false; endedTrance = false; phase = 0; }
         void observe(Player bot, Player enemy)
         {
             if (!active(bot, enemy)) { reset(); return; }
@@ -29,17 +30,33 @@ final class CardinalSurvival
             if (clarity.get() != live) { reset(); clarity = new WeakReference<>(live); }
             BuffInfo sleep = SleepRetreat.ownSleep(bot, enemy);
             if (sleep != null && sleep.getSkill().getId() == 1394)
-            { observedTrance = true; endedTrance = false; }
+            { observedTrance = true; endedTrance = false; phase = 0; }
             else if (observedTrance && !enemy.isSleeping())
-            { observedTrance = false; endedTrance = true; }
+            { observedTrance = false; endedTrance = true; phase = 1; }
         }
-        boolean manaBurn(Player enemy) { return endedTrance && !enemy.isSleeping(); }
-    }
-    static int choose(List<TacticsPolicy.Option> options,double hp)
-    {
-        // Native ready/legal options only. Shield buys time, heal precedes all damage.
-        for(int id:new int[]{hp<.65?1418:-1,hp<.95?1218:-1,1394,1398})
-            if(id>0&&options.stream().anyMatch(o->o.id()==id))return id;
-        return -1;
+        boolean manaBurn(Player enemy) { return endedTrance && phase == 1 && !enemy.isSleeping(); }
+        boolean prominence(Player enemy) { return endedTrance && phase == 2 && !enemy.isSleeping(); }
+        // Advance only on an accepted native request; pending/casting guards serialize the spells.
+        // A rejected request cannot unlock the next spell. No cooldown/MP/condition is bypassed.
+        void requested(int id)
+        {
+            if (id == 1398 && phase == 1) phase = 2;
+            else if (id == 1230 && phase == 2) phase = 3;
+            else if (id == 1394) { phase = 0; endedTrance = false; }
+        }
+        int choose(List<TacticsPolicy.Option> options,double hp)
+        {
+            for (int id : new int[]{hp<.65?1418:-1,hp<.95?1218:-1})
+                if (id > 0 && has(options,id)) return id;
+            if (phase == 1 && has(options,1398)) return 1398;
+            if (phase == 2)
+            {
+                if (has(options,1230)) return 1230;
+                phase = 3; // on cooldown/not legally usable: skip, never wait for it to refresh
+            }
+            return has(options,1394) ? 1394 : -1;
+        }
+        private static boolean has(List<TacticsPolicy.Option> options,int id)
+        { return options.stream().anyMatch(o->o.id()==id); }
     }
 }
