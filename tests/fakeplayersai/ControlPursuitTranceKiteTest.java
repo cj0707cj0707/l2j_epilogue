@@ -51,7 +51,7 @@ public class ControlPursuitTranceKiteTest extends ClarityBluffPhaseTest {
    verify(run(p,e,s,19000)&&last==1394,"resisted Trance: retry when native-ready, not another full orbit");finish(p,e,s,24000);
    appliedSleep(p,e,97);verify(run(p,e,s,26000)&&last==0&&p.isMoving(),"actual landed Trance switches to existing long retreat, no refreshing sleep");
    clearSleep(e);f(Creature.class,"_move").set(p,null);s=arena(p,e);hp(p,5000);
-   verify(run(p,e,s,30000)&&last==1394,"ready Trance precedes heal/route under rule75");finish(p,e,s,35000);hp(p,10000);
+   verify(run(p,e,s,30000)&&last==1218,"rule78 below75: ready self heal precedes Trance/route");finish(p,e,s,35000);hp(p,10000);
    e.setInvul(true);s=arena(p,e);verify(run(p,e,s,40000)&&last==0&&p.isMoving(),"invulnerable melee: pure defense kite, no Trance attempts");e.setInvul(false);
    run(p,e,s,45000);verify(last==1394,"invulnerability ended: ready Trance resumes immediately");
   }

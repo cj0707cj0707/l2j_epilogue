@@ -73,7 +73,7 @@ final class TacticsPolicy
     /** Caller scopes this to a close, vulnerable melee pursuer. Only native-legal candidates. */
     static int cardinalTranceKiteChoice(List<Option> legal, double hp)
     {
-        for (int id : new int[]{hp < .65 ? 1418 : -1, hp < .95 ? 1218 : -1, 1394})
+        for (int id : new int[]{hp < .95 ? 1218 : -1, 1394})
             if (id > 0 && legal.stream().anyMatch(o -> o.id() == id)) return id;
         return -1;
     }

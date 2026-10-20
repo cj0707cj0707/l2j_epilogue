@@ -228,6 +228,17 @@ public final class TrainingArena
         Session s = participantSession(bot);
         return s != null && s.bot == bot && s.preparationStarted && !s.active && !s.stopping && !s.finalizing && !s.closed;
     }
+    /** Snapshot only: live training actors are intentionally outside the ranked roster. */
+    public static List<Player> getBots()
+    {
+        List<Player> result = new ArrayList<>();
+        for (Session s : SESSIONS.values())
+        {
+            Player bot = s.bot;
+            if (!s.closed && !s.botDisposed && bot != null && bot.isOnline() && bot.getClient() == null && isTrainingBot(bot)) result.add(bot);
+        }
+        return List.copyOf(result);
+    }
     public static boolean isTrainingBot(Player p) { return p != null && BOTS.contains(p.getObjectId()); }
     public static String repeat(Player p)
     {

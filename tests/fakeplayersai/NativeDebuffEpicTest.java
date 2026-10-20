@@ -75,7 +75,7 @@ public class NativeDebuffEpicTest {
         for(int id:BotPresets.getJewelryIds())check(Arrays.stream(BotPresets.getAllGearIds()).anyMatch(gear->gear==id),"epic belongs only to gear cleanup "+id);
         int[] copy=BotPresets.getJewelryIds();copy[0]=1;check(BotPresets.getJewelryIds()[0]==6660,"immutable preset via defensive copy");
         for(boolean s84:new boolean[]{false,true}){BotManager.getSettings().setUseS84(s84);check(BotPresets.getJewelryIds().length==5&&BotPresets.getJewelryIds()[0]==6660,"S80/S84 cannot overwrite epic preset");}
-        BotManager.getSettings().load();check(BotManager.getSettings().getEnchantJewel()==6,"persisted EnchantJewel=6");
+        BotManager.getSettings().load();check(BotManager.getSettings().getEnchantJewel()==10,"persisted EnchantJewel=10");
     }
     static void nativeRolls()throws Exception {
         Player p=actor(90,true,false),target=actor(94,true,true);Skill root=SkillData.getInstance().getSkill(403,230);
@@ -133,7 +133,7 @@ public class NativeDebuffEpicTest {
     }
     static void skillsAndGear()throws Exception {
         var trees=SkillTreeData.getInstance();var data=SkillData.getInstance();var groups=EnchantSkillGroupsData.getInstance();
-        var configured=new BotSettings();configured.load();check(configured.getEnchantJewel()==6,"deployed repository config requests jewelry +6");
+        var configured=new BotSettings();configured.load();check(configured.getEnchantJewel()==10,"deployed repository config requests jewelry +10");
         Set<Integer> expectedEpics=Set.of(6656,6659,6657,6658,6660);
         Set<Integer> presetEpics=new HashSet<>();for(int id:BotPresets.getJewelryIds())presetEpics.add(id);
         check(presetEpics.equals(expectedEpics),"exact Antharas/Zaken/Valakas/Baium/Queen Ant preset, independent of tier");
@@ -166,14 +166,14 @@ public class NativeDebuffEpicTest {
             TestItem armor=new TestItem(13434),weapon=new TestItem(13457);armor.setEnchantLevel(13);weapon.setEnchantLevel(19);inv.own(armor);inv.own(weapon);inv.setPaperdollItem(org.l2jmobius.gameserver.entity.itemcontainer.Inventory.PAPERDOLL_CHEST,armor);inv.setPaperdollItem(org.l2jmobius.gameserver.entity.itemcontainer.Inventory.PAPERDOLL_RHAND,weapon);
             TestItem reuse=new TestItem(6658);reuse.setEnchantLevel(10);inv.own(reuse);
             BotSpawner.ensurePresetJewelry(p);
-            Set<Integer> unique=new HashSet<>();for(var item:inv.getPaperdollItems())if(Arrays.stream(BotPresets.getJewelryIds()).anyMatch(id->id==item.getId())) {unique.add(item.getId());check(item.getEnchantLevel()==6,"epic +6 on paperdoll");}
+            Set<Integer> unique=new HashSet<>();for(var item:inv.getPaperdollItems())if(Arrays.stream(BotPresets.getJewelryIds()).anyMatch(id->id==item.getId())) {unique.add(item.getId());check(item.getEnchantLevel()==10,"epic +10 on paperdoll");}
             check(unique.equals(expectedEpics),"all five exact unique epics equipped, "+preset.getClassName()+" ranked="+ranked);
-            if(preset.getClassId()==97)System.out.println("PASS: Cardinal equipped Antharas/Zaken/Valakas/Baium/Queen Ant +6; ranked="+ranked+"; isolated native inventory, not live DB");
+            if(preset.getClassId()==97)System.out.println("PASS: Cardinal equipped Antharas/Zaken/Valakas/Baium/Queen Ant +10; ranked="+ranked+"; isolated native inventory, not live DB");
             check(inv.getPaperdollItemByItemId(6658)==reuse,"existing Baium reused, no duplicate");
             check(armor.isEquipped()&&armor.getEnchantLevel()==13&&weapon.isEquipped()&&weapon.getEnchantLevel()==19,"armor and weapon unchanged");
             check(inv.getPaperdollItemByItemId(14165)==null&&inv.getPaperdollItemByItemId(14163)==null&&inv.getPaperdollItemByItemId(14164)==null,"old jewels unequipped");
             int size=inv.getSize();before=writes;BotSpawner.ensurePresetJewelry(p);check(size==inv.getSize()&&before==writes,"jewelry idempotent: no duplicates/DB churn");
-            inv.getPaperdollItemByItemId(6658).setEnchantLevel(10);BotSpawner.ensurePresetJewelry(p);check(inv.getPaperdollItemByItemId(6658).getEnchantLevel()==6&&inv.getSize()==size,"restore persisted wrong enchant without new items");
+            inv.getPaperdollItemByItemId(6658).setEnchantLevel(17);BotSpawner.ensurePresetJewelry(p);check(inv.getPaperdollItemByItemId(6658).getEnchantLevel()==10&&inv.getSize()==size,"restore persisted wrong enchant without new items");
             inv.unEquipItemInSlot(inv.getPaperdollItemByItemId(6656).getLocationSlot());BotSpawner.ensurePresetJewelry(p);check(inv.getPaperdollItemByItemId(6656)!=null&&inv.getSize()==size,"restore missing equipped slot from owned item");
         }
         check(learnedWrites>0&&writes>0,"ordinary learned/enchant/paperdoll persistence requested");

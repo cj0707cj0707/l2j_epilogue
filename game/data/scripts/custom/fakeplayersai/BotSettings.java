@@ -35,9 +35,9 @@ public class BotSettings
 	private int _spawnRadius = 500;
 	
 	// Gear
-	private int _enchantArmor = 6;
+	private int _enchantArmor = 10;
 	private int _enchantWeapon = 16;
-	private int _enchantJewel = 6;
+	private int _enchantJewel = 10;
 	private boolean _useS84 = true; // true = Vesper (S84), false = Dynasty (S80)
 	private int _soulshotCount = 1500;
 	private int _arrowCount = 5000;

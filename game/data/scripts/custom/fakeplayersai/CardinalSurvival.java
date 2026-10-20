@@ -40,7 +40,12 @@ final class CardinalSurvival
         if(bot==null||bot.getClient()!=null||bot.getPlayerClass().getId()!=97)return true;
         return enemy!=null&&bot.getCurrentHp()>bot.getMaxHp()*.90&&!enemy.isSleeping()&&!enemy.isInvul();
     }
-    static boolean allowed(int id) { return id==1394||id==1418||id==1398||id==1230||id==1218; }
+    /** Ignore saved auto-use overrides for bot Cardinal's own Celestial; passive5576 is separate. */
+    public static boolean skillAllowed(Player bot,int id)
+    { return id!=1418 || bot==null || bot.getClient()!=null || bot.getPlayerClass().getId()!=97; }
+    static boolean urgentHeal(Player bot)
+    { return bot!=null&&bot.getClient()==null&&bot.getPlayerClass().getId()==97&&bot.getCurrentHp()<bot.getMaxHp()*.75; }
+    static boolean allowed(int id) { return id==1394||id==1398||id==1230||id==1218; }
     /** Per-pair live-effect history, not accepted casts or a guessed sleep timer. */
     static final class Window
     {
@@ -71,7 +76,7 @@ final class CardinalSurvival
         }
         int choose(List<TacticsPolicy.Option> options,double hp)
         {
-            for (int id : new int[]{hp<.65?1418:-1,hp<.95?1218:-1})
+            for (int id : new int[]{hp<.95?1218:-1})
                 if (id > 0 && has(options,id)) return id;
             if (phase == 1)
             {

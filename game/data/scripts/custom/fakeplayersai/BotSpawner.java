@@ -638,6 +638,8 @@ public class BotSpawner
 		if ((player == null) || (preset == null) || !player.isOnline()) return;
 		pruneRangedTankSupports(player, player.getTarget());
 		final Collection<Integer> autoBuffs = player.getAutoUseSettings().getAutoBuffs();
+        player.getAutoUseSettings().getAutoSkills().removeIf(id -> !CardinalSurvival.skillAllowed(player,id));
+        autoBuffs.removeIf(id -> !CardinalSurvival.skillAllowed(player,id));
 		if (OlympiadChase.isPursuing(player.getObjectId()) || BotTactics.isOwned(player.getObjectId()))
 		{
 			autoBuffs.clear();
@@ -656,7 +658,7 @@ public class BotSpawner
 			|| (tankBot && isTankDefenseSkill(skillId)));
 		for (int skillId : desired)
 		{
-			if (skillId == ESCAPE_SHACKLE_ID || TankClassMechanics.skill(skillId)) continue;
+			if (skillId == ESCAPE_SHACKLE_ID || TankClassMechanics.skill(skillId) || !CardinalSurvival.skillAllowed(player,skillId)) continue;
 			if (inOlympiad && isOlympiadChantBanned(player, skillId)) continue;
 			if (tankBot && isTankDefenseSkill(skillId)) continue;
 			if (!autoBuffs.contains(skillId) && !isSelfBuffApplied(player, skillId) && (player.getKnownSkill(skillId) != null)
@@ -673,6 +675,8 @@ public class BotSpawner
 		pruneRangedTankSupports(player, opponent);
 		player.getAutoUseSettings().getAutoSkills().removeIf(id -> id == VENGEANCE_ID);
 		final Collection<Integer> autoBuffs = player.getAutoUseSettings().getAutoBuffs();
+        player.getAutoUseSettings().getAutoSkills().removeIf(id -> !CardinalSurvival.skillAllowed(player,id));
+        autoBuffs.removeIf(id -> !CardinalSurvival.skillAllowed(player,id));
 		if (OlympiadChase.isPursuing(player.getObjectId()) || BotTactics.isOwned(player.getObjectId())) { autoBuffs.clear(); return; }
 		if (player.isInOlympiadMode() && !player.isOlympiadStart()) { autoBuffs.removeIf(BotSpawner::isTankDefenseSkill); return; }
 		final boolean opponentMage = (opponent != null) && opponent.isCreature() && opponent.asCreature().isPlayer() && opponent.asCreature().asPlayer().isMageClass();
@@ -772,7 +776,7 @@ public class BotSpawner
 	public static int[] getTacticalRotation(Player player, Player enemy)
 	{
 		BotClassPreset preset = BotPresets.getPresetByClassId(BotManager.getBotClassId(player));
-		return preset == null ? new int[0] : preset.getRotation().clone();
+		return preset == null ? new int[0] : java.util.Arrays.stream(preset.getRotation()).filter(id -> CardinalSurvival.skillAllowed(player,id)).toArray();
 	}
 
 	private static boolean isTacticalTank(Player player)
@@ -848,6 +852,7 @@ public class BotSpawner
 
 	public static boolean tacticalSkillAllowed(Player player, Player enemy, Skill skill, boolean self)
 	{
+        if (!CardinalSurvival.skillAllowed(player,skill.getId())) return false;
         if (!BotTactics.dominatorStunAllowed(player, enemy, skill)) return false;
         if (skill.getId()==1230 && !CardinalSurvival.prominenceAllowed(player,enemy)) return false;
         if (player.getClient() == null && player.getPlayerClass().getId() == 97 && enemy != null && enemy.isSleeping() && !self) return false;
@@ -875,6 +880,8 @@ public class BotSpawner
 	{
 		if (player == null) return;
 		final AutoUseSettingsHolder aus = player.getAutoUseSettings();
+        aus.getAutoBuffs().removeIf(id -> !CardinalSurvival.skillAllowed(player,id));
+        aus.getAutoSkills().removeIf(id -> !CardinalSurvival.skillAllowed(player,id));
 		aus.getAutoBuffs().removeIf(id -> isOlympiadChantBanned(player, id));
 		aus.getAutoSkills().removeIf(id -> isOlympiadChantBanned(player, id));
 		aus.getAutoBuffs().removeIf(BotSpawner::isOpenerOnlySkill);
@@ -1207,6 +1214,8 @@ public class BotSpawner
 			LOGGER.info("FakePlayersAI: gear-check " + player.getName() + ": re-equipping (" + reason + ").");
 			equipGear(player, preset);
 		}
+        // Existing persisted bots must adopt current settings, not only newly created items.
+        reenchantGear(player);
 	}
 
 	/** Persistent five-slot preset. Reuse owned epic items; never reset armor/weapon to migrate jewels. */

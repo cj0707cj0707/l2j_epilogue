@@ -19,6 +19,7 @@ import custom.fakeplayersai.BotManager;
 import custom.fakeplayersai.BotPresets;
 import custom.fakeplayersai.BotSettings;
 import custom.fakeplayersai.BotSpawner;
+import custom.fakeplayersai.TrainingArena;
 
 /**
  * @author FakePlayersAI
@@ -380,8 +381,11 @@ public class AdminBot implements IAdminCommandHandler
 	private static int applyEnchantToBots(boolean enchantWeaponItems, boolean enchantArmorItems, boolean enchantJewelItems)
 	{
 		int changed = 0;
-		for (Player bot : BotManager.getBots().values())
+        final java.util.Map<Integer, Player> bots = new java.util.HashMap<>(BotManager.getBots());
+        for (Player bot : TrainingArena.getBots()) bots.put(bot.getObjectId(), bot);
+		for (Player bot : bots.values())
 		{
+            if (bot == null || !bot.isOnline() || bot.getClient() != null) continue;
 			changed += BotSpawner.reenchantGear(bot, enchantWeaponItems, enchantArmorItems, enchantJewelItems);
 		}
 		return changed;

@@ -297,6 +297,18 @@ public final class BotTactics
             &&(!bot.isInOlympiadMode()||!skill.isBlockedInOlympiad())
             &&resources(bot,skill)&&skill.checkCondition(bot,enemy,false);
     }
+    /** Native-legal self recovery wins below75%; no fabricated HP/MP or reuse bypass. */
+    private static boolean cardinalHealReady(Player bot,State s,long time)
+    {
+        if(!CardinalSurvival.urgentHeal(bot)||s.pendingId!=0)return false;
+        Skill skill=bot.getKnownSkill(CARDINAL_HEAL_ID);
+        Failure f=s.failures.get(CARDINAL_HEAL_ID);
+        return skill!=null&&BotRecoveryRules.selfHealAllowed(bot,skill)
+            &&!bot.isAllSkillsDisabled()&&!bot.isOutOfControl()&&!bot.isMuted()
+            &&!bot.isSkillDisabled(skill)&&(f==null||time>=f.until)
+            &&(!bot.isInOlympiadMode()||!skill.isBlockedInOlympiad())
+            &&resources(bot,skill)&&skill.checkCondition(bot,bot,false);
+    }
     /** Only a fully legal, in-range native nuke may override the normal Trance priority. */
     private static boolean cardinalProminenceReady(Player bot,Player enemy,State s,long time)
     {
@@ -669,8 +681,9 @@ public final class BotTactics
 
 	private static boolean supportBeforeMovement(Player bot, Player enemy, BotClassPreset preset, State s, long time)
 	{
-		// Movement alone preserves Celestial; never replace a live cast or a pending request.
-		if (bot.isAffectedBySkill(1418) || s.pendingId != 0 || bot.isOutOfControl() || bot.isAllSkillsDisabled() || BluffRear.stun(bot, enemy) != null) return false;
+		// Preserve other classes' existing Celestial handling; Cardinal recovery uses native legality.
+        // Never replace a live cast or a pending request.
+		if (bot.isAffectedBySkill(1418) && preset.getClassId()!=CARDINAL_CLASS_ID || s.pendingId != 0 || bot.isOutOfControl() || bot.isAllSkillsDisabled() || BluffRear.stun(bot, enemy) != null) return false;
 		return act(bot, enemy, preset, s, time, true, true);
 	}
 
@@ -684,9 +697,10 @@ public final class BotTactics
         final boolean cardinalSleeping = !defenseOnly && preset.getClassId() == CARDINAL_CLASS_ID && enemy.isSleeping();
         final boolean cardinalNoKite = CardinalSurvival.noKite(bot);
         // Rule76: a legal ready Prominence at >90% HP precedes Trance, regardless of Clarity.
-        final boolean prominencePriority = !defenseOnly && cardinalProminenceReady(bot,enemy,s,time);
+        boolean healPriority = cardinalHealReady(bot,s,time);
+        final boolean prominencePriority = !defenseOnly && !healPriority && cardinalProminenceReady(bot,enemy,s,time);
         // While protected, even native reuse/silence gaps must not fall back to fleeing.
-        s.cardinalTrancePriority = !defenseOnly && !prominencePriority && CardinalSurvival.tranceTarget(bot,enemy)
+        s.cardinalTrancePriority = !defenseOnly && !healPriority && !prominencePriority && CardinalSurvival.tranceTarget(bot,enemy)
             && (cardinalNoKite || cardinalTranceReady(bot,enemy,s,time));
         final boolean trancePriority = s.cardinalTrancePriority;
 		if (!survival && !cardinalKiting && !movingSupport) s.survivalKite.stop();
@@ -705,7 +719,20 @@ public final class BotTactics
 		if (bluffHold) stopBasicAttack(bot); // never Idle/abort an already running real cast
 		pollAttempt(bot, enemy, s, time);
 		restoreCardinalMana(bot, preset);
-		if (soulCleanse(bot, enemy, preset, s, time)) return true;
+		// Recheck after polling and the existing Cardinal MP policy; pending completion may unlock recovery.
+        healPriority = cardinalHealReady(bot,s,time);
+        // Reuse the normal self-skill admission/cast bookkeeping, before any movement phase.
+        if (healPriority && (!defenseOnly || movingSupport))
+        {
+            act(bot,enemy,preset,s,time,true,false);
+            return true; // own the recovery phase even during ordinary reaction/decision latency
+        }
+        if (healPriority)
+        {
+            s.invulnerableKite.stop(); s.survivalKite.stop(); s.moveUntil=0;
+            if (bot.isMoving()) bot.getAI().setIntentionIdle();
+        }
+        if (soulCleanse(bot, enemy, preset, s, time)) return true;
 		if (escapeShackle(bot, enemy, preset, s, time)) return true;
 		if (!defenseOnly && !prominencePriority && !cardinalNoKite && !cardinalSleeping && !s.clarityWindow.pending() && !survival && !trancePriority && !bluffHold && !CardinalSurvival.ownCelestial(bot))
 		{
@@ -819,8 +846,9 @@ public final class BotTactics
 		if (controlHold && bot.getKnownSkill(1245) != null) skills.put(1245, bot.getKnownSkill(1245));
         Skill shadow = bot.getKnownSkill(821);
         if (!defenseOnly && shadow != null && daggerShadow(bot, enemy, preset, shadow)) skills.put(821, shadow);
-        if (survival) for (int id : new int[]{1394,1418,1398,1230,1218})
+        if (survival) for (int id : new int[]{1394,1398,1230,1218})
         { Skill learned=bot.getKnownSkill(id); if(learned!=null)skills.put(id,learned); }
+        if (healPriority) skills.put(CARDINAL_HEAL_ID,bot.getKnownSkill(CARDINAL_HEAL_ID));
         if (trancePriority) skills.put(1394, bot.getKnownSkill(1394));
         if (prominencePriority) skills.put(CARDINAL_PROMINENCE_ID,bot.getKnownSkill(CARDINAL_PROMINENCE_ID));
         // Learned class mechanics remain available with persisted rotation overrides.
@@ -840,7 +868,9 @@ public final class BotTactics
 		boolean offenseAvailable = false;
 		for (Skill skill : skills.values())
 		{
-			if (trancePriority && skill.getId() != 1394) continue;
+			if (!CardinalSurvival.skillAllowed(bot,skill.getId())) continue;
+            if (healPriority && skill.getId()!=CARDINAL_HEAL_ID) continue;
+            if (trancePriority && skill.getId() != 1394) continue;
             if (survival && !CardinalSurvival.allowed(skill.getId())) continue;
             if (survival && skill.getId() == 1398 && !s.clarityWindow.manaBurn(enemy)) continue;
             if (preset.getClassId()==CARDINAL_CLASS_ID && skill.getId()==CARDINAL_PROMINENCE_ID && !CardinalSurvival.prominenceAllowed(bot,enemy)) continue;
@@ -860,7 +890,7 @@ public final class BotTactics
 			final boolean timedPool = timedTank && BotSpawner.isTankDefenseSkill(skill.getId());
 			if (timedPool && !s.tankDefense.due(time)) { continue; }
 			if (trainingBerserker && !trainingRushActive && !s.trainingBurst.allowsSkill(skill.getId(), distance, skills.containsKey(793))) { continue; }
-			final TacticsPolicy.Kind detected = TankClassMechanics.support(skill.getId()) ? TacticsPolicy.Kind.DEFENSE : survival && skill.getId() == 1418 ? TacticsPolicy.Kind.DEFENSE : pressure && skill.getId() == 1105 ? TacticsPolicy.Kind.SLOW : kind(skill);
+			final TacticsPolicy.Kind detected = TankClassMechanics.support(skill.getId()) ? TacticsPolicy.Kind.DEFENSE : pressure && skill.getId() == 1105 ? TacticsPolicy.Kind.SLOW : kind(skill);
 			final boolean direct = directDamage(skill);
 			final TacticsPolicy.Kind kind = dominator && sleeping && (!pressure || !pressureControl(skill)) && sleepElapsed >= 5000 && direct ? TacticsPolicy.Kind.DAMAGE : detected;
 			if (kind == null || (defenseOnly && kind != TacticsPolicy.Kind.HEAL && kind != TacticsPolicy.Kind.DEFENSE)) { continue; }

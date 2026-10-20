@@ -75,7 +75,7 @@ public class CardinalSurvivalControlChanceTest extends ArenaInvulnerabilityClari
  }
  static void rotation()throws Exception {
   for(boolean ranked:new boolean[]{false,true})for(boolean human:new boolean[]{false,true})for(int cid:new int[]{88,94,97,115}) {
-   for(int[] scenario:new int[][]{{10000,30,1230},{5000,30,1394},{9000,30,1394},{10000,800,1230}}) {
+   for(int[] scenario:new int[][]{{10000,30,1230},{5000,30,1218},{9000,30,1394},{10000,800,1230}}) {
     Player e=actor(cid,ranked,human),p=cardinal(e,ranked,1394,1418,1230,1218,1398,1396,1399,1307,1217);hp(p,scenario[0]);at(e,scenario[1],0);
     verify(CardinalSurvival.active(p,e),"actual3282 triggers both arenas/all targets");
     Object s=centered();verify(run(p,e,s,10000)&&last==scenario[2],"survival priority expected"+scenario[2]+" actual"+last+" hp"+scenario[0]);p.setCastingNow(false);
@@ -88,7 +88,7 @@ public class CardinalSurvivalControlChanceTest extends ArenaInvulnerabilityClari
   }
   for(boolean ranked:new boolean[]{false,true}) {
    Player e=actor(88,ranked,true),p=cardinal(e,ranked,1394,1418,1230,1218,1398,1396);hp(p,5000);e.setInvul(true);
-   verify(run(p,e,centered(),10000)&&last==1418,"shield before invulnerable melee kiting");p.setCastingNow(false);
+   verify(run(p,e,centered(),10000)&&last==1218,"heal before invulnerable melee kiting; own Celestial removed");p.setCastingNow(false);
    effects(p);nativeSkill(1418).applyEffects(p,p,true,10);p.setInvul(true);hp(p,1000);MoveAI ai=(MoveAI)p.getAI();
    verify(run(p,e,centered(),20000)&&last==0&&ai.requests==0&&!p.isMoving(),"own Celestial and invulnerable target: hold, never kite");
    p.setCastingNow(true);int before=ai.requests;verify(run(p,e,centered(),21000)&&p.isCastingNow()&&ai.requests==before,"never abort real cast");p.setCastingNow(false);

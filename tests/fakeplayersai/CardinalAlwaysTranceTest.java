@@ -25,7 +25,7 @@ public class CardinalAlwaysTranceTest extends CardinalSleepPriorityTest {
     for(int clarity=0;clarity<4;clarity++)for(int protection=0;protection<5;protection++) {
     Player e=actor(opponent.getClassId(),ranked,human),p=cardinal(e,ranked,1394,1398,1230,1218,1418);
     clear(e,3282);shield(p,protection);if((clarity&1)!=0)nativeSkill(3282).applyEffects(p,p,true,60);if((clarity&2)!=0)nativeSkill(3282).applyEffects(e,e,true,60);
-    hp(p,1000);Object s=arena(p,e);NativeMoveAI ai=new NativeMoveAI(p);f(Creature.class,"_ai").set(p,ai);
+    hp(p,8000);Object s=arena(p,e);NativeMoveAI ai=new NativeMoveAI(p);f(Creature.class,"_ai").set(p,ai);
     int[] c=ArenaCombatRules.center(p);ai.setIntentionMoveTo(new org.l2jmobius.gameserver.entity.Location(c[0]+300,c[1]+200,0));int moves=ai.requests;
     verify(run(p,e,s,10000)&&last==1394&&!p.isMoving()&&ai.requests==moves,"all classes incl Sagittarius, both arenas/targets, self/enemy/both/no Clarity, all shield states: ready Trance before heal/kite");
     verify(p.getKnownSkill(1394).getActivateRate()==20&&p.getKnownSkill(1394).getMinChance()==20&&p.getKnownSkill(1394).getMaxChance()==20,"priority never increases fixed20 chance");
