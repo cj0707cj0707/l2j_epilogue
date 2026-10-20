@@ -1,5 +1,7 @@
 # 79. Dominator: попытки усыпления танка во время усиленной защиты
 
+> **Актуализация80:** [Dominator после реального сна защищённого танка один раз отходит и ждёт пробуждения; Archmage/Mystic Muse приоритетно кастуют доступный Cancel по мили и Cardinal](80-dominator-sleep-hold-and-mage-cancel-priority.md). Прежний круговой кайт во время сна заменён отходом/HOLD;20% сна и native условия сохранены.
+
 База: `d1205e80dd9dcefefa00541078cb82e6c9e18566` (78). Резервная ветка: `backup/before-dominator-tank-defense-sleep-2026-10-20`.
 
 ## Причина

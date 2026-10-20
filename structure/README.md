@@ -28,6 +28,8 @@ LoginServer (login/)  ──регистрация──▶  GameServer (game/)
 
 ## Последнее обновление
 
+- [80 — Dominator: отход/HOLD после сна танка; Archmage/Mystic Muse: Cancel первым против мили и Cardinal](80-dominator-sleep-hold-and-mage-cancel-priority.md): ожидание фактического пробуждения вместо кругового кайта;1056 при каждой native-готовности, mandatory hooks; карта файлов и тесты.
+
 - [79 — Dominator: сон во время усиленной защиты танка](79-dominator-sleep-during-tank-defense.md): доступный1097 прерывает старый кайт перед кастом; фиксированный20%, штатные ограничения и fallback лечения/кайта сохранены; карта файлов и тесты.
 
 - [78 — Броня/бижутерия10, оружие16; меню заточки всех ботов; Cardinal хил<75% без своего Celestial](78-bot-gear10-and-cardinal-heal75-no-celestial.md): устранён пропуск тренировочных ботов; приоритет1218 раньше Trance/движения, фильтры старых1418 overrides, карта файлов и тесты.

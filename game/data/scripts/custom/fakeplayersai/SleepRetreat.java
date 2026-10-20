@@ -24,6 +24,9 @@ final class SleepRetreat
 
     void reset() { sleep.clear(); finished = false; moving = false; retryAt = 0; crossedCenter = false; cardinalEnd = null; }
 
+    /** Release only this retreat's native movement, then forget the old effect. */
+    void clear(Player bot) { stopOwnedMove(bot); reset(); }
+
     String describe() { return sleep.get()==null ? "idle" : finished ? "hold" : crossedCenter ? "away" : "center"; }
 
     static BuffInfo ownSleep(Player bot, Player enemy)
