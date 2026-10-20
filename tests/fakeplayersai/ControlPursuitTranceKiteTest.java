@@ -65,32 +65,38 @@ public class ControlPursuitTranceKiteTest extends ClarityBluffPhaseTest {
    verify(run(p,e,s,35000)&&last==1394,"close waking melee: after combo resleep, not movement");
   }
  }
+ static void proc(Player p)throws Exception {nativeSkill(5576).applyEffects(p,p,true,5);p.setInvul(true);}
  static void ownInvulnerability()throws Exception {
+  verify(nativeSkill(5576).getAbnormalTime()==5&&!nativeSkill(5576).isRemovedOnAnyActionExceptMove(),"native proc duration and no action removal");
   for(boolean ranked:new boolean[]{false,true})for(boolean human:new boolean[]{false,true})for(boolean clarity:new boolean[]{false,true})for(int cid:new int[]{108,93,101,94}) {
-   Player e=actor(cid,ranked,human),p=cardinal(e,ranked,1394,1398,1230,1218,1418);Object s=arena(p,e);if(!clarity)clear(e,3282);
-   hp(p,1000);effects(p);nativeSkill(1418).applyEffects(p,p,true,10);p.setInvul(true);
-   verify(run(p,e,s,10000)&&last==1394&&!p.isMoving(),"own Celestial: Trance before lowHP heal, shield, kite, damage cid"+cid);
-   int requests=traces.get(p).requests;run(p,e,s,10100);verify(traces.get(p).requests==requests&&p.isCastingNow(),"preserve in-flight Trance");finish(p,e,s,15000);
-   clear(p,1418);p.setInvul(false);disable(p,1394);
-   verify(run(p,e,s,17000)&&last==0&&!p.isMoving(),"shield removed on action/resisted Trance: wait reuse, never kite/heal/damage");
-   disabled(p).remove(p.getKnownSkill(1394).getReuseHashCode());
-   verify(run(p,e,s,19000)&&last==1394,"retry until actual sleep, not merely accepted cast");finish(p,e,s,24000);
-   appliedSleep(p,e,97);disable(p,1418);hp(p,5000);verify(run(p,e,s,26000)&&last==1218&&!f(state,"cardinalInvulTrance").getBoolean(s),"actual sleep restores normal rotation: cid="+cid+" clarity="+clarity+" last="+last+" latch="+f(state,"cardinalInvulTrance").getBoolean(s));finish(p,e,s,31000);
+   Player e=actor(cid,ranked,human),p=cardinal(e,ranked,1394,1398,1230,1218,1418);Object s=arena(p,e);if(!clarity)clear(e,3282);hp(p,1000);
+   effects(p);nativeSkill(1418).applyEffects(p,p,true,10);p.setInvul(true);
+   verify(run(p,e,s,10000)&&last==0&&p.isMoving()&&!f(state,"cardinalInvulTrance").getBoolean(s),"own1418: movement only, no Trance, with/without Clarity");
+   proc(p);verify(run(p,e,s,12000)&&last==0&&p.isMoving(),"overlapping own1418+proc5576: preserve own shield");clear(p,1418);
+   verify(run(p,e,s,14000)&&last==1394&&!p.isMoving(),"live5576: Trance before lowHP defense, kite or damage");
+   int requests=traces.get(p).requests;run(p,e,s,14100);verify(traces.get(p).requests==requests&&p.isCastingNow(),"preserve real cast");finish(p,e,s,19000);
+   verify(run(p,e,s,21000)&&last==1394,"resist: retry while5576 is still live");finish(p,e,s,26000);
+   disable(p,1394);verify(run(p,e,s,28000)&&last==0&&!p.isMoving(),"proc reuse gap: no kite or filler");
+   clear(p,5576);p.setInvul(false);disable(p,1418);hp(p,5000);
+   verify(run(p,e,s,30000)&&last==1218&&!f(state,"cardinalInvulTrance").getBoolean(s),"proc expiry before sleep: immediately restore normal heal, no latch");finish(p,e,s,35000);
+   disabled(p).remove(p.getKnownSkill(1394).getReuseHashCode());proc(p);
+   verify(run(p,e,s,37000)&&last==1394,"new proc independently enables Trance phase");finish(p,e,s,42000);
+   appliedSleep(p,e,97);verify(run(p,e,s,44000)&&last!=1394&&!f(state,"cardinalInvulTrance").getBoolean(s),"actual sleep ends phase while proc remains, never refresh sleep");
   }
   for(boolean ranked:new boolean[]{false,true}) {
-   Player e=actor(108,ranked,true),p=cardinal(e,ranked,1394,1398,1230,1218,1418);clear(e,3282);Object s=arena(p,e);hp(p,10000);disable(p,1394);disable(p,1418);
-   verify(run(p,e,s,10000)&&p.isMoving(),"before own shield: normal reuse-gap kite");
-   p.setInvul(true);verify(run(p,e,s,12000)&&last==0&&!p.isMoving(),"own invul interrupts already-owned kite even while Trance on reuse");
-   disabled(p).remove(p.getKnownSkill(1394).getReuseHashCode());verify(run(p,e,s,14000)&&last==1394,"ready Trance after stopping existing route");finish(p,e,s,19000);
-   p=cardinal(e,ranked,1394);s=arena(p,e);int[] c=ArenaCombatRules.center(p);at(p,c[0]+449,c[1]);at(e,c[0]-449,c[1]);p.setInvul(true);
-   verify(run(p,e,s,25000)&&last==0&&p.isMoving(),"distant target: bounded approach, never out-of-range cast");
-   MoveAI ai=(MoveAI)p.getAI();verify(ai.requested.getX()<p.getX()&&Math.hypot(ai.requested.getX()-c[0],ai.requested.getY()-c[1])<=449,"approach heads toward target inside arena");
+   Player e=actor(108,ranked,true),p=cardinal(e,ranked,1394,1398,1230,1218,1418);clear(e,3282);Object s=arena(p,e);hp(p,10000);disable(p,1394);disable(p,1418);effects(p);
+   verify(run(p,e,s,10000)&&p.isMoving(),"ordinary reuse-gap kite before proc");proc(p);
+   verify(run(p,e,s,12000)&&last==0&&!p.isMoving(),"proc interrupts existing kite even on reuse");
+   disabled(p).remove(p.getKnownSkill(1394).getReuseHashCode());verify(run(p,e,s,14000)&&last==1394,"ready Trance after stopped route");finish(p,e,s,19000);
+   p=cardinal(e,ranked,1394);effects(p);s=arena(p,e);int[] c=ArenaCombatRules.center(p);at(p,c[0]+449,c[1]);at(e,c[0]-449,c[1]);proc(p);
+   verify(run(p,e,s,25000)&&last==0&&p.isMoving(),"distant target: bounded approach, no out-of-range cast");
+   MoveAI ai=(MoveAI)p.getAI();verify(ai.requested.getX()<p.getX()&&Math.hypot(ai.requested.getX()-c[0],ai.requested.getY()-c[1])<=449,"approach inside circle");
   }
-  // No native cast legality is bypassed by the urgent phase.
-  Player e=actor(108,true,true),p=cardinal(e,true,1394,1398,1218);clear(e,3282);Object s=arena(p,e);p.setInvul(true);
-  flags(p,org.l2jmobius.gameserver.mechanics.effects.EffectFlag.MUTED.getMask());verify(run(p,e,s,10000)&&last==0&&!p.isMoving(),"silence: hold, no cast/kite");flags(p,0);
-  e.setInvul(true);verify(run(p,e,s,15000)&&last==0,"enemy invulnerability never bypassed");e.setInvul(false);
-  verify(run(p,e,s,20000)&&last==1394,"enemy protection expired: Trance phase resumes");finish(p,e,s,25000);
+  Player e=actor(108,true,true),p=cardinal(e,true,1394,1398,1218);clear(e,3282);effects(p);Object s=arena(p,e);p.setInvul(true);
+  verify(!CardinalSurvival.passiveTrance(p,e),"generic invul without actual5576 is not a proc");proc(p);
+  flags(p,org.l2jmobius.gameserver.mechanics.effects.EffectFlag.MUTED.getMask());verify(run(p,e,s,10000)&&last==0&&!p.isMoving(),"silence: no cast/kite");flags(p,0);
+  e.setInvul(true);verify(run(p,e,s,15000)&&last==0,"target immunity respected");e.setInvul(false);
+  verify(run(p,e,s,20000)&&last==1394,"target immunity expired while proc live: Trance resumes");finish(p,e,s,25000);
  }
  public static void main(String[]args){try{
   ServerConfig.DATAPACK_ROOT=new File(args[0]);ThreadConfig.THREADS_FOR_LOADING=false;unsafe=(Unsafe)f(Unsafe.class,"theUnsafe").get(null);f(LowManaAutoAttackTest.class,"unsafe").set(null,unsafe);CpMeleeRushRecoveryTest.unsafe=unsafe;

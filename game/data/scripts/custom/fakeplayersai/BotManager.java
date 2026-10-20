@@ -1472,6 +1472,7 @@ public class BotManager
 				}
 				withTarget++;
 
+				if (inOlympiad && target.isPlayer() && BotTactics.tickBluffRear(bot, target.asPlayer(), preset, true)) continue;
 				if (inOlympiad && target.isPlayer() && BotTactics.tickInvulnerableMelee(bot, target.asPlayer(), preset, true)) continue;
 
 				// Opening curse: mage bots open the fight with the resist-lowering
@@ -1846,6 +1847,7 @@ public class BotManager
 				final Player activeOpponent = getOlympiadOpponent(bot);
 				if (activeOpponent != null && ArenaCombatRules.update(bot, activeOpponent, preset)) { OlympiadCombatGate.hold(bot); continue; }
 				BotTactics.tickSummonAttack(bot, activeOpponent, true);
+				if (BotTactics.tickBluffRear(bot, activeOpponent, preset, true)) continue;
 				if (BotTactics.tickInvulnerableMelee(bot, activeOpponent, preset, true)) continue;
 				final BerserkerState state = BERSERKER_STATES.get(bot.getObjectId());
 				if (state != null)
@@ -1875,7 +1877,8 @@ public class BotManager
 				}
 				final Player opponent = getOlympiadOpponent(bot);
 				if (opponent != null) CombatAnalytics.watch(bot, opponent);
-				if ((TacticalSettings.isEnabled() || CardinalSurvival.active(bot, opponent) || BluffRear.stun(bot, opponent) != null || TacticsPolicy.tankClass(preset.getClassId())) && (opponent != null))
+				// Continue servicing a mandatory phase owner after its live effect expires.
+				if ((TacticalSettings.isEnabled() || BotTactics.isOwned(bot.getObjectId()) || CardinalSurvival.passiveTrance(bot, opponent) || CardinalSurvival.ownCelestial(bot) || CardinalSurvival.active(bot, opponent) || BluffRear.stun(bot, opponent) != null || TacticsPolicy.tankClass(preset.getClassId())) && (opponent != null))
 				{
 					if (!BotTactics.isOwned(bot.getObjectId()) && !bot.isCastingNow() && !bot.isCastingSimultaneouslyNow()) bot.setTarget(opponent);
 					if (BotTactics.tick(bot, opponent, preset, true)) continue;

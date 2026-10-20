@@ -63,7 +63,43 @@ public class ClarityBluffPhaseTest extends CombatPriorityAuditTest {
   clear(e,3282);w.observe(p,e);verify(!w.manaBurn(e)&&!w.prominence(e),"Clarity removal resets queued combo");
  }
  static BuffInfo bluff(Player p,Player e)throws Exception{
-  BuffInfo b=DominatorControlShadowTest.applied(p,e,260);f(BuffInfo.class,"_skill").set(b,nativeSkill(358));return b;
+  clearSleep(e);Skill spell=nativeSkill(358);learn(p,spell);BuffInfo b=new BuffInfo(p,e,spell);
+  for(var effect:spell.getEffects(EffectScope.GENERAL))if(!effect.isInstant())b.addEffect(effect);
+  e.getEffectList().getDebuffs().add(b);
+  @SuppressWarnings("unchecked") Map<AbnormalType,BuffInfo> slots=(Map<AbnormalType,BuffInfo>)f(org.l2jmobius.gameserver.entity.actor.holders.creature.EffectList.class,"_stackedEffects").get(e.getEffectList());slots.put(spell.getAbnormalType(),b);
+  flags(e,EffectFlag.STUNNED.getMask());return b;
+ }
+ static org.l2jmobius.gameserver.mechanics.events.holders.actor.creature.OnCreatureSkillUse castEvent(Player p,Player e,int id){
+  var event=new org.l2jmobius.gameserver.mechanics.events.holders.actor.creature.OnCreatureSkillUse();event.setCaster(p);event.setTarget(e);event.setTargets(List.of(e));event.setSkill(nativeSkill(id));return event;
+ }
+ @SuppressWarnings("unchecked") static void guards(Player p,Player e,boolean ranked)throws Exception{
+  Map<Integer,Player> roster=(Map<Integer,Player>)f(BotManager.class,"BOTS").get(null);
+  Set<Integer> training=(Set<Integer>)f(TrainingArena.class,"BOTS").get(null);
+  if(ranked)roster.put(p.getObjectId(),p);else training.add(p.getObjectId());
+  try{
+   BotRecoveryRules.init();BotRecoveryRules.init();
+   var event=new org.l2jmobius.gameserver.mechanics.events.holders.actor.creature.OnCreatureAttack();event.setAttacker(p);event.setTarget(e);
+   verify(BotRecoveryRules.bluffAttack(event).terminate(),"native autoattack admission blocked throughout own Bluff");
+   var result=org.l2jmobius.gameserver.mechanics.events.EventDispatcher.getInstance().notifyEvent(event,org.l2jmobius.gameserver.mechanics.events.Containers.Global(),org.l2jmobius.gameserver.mechanics.events.returns.TerminateReturn.class);
+   verify(result!=null&&result.terminate(),"real global attack listener veto, not just AI preference");
+   boolean rear=BluffRear.ready(p,e);
+   verify((BotRecoveryRules.guard(castEvent(p,e,30))==null)==rear,"native cast admission requires actual rear and range");
+   verify((!BotRecoveryRules.blockedBluffStrike(p,e,nativeSkill(30)))==rear,"effect-time facing guard agrees with admission");
+   verify(BotRecoveryRules.guard(castEvent(p,e,821)).terminate(),"Shadow Step is not a rear-phase damaging strike");
+   verify((BotRecoveryRules.guard(castEvent(p,e,531))==null)==rear,"Critical Wound also waits for rear arrival");
+   if(!rear){
+    double before=e.getCurrentHp();int handlers=0;
+    for(int id:new int[]{30,16})for(var effect:nativeSkill(id).getEffects(EffectScope.GENERAL))
+     if(effect.getName().equals("Backstab")||effect.getName().equals("FatalBlow")){effect.onStart(p,e,nativeSkill(id));handlers++;}
+    verify(handlers==2&&e.getCurrentHp()==before,"both native blow handlers reject front execution without HP damage");
+   }
+   f(Player.class,"_client").set(p,unsafe.allocateInstance(org.l2jmobius.gameserver.network.GameClient.class));
+   verify(BotRecoveryRules.bluffAttack(event)==null&&!BotRecoveryRules.blockedBluffStrike(p,e,nativeSkill(30)),"human character excluded even if mistakenly listed as managed");
+   f(Player.class,"_client").set(p,null);
+   if(ranked)f(Player.class,"_olympiadStart").setBoolean(p,false);else{training.remove(p.getObjectId());roster.put(p.getObjectId(),p);}
+   verify(BotRecoveryRules.bluffAttack(event)==null&&!BotRecoveryRules.blockedBluffStrike(p,e,nativeSkill(30)),"inactive/world bot not subject to arena-only new guards");
+   if(ranked)f(Player.class,"_olympiadStart").setBoolean(p,true);else{roster.remove(p.getObjectId());training.add(p.getObjectId());}
+  }finally{if(ranked)roster.remove(p.getObjectId());else training.remove(p.getObjectId());}
  }
  @SuppressWarnings("unchecked") static void daggers()throws Exception{
   for(int cid:new int[]{93,101,108})for(boolean ranked:new boolean[]{false,true})for(boolean human:new boolean[]{false,true}){
@@ -74,7 +110,7 @@ public class ClarityBluffPhaseTest extends CombatPriorityAuditTest {
    ((org.l2jmobius.gameserver.entity.item.instance.Item[])f(org.l2jmobius.gameserver.entity.itemcontainer.Inventory.class,"_paperdoll").get(p.getInventory()))[org.l2jmobius.gameserver.entity.itemcontainer.Inventory.PAPERDOLL_RHAND]=item;
    f(org.l2jmobius.gameserver.entity.itemcontainer.Inventory.class,"_wearedMask").setInt(p.getInventory(),WeaponType.DAGGER.mask());
    for(int id:new int[]{358,30,531,821,412,453})learn(p,nativeSkill(id));BuffInfo b=bluff(p,e);Object s=centered();MoveAI ai=(MoveAI)p.getAI();
-   verify(BluffRear.stun(p,e)==b,"only real current own358 STUN enters the phase");
+   verify(BluffRear.stun(p,e)==b,"only real current own358 STUN enters the phase");guards(p,e,ranked);
    // Even a stale ATTACK intention must not issue Idle while a native cast is already running.
    for(boolean simultaneous:new boolean[]{false,true}){
     f(org.l2jmobius.gameserver.ai.AbstractAI.class,"_intention").set(ai,org.l2jmobius.gameserver.ai.Intention.ATTACK);
@@ -84,9 +120,14 @@ public class ClarityBluffPhaseTest extends CombatPriorityAuditTest {
    }
    ai.setIntentionIdle();f(state,"nextDecision").setLong(s,Long.MAX_VALUE);
    verify(run(p,e,s,10000)&&last==0&&p.isMoving(),"rear movement preempts ready blows/Shadow Step and reaction gate");
-   int requests=ai.requests;int gx=ai.requested.getX(),gy=ai.requested.getY();verify(gx<0&&Math.hypot(gx,gy)<=40,"native rear goal is inside circle AND native40 strike reach");
+   int requests=ai.requests;int gx=ai.requested.getX(),gy=ai.requested.getY();verify(gx>0&&Math.abs(gy)>30&&Math.hypot(gx,gy)<=85,"first waypoint goes around victim, not a chord through its center");
    at(p,50,0);verify(run(p,e,s,10100)&&last==0&&ai.requests==requests,"partial movement is NOT a completed rear approach");
-   at(p,gx,gy);f(Creature.class,"_move").set(p,null);f(state,"nextDecision").setLong(s,0);
+   at(p,gx,gy);f(Creature.class,"_move").set(p,null);
+   for(int n=0;n<8&&!BluffRear.ready(p,e);n++) {
+    run(p,e,s,11000+n*200);verify(last==0&&p.isMoving(),"no strike before actual rear arrival");
+    at(p,ai.requested.getX(),ai.requested.getY());f(Creature.class,"_move").set(p,null);
+   }
+   verify(BluffRear.ready(p,e),"multi-waypoint ordinary movement reaches actual rear and40u reach");guards(p,e,ranked);f(state,"nextDecision").setLong(s,0);
    verify(run(p,e,s,12000)&&(last==30||last==531),"only after actual rear arrival: blow or Critical Wound actual="+last+" cid="+cid+" ranked="+ranked+" behind="+TacticsPolicy.behind(e.getX(),e.getY(),e.getHeading(),p.getX(),p.getY())+" mp="+p.getCurrentMp()+" condition30="+nativeSkill(30).checkCondition(p,e,false)+" condition531="+nativeSkill(531).checkCondition(p,e,false));finish(p,e,s,17000);
    Map<Integer,Skill> known=(Map<Integer,Skill>)f(Creature.class,"_skills").get(p);known.remove(30);
    verify(run(p,e,s,20000)&&last==531,"only Critical Wound remains legal, not Bluff/Shadow/selfbuff");finish(p,e,s,25000);

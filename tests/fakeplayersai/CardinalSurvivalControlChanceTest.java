@@ -18,22 +18,20 @@ public class CardinalSurvivalControlChanceTest extends ArenaInvulnerabilityClari
   for(int[] pair:new int[][]{{97,1394},{115,1097},{115,1092}})for(int level:new int[]{1,SkillData.getInstance().getMaxLevel(pair[1]),130,230}) {
    Skill original=SkillData.getInstance().getSkill(pair[1],level);if(original==null)continue;
    int rate=original.getActivateRate();Player p=actor(pair[0],true,false),e=actor(94,true,true);learn(p,original);BotControlChance.apply(p);Skill copy=p.getKnownSkill(pair[1]);
-   verify(copy!=original&&copy.getActivateRate()>=(pair[0]==97?16:15)&&copy.getActivateRate()<=(pair[0]==97?17:15)&&copy.getMinChance()==copy.getActivateRate()&&copy.getMaxChance()==copy.getActivateRate(),"scoped chance fields");
+   verify(copy!=original&&copy.getActivateRate()==(pair[0]==97?25:15)&&copy.getMinChance()==copy.getActivateRate()&&copy.getMaxChance()==copy.getActivateRate(),"scoped chance fields");
    for(Field field:Skill.class.getDeclaredFields()) {
     if(Modifier.isStatic(field.getModifiers())||Set.of("_activateRate","_minChance","_maxChance","_effectLists","_effectTypes").contains(field.getName()))continue;
     field.setAccessible(true);verify(Objects.deepEquals(field.get(original),field.get(copy)),"native field preserved "+pair[1]+"/"+level+" "+field.getName()+" original="+field.get(original)+" copy="+field.get(copy));
    }
    for(EffectScope scope:EffectScope.values())verify(Objects.equals(original.getEffects(scope),copy.getEffects(scope)),"all original effects preserved");
    BotControlChance.apply(p);verify(p.getKnownSkill(pair[1]).getLevel()==level&&original.getActivateRate()==rate,"idempotent, shared SkillData unchanged");
-   Map<Integer,Skill> variants=new HashMap<>();int upper=0;
-   for(int i=0;i<1000;i++){BotControlChance.apply(p);Skill v=p.getKnownSkill(pair[1]);int n=v.getActivateRate();Skill cached=variants.putIfAbsent(n,v);verify(cached==null||cached==v,"same-rate clone is cached, no per-tick allocation");if(n==17)upper++;}
-   verify(variants.size()==(pair[0]==97?2:1)&&(pair[0]!=97||upper>400&&upper<600),"equiprobable16/17 Trance variants; Dominator single15 variant");
+   BotControlChance.apply(p);verify(p.getKnownSkill(pair[1])==copy,"cached fixed25/15 copy is idempotent");
    for(boolean human:new boolean[]{false,true}) {Player wrong=actor(human?pair[0]:94,true,human);learn(wrong,original);BotControlChance.apply(wrong);verify(wrong.getKnownSkill(pair[1])==original,"human and other class unchanged");}
    Player empty=actor(pair[0],false,false);BotControlChance.apply(empty);verify(empty.getKnownSkill(pair[1])==null,"does not learn absent skills");
    for(int profile:new int[]{100,10000}) {
     Object owner=new Object();e.addStatFunc(new FuncSet(Stat.MAGIC_DEFENCE,0x70,owner,profile,null));int successes=0;
     for(int i=0;i<8000;i++){BotControlChance.apply(p);if(Formulas.calcEffectSuccess(p,e,p.getKnownSkill(pair[1])))successes++;}
-    verify(successes>(pair[0]==97?1120:960)&&successes<(pair[0]==97?1520:1440),"real formula stays near scoped16.5/15% across stats "+pair[1]+" level"+level+" successes"+successes);e.removeStatsOwner(owner);
+    verify(successes>(pair[0]==97?1760:960)&&successes<(pair[0]==97?2240:1440),"real formula stays near scoped25/15% across stats "+pair[1]+" level"+level+" successes"+successes);e.removeStatsOwner(owner);
    }
    Object immune=new Object();e.addStatFunc(new FuncSet(Stat.DEBUFF_IMMUNITY,0x70,immune,1,null));for(int i=0;i<100;i++)verify(!Formulas.calcEffectSuccess(p,e,copy),"native debuff immunity wins");e.removeStatsOwner(immune);
    e.getStat().getTraitsInvul()[copy.getTraitType().ordinal()]=1;for(int i=0;i<100;i++)verify(!Formulas.calcEffectSuccess(p,e,copy),"native trait immunity wins");
@@ -89,6 +87,6 @@ public class CardinalSurvivalControlChanceTest extends ArenaInvulnerabilityClari
   handlers.EffectMasterHandler.main(new String[0]);skill=SkillData.getInstance().getSkill(1510,1);recordingType();state=Class.forName("custom.fakeplayersai.BotTactics$State");
   act=BotTactics.class.getDeclaredMethod("act",Player.class,Player.class,BotClassPreset.class,state,long.class,boolean.class);act.setAccessible(true);poll=BotTactics.class.getDeclaredMethod("pollAttempt",Player.class,Player.class,state,long.class);poll.setAccessible(true);
   var geo=java.nio.file.Files.createTempDirectory("cardinal59-geo-");org.l2jmobius.gameserver.config.GeoEngineConfig.GEODATA_PATH=geo;org.l2jmobius.gameserver.geoengine.GeoEngine.getInstance();java.nio.file.Files.delete(geo);
-  chance();rotation();guards();nativeClarity();kiting();System.out.println("PASS: "+checks+" Cardinal survival, 16.5/15% native-formula, immutable templates, previous Clarity/kiting checks; no live server");System.exit(0);
+  chance();rotation();guards();nativeClarity();kiting();System.out.println("PASS: "+checks+" Cardinal survival, 25/15% native-formula, immutable templates, previous Clarity/kiting checks; no live server");System.exit(0);
  }
 }

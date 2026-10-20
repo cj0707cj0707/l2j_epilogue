@@ -2,7 +2,6 @@ package custom.fakeplayersai;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ThreadLocalRandom;
 import org.l2jmobius.gameserver.data.xml.SkillData;
 import org.l2jmobius.gameserver.entity.actor.Player;
 import org.l2jmobius.gameserver.mechanics.skill.EffectScope;
@@ -13,7 +12,7 @@ import org.l2jmobius.gameserver.util.StatSet;
  * These three native skills are simple A2/ONE/MEN controls without conditions/stat funcs. */
 final class BotControlChance
 {
-    private static final Map<Skill,Map<Integer,Skill>> COPIES = new HashMap<>();
+    private static final Map<Skill,Skill> COPIES = new HashMap<>();
     private BotControlChance() { }
     static boolean applies(int classId,int skillId)
     { return classId==97&&skillId==1394 || classId==115&&(skillId==1097||skillId==1092); }
@@ -28,11 +27,9 @@ final class BotControlChance
         Skill known=bot.getKnownSkill(id);if(known==null)return;
         Skill original=SkillData.getInstance().getSkill(id,known.getLevel());
         if(original==null)throw new IllegalStateException("Missing native control "+id+"/"+known.getLevel());
-        // Native chance fields are integers. Equal 16/17 rolls give exactly 16.5%
-        // in expectation (15% * 1.10), without rounding or changing global formulas.
-        int chance=id==1394 ? 16+ThreadLocalRandom.current().nextInt(2) : 15;
-        Map<Integer,Skill> variants=COPIES.computeIfAbsent(original,k->new HashMap<>());
-        Skill copy=variants.get(chance);
+        // User policy: Trance 15+10 percentage points; Dominator unchanged.
+        int chance=id==1394 ? 25 : 15;
+        Skill copy=COPIES.get(original);
         if(copy==null)
         {
             StatSet s=new StatSet();
@@ -53,7 +50,7 @@ final class BotControlChance
                 var effects=original.getEffects(scope);
                 if(effects!=null)for(var effect:effects)copy.addEffect(scope,effect);
             }
-            variants.put(chance,copy);
+            COPIES.put(original,copy);
         }
         if(known!=copy)bot.addSkill(copy,false);
     }

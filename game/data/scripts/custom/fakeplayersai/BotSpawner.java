@@ -849,6 +849,7 @@ public class BotSpawner
 	public static boolean tacticalSkillAllowed(Player player, Player enemy, Skill skill, boolean self)
 	{
         if (!BotTactics.dominatorStunAllowed(player, enemy, skill)) return false;
+        if (enemy != null && !BluffRear.skillAllowed(player, enemy, skill)) return false;
 		if (CardinalSurvival.active(player, enemy) && (!CardinalSurvival.allowed(skill.getId()) || (skill.getId() == 1398 || skill.getId() == 1230) && enemy.isSleeping())) return false;
         if (!TankClassMechanics.allowed(player, skill.getId())) return false;
 		if (skill.getId() == ESCAPE_SHACKLE_ID || isOpenerOnlySkill(skill.getId())) return false;

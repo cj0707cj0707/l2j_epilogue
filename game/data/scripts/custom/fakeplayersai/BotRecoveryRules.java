@@ -7,6 +7,7 @@ import org.l2jmobius.gameserver.mechanics.effects.EffectType;
 import org.l2jmobius.gameserver.mechanics.events.Containers;
 import org.l2jmobius.gameserver.mechanics.events.EventType;
 import org.l2jmobius.gameserver.mechanics.events.holders.actor.creature.OnCreatureSkillUse;
+import org.l2jmobius.gameserver.mechanics.events.holders.actor.creature.OnCreatureAttack;
 import org.l2jmobius.gameserver.mechanics.events.listeners.FunctionEventListener;
 import org.l2jmobius.gameserver.mechanics.events.returns.TerminateReturn;
 import org.l2jmobius.gameserver.mechanics.skill.EffectScope;
@@ -25,6 +26,8 @@ public final class BotRecoveryRules
         if (initialized) return;
         Containers.Global().addListener(new FunctionEventListener(Containers.Global(), EventType.ON_CREATURE_SKILL_USE,
             (OnCreatureSkillUse e) -> guard(e), BotRecoveryRules.class));
+        Containers.Global().addListener(new FunctionEventListener(Containers.Global(), EventType.ON_CREATURE_ATTACK,
+            (OnCreatureAttack e) -> bluffAttack(e), BotRecoveryRules.class));
         initialized = true;
     }
 
@@ -32,6 +35,19 @@ public final class BotRecoveryRules
     {
         return actor != null && actor.isPlayer() && actor.asPlayer().getClient() == null
             && (BotManager.isBot(actor.asPlayer()) || TrainingArena.isTrainingBot(actor.asPlayer()));
+    }
+
+    private static boolean arenaManaged(Creature actor)
+    {
+        return managed(actor) && (actor.asPlayer().isInOlympiadMode() && actor.asPlayer().isOlympiadStart()
+            || TrainingArena.isTrainingBot(actor.asPlayer()));
+    }
+
+    /** Recheck facing at native blow execution: the victim may turn during a cast. */
+    public static boolean blockedBluffStrike(Creature effector, Creature effected, Skill skill)
+    {
+        return arenaManaged(effector) && effected != null && effected.isPlayer() && skill != null
+            && !BluffRear.skillAllowed(effector.asPlayer(), effected.asPlayer(), skill);
     }
 
     /** Also used at effect execution, when invulnerability may have proc'd mid-cast. */
@@ -72,9 +88,19 @@ public final class BotRecoveryRules
             bot.getCurrentHp() / Math.max(1, bot.getMaxHp()));
     }
 
+    static TerminateReturn bluffAttack(OnCreatureAttack event)
+    {
+        return event!=null&&arenaManaged(event.getAttacker())&&event.getTarget()!=null&&event.getTarget().isPlayer()
+            &&BluffRear.stun(event.getAttacker().asPlayer(),event.getTarget().asPlayer())!=null ? new TerminateReturn(true,true,true):null;
+    }
+
     static TerminateReturn guard(OnCreatureSkillUse event)
     {
-        if (event == null || !managed(event.getCaster()) || !healing(event.getSkill())) return null;
+        if (event == null || !managed(event.getCaster()) || event.getSkill()==null) return null;
+        final Player actor=event.getCaster().asPlayer();
+        Player victim=event.getTarget()!=null&&event.getTarget().isPlayer()?event.getTarget().asPlayer():null;
+        if (victim!=null&&blockedBluffStrike(actor,victim,event.getSkill())) return new TerminateReturn(true,true,true);
+        if (!healing(event.getSkill())) return null;
         final Player bot = event.getCaster().asPlayer();
         boolean includesSelf = event.getTarget() == bot;
         if (event.getTargets() != null) includesSelf |= event.getTargets().contains(bot);

@@ -415,6 +415,7 @@ public final class BotTactics
 			return false;
 		}
 		if (ArenaCombatRules.update(bot, enemy, preset)) return true;
+        if (tickBluffRear(bot, enemy, preset, ranked)) return true;
 		if (tickInvulnerableMelee(bot, enemy, preset, ranked)) return true;
 		// Existing Rush/retreat/phase driver retains total ownership.
 		if (ranked && preset.getClassId() == 131) { return false; }
@@ -426,6 +427,16 @@ public final class BotTactics
 		claim(bot, s);
 		return act(bot, enemy, preset, s, time, false);
 	}
+
+    /** Mandatory live-Bluff owner, independent of the optional tactical toggle. */
+    public static synchronized boolean tickBluffRear(Player bot, Player enemy, BotClassPreset preset, boolean ranked)
+    {
+        if (bot == null || preset == null || !valid(bot, enemy, ranked, STATES.get(bot.getObjectId())) || BluffRear.stun(bot, enemy) == null) return false;
+        if (ArenaCombatRules.update(bot, enemy, preset)) return true;
+        final long time = now(); final State s = state(bot.getObjectId(), time);
+        prepare(bot, enemy, s, time); claim(bot, s);
+        return act(bot, enemy, preset, s, time, false);
+    }
 
     /** Universal arena escape: invulnerable melee OR tank with native110/368/760, including ranked131. */
     public static synchronized boolean tickInvulnerableMelee(Player bot, Player enemy, BotClassPreset preset, boolean ranked)
@@ -633,11 +644,9 @@ public final class BotTactics
 		final boolean survival = (!defenseOnly || movingSupport) && CardinalSurvival.active(bot, enemy);
         final boolean cardinalKiting = !defenseOnly && cardinalTrancePressure(bot, enemy, preset);
         final boolean previousInvulTrance = s.cardinalInvulTrance;
-        // Latch through native Celestial's removal-on-action: a resisted cast is
-        // not a successful sleep. Release only on actual sleep or context reset.
-        if (enemy.isSleeping() || bot.getKnownSkill(1394) == null) s.cardinalInvulTrance = false;
-        else if (!defenseOnly && bot.getClient() == null && preset.getClassId() == CARDINAL_CLASS_ID && bot.isInvul()) s.cardinalInvulTrance = true;
-        final boolean invulTrance = !defenseOnly && s.cardinalInvulTrance && !enemy.isInvul();
+        // No latch past the five-second proc: own1418 always remains movement-only.
+        s.cardinalInvulTrance = !defenseOnly && CardinalSurvival.passiveTrance(bot, enemy);
+        final boolean invulTrance = s.cardinalInvulTrance;
 		if (!survival && !cardinalKiting && !movingSupport) s.survivalKite.stop();
         s.clarityWindow.observe(bot, enemy);
         final BuffInfo bluffStun = BluffRear.stun(bot, enemy);
@@ -657,7 +666,7 @@ public final class BotTactics
 		restoreCardinalMana(bot, preset);
 		if (soulCleanse(bot, enemy, preset, s, time)) return true;
 		if (escapeShackle(bot, enemy, preset, s, time)) return true;
-		if (!defenseOnly && !survival && !invulTrance)
+		if (!defenseOnly && !survival && !invulTrance && !bluffHold && !CardinalSurvival.ownCelestial(bot))
 		{
 			final boolean mustKite = (enemy.isInvul() && meleeOpponent(enemy)) || TankClassMechanics.defendedTank(enemy);
 			if (mustKite && supportBeforeMovement(bot, enemy, preset, s, time)) return true;
@@ -678,7 +687,7 @@ public final class BotTactics
             // This phase owns movement, but never cancels a native cast above.
             if (bot.isMoving() && (!previousInvulTrance || inRange(bot, enemy, bot.getKnownSkill(1394), bot.calculateDistance2D(enemy)))) bot.getAI().setIntentionIdle();
         }
-        if (survival && bot.isAffectedBySkill(1418) && !invulTrance)
+        if (!defenseOnly && preset.getClassId() == CARDINAL_CLASS_ID && CardinalSurvival.ownCelestial(bot))
         {
             // Celestial is removed on any action EXCEPT movement. Do not waste it by casting.
             stopBasicAttack(bot); s.survivalKite.tick(bot, enemy, time, true); return true;
@@ -1199,7 +1208,7 @@ public final class BotTactics
 		}
 		return false;
 	}
-	private static boolean directDamage(Skill skill)
+	static boolean directDamage(Skill skill)
 	{
 		return skill.isDamage() || effectNamed(skill, "Backstab", "FatalBlow", "EnergyDamage", "PhysicalSoulDamage", "CpDamPercent", "DeathLink");
 	}

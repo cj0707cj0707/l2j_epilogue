@@ -66,6 +66,8 @@ public class Backstab extends AbstractEffect
 	@Override
 	public void onStart(Creature effector, Creature effected, Skill skill)
 	{
+		// Arena bots: an active own Bluff permits blows only from the actual rear.
+		if (custom.fakeplayersai.BotRecoveryRules.blockedBluffStrike(effector, effected, skill)) return;
 		if (effector.isAlikeDead())
 		{
 			return;

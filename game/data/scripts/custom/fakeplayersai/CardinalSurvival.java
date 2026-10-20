@@ -15,6 +15,20 @@ final class CardinalSurvival
         BuffInfo b=enemy.getEffectList().getBuffInfoBySkillId(3282);
         return b!=null&&!b.isRemoved()&&b.isInUse();
     }
+    /** Real proc effect655 ->5576, not the learned passive, a visual, or generic isInvul. */
+    static boolean live(Player bot,int id)
+    {
+        if(bot==null)return false;
+        BuffInfo b=bot.getEffectList().getBuffInfoBySkillId(id);
+        return b!=null&&!b.isRemoved()&&b.isInUse();
+    }
+    static boolean ownCelestial(Player bot) { return bot!=null&&bot.getClient()==null&&bot.getPlayerClass().getId()==97&&live(bot,1418); }
+    static boolean passiveTrance(Player bot,Player enemy)
+    {
+        return bot!=null&&enemy!=null&&bot.getClient()==null&&bot.getPlayerClass().getId()==97
+            &&bot.getKnownSkill(1394)!=null&&bot.isInvul()&&live(bot,5576)&&!ownCelestial(bot)
+            &&!enemy.isSleeping()&&!enemy.isInvul();
+    }
     static boolean allowed(int id) { return id==1394||id==1418||id==1398||id==1230||id==1218; }
     /** Per-pair live-effect history, not accepted casts or a guessed sleep timer. */
     static final class Window
