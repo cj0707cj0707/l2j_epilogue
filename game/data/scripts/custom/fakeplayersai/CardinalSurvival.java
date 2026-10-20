@@ -4,7 +4,7 @@ import java.util.List;
 import org.l2jmobius.gameserver.entity.actor.Player;
 import org.l2jmobius.gameserver.mechanics.skill.BuffInfo;
 
-/** The actual live3282 effect, not a fixed60s stopwatch or our original BuffInfo. */
+/** Cardinal live shields, all-target Trance eligibility and actual sleep/wake fallback history. */
 final class CardinalSurvival
 {
     private CardinalSurvival() { }
@@ -14,7 +14,7 @@ final class CardinalSurvival
         BuffInfo b=enemy.getEffectList().getBuffInfoBySkillId(3282);
         return b!=null&&!b.isRemoved()&&b.isInUse();
     }
-    /** Real proc effect655 ->5576, not the learned passive, a visual, or generic isInvul. */
+    /** Actual current in-use effect, not a learned passive, visual, or guessed duration. */
     static boolean live(Player bot,int id)
     {
         if(bot==null)return false;
@@ -22,12 +22,18 @@ final class CardinalSurvival
         return b!=null&&!b.isRemoved()&&b.isInUse();
     }
     static boolean ownCelestial(Player bot) { return bot!=null&&bot.getClient()==null&&bot.getPlayerClass().getId()==97&&live(bot,1418); }
-    static boolean passiveTrance(Player bot,Player enemy)
+    static boolean noKite(Player bot)
+    {
+        return bot!=null&&bot.getClient()==null&&bot.getPlayerClass().getId()==97
+            &&(bot.isInvul()||live(bot,1418)||live(bot,5576));
+    }
+    static boolean tranceTarget(Player bot,Player enemy)
     {
         return bot!=null&&enemy!=null&&bot.getClient()==null&&bot.getPlayerClass().getId()==97
-            &&bot.getKnownSkill(1394)!=null&&bot.isInvul()&&live(bot,5576)&&!ownCelestial(bot)
-            &&!enemy.isSleeping()&&!enemy.isInvul();
+            &&bot.getKnownSkill(1394)!=null&&!enemy.isSleeping()&&!enemy.isInvul();
     }
+    static boolean passiveTrance(Player bot,Player enemy)
+    { return tranceTarget(bot,enemy)&&bot.isInvul()&&live(bot,5576); }
     static boolean allowed(int id) { return id==1394||id==1418||id==1398||id==1230||id==1218; }
     /** Per-pair live-effect history, not accepted casts or a guessed sleep timer. */
     static final class Window

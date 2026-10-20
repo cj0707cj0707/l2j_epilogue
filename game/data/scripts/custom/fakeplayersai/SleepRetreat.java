@@ -145,6 +145,7 @@ final class SleepRetreat
             // Take movement away from the previous kite once, never reset our route each tick.
             if (cardinal && !bot.isCastingNow() && !bot.isCastingSimultaneouslyNow() && bot.isMoving()) bot.getAI().setIntentionIdle();
         }
+        if (cardinal && CardinalSurvival.noKite(bot)) { stopOwnedMove(bot); return false; }
         if (cardinal) return cardinalTick(bot,enemy,time,center);
         if (center == null || finished) return false;
         if (bot.isCastingNow() || bot.isCastingSimultaneouslyNow() || bot.isOutOfControl()) return false;

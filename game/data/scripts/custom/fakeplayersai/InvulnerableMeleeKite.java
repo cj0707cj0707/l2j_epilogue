@@ -25,6 +25,7 @@ final class InvulnerableMeleeKite
     }
     boolean tick(Player bot,Player enemy,long time,boolean required)
     {
+        if(CardinalSurvival.noKite(bot)) { stop();return false; }
         if(!required) { stop();return false; }
         if(bot.getClient()!=null)return false;
         if(bot.isCastingNow()||bot.isCastingSimultaneouslyNow())return true;

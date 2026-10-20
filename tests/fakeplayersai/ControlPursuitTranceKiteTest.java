@@ -51,7 +51,7 @@ public class ControlPursuitTranceKiteTest extends ClarityBluffPhaseTest {
    verify(run(p,e,s,19000)&&last==1394,"resisted Trance: retry when native-ready, not another full orbit");finish(p,e,s,24000);
    appliedSleep(p,e,97);verify(run(p,e,s,26000)&&last==0&&p.isMoving(),"actual landed Trance switches to existing long retreat, no refreshing sleep");
    clearSleep(e);f(Creature.class,"_move").set(p,null);s=arena(p,e);hp(p,5000);
-   verify(run(p,e,s,30000)&&last==1218,"legal heal remains ahead of Trance/route");finish(p,e,s,35000);hp(p,10000);
+   verify(run(p,e,s,30000)&&last==1394,"ready Trance precedes heal/route under rule75");finish(p,e,s,35000);hp(p,10000);
    e.setInvul(true);s=arena(p,e);verify(run(p,e,s,40000)&&last==0&&p.isMoving(),"invulnerable melee: pure defense kite, no Trance attempts");e.setInvul(false);
    run(p,e,s,45000);verify(last==1394,"invulnerability ended: ready Trance resumes immediately");
   }
@@ -59,10 +59,10 @@ public class ControlPursuitTranceKiteTest extends ClarityBluffPhaseTest {
  static void closeWakeCombo()throws Exception {
   for(boolean ranked:new boolean[]{false,true})for(boolean human:new boolean[]{false,true}) {
    Player e=actor(88,ranked,human),p=cardinal(e,ranked,1394,1398,1230,1218,1418);Object s=arena(p,e);disable(p,1418);hp(p,10000);
-   appliedSleep(p,e,97);run(p,e,s,10000);clearSleep(e);f(Creature.class,"_move").set(p,null);int[] c=ArenaCombatRules.center(p);at(p,c[0]+80,c[1]);at(e,c[0],c[1]);
-   verify(run(p,e,s,15000)&&last==1398,"close waking melee with Clarity: owed Mana Burn before kite/Trance");finish(p,e,s,20000);
-   verify(run(p,e,s,25000)&&last==1230,"close waking melee: owed ready Prominence before kite/Trance");finish(p,e,s,30000);
-   verify(run(p,e,s,35000)&&last==1394,"close waking melee: after combo resleep, not movement");
+   appliedSleep(p,e,97);run(p,e,s,10000);disable(p,1394);clearSleep(e);f(Creature.class,"_move").set(p,null);int[] c=ArenaCombatRules.center(p);at(p,c[0]+80,c[1]);at(e,c[0],c[1]);
+   verify(run(p,e,s,15000)&&last==1398,"Trance cooldown: close wake Mana Burn before kite");finish(p,e,s,20000);
+   verify(run(p,e,s,25000)&&last==1230,"Trance cooldown: close wake Prominence before kite");finish(p,e,s,30000);
+   disabled(p).remove(p.getKnownSkill(1394).getReuseHashCode());verify(run(p,e,s,35000)&&last==1394,"close waking melee: after combo resleep, not movement");
   }
  }
  static void proc(Player p)throws Exception {nativeSkill(5576).applyEffects(p,p,true,5);p.setInvul(true);}
@@ -71,17 +71,17 @@ public class ControlPursuitTranceKiteTest extends ClarityBluffPhaseTest {
   for(boolean ranked:new boolean[]{false,true})for(boolean human:new boolean[]{false,true})for(boolean clarity:new boolean[]{false,true})for(int cid:new int[]{108,93,101,94}) {
    Player e=actor(cid,ranked,human),p=cardinal(e,ranked,1394,1398,1230,1218,1418);Object s=arena(p,e);if(!clarity)clear(e,3282);hp(p,1000);
    effects(p);nativeSkill(1418).applyEffects(p,p,true,10);p.setInvul(true);
-   verify(run(p,e,s,10000)&&last==0&&p.isMoving()&&!f(state,"cardinalInvulTrance").getBoolean(s),"own1418: movement only, no Trance, with/without Clarity");
-   proc(p);verify(run(p,e,s,12000)&&last==0&&p.isMoving(),"overlapping own1418+proc5576: preserve own shield");clear(p,1418);
+   verify(run(p,e,s,10000)&&last==1394&&!p.isMoving()&&f(state,"cardinalTrancePriority").getBoolean(s),"own1418: Trance, no kite, with/without Clarity");finish(p,e,s,11000);
+   proc(p);verify(run(p,e,s,12000)&&last==1394&&!p.isMoving(),"overlapping own1418+proc5576: Trance, no kite");finish(p,e,s,13000);clear(p,1418);
    verify(run(p,e,s,14000)&&last==1394&&!p.isMoving(),"live5576: Trance before lowHP defense, kite or damage");
    int requests=traces.get(p).requests;run(p,e,s,14100);verify(traces.get(p).requests==requests&&p.isCastingNow(),"preserve real cast");finish(p,e,s,19000);
    verify(run(p,e,s,21000)&&last==1394,"resist: retry while5576 is still live");finish(p,e,s,26000);
    disable(p,1394);verify(run(p,e,s,28000)&&last==0&&!p.isMoving(),"proc reuse gap: no kite or filler");
    clear(p,5576);p.setInvul(false);disable(p,1418);hp(p,5000);
-   verify(run(p,e,s,30000)&&last==1218&&!f(state,"cardinalInvulTrance").getBoolean(s),"proc expiry before sleep: immediately restore normal heal, no latch");finish(p,e,s,35000);
+   verify(run(p,e,s,30000)&&last==1218&&!f(state,"cardinalTrancePriority").getBoolean(s),"proc expiry before sleep: immediately restore normal heal, no latch");finish(p,e,s,35000);
    disabled(p).remove(p.getKnownSkill(1394).getReuseHashCode());proc(p);
    verify(run(p,e,s,37000)&&last==1394,"new proc independently enables Trance phase");finish(p,e,s,42000);
-   appliedSleep(p,e,97);verify(run(p,e,s,44000)&&last!=1394&&!f(state,"cardinalInvulTrance").getBoolean(s),"actual sleep ends phase while proc remains, never refresh sleep");
+   appliedSleep(p,e,97);verify(run(p,e,s,44000)&&last!=1394&&!f(state,"cardinalTrancePriority").getBoolean(s),"actual sleep ends phase while proc remains, never refresh sleep");
   }
   for(boolean ranked:new boolean[]{false,true}) {
    Player e=actor(108,ranked,true),p=cardinal(e,ranked,1394,1398,1230,1218,1418);clear(e,3282);Object s=arena(p,e);hp(p,10000);disable(p,1394);disable(p,1418);effects(p);
@@ -92,10 +92,10 @@ public class ControlPursuitTranceKiteTest extends ClarityBluffPhaseTest {
    verify(run(p,e,s,25000)&&last==0&&p.isMoving(),"distant target: bounded approach, no out-of-range cast");
    MoveAI ai=(MoveAI)p.getAI();verify(ai.requested.getX()<p.getX()&&Math.hypot(ai.requested.getX()-c[0],ai.requested.getY()-c[1])<=449,"approach inside circle");
   }
-  Player e=actor(108,true,true),p=cardinal(e,true,1394,1398,1218);clear(e,3282);effects(p);Object s=arena(p,e);p.setInvul(true);
+  Player e=actor(108,true,true),p=cardinal(e,true,1394,1398,1218);clear(e,3282);effects(p);Object s=arena(p,e);p.setInvul(true);hp(p,10000);
   verify(!CardinalSurvival.passiveTrance(p,e),"generic invul without actual5576 is not a proc");proc(p);
   flags(p,org.l2jmobius.gameserver.mechanics.effects.EffectFlag.MUTED.getMask());verify(run(p,e,s,10000)&&last==0&&!p.isMoving(),"silence: no cast/kite");flags(p,0);
-  e.setInvul(true);verify(run(p,e,s,15000)&&last==0,"target immunity respected");e.setInvul(false);
+  e.setInvul(true);verify(run(p,e,s,15000)&&last!=1394&&!p.isMoving(),"target immunity forbids Trance and protected kite");if(p.isCastingNow())finish(p,e,s,19000);e.setInvul(false);
   verify(run(p,e,s,20000)&&last==1394,"target immunity expired while proc live: Trance resumes");finish(p,e,s,25000);
  }
  public static void main(String[]args){try{

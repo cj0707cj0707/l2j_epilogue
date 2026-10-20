@@ -116,6 +116,8 @@ public class DominatorPressureBluffTest extends BerserkerSoulCleanseTest {
         for(boolean ranked:new boolean[]{false,true}){
             Player p=bot(97,ranked,false),e=actor(94,ranked,true);targetEnemy=e;location(p,0);location(e,200);
             f(Creature.class,"_zones").set(e,new byte[64]);
+            // Rule75 also enters the normal reuse-gap kite vs ranged targets: record, never run world movement.
+            f(Creature.class,"_ai").set(p,new DaggerRearApproachTest.RecordingAI(p));
             f(Player.class,"_mountType").set(p,org.l2jmobius.gameserver.entity.actor.enums.player.MountType.NONE);
             p.setPrivateStoreType(org.l2jmobius.gameserver.entity.actor.enums.player.PrivateStoreType.NONE);
             float[] mana=new float[256];Arrays.fill(mana,1000);f(p.getTemplate().getClass(),"_baseMp").set(p.getTemplate(),mana);

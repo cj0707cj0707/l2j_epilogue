@@ -44,15 +44,15 @@ public class ClarityBluffPhaseTest extends CombatPriorityAuditTest {
   for(boolean ranked:new boolean[]{false,true})for(boolean human:new boolean[]{false,true})for(int mode:new int[]{0,1,2,3}) {
    Player e=actor(94,ranked,human),p=cardinal(e,ranked,1394,1398,1230,1218,1418,1396);Object s=centered();
    hp(p,10000);disable(p,1418);at(p,-449,0);at(e,30,0);
-   appliedSleep(p,e,97);run(p,e,s,10000);clearSleep(e);f(Creature.class,"_move").set(p,null);
-   verify(run(p,e,s,15000)&&last==1398,"wake: Mana Burn before a ready Trance, both arenas/target kinds");
+   appliedSleep(p,e,97);run(p,e,s,10000);disable(p,1394);clearSleep(e);f(Creature.class,"_move").set(p,null);
+   verify(run(p,e,s,15000)&&last==1398,"wake with Trance on reuse: Mana Burn, both arenas/target kinds");
    int requests=traces.get(p).requests;run(p,e,s,15100);verify(traces.get(p).requests==requests&&p.isCastingNow(),"pending Mana Burn: no duplicate/premature Prominence/Trance");finish(p,e,s,20000);
    if(mode==1)disable(p,1230);
    if(mode==2)((TacticsPolicy.CardinalProminence)f(state,"cardinalProminence").get(s)).accepted(23000);
    if(mode==3){hp(p,5000);verify(run(p,e,s,25000)&&last==1218,"recovery preempts owed Prominence");finish(p,e,s,26000);hp(p,10000);}
    if(mode==0||mode==3){verify(run(p,e,s,27000)&&last==1230,"exactly one ready Prominence after Mana Burn, before Trance");finish(p,e,s,28000);}
    at(p,0,0);at(e,30,0);f(Creature.class,"_move").set(p,null);
-   verify(run(p,e,s,30000)&&last==1394,"after Prominence or cooldown skip: return to Trance, never repeated burn/nuke");finish(p,e,s,35000);
+   disabled(p).remove(p.getKnownSkill(1394).getReuseHashCode());verify(run(p,e,s,30000)&&last==1394,"after Prominence or cooldown skip: return to Trance, never repeated burn/nuke");finish(p,e,s,35000);
    var w=(CardinalSurvival.Window)f(state,"clarityWindow").get(s);verify(!w.manaBurn(e)&&!w.prominence(e),"resleep request cannot reuse previous wake window");
   }
   // Pure phase policy: rejected requests do not advance; heals never consume an owed nuke.

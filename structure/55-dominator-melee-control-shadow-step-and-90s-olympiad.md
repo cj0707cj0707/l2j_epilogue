@@ -1,6 +1,8 @@
 # 55. Dominator под своим контролем мили-цели, Shadow Step и Олимпиада90с
 
-> **Актуальное обновление58:** Лимит90с ниже — история55, текущий OlympiadBattle=150000 (150с). Пятый core-патч и механики контроля/Shadow Step сохранены. См. [58](58-olympiad-150s-invulnerability-kite-native-mana-and-clarity.md).
+> **Актуально75:** активный лимит **OlympiadBattle=210000 (210с)**. Существующий пятый core-патч сохранён; лимиты90/150с ниже — история. См. [75](75-cardinal-always-trance-no-shield-kite-and-210s.md).
+
+> **Историческое обновление58:** Лимит90с ниже — история55; в58 был установлен OlympiadBattle=150000 (150с). Пятый core-патч и механики контроля/Shadow Step сохранены. См. [58](58-olympiad-150s-invulnerability-kite-native-mana-and-clarity.md).
 
 База: `791e73a2c3b23aaa9cda918175870a42c602f99c`. Новая общая arena-тактика ботов и пятый проверяемый core-патч; исходный `libs/GameServer.jar` в репозитории не заменяется.
 

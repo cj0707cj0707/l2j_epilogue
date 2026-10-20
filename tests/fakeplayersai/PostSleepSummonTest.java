@@ -83,10 +83,14 @@ public class PostSleepSummonTest extends DominatorPressureBluffTest
                 verify(run(p,e,s,13000)&&last==0&&!p.isMoving(),"Cardinal holds landed sleep after retreat, never burns it early");
             }else{verify(run(p,e,s,12000)&&last==1367,"Dominator keeps legal curse after arrival");finish(p,e,s,17000);}
             verify(ai.requests==(cid==97?2:1),"one retreat per effect, no repeated circle walking");
-            // Removed sleep stops ONLY the owned route; another AI move is never cancelled.
+            // SleepRetreat stops ONLY its owned route. A separately ready Trance may take movement ownership (75).
             at(p,80,0);clearSleep(e);appliedSleep(p,e,cid);s=centered();f(state,"nextDecision").setLong(s,Long.MAX_VALUE);run(p,e,s,20000);
             verify(p.isMoving(),"second distinct actual sleep starts new retreat");clearSleep(e);run(p,e,s,20100);verify(!p.isMoving(),"sleep ended: owned route released immediately");
-            appliedSleep(p,e,cid);s=centered();run(p,e,s,22000);ai.setIntentionMoveTo(new Location(10,20,0));clearSleep(e);run(p,e,s,22100);verify(p.isMoving()&&p.getXdestination()==10,"foreign route not stopped on sleep expiry");f(Creature.class,"_move").set(p,null);
+            appliedSleep(p,e,cid);s=centered();run(p,e,s,22000);ai.setIntentionMoveTo(new Location(10,20,0));clearSleep(e);
+            // Isolate cleanup ownership from the new ready-Trance interrupt of arbitrary routes.
+            if(cid==97){@SuppressWarnings("unchecked") Map<Integer,Long> reuse=(Map<Integer,Long>)f(Creature.class,"_disabledSkills").get(p);reuse.put(p.getKnownSkill(1394).getReuseHashCode(),System.currentTimeMillis()+60000);}
+            f(state,"nextDecision").setLong(s,Long.MAX_VALUE);run(p,e,s,22100);verify(p.isMoving()&&p.getXdestination()==10,"sleep cleanup alone does not stop foreign route while Trance unavailable");
+            if(cid==97){@SuppressWarnings("unchecked") Map<Integer,Long> reuse=(Map<Integer,Long>)f(Creature.class,"_disabledSkills").get(p);reuse.clear();}f(Creature.class,"_move").set(p,null);
             // Root/CC/cast are genuine prohibitions, never abort/teleport bypasses.
             appliedSleep(p,e,cid);s=centered();flags(p,EffectFlag.ROOTED.getMask());int before=ai.requests;f(state,"nextDecision").setLong(s,Long.MAX_VALUE);run(p,e,s,24000);verify(ai.requests==before,"own root never bypassed");flags(p,0);
             p.setCastingNow(true);run(p,e,s,25000);verify(ai.requests==before&&p.isCastingNow(),"real cast retained");p.setCastingNow(false);

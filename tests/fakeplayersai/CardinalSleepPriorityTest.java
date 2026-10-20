@@ -26,8 +26,13 @@ public class CardinalSleepPriorityTest extends ControlPursuitTranceKiteTest {
    // A previous circular route must be replaced once by the center route.
    ai.setIntentionMoveTo(new org.l2jmobius.gameserver.entity.Location(cx+200,cy+180,0));int oldMoves=ai.requests;
    appliedSleep(p,e,97);verify(run(p,e,s,10000)&&last==0,"sleep preempts shield/proc/Clarity offense");
+   if(shield!=0){
+    verify(ai.requests==oldMoves&&!p.isMoving(),"both shields forbid even the sleep retreat");
+    for(int n=1;n<=4;n++)verify(run(p,e,s,10000+n*100)&&last==0&&!p.isMoving()&&ai.requests==oldMoves,"protected sleep holds stationary");
+    clear(p,1418);clear(p,5576);p.setInvul(false);verify(run(p,e,s,11000)&&last==0,"shield expiry resumes sleep retreat");
+   }
    verify(ai.requests==oldMoves+1&&ai.requested.getX()==cx&&ai.requested.getY()==cy,"first destination is actual arena center, not another orbit point");
-   for(int n=1;n<=4;n++)verify(run(p,e,s,10000+n*100)&&last==0&&ai.requests==oldMoves+1,"own full center leg, no requeue/cast");
+   for(int n=1;n<=4;n++)verify(run(p,e,s,11000+n*100)&&last==0&&ai.requests==oldMoves+1,"own full center leg, no requeue/cast");
    arrive(p,ai);verify(run(p,e,s,12000)&&last==0&&ai.requests==oldMoves+2,"actual center arrival dispatches opposite endpoint");
    verify(Math.hypot(ai.requested.getX()-cx,ai.requested.getY()-cy)<=449,"opposite endpoint inside arena449");
    verify((ai.requested.getX()-cx)*(e.getX()-cx)+(ai.requested.getY()-cy)*(e.getY()-cy)<=0,"opposite half from sleeping opponent");
@@ -35,8 +40,8 @@ public class CardinalSleepPriorityTest extends ControlPursuitTranceKiteTest {
    verify(Math.abs(Math.hypot(ai.requested.getX()-e.getX(),ai.requested.getY()-e.getY())-wanted)<2,"retreat uses native Mana Burn range capped by arena");
    arrive(p,ai);for(int n=0;n<10;n++)verify(run(p,e,s,14000+n*500)&&last==0&&!p.isMoving()&&ai.requests==oldMoves+2,"arrived: HOLD until sleep ends, including own1418 and both shields");
    verify(!BotSpawner.tacticalSkillAllowed(p,e,nativeSkill(1398),false)&&!BotSpawner.tacticalSkillAllowed(p,e,nativeSkill(1230),false),"shared candidate guard protects sleep with/without Clarity");
-   clearSleep(e);clear(p,1418);p.setInvul((shield&2)!=0);disable(p,1418);
-   verify(run(p,e,s,25000)&&last==1398&&!p.isMoving(),"actual wake: Mana Burn before proc-Trance/kite, with or without Clarity");finish(p,e,s,30000);
+   clearSleep(e);clear(p,1418);clear(p,5576);p.setInvul(false);disable(p,1418);disable(p,1394);
+   verify(run(p,e,s,25000)&&last==1398&&!p.isMoving(),"actual wake with Trance on reuse: Mana Burn, with or without Clarity");finish(p,e,s,30000);
    verify(run(p,e,s,35000)&&last==1230,"then one ready Prominence, not premature resleep");finish(p,e,s,40000);
    var w=(CardinalSurvival.Window)f(state,"clarityWindow").get(s);verify(!w.pending(),"combo consumed, cannot repeat without another actual sleep");
   }
@@ -54,7 +59,7 @@ public class CardinalSleepPriorityTest extends ControlPursuitTranceKiteTest {
     f(state,"observed").setLong(s,0);f(state,"nextDecision").setLong(s,0);f(state,"hpObserved").setLong(s,0);
     last=0;verify(BotTactics.tickCardinalControl(p,e,BotPresets.getPresetByClassId(97),ranked)&&last==1394,"public hook requests Trance before generic outer kite");
     p.setCastingNow(false);f(state,"pendingId").setInt(s,0);appliedSleep(p,e,97);
-    last=0;verify(BotTactics.tick(p,e,BotPresets.getPresetByClassId(97),ranked)&&last==0&&p.isMoving(),"public common tick owns landed sleep before universal kite");
+    last=0;verify(BotTactics.tick(p,e,BotPresets.getPresetByClassId(97),ranked)&&last==0&&!p.isMoving(),"public common tick holds landed sleep under proc, no universal kite");
     BotRecoveryRules.init();
     for(int id:new int[]{1394,1398,1230})verify(BotRecoveryRules.guard(castEvent(p,e,id)).terminate(),"native admission rejects hostile skill into sleep "+id);
     var attack=new org.l2jmobius.gameserver.mechanics.events.holders.actor.creature.OnCreatureAttack();attack.setAttacker(p);attack.setTarget(e);
@@ -69,7 +74,8 @@ public class CardinalSleepPriorityTest extends ControlPursuitTranceKiteTest {
   for(boolean ranked:new boolean[]{false,true}) {
    Player e=actor(90,ranked,true),p=cardinal(e,ranked,1394,1398,1230,1218,1418);hp(p,10000);effects(p);Object s=arena(p,e);
    effects(e).add(new BuffInfo(e,e,nativeSkill(110)));e.setInvul(true);nativeSkill(1418).applyEffects(p,p,true,10);p.setInvul(true);appliedSleep(p,e,97);
-   verify(run(p,e,s,10000)&&last==0&&p.isMoving(),"sleep beats own shield and protected/invulnerable tank kite");
+   verify(run(p,e,s,10000)&&last==0&&!p.isMoving(),"sleep under own shield: stationary despite protected/invulnerable tank");
+   clear(p,1418);p.setInvul(false);verify(run(p,e,s,11000)&&last==0&&p.isMoving(),"after own shield expires, retreat while tank sleeps");
    MoveAI ai=(MoveAI)p.getAI();int[] c=ArenaCombatRules.center(p);verify(ai.requested.getX()==c[0]&&ai.requested.getY()==c[1],"protected tank sleep still retreats through center");
    flags(p,EffectFlag.ROOTED.getMask());int moves=ai.requests;verify(run(p,e,s,12000)&&last==0&&!p.isMoving()&&ai.requests==moves,"root: hold, no alternate route/offense");flags(p,0);
    ai.accept=false;verify(run(p,e,s,14000)&&last==0&&!p.isMoving(),"rejected movement: hold rather than orbit or nuke");

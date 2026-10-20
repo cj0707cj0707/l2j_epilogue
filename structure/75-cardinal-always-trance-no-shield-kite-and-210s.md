@@ -1,0 +1,53 @@
+# 75. Олимпиада210с; Cardinal: Trance независимо от Clarity, без кайта под Celestial
+
+## Актуальные правила
+
+Изменения относятся к arena-боту Cardinal97: активная олимпиада и тренировка, против игроков и ботов. Игрокам-Cardinal алгоритм AI не назначается. Новые правила **заменяют** противоречащие им пункты68/74: сохранение собственного1418 движением и обязательный приоритет wake-комбо больше не действуют.
+
+1. **Активная часть олимпийского боя150→210 секунд (+60с).** Время подготовки, возврата, регистрации и параметры TrainingArena не менялись. `OlympiadBattle = 210000` в `game/config/Olympiad.ini`. Существующий core-патч `olympiad-battle-timer` сохраняется: без него native short-счётчик переполняется и одной правки конфига недостаточно. Новый патч или замена JAR не нужны.
+2. **Под собственным Celestial1418, пассивным655→5576, обоими одновременно или фактической неуязвимостью Cardinal не кайтит.** Сбрасываются существующие круговые маршруты; generic invulnerable-melee/tank kite также запрещён. Даже если противник уже спит, отход через центр откладывается до окончания защиты: стоять, не будить цель. Не отменять уже идущий настоящий каст ради нового решения.
+3. **Противник бодрствует и уязвим — готовый изученный Trance1394 имеет первый приоритет**, независимо от его профессии, дистанционной/ближней специализации и наличия Clarity. Это включает Sagittarius92; Clarity на Cardinal, на противнике, на обоих либо отсутствие эффекта не выключают попытки сна. Навык добавляется в кандидаты даже при сохранённой ротации без1394. При резисте повторять после штатной доступности, не заменять готовый Trance кайтом, лечением или уроном.
+4. **Исключения по состоянию цели:** уже спит или неуязвима — Trance не запрашивать. После фактического сна без своей защиты сохраняется один отход через центр и ожидание, а не бесконечный круг. Новые hostile cast/autoattack по спящему противнику по-прежнему блокируются общими guards74.
+5. «Всегда» не означает обход правил движка: MP/HP/ресурсы, реальный reuse, silence/CC, условия навыка, arena-authority, range/LOS и backoff после отказа сохраняются. Вне дальности допускается только обычный ограниченный подход **к** цели, без телепорта, с проверкой геодаты и круга449; это не кайт. Под защитой при недоступности Trance — ожидание, а не круг или filler по бодрствующей уязвимой цели.
+6. Новый готовый Trance выше старой связки Mana Burn1398→Prominence1230 после пробуждения. Когда Trance недоступен и нет защищённой Trance-фазы, остаются прежние допустимые восстановление/wake-комбо; они не заставляют ждать своего отката и не обходят native запреты. Сам факт Clarity3282 по-прежнему включает прежний ограниченный fallback-набор, но не выключает Trance.
+
+**Важно про собственный Celestial:** его штатная отмена действием не изменялась. Попытка каста может снять1418; новый запрос пользователя требует каста вместо сохранения щита бегом. Пассивный5576 сохраняет свои5с и не снимается использованием навыка. Бесконечной/продлеваемой неуязвимости не добавлено.
+
+## Карта runtime-файлов
+
+| Файл | Ответственность и изменение75 |
+| --- | --- |
+| `game/config/Olympiad.ini` | Лимит активного боя210000мс вместо150000мс; уже существующий timer patch обязателен |
+| `game/data/scripts/custom/fakeplayersai/BotTactics.java` | Обязательный `tickCardinalControl` теперь обслуживает каждую валидную пару Cardinal, не только melee/Clarity/proc/sleep; native-ready Trance первым, принудительный learned-кандидат1394, остановка старого кайта, защищённая фаза/подход и блок parent fall-through |
+| `game/data/scripts/custom/fakeplayersai/CardinalSurvival.java` | `noKite` проверяет оба реальных щита и фактическую invul; `tranceTarget` проверяет класс/изученный1394/бодрствование/уязвимость цели, без Clarity или ограничения профессии противника |
+| `game/data/scripts/custom/fakeplayersai/InvulnerableMeleeKite.java` | Общий защитный запрет кайта Cardinal под защитой независимо от вызывающего кода |
+| `game/data/scripts/custom/fakeplayersai/SleepRetreat.java` | Не запускает/приостанавливает собственный маршрут Cardinal под защитой; после её окончания при продолжающемся сне возобновляет обычный центр→противоположная сторона→HOLD |
+
+Оба driver в `BotManager.java` уже вызывают Cardinal-hook до generic kite и опциональной tactical-настройки (74); дополнительной правки этого файла в75 нет. `BotSpawner.java`/`BotRecoveryRules.java` сохраняют защиту сна74. Настройки и защита от гарантированного прохождения сна в `BotControlChance.java` не менялись.
+
+Диагностика `BotTactics.describe`: `cardinalTrancePriority` — активная приоритетная фаза1394; `cardinalSleep` — текущий маршрут/ожидание; `cardinalWake` — оставшаяся история actual sleep/wake. Диагностика не доказывает установку коммита в чужом запущенном процессе.
+
+Не изменены: фиксированные20% Trance Cardinal и Dreaming Spirit Dominator,40% Bluff-stun и12с reuse Bluff, обход кинжальщиками за спину, full epic+6 Cardinal, локальный ipconfig, заказные бои, XML/native шанс/длительность/отмена Celestial, БД и поставленный JAR.
+
+## Проверки
+
+```bash
+python tests/fakeplayersai/passive_barrier_bluff_tests.py --trance-only
+python tests/fakeplayersai/passive_barrier_bluff_tests.py
+python tests/fakeplayersai/olympiad_battle_timer_tests.py
+```
+
+- `CardinalAlwaysTranceTest.java` — новая матрица всего текущего пула профессий, обе арены, human/bot, Clarity self/enemy/both/none, без защиты/1418/5576/оба/generic invul; низкоеHP, ротация без1394, резист/повтор, pending cast, сон, wake-приоритет, reuse/silence/root/invul цели, bounded approach и неизменённая native отмена щитов.
+- `ControlPursuitTranceKiteTest.java`, `CardinalSurvivalControlChanceTest.java`, `ClarityBluffPhaseTest.java`, `CardinalSleepPriorityTest.java` — ожидания собственный1418→кайт и wake-комбо→готовый Trance заменены на новое правило. Проверки fallback Mana Burn→Prominence теперь явно отключают1394, а не требуют перебивать готовый сон. Центровой маршрут проверяется после снятия своей защиты; при живой защите проверяется HOLD.
+- `DominatorPressureBluffTest.java` — для Cardinal с откатом1394 добавлена записывающая movement seam: расширенный75 ranged reuse-gap больше не запускает world movement без сервера. Проверки native отката Trance и шансов Bluff сохранены.
+- `PostSleepSummonTest.java` — проверка очистки чужого маршрута отделена от допустимого нового прерывания готовым Trance:1394 явно недоступен в ownership-сценарии. Dominator и summon-проверки сохранены.
+- `passive_barrier_bluff_tests.py` — компиляция всех custom/effect/target Java-скриптов и11 регрессионных наборов, отдельный `--trance-only`; сохранены native фикс20%, Bluff40%, rear-only, Dominator и прочие боевые проверки. Статические ожидания отдельных runner `cardinal_survival_control_chance_tests.py` и `tank_mechanics_kite_tests.py` также обновлены.
+- `olympiad_battle_timer_tests.py` — patch только копии JAR, tamper/idempotence/старый observer-upgrade, real `OlympiadConfig.load()` и static native `BATTLE_PERIOD=210000` под `-Xverify:all`,21×10с, защита от short overflow для90/150/210/360с, startup Windows/Linux.
+
+Окончательный полный запуск прошёл: **1327 /6910 /26353 /1628 /4068 /7615 /61 /8382 /8314 /271534 /16264** проверок по11 наборам соответственно; все custom/effect/target скрипты скомпилированы. Количество проверок native random-roll Bluff может немного различаться из-за проверки каждого реально прошедшего эффекта; критерии вероятности не меняются. Отдельные runner Cardinal и tank также завершились успешно, timer-проверка прошла весь installer/tamper/config/bytecode-набор. Это изолированные регрессии: настоящие SkillData/Formulas/effects/PlayerAI dispatch, но запись движения и кастов вместо world/клиента/БД. В живой GameServer пользователя доступа нет.
+
+## Применение и откат
+
+Обновить все **пять runtime-файлов** из таблицы в локальном сервере с сохранением путей и полностью перезапустить GameServer. Перезапуск только ботов не перечитывает `OlympiadBattle` и не перекомпилирует согласованный набор Java. Если предыдущие обновления не установлены, обновить согласованный `main` и сохранить локальные секреты/конфиги; проверить существующую fail-closed цепочку core-патчей. Изменение GitHub не копирует файлы автоматически в `C:\EpilogueServer`.
+
+Резервная ветка: `backup/before-cardinal-always-trance-210s-2026-10-20`, исходная версия `c60aaec077a87fd34def12ae03d3cd1ce15dd37a`. Откатить весь набор runtime-файлов вместе и перезапустить GameServer.
