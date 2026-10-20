@@ -9,7 +9,8 @@ import org.l2jmobius.gameserver.mechanics.skill.Skill;
 import org.l2jmobius.gameserver.mechanics.stats.Formulas;
 import org.l2jmobius.gameserver.util.StatSet;
 
-/** Only bot97/1394 and bot115/1097,1092. Independent templates, never SkillData/DB writes.
+/** Private templates only for bot97/1394 and bot115/1097,1092; no SkillData/DB writes.
+ * Dagger bots also clear the obsolete early gate; their Bluff40% is native XML.
  * These three native skills are simple A2/ONE/MEN controls without conditions/stat funcs. */
 final class BotControlChance
 {
@@ -23,7 +24,7 @@ final class BotControlChance
         int cid=bot.getPlayerClass().getId();
         // The legacy core-wide25% gate runs BEFORE the per-skill clamp. Never let
         // a stale registration replace these scoped probabilities. No global rate edit.
-        if(cid==97||cid==115)Formulas.FIXED_DEBUFF_RATE_PLAYERS.remove(bot.getObjectId());
+        if(cid==97||cid==115||cid==93||cid==101||cid==108)Formulas.FIXED_DEBUFF_RATE_PLAYERS.remove(bot.getObjectId());
         if(cid==97)apply(bot,1394);else if(cid==115){apply(bot,1097);apply(bot,1092);}
     }
     private static void apply(Player bot,int id)

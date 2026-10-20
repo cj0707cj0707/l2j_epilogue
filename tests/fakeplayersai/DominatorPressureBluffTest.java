@@ -134,6 +134,66 @@ public class DominatorPressureBluffTest extends BerserkerSoulCleanseTest {
             verify(last==1394,"no extra3s timer after accepted Trance; ordinary native readiness only");finish(p,e,s,12000);
         }
     }
+    // Preserve human/bot identity, suppress only packets to a nonexistent connection.
+    static class HeadlessClient extends org.l2jmobius.gameserver.network.GameClient {
+        HeadlessClient(){super(null);}
+        @Override public void sendPacket(org.l2jmobius.gameserver.network.serverpackets.ServerPacket packet){}
+        @Override public void sendPacket(org.l2jmobius.gameserver.network.SystemMessageId id){}
+    }
+    static Player chanceActor(int cid,boolean ranked,boolean human)throws Exception {
+        Player p=actor(cid,ranked,human);
+        Field access=f(Player.class,"_accessLevel");access.set(p,unsafe.allocateInstance(access.getType()));
+        if(human)p.setClient((HeadlessClient)unsafe.allocateInstance(HeadlessClient.class));
+        return p;
+    }
+    static class StunCapture extends EffectList {
+        int additions;
+        StunCapture(Player p){super(p);}
+        @Override public void add(BuffInfo info){
+            verify(info.getEffects().size()==1&&info.getEffects().get(0).getEffectType()==org.l2jmobius.gameserver.mechanics.effects.EffectType.STUN,"one native continuous Stun, independent of instant80% effects");
+            additions++; // no world scheduler, packets or stat/paperdoll callbacks
+        }
+    }
+    static void fixedBluffStun()throws Exception {
+        int previous=org.l2jmobius.gameserver.mechanics.stats.Formulas.FIXED_DEBUFF_RATE_PERCENT;
+        try {
+            org.l2jmobius.gameserver.mechanics.stats.Formulas.FIXED_DEBUFF_RATE_PERCENT=100;
+            for(int cid:new int[]{93,101,108})for(boolean ranked:new boolean[]{false,true})for(boolean humanCaster:new boolean[]{false,true})for(boolean humanTarget:new boolean[]{false,true})
+                for(int level:new int[]{1,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115}) {
+                    Skill nativeBluff=SkillData.getInstance().getSkill(358,level);
+                    verify(nativeBluff.getMinChance()==40&&nativeBluff.getMaxChance()==40&&nativeBluff.getActivateRate()<100&&nativeBluff.getBasicProperty()!=org.l2jmobius.gameserver.mechanics.stats.BaseStat.NONE,"all Bluff/enchant levels clamp40, no guaranteed-success path");
+                    verify(nativeBluff.getReuseDelay()==12000&&nativeBluff.getAbnormalTime()==9&&nativeBluff.getMpConsume()==35,"Bluff reuse12s/duration9s/MP unchanged");
+                    if(level!=1&&level!=101&&level!=108&&level!=115)continue;
+                    Player p=chanceActor(cid,ranked,humanCaster),e=chanceActor(94,ranked,humanTarget);learn(p,nativeBluff);
+                    if(!humanCaster)org.l2jmobius.gameserver.mechanics.stats.Formulas.FIXED_DEBUFF_RATE_PLAYERS.add(p.getObjectId());
+                    BotControlChance.apply(p);
+                    verify(!org.l2jmobius.gameserver.mechanics.stats.Formulas.FIXED_DEBUFF_RATE_PLAYERS.contains(p.getObjectId()),"dagger bot clears stale early100% gate");
+                    verify(p.getKnownSkill(358)==nativeBluff,"same native Bluff for player/bot, no private clone or condition loss");
+                    for(int profile:new int[]{0,1,2}) {
+                        Object owner=new Object();
+                        e.addStatFunc(new org.l2jmobius.gameserver.mechanics.stats.functions.FuncSet(org.l2jmobius.gameserver.mechanics.stats.Stat.DEBUFF_VULN,0x70,owner,profile==1?10000:profile==2?-100:1,null));
+                        int trait=nativeBluff.getTraitType().ordinal();
+                        p.getStat().getAttackTraits()[trait]=profile==1?3:1;e.getStat().getDefenceTraits()[trait]=profile==2?10:1;
+                        int passed=0;for(int n=0;n<2000;n++)if(org.l2jmobius.gameserver.mechanics.stats.Formulas.calcEffectSuccess(p,e,nativeBluff))passed++;
+                        verify(passed>640&&passed<960,"fixed40% native formula despite enchant/trait/vulnerability profile="+profile+" level="+level+" passed="+passed);
+                        e.removeStatsOwner(owner);
+                    }
+                    Object immunity=new Object();
+                    e.addStatFunc(new org.l2jmobius.gameserver.mechanics.stats.functions.FuncSet(org.l2jmobius.gameserver.mechanics.stats.Stat.DEBUFF_IMMUNITY,0x70,immunity,1,null));
+                    for(int n=0;n<10;n++)verify(!org.l2jmobius.gameserver.mechanics.stats.Formulas.calcEffectSuccess(p,e,nativeBluff),"debuff immunity is not bypassed by fixed40");
+                    e.removeStatsOwner(immunity);e.getStat().getTraitsInvul()[nativeBluff.getTraitType().ordinal()]=1;
+                    for(int n=0;n<10;n++)verify(!org.l2jmobius.gameserver.mechanics.stats.Formulas.calcEffectSuccess(p,e,nativeBluff),"full trait immunity stays0");
+                }
+            // Actual Skill.applyEffects continuous gate, with instant actions disabled only in fixture.
+            for(int level:new int[]{1,115}) {
+                Player p=chanceActor(108,true,false),e=chanceActor(97,true,true);Skill bluff=SkillData.getInstance().getSkill(358,level);
+                f(Creature.class,"_invulAgainst").set(e,new java.util.concurrent.ConcurrentHashMap<>());
+                StunCapture list=new StunCapture(e);f(Creature.class,"_effectList").set(e,list);
+                for(int n=0;n<4000;n++)bluff.applyEffects(p,e,false,9);
+                verify(list.additions>1360&&list.additions<1840,"native continuous apply remains40%, not40%x80%, enchant level="+level+" passed="+list.additions);
+            }
+        } finally {org.l2jmobius.gameserver.mechanics.stats.Formulas.FIXED_DEBUFF_RATE_PERCENT=previous;}
+    }
     public static void main(String[]args)throws Exception {
         ServerConfig.DATAPACK_ROOT=new File(args[0]);ThreadConfig.THREADS_FOR_LOADING=false;
         unsafe=(Unsafe)f(Unsafe.class,"theUnsafe").get(null);f(LowManaAutoAttackTest.class,"unsafe").set(null,unsafe);
@@ -141,6 +201,6 @@ public class DominatorPressureBluffTest extends BerserkerSoulCleanseTest {
         act=BotTactics.class.getDeclaredMethod("act",Player.class,Player.class,BotClassPreset.class,state,long.class,boolean.class);act.setAccessible(true);
         poll=BotTactics.class.getDeclaredMethod("pollAttempt",Player.class,Player.class,state,long.class);poll.setAccessible(true);
         var geo=java.nio.file.Files.createTempDirectory("pressure53-geodata-");org.l2jmobius.gameserver.config.GeoEngineConfig.GEODATA_PATH=geo;org.l2jmobius.gameserver.geoengine.GeoEngine.getInstance();java.nio.file.Files.delete(geo);
-        policies();integration();tranceDefaults();System.out.println("PASS: "+checks+" Bluff native reuse and Dominator actual act/poll/rotation pressure checks; no live server");
+        policies();integration();tranceDefaults();fixedBluffStun();System.out.println("PASS: "+checks+" Bluff fixed40% stun/native reuse and Dominator actual act/poll/rotation pressure checks; no live server");
     }
 }

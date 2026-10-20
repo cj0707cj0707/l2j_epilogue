@@ -4448,6 +4448,8 @@
 		<abnormalType>STUN</abnormalType>
 		<abnormalVisualEffect>STUN</abnormalVisualEffect>
 		<activateRate>40</activateRate>
+		<minChance>40</minChance>
+		<maxChance>40</maxChance>
 		<basicProperty>MEN</basicProperty>
 		<castRange>40</castRange>
 		<effectPoint>-360</effectPoint>

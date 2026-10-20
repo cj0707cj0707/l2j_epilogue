@@ -5,9 +5,18 @@ import os, subprocess, tempfile, xml.etree.ElementTree as ET
 R=Path(__file__).resolve().parents[2];T=Path(__file__).parent
 path='game/data/stats/skills/00300-00399.xml'
 old=ET.fromstring(subprocess.check_output(['git','show','HEAD:'+path],cwd=R,text=True));new=ET.parse(R/path).getroot()
-# Baseline-independent invariant: changing358 reuse must not touch any other XML value.
+# Baseline-independent invariant: only358 reuse/minChance/maxChance may differ.
+# Native activation/enchant tables, independent instant effects and all other skills stay intact.
 assert new.findtext("skill[@id='358']/reuseDelay")=='12000'
 old.find("skill[@id='358']/reuseDelay").text='12000'
+bluff=old.find("skill[@id='358']")
+for index,key in enumerate(['minChance','maxChance'],1):
+    assert new.findtext("skill[@id='358']/"+key)=='40'
+    item=bluff.find(key)
+    if item is None:
+        item=ET.Element(key);bluff.insert(list(bluff).index(bluff.find('activateRate'))+index,item)
+        item.tail=bluff.find('activateRate').tail
+    item.text='40'
 assert ET.tostring(old)==ET.tostring(new)
 # Native Trance XML is already restored; do not rewrite its full 99-skill document.
 trance=ET.parse(R/'game/data/stats/skills/01300-01399.xml').getroot().find("skill[@id='1394']")
