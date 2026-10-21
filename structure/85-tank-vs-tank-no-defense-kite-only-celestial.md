@@ -1,34 +1,167 @@
-IyA4NS4g0KLQsNC90LogdnMg0YLQsNC90Lo6INC+0YLQvNC10L3QsCDQutCw0LnRgtCwINC/0L4gMTEwLzM2OC83NjAsINC60LDQ
-0LnRgiDRgtC+0LvRjNC60L4g0L/RgNC4IENlbGVzdGlhbAoKPiAqKtCQ0LrRgtGD0LDQu9C40LfQsNGG0LjRjzYwOioqINCf0YDQ
-edyOL3W5bsDQudC00YPRidC40Lkg0LTQvtGGNjAg0YPRgdGC0LDQvdC+0LLQuNC7INC60LDQudGCICoq0LLRgdC10YUgMTkg0LrQ
-uy+QsNGB0YHQvtCyKiog0L/RgNC4IEJ1ZmZJbmZvIDExMC8zNjgvNzYwINC90LAgQNC/0YDQvtGC0LjQstC90LjQutC1LdGC0LDQ
-bmtlLiDQrdGC0L4g0L/RgNCw0LLQuNC70L4g0L7RgtC80LXQvdGP0LXRgtGB0Y8g0YLQvtC70YzQutC+INC00LvRjyAqKtC80LDR
-tNGH0LDQv9CwINGC0LDQvdC6IHZzINGC0LDQvdC6Kio6INCx0L7RgiDQvdCw0L3QutC+0LLRiyDQv9GA0LDQstC40LvQsCAxMTAv
-MzY4LzgwMCDQvdCwINGC0LDQvdC60LUg0LfQsNGJ0LjRgtGLINC40L3QtC/QvtGE0LXQutGCINC00LvQsCDQsdC+0YLQsC3RgtCw
-NC5PbGkgQ2VsZXN0aWFsIFNoaWVsZCwg0YHQutC40LvQu9GLIDU1NzUvNTU3Ni8xNDE4KS4g0KPQlC9WZW5nZWFuY2UvQU1B
-INC90LAgQNC/0YDQvtGC0LjQstC90LjQutC1LdGC0LDQvdC60LUg0LrQsNC50YIg0LHQvtGC0LAt0YLQsNC90LrQsCAqKtC90LUg
-dnLls7XRgtGLzjAqKi4g0JTQu9GPINCy0YHQtdGFINC/0YDQvtGH0LjRhdC60LvQsNGB0YHQvtCyICjQvdC1INGC0LDQvdC60L7Q
-udCzKSDQv9C+0LLQtdC00LXQvdC40LUgZG9jNjAg0YHQvtGF0YDQsNC90LXQvdC+INCx0LXQtyDQuNC30LzQtdC90LXQvdC40Lku
+# 85. Танк vs танк: отмена кайта по 110/368/760, кайт только при Celestial
 
-0JHQsNC30LA6IGBkYjJiNDhkZTljMmEwNWJiZTY1MDQ5MmNkZTg0ODg2ODBiOTRiNDVjYDYwKS4g0JjQt9C80LXQvdC10L3Q
-ne8g0LLQvtGB0YLQsNC90L7QstC70LXQvdGC0YLRitGFINC80L3QtdC90LXQvdC40Y47INC90LAg0YDQsNCx0L7RgtCw0Y7RidC1
-M9C10YDQstC10YAgbmUg0YPRgdGC0LDQvdCw0LLQu9C40LLQsNC70LjRgdGMLgoKIyMg0JzQvtGC0LjQstCw0YbQuNGP
+> **Актуализация60:** Предыдущий doc60 установил кайт **всех 19 классов** при BuffInfo 110/368/760 на противнике-танке. Это правило отменяется только для matchup **танк vs танк**: бот-танк кайтит бота/игрока-танка исключительно при `target.isInvul()` (Celestial Shield, скиллы 5575/5576/1418). UD/Vengeance/AMA на противнике-танке кайт бота-танка **не вызывают**. Для всех прочих классов (не танков) поведение doc60 сохранено без изменений.
 
-0JIg0LfQtdGA0LrQsNC70YzQvdC+0Lwg0LHQvtGSINGC0LDQvdC6IHZzINGC0LDQvdC6INC60LDQudGCINC/0YDQuCAxMTAv
-MzY4LzgwMCDQtNC10LvQsNC10YIg0L/QvtC10LTQuNC90L7QuiDQsdC10YHRgdC+0LTQtdGA0LbQsNGC0LXQu9GM0L3Ri9C8OiDQvtCx
-e+CwINGC0LDQvdC60LAg0L/QvtGB0YLQvtGP0L3QvdC+INC+0YLRgdGC0YPQv9Cw0Y7RgiDQvtGCINC30LDRidC40YLRiyDQtNGA
-dWcg0L4g0LTRgNGD0LPQsCDQtNGA0YPQsy4g0KLQsNC90LrQuCDQtNC+0LvQttC90Ysg0LTQsNCy0LjRgtGMINC00YDRg9GGINC9
-ed+g0L/RgNC+0YLQuNCy0L3QuNC60LUg0LTQsNC20LUg0L/RgNC4IFVEL1ZlbmdlYW5jZS9BTUEg4oCUINGC0LDQuiDQttC1
-dXC70L7QuSDQuNCz0YDQvtC6LiDQntGC0YHRgtGD0L/QuNGC0Ywg0LjQvNC10LXRgiDRgdC80YvRgdC7INGC0L7Qu9GM0LrQvtCx
-byDRgtC+0LvRjNC60L4g0L/RgNC4IENlbGVzdGlhbCkuCgojIyDQndC+0LLQvtC1INC/0YDQsNCy0LjQu9C+CgojIyMg0J/RgNC4
-MTEwLzM2OC83NjA6INC+0YLQutCw0Lcg0YLQsNC90LrQsCnQvdC10YLQsNC90LrQsCDQvdC10YLQsNC90LrQsCDQtNC+0LvQttC9
-INGH0LvQsNC90L7QstCw0YLRjCDQsNGC0LDQutGDCgp8IFNlbGYgfCBUYXJnZXQgfCBCdWZmSW5mbyAxMTAvMzY4LzE2MCDQvdCw
-IHRhcmdldCB8IGB0YXJnZXQuaXNJbnZvbCgpYCB8INCa0LDQudGCPyB8CnwtLS18LS0tfC0tLXwtLS18LS0tfAp8ICoq0KLQsNC9
-C9quKiogfCAqKtCi0LDQvdC6KiogfCDQtNCwIHwg0L3QtdGCIHwg274gKirQndCV0KIqKiDigJQg0L/RgNC+0LTQvtC70LbQsNGC
-ryDRgdC+0Lkg0LHQvtC5IHwKfCAqKtCi0LDQvdC6KiogfCAqKtCi0LDQvdC6KiogfCDQvdC10YIgfCDQtNCwIHwg274g0JTQkCAo
-dG9jODQpIHwKfCAqKtCi0LDQvdC6KiogfCAqKtCi0LDQvdC6KiogfCDQtNCwIHwg0L3QtdGCIHwg274g0JTQkCAo0LTQvtGIMjgg
-aW52dWwg0L/RgNC40L7RgNC40YLQtdGC0L3QtdC1KSB8CnwgTmVy0YLQsNC90LogfCAq0KLQsNC90LogfCDQtNCwIHwg0L3QtdGC
-IHwg274g0JTQkCAo0YLQvtGIMjgpIHwKfCDQndC10LrRgtCw0L3QuiB8ICoq0KLQsNC90L8qKiB8INC90LXRgiB8INC00LAg
-fCDQvdC10YIg0LrQsNC50YLQsNGC0LXRgiBkb2M4NCAo0LjQvdCy0YPQuyDQtdGB0YLRjCDRgtCw0LrQttC1KSB8CnwgTmVy0YLQ
-sNC90LogfCAq0KLQsNC90LoqIHwg0L3QtdGCIHwg0LTQsCB8IOKJkSDQlNCQLiBkb2M4NCAoaXNJbnZvbCkgfAp80JTRhdCx0L7Q
-ng==
+База: `db2b48de9c2a05bbe650492cde8488680b94645c` (84). Изменения в скриптах репозитория; на работающем GameServer не устанавливались.
+
+## Мотивация
+
+В зеркальном бою танк vs танк кайт при 110/368/760 делает поединок бессодержательным: оба танка постоянно отступают от защиты друг друга и ничего не делают. Танки должны давить друг на друга даже под UD/Vengeance/AMA — так же, как это делает живой игрок. Отступить имеет смысл только от реальной неуязвимости (Celestial).
+
+## Новое правило
+
+| Self | Target | BuffInfo 110/368/760 на target | `target.isInvul()` | Кайт? |
+|---|---|---|---|---|
+| **Танк** | **Танк** | да | нет | ❌ **НЕТ** — продолжать бой |
+| **Танк** | **Танк** | нет | да | ✅ ДА — кайт (doc84) |
+| **Танк** | **Танк** | да | да | ✅ ДА — кайт (doc84, invul приоритетнее) |
+| Не-танк | Танк | да | нет | ✅ ДА — прежнее поведение doc60 |
+| Не-танк | Танк | нет | да | ✅ ДА — кайт (doc84) |
+| Любой | Не-танк | — | — | Без изменений |
+
+## Определение «бот является танком»
+
+Применяется тот же реестр классов, что и в `TankClassMechanics.java` (doc60):
+
+```java
+// TankClassMechanics.java — уже существует
+public static boolean isTankClass(int classId) {
+    // Phoenix Knight 90, Hell Knight 91, Eva's Templar 99 (нет пресета),
+    // Shillien Templar 106 — все родные ветки Paladin/DA/TK/SK + третьи профессии
+    return TANK_CLASS_IDS.contains(classId);
+}
+```
+
+`isTankClass` уже используется в doc60 для определения противника-танка. Теперь добавляется симметричная проверка **себя**.
+
+## Изменение в `BotTactics.java`
+
+### До (doc60):
+```java
+// Кайт при защите танка — для всех 19 классов
+private static boolean shouldKiteDefendedTank(BotAI bot, L2Character target) {
+    if (!TankClassMechanics.isTankClass(target.getTemplate().getClassId().getId())) {
+        return false;
+    }
+    return target.isAffectedBySkill(110) // Ultimate Defense
+        || target.isAffectedBySkill(368) // Vengeance
+        || target.isAffectedBySkill(760); // Anti Magic Armor
+}
+```
+
+### После (doc85):
+```java
+// Кайт при защите танка — с исключением для зеркала танк vs танк
+private static boolean shouldKiteDefendedTank(BotAI bot, L2Character target) {
+    if (!TankClassMechanics.isTankClass(target.getTemplate().getClassId().getId())) {
+        return false; // target не танк — правило не применяется
+    }
+    // Если сам бот — тоже танк: кайтить только при invul; 110/368/760 кайт не вызывают
+    int selfClassId = bot.getActiveChar().getTemplate().getClassId().getId();
+    if (TankClassMechanics.isTankClass(selfClassId)) {
+        return false; // invul обрабатывается хуком 0 (doc84)
+    }
+    // Бот не-танк vs танк: прежнее поведение doc60
+    return target.isAffectedBySkill(110)
+        || target.isAffectedBySkill(368)
+        || target.isAffectedBySkill(760);
+}
+```
+
+### Взаимодействие с doc84 (`handleInvulnerableTarget`)
+
+`handleInvulnerableTarget` стоит хуком 0 и выполняется **до** `shouldKiteDefendedTank`. Порядок хуков не меняется:
+
+```
+0. handleInvulnerableTarget   ← при isInvul() → кайт (работает для всех классов, включая танков)
+1. escapeShackle(453)
+2. soulCleanse(1510)
+3. bluffRear
+4. cardinalSurvival
+5. tickMageCancel(1056)
+6. rootedByTank
+7. tickInvulnerableMelee      ← shouldKiteDefendedTank вызывается здесь
+8. normalAct
+```
+
+Таким образом: при `target.isInvul()` хук 0 перехватывает управление раньше, и `shouldKiteDefendedTank` (хук 7) до вызова не доходит. Поведение при Celestial не меняется. При 110/368/760 без Celestial хук 0 не срабатывает → хук 7 вызывается → новый guard возвращает `false` для бота-танка → атака продолжается.
+
+## Поведение бота-танка против танка с активной защитой
+
+При наличии UD/Vengeance/AMA на противнике-танке бот-танк:
+
+1. **Продолжает классовую ротацию** (doc32, doc29, doc34): применяет собственный пул защиты (Vengeance368 первым, затем UD110), использует Rush Impact793 при стане, стационарную ротацию при руте (doc81).
+2. **Не отступает** и не делает shorten-шагов от doc60.
+3. **Работает хук 1 (escapeShackle)** — срочный root-снос сохраняется.
+4. **Cyclic Rush продолжается** при наличии своего стана (doc31).
+5. При появлении `target.isInvul()` во время боя — хук 0 немедленно переключает на кайт/ожидание (doc84).
+
+## Карта файлов
+
+| Файл | Изменение |
+|---|---|
+| `BotTactics.java` | `shouldKiteDefendedTank`: добавлен self-tank guard — возвращает `false` если `TankClassMechanics.isTankClass(selfClassId)` |
+| `TankClassMechanics.java` | Без изменений; `isTankClass()` уже существует |
+| `InvulnerableMeleeKite.java` | Без изменений; алгоритм не менялся |
+| `TankDefenseSequence.java` | Без изменений; очередь 110/368/760 своей защиты сохранена |
+| `TacticsPolicy.java` | Без изменений |
+| `tests/fakeplayersai/TankVsTankNoDefenseKiteTest.java` (новый) | Матчапы tank-vs-tank: 110/368/760 → атака продолжается; isInvul → кайт; non-tank vs tank → кайт сохранён |
+| `tests/fakeplayersai/tank_vs_tank_kite_tests.py` (новый) | Python-обёртка Java-теста |
+
+## Тест-сценарии
+
+```java
+// Сценарий 1: Танк vs танк, target под UD110 — атака должна продолжаться
+assertFalse(shouldKiteDefendedTank(phoenixKnight90, targetWithUD110));
+
+// Сценарий 2: Танк vs танк, target под Vengeance368 — атака должна продолжаться
+assertFalse(shouldKiteDefendedTank(hellKnight91, targetWithVengeance368));
+
+// Сценарий 3: Танк vs танк, target под AMA760 — атака должна продолжаться
+assertFalse(shouldKiteDefendedTank(phoenixKnight90, targetWithAMA760));
+
+// Сценарий 4: Танк vs танк, target.isInvul() — обрабатывается хуком 0,
+// shouldKiteDefendedTank до вызова не доходит (проверяется косвенно через act())
+
+// Сценарий 5: Не-танк (Cardinal97) vs танк, target под UD110 — кайт должен быть
+assertTrue(shouldKiteDefendedTank(cardinal97, targetWithUD110));
+
+// Сценарий 6: Не-танк (Archmage94) vs танк, target под Vengeance368 — кайт должен быть
+assertTrue(shouldKiteDefendedTank(archmage94, targetWithVengeance368));
+
+// Сценарий 7: Танк vs не-танк — правило не применяется (target не танк)
+assertFalse(shouldKiteDefendedTank(phoenixKnight90, targetCardinal97));
+```
+
+```bash
+python3 tests/fakeplayersai/tank_vs_tank_kite_tests.py
+```
+
+Ожидаемый результат: **≥ 280 assertions**, включая все комбинации (90/91/106 vs 90/91/106/99), три буффа защиты, invul-сценарии через хук 0, и не-танки (94/96/97/115 и др.) vs танк.
+
+## Регрессии
+
+Повторно запустить после установки:
+
+```bash
+python3 tests/fakeplayersai/tank_mechanics_kite_tests.py          # doc60: 7515 assertions
+python3 tests/fakeplayersai/combat_recovery_rules_tests.py        # doc40: 1126
+python3 tests/fakeplayersai/invulnerable_target_tests.py          # doc84: 520
+python3 tests/fakeplayersai/dominator_pressure_bluff_tests.py     # doc53: 1890
+python3 tests/fakeplayersai/cardinal_arena_parity_tests.py        # doc37: 6062
+```
+
+`tank_mechanics_kite_tests.py` затрагивает кайт танков — проверить, что ни один existing тест не ожидает кайта бота-танка при 110/368/760. Если такие тесты есть — обновить assertions согласно новому правилу.
+
+## Установка
+
+1. Остановить GameServer; сохранить `BotTactics.java`.
+2. Применить изменение `shouldKiteDefendedTank` в `BotTactics.java`.
+3. Скопировать новые тестовые файлы в `tests/fakeplayersai/`.
+4. Перезапустить GameServer.
+5. Проверить в бою: Phoenix Knight90 vs Phoenix Knight90 — при наличии UD110 на противнике бот атакует, не отступает; при Celestial — кайт.
+6. Проверить: Cardinal97 vs Phoenix Knight90 с UD — Cardinal по-прежнему кайтит (поведение doc60 сохранено).
+
+**Откат:** при остановленном GameServer вернуть `BotTactics.java` из резервной ветки, перезапустить.
+
+Резервная ветка: `backup/before-tank-vs-tank-no-defense-kite-2026-10-21`.
