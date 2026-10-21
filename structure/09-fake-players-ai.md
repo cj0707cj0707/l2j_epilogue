@@ -1,6 +1,8 @@
 # 09. Система ботов FakePlayersAI (`game\data\scripts\custom\fakeplayersai\`)
 
-> **Последнее изменение90:** при фактической третьей стадии Spirit of Phoenix / Seed of Revenge / Pain of Shilen соответствующий [классовый навык785/762/789 выполняется без обычной задержки решения и первым среди законных действий](90-tank-stage3-immediate-class-finisher.md). Нативные условия и правила89 сохранены.
+> **Последнее изменение91:** [круговой кайт динамически выбирает clockwise/counter-clockwise перед каждым waypoint](91-dynamic-two-way-kite-away-from-enemy.md); шаг, уменьшающий расстояние до противника, запрещён. Правила89/90 сохранены.
+
+> **Изменение90:** при фактической третьей стадии Spirit of Phoenix / Seed of Revenge / Pain of Shilen соответствующий [классовый навык785/762/789 выполняется без обычной задержки решения и первым среди законных действий](90-tank-stage3-immediate-class-finisher.md). Нативные условия и правила89 сохранены.
 
 > **Изменение89:** [после успешного собственного Seal of Silence1246 Dominator использует только Steal Essence1245, пока печать действует](89-dominator-seal-steal-kill-window.md). Базовый цикл88 и остальные правила86–88 сохранены.
 

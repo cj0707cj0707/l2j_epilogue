@@ -49,6 +49,9 @@ assert 'ArenaCombatRules.update(bot, enemy, preset)' in tactics
 assert 'ArenaCombatRules.clear(botId)' in tactics and 'ArenaCombatRules.clear(e.getKey())' in tactics
 assert 'ArenaCombatRules.kitePoint(bot, enemy, 100)' in tactics and 'ArenaCombatRules.kitePoint(bot, enemy, 120)' in tactics
 assert 'ArenaCombatRules.kitePoint(bot, enemy.asPlayer(), KITE_STEP)' in manager
+rules=(S/'ArenaCombatRules.java').read_text()
+assert 'awayDirection(' in rules and 'awayStep(' in rules
+assert 'DIRECTIONS.getOrDefault(id,1)' in rules and 'hold instead of running toward the enemy' in rules
 assert '(bot.getX() + enemy.getX()) / 2' not in tactics
 assert 'CardinalTrance.apply(player)' in (S/'BotSpawner.java').read_text()
 assert 'private static boolean olympiadMpFloorAllowed(Player player) { return false; }' in manager

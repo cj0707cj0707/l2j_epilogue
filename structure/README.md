@@ -4,6 +4,7 @@
 
 ## Последнее обновление
 
+- [91 — динамический двусторонний кайт](91-dynamic-two-way-kite-away-from-enemy.md): каждый waypoint выбирает clockwise/counter-clockwise от текущей позиции противника и не ведёт ближе к нему.
 - [90 — танки: немедленный навык при stage3](90-tank-stage3-immediate-class-finisher.md): готовые785/762/789 обходят обычную задержку решения и выбираются первыми.
 - [89 — Dominator: Steal до окончания собственного Silence](89-dominator-seal-steal-kill-window.md): после успешного собственного1246 — только1245 и немедленный pressure на нативной дальности; проверки и установка.
 - [88 — классовые ротации и защита танков после сближения](88-dominator-ranged-cycle-charge-melee-and-tank-contact.md): базовый Steal/Sleep/CP/Silence115, зарядники345/346 в конце, melee88/114 и UD после контакта.
@@ -41,6 +42,7 @@
 | 85 | `85-tank-vs-tank-no-defense-kite-only-celestial.md` | Исключение танк vs танк, реализовано86 во всех путях |
 | 86 | `86-tank-mirror-no-defense-kite-and-all-gear10.md` | Единая политика кайта, вся экипировка+10, карта файлов/тесты/установка |
 | 87 | `87-invulnerable-ranged-root-priorities-and-doc-audit.md` | Invul-дальник: подход/ожидание мили, кайт дальника; rooted1097;453 раньше Bluff; аудит docs |
+| 91 | `91-dynamic-two-way-kite-away-from-enemy.md` | Текущий общий planner окружности: динамически в обе стороны, только от противника |
 | 90 | `90-tank-stage3-immediate-class-finisher.md` | Текущая срочность stage3: немедленный Flame Icon / Insane Crusher / Spirit of Shilen |
 | 89 | `89-dominator-seal-steal-kill-window.md` | Текущий kill-window115: только Steal Essence, пока действует собственный Seal of Silence |
 | 88 | `88-dominator-ranged-cycle-charge-melee-and-tank-contact.md` | Базовые ротации115, нативные заряды/melee88/114, защита танков только после сближения |

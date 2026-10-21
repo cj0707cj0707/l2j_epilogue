@@ -96,25 +96,36 @@ public final class ArenaCombatRules
         if(length>limit){tx=x+(tx-x)*limit/length;ty=y+(ty-y)*limit/length;}
         return new Location((int)Math.round(tx),(int)Math.round(ty),z);
     }
+    /** Pick clockwise/counter-clockwise from the enemy's current position.
+     * A near tie retains the last side to avoid rounding oscillation. */
+    static int awayDirection(int x,int y,int z,int enemyX,int enemyY,int cx,int cy,int step,int preferred)
+    {
+        Location plus=orbit(x,y,z,enemyX,enemyY,cx,cy,step,1);
+        Location minus=orbit(x,y,z,enemyX,enemyY,cx,cy,step,-1);
+        double pd=Math.hypot((double)plus.getX()-enemyX,(double)plus.getY()-enemyY);
+        double md=Math.hypot((double)minus.getX()-enemyX,(double)minus.getY()-enemyY);
+        if(pd>md+0.5)return 1;
+        if(md>pd+0.5)return -1;
+        return preferred<0?-1:1;
+    }
+    /** Rounding tolerance only; a kite step must not reduce enemy separation. */
+    static boolean awayStep(int x,int y,int enemyX,int enemyY,Location p)
+    {
+        return Math.hypot((double)p.getX()-enemyX,(double)p.getY()-enemyY)+0.5
+            >=Math.hypot((double)x-enemyX,(double)y-enemyY);
+    }
     static Location kitePoint(Player bot,Player enemy,int step)
     {
         int[] c=center(bot);if(c==null)return null;
-        int id=bot.getObjectId();
-        Integer chosen=DIRECTIONS.get(id);
-        if(chosen==null)
-        {
-            Location plus=orbit(bot.getX(),bot.getY(),bot.getZ(),enemy.getX(),enemy.getY(),c[0],c[1],step,1);
-            Location minus=orbit(bot.getX(),bot.getY(),bot.getZ(),enemy.getX(),enemy.getY(),c[0],c[1],step,-1);
-            chosen=Math.hypot((double)plus.getX()-enemy.getX(),(double)plus.getY()-enemy.getY())
-                >=Math.hypot((double)minus.getX()-enemy.getX(),(double)minus.getY()-enemy.getY())?1:-1;
-            DIRECTIONS.put(id,chosen);
-        }
+        int id=bot.getObjectId(),preferred=DIRECTIONS.getOrDefault(id,1);
+        int chosen=awayDirection(bot.getX(),bot.getY(),bot.getZ(),enemy.getX(),enemy.getY(),c[0],c[1],step,preferred);
         for(int direction:new int[]{chosen,-chosen})
         {
             Location p=orbit(bot.getX(),bot.getY(),bot.getZ(),enemy.getX(),enemy.getY(),c[0],c[1],step,direction);
+            if(!awayStep(bot.getX(),bot.getY(),enemy.getX(),enemy.getY(),p))continue;
             if(!GeoEngine.getInstance().canMoveToTarget(bot.getX(),bot.getY(),bot.getZ(),p.getX(),p.getY(),p.getZ(),bot.getInstanceId()))continue;
-            DIRECTIONS.put(id,direction);return p; // retain angular direction; don't oscillate at the far side
+            DIRECTIONS.put(id,direction);return p;
         }
-        return null;
+        return null; // at the farthest point or blocked: hold instead of running toward the enemy
     }
 }

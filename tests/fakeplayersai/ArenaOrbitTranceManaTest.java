@@ -100,6 +100,18 @@ public class ArenaOrbitTranceManaTest
             Location n=ArenaCombatRules.orbit(x,0,7,30,40,0,0,100,1);
             check(Math.hypot(n.getX()-x,n.getY())<=101,"bounded transition from inside/outside ring");
         }
+        // Enemy north: clockwise is away; enemy south: counter-clockwise is away.
+        check(ArenaCombatRules.awayDirection(450,0,7,450,100,0,0,120,1)==-1,"enemy north selects clockwise escape");
+        check(ArenaCombatRules.awayDirection(450,0,7,450,-100,0,0,120,-1)==1,"enemy south dynamically switches to counter-clockwise escape");
+        check(ArenaCombatRules.awayDirection(450,0,7,0,0,0,0,120,-1)==-1,"equal separation retains previous side without jitter");
+        Location toward=ArenaCombatRules.orbit(-450,0,7,450,0,0,0,120,1);
+        check(!ArenaCombatRules.awayStep(-450,0,450,0,toward),"farthest ring point holds instead of running closer to enemy");
+        for(int ey:new int[]{-300,-100,100,300})
+        {
+            int d=ArenaCombatRules.awayDirection(450,0,7,450,ey,0,0,120,1);
+            Location n=ArenaCombatRules.orbit(450,0,7,450,ey,0,0,120,d);
+            check(ArenaCombatRules.awayStep(450,0,450,ey,n),"chosen side never reduces separation ey="+ey);
+        }
     }
     @SuppressWarnings("unchecked")
     static void boundaries()throws Throwable
@@ -196,7 +208,7 @@ public class ArenaOrbitTranceManaTest
             System.out.println("PASS: missing boundary core holds bot/bot combat closed");System.exit(0);
         }
         trance();orbit();boundaries();mana();
-        System.out.println("PASS: "+checks+" native Trance/enchant, orbit, installed-core boundary and all19-class mana checks; no live match");
+        System.out.println("PASS: "+checks+" native Trance/enchant, dynamic two-way away-orbit, installed-core boundary and all19-class mana checks; no live match");
         System.exit(0);
     }
 }
