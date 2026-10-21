@@ -14,7 +14,14 @@ final class SummonAttackPulse
         if (summon == null || summon.getOwner() != owner || summon.isAlikeDead() || summon.isTeleporting()
             || summon.getInstanceId() != owner.getInstanceId() || enemy == null || enemy.isAlikeDead()
             || enemy.getInstanceId() != owner.getInstanceId() || summon.isCastingNow() || summon.isCastingSimultaneouslyNow()
-            || summon.isOutOfControl() || time < nextAt) return;
+            || summon.isOutOfControl()) return;
+        if(enemy.isInvul())
+        {
+            if(summon.isAttackingNow())summon.abortAttack();
+            if(summon.getAI().getIntention()==org.l2jmobius.gameserver.ai.Intention.ATTACK)summon.getAI().setIntentionIdle();
+            return;
+        }
+        if(time<nextAt)return;
         nextAt = time + 3000;
         // Intentionally repeat even when the target is unchanged or AI has fallen idle.
         // Do not retarget the OWNER: it may be in the middle of a self-targeted cast.

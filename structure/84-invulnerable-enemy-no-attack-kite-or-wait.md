@@ -1,119 +1,45 @@
-# 84. Неуязвимый противник: запрет атаки/дебаффов, кайт vs мили, ожидание vs дальник
+# 84. Неуязвимый противник: запрет атак и поведение по боевой роли
+
+Текущая реализация — [87](87-invulnerable-ranged-root-priorities-and-doc-audit.md). Ранее этот документ описывал намерение как готовый код: `handleInvulnerableTarget`, `BotUtil`, `BotMovement`, отдельные `*AI.java` и тест на520 assertions отсутствовали. Ниже — фактические обработчики и проверки, добавленные в87.
 
 ## Правило
 
-Если противник находится под действием Celestial Shield (скиллы5575/5576/1418 — состояние invulnerable):
+Признак настоящей неуязвимости — `enemy.isInvul()`, а не список названий защит. Урон, контроль, дебаффы и Cancel по такой цели не выбираются; обычная атака не передаётся родительскому драйверу. Уже начатый настоящий каст не прерывается, выпущенный удар не отзывается задним числом.
 
-1. **Запрещено любое активное воздействие на него:** атака, любые скиллы урона, CC, дебаффы (стан, проклятие, рут, Hold, ноизмененный Cancel). Все эти действия будут отвергнуты сервером без эффекта — бот должен не тратить MP/GCD/reuse впустую.
+| Противник | Бот | Действие до окончания неуязвимости |
+|---|---|---|
+| Дальнобойный | Мили | Обычным MOVE_TO сокращает дистанцию до физической дальности с учётом коллизий, затем стоит без атаки; при перемещении цели пробует сблизиться снова |
+| Дальнобойный | Дальнобойный | Не атакует, пытается кайтить обычным движением в существующем круге450 |
+| Мили | Любой | Существующая политика `tickInvulnerableMelee`/`requiresInvulnerableKite`; исключения Cardinal и root сохраняются |
 
-2. **Бот распознаёт неуязвимость** через `target.isInvul()` (или проверку наличия эффектов скиллов 5575/5576/1418).
+При окончании защиты освобождается только собственный маршрут и возвращается прежнее управление. Если в этот момент идёт настоящий каст, освобождение откладывается до его окончания. Дальнейшая атака подчиняется обычным MP/reuse/CC/LOS/дальности/сну, а не выполняется принудительно.
 
-3. **Поведение зависит от типа противника:**
+**Новое явное исключение87:** дальнобойный бот, включая Cardinal под собственным барьером, пытается кайтить **неуязвимого дальника**. Старое общее правило «Cardinal под своим щитом не кайтит» продолжает действовать в остальных сценариях, включая неуязвимого мили.
 
-   | Тип противника | Действие бота во время неуязвимости |
-   |---|---|
-   | **Мили-класс** (fighter, tank, dagger, tyrant…) | **Кайт** — держать дистанцию `kiteDistance` (настраиваемая, дефолт 600). Не атаковать. |
-   | **Дальник** (mage, archer, buffer…) | **Ожидание** — оставаться на месте. Если есть навык хила и HP < порог — лечиться. |
+## Реальные точки реализации
 
-4. **Как только неуязвимость снимается** — бот возобновляет атаку в штатном порядке.
+- `BotTactics.tickInvulnerableTarget`: обязательная фаза для неуязвимой дальнобойной цели. Вызвана раньше Bluff в двух драйверах `BotManager` и общем `BotTactics.tick` тренировки, независимо от опционального TacticalAI в обязательных путях. Повторный вход есть в обычном `act`.
+- `InvulnerableRangedTarget.java`: только движение/ожидание. Мили подходит к цели; дальник использует `ArenaCombatRules.kitePoint(...,120)`, с ограничением конечной точки449 от центра. Это **не** дистанция600 от врага; отдельной настройки `kiteDistance` нет. Перепланирование ограничено400мс.
+- `BotTactics.act`: `offBlocked = protectedSleep || enemy.isInvul()`; нет прежнего разрешения DAMAGE по неуязвимому дальнику или yield в физическую автоатаку.
+- `BotSpawner.tacticalSkillAllowed`: общий запрет несамонаправленных кандидатов по неуязвимой цели для clientless-ботов.
+- `BotRecoveryRules`: native события атаки/скилла повторно блокируют воздействие управляемого аренного бота по неуязвимой цели, в том числе в списке целей навыка. Людей эти bot-only запреты не перехватывают.
+- `SummonAttackPulse`: существующий питомец не получает новых attack-команд по неуязвимой цели; прежнее ATTACK-намерение останавливается до3с cadence. Уже начатый настоящий каст питомца не прерывается.
 
----
+Роль определяется существующим `BotTactics.meleeOpponent`/`TacticsPolicy`: пресет, caster-флаг и BOW/CROSSBOW; для класса без пресета — native mage-флаг/дальность. Вымышленная таблица `RANGED_CLASS_IDS` не используется.
 
-## Классификация классов
+## Ограничения
 
-```java
-// BotUtil.java (new helper)
-public static boolean isRangedClass(int classId) {
-    // Magia: Archmage94, Sorc88, Mystic Muse96, Storm Screamer98, Adventurer mage sub...
-    // Archers: Sagittarius90, Moonlight Sentinel92, Ghost Sentinel100
-    // Buffers: Cardinal97, Eva's Saint99, Shillien Saint105, Bishop76, EE77, SE78
-    return RANGED_CLASS_IDS.contains(classId);
-}
-
-public static boolean isMeleeClass(int classId) {
-    return !isRangedClass(classId);
-}
-```
-
-`RANGED_CLASS_IDS` — константа, наполняемая по `CharTemplateTable`.
-
----
-
-## Логика в `act()` (первым хуком, до всех остальных)
-
-```java
-// BotTactics.java
-public static boolean handleInvulnerableTarget(BotAI bot, L2Character target) {
-    if (target == null || !target.isInvul()) return false;
-
-    int classId = bot.getTemplate().getClassId().getId();
-    if (BotUtil.isMeleeClass(target.getTemplate().getClassId().getId())) {
-        // Противник-мили: кайтать
-        BotMovement.kiteAwayFrom(bot, target, 600);
-    } else {
-        // Противник-дальник: ожидание
-        // Если есть навык хила и HP < 75%, лечимся
-        if (!handleSelfHeal(bot)) {
-            bot.setIntention(CtrlIntention.AI_INTENTION_IDLE);
-        }
-    }
-    return true; // хук обработан, дальнейший act() не выполняется
-}
-```
-
-### Обновлённый порядок хуков в `act()`
-
-> в соответствии с [83-mandatory-hooks-order.md](83-mandatory-hooks-order.md)
-
-```
-0. handleInvulnerableTarget  ← NEW: первым, до всех
-1. escapeShackle(453)
-2. soulCleanse(1510)
-3. bluffRear
-4. cardinalSurvival
-5. tickMageCancel(1056)
-6. rootedByTank
-7. tickInvulnerableMelee
-8. normalAct
-```
-
----
-
-## Карта runtime-файлов
-
-| Файл | Ответственность |
-|---|---|
-| `BotTactics.java` | `handleInvulnerableTarget()` — новый первый хук |
-| `BotUtil.java` | `isRangedClass(classId)`, `isMeleeClass(classId)` |
-| `BotMovement.java` | `kiteAwayFrom(bot, target, dist)` — отход на `dist` от target |
-| `*AI.java` (все классы) | Первой вызов `handleInvulnerableTarget` в `act()` |
-| `83-mandatory-hooks-order.md` | Обновить: пункт 0 — `handleInvulnerableTarget` становится первым |
-
----
-
-## Нюансы
-
-- **Celestial Shield**: обеспечивает `isInvul() == true`. Идентификация через `target.isInvul()` охватывает все формы (1418, 5575, 5576, Feather Of Moon и др.).
-- **Кайт vs мили**: держать дистанцию, чтобы не попасть под атаку за активацией Celestial. Бот возобновляет атаку, как только `!target.isInvul()`.
-- **Ожидание vs дальник**: при HP<75% и доступном хил-скилле — лечиться; иначе — IDLE.
-- **Самобаффы в ожидании**: допустимы (напр. переналожить бафф). Проверить: `handleSelfHeal` не требует наличия target, поэтому вызов безопасен.
-- **Стек наложенных дебаффов**: не снимать существующие дебаффы (если Trance уже наложен до Celestial — он остается).
-- **Cancel**: см. док80 — в `handleInvulnerableTarget` Cancel запрещён, поскольку баффы противника под Celestial не теряются.
-
----
+Геодата, root/CC/запрет движения, авторизация пары, instance, активность матча и внешняя аренная граница сохраняются. Если пройти нельзя, бот ждёт без атаки; координаты/heading/эффекты не подделываются. Допустимая self-поддержка использует прежние классовые условия и native cast, а не новый универсальный порог лечения. Готовое освобождение от root проверяется перед движением. UD/Vengeance/760 не равны `isInvul`; танковое исключение86 не отменено.
 
 ## Проверки
 
 ```bash
-python tests/fakeplayersai/invulnerable_target_tests.py --melee-kite
-python tests/fakeplayersai/invulnerable_target_tests.py --ranged-wait
-python tests/fakeplayersai/invulnerable_target_tests.py --no-attack-no-debuff
+python tests/fakeplayersai/invulnerable_target_tests.py
+python tests/fakeplayersai/passive_barrier_bluff_tests.py
 ```
 
-Полный прогон: **12 наборов**, `InvulnerableTargetBehaviorTest` — **520 assertions**.
+Первый файл теперь действительно существует и запускает `InvulnerableTargetBehaviorTest` через общий runner. Старые флаги `--melee-kite`, `--ranged-wait`, `--no-attack-no-debuff` не поддерживаются. Фактический состав и результаты прогонов — в87. Проверки изолированные, не live GameServer.
 
-## Применение и откат
+## Установка / откат
 
-Остановить GameServer. Обновить `BotTactics.java`, `BotUtil.java`, `BotMovement.java`, все `*AI.java`. Перезапустить.
-
-Резервная ветка: `backup/before-invulnerable-enemy-check-2026-10-21`.
+Переносить весь согласованный runtime-набор87, включая новый helper, при остановленном GameServer; затем полный перезапуск. Не копировать несуществующие BotUtil/BotMovement/*AI. Резервная ветка и ограничения проверки приведены в87.

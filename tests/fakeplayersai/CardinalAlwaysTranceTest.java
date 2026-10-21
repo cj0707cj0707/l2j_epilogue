@@ -49,7 +49,7 @@ public class CardinalAlwaysTranceTest extends CardinalSleepPriorityTest {
    disable(p,1230);NativeMoveAI ai=new NativeMoveAI(p);f(Creature.class,"_ai").set(p,ai);int[] c=ArenaCombatRules.center(p);
    disable(p,1394);verify(run(p,e,s,10000)&&last==0&&!p.isMoving()&&ai.requests==0,"protected reuse: hold, no filler or orbit");
    disabled(p).clear();disable(p,1230);flags(p,EffectFlag.MUTED.getMask());verify(run(p,e,s,15000)&&last==0&&!p.isMoving(),"protected silence: no cast or kite");flags(p,0);
-   e.setInvul(true);verify(run(p,e,s,20000)&&last!=1394&&!p.isMoving(),"target invulnerability: no Trance and no protected escape");if(p.isCastingNow())finish(p,e,s,24000);e.setInvul(false);
+   e.setInvul(true);verify(run(p,e,s,20000)&&last==0&&p.isMoving(),"rule87: invulnerable ranged target blocks offense and requires kite even under own shield");if(p.isCastingNow())finish(p,e,s,24000);e.setInvul(false);
    verify(run(p,e,s,27000)&&last==1394&&!p.isMoving(),"target vulnerability resumes Trance");finish(p,e,s,32000);
    at(p,c[0]+449,c[1]);at(e,c[0]-449,c[1]);verify(run(p,e,s,35000)&&last==0&&p.isMoving(),"outside600: bounded approach, never out-of-range cast");
    verify(ai.requested.getX()<p.getX()&&Math.hypot(ai.requested.getX()-c[0],ai.requested.getY()-c[1])<=449,"approach toward target inside449, not escape");

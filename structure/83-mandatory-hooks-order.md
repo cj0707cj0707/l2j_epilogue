@@ -1,39 +1,40 @@
-# 83. Обязательный порядок хуков в `act()`
+# 83. Фактические уровни обязательных обработчиков
 
-Создан по итогам анализа конфликтов (doc82). Обновлён: добавлен хук 0 (doc84).
+Обновлено по коду87. Прежняя единая таблица «хуки0–8 во всех *AI.java» была псевдокодом, а не описанием сервера. В проекте нет `handleInvulnerableTarget`; разные публичные входы и внутренний `act` нельзя складывать в одну плоскую цепочку.
 
-## Полный порядок
+## 1. Аренные драйверы
 
-| № | Хук | Классы | Док |
-|---|---|---|---|
-| **0** | `handleInvulnerableTarget` | все | [84](84-invulnerable-enemy-no-attack-kite-or-wait.md) |
-| 1 | `escapeShackle(453)` | Dagger 93/101/108 | [49](49-dagger-escape-shackle-root-only.md) |
-| 2 | `soulCleanse(1510)` | Berserker 131 | [48](48-berserker-emergency-soul-cleanse.md) |
-| 3 | `bluffRear` | Dagger 93/101/108 | [53](53-bluff-reuse-and-dominator-ranged-pressure.md) |
-| 4 | `cardinalSurvival` | Cardinal 97 | [75](75-cardinal-always-trance-no-shield-kite-and-210s.md) |
-| 5 | `tickMageCancel(1056)` | Archmage 94, Mystic Muse 96 | [80](80-dominator-sleep-hold-and-mage-cancel-priority.md) |
-| 6 | `rootedByTank` | все vs танк | [81](81-tank-root-stationary-rotation.md) |
-| 7 | `tickInvulnerableMelee` | все vs танк | [75](75-cardinal-always-trance-no-shield-kite-and-210s.md) |
-| 8 | `normalAct` | все | — |
+После проверок допустимости/активности пары и аренных ограничений два драйвера `BotManager` (`combatTick`, `olympiadChaseTick`) проверяют:
 
-## Правило
+1. `tickInvulnerableTarget` — неуязвимый **дальник**, поведение по собственной роли; детали84/87.
+2. `tickBluffRear` — реально действующий собственный Bluff-STUN.
+3. `tickCardinalControl` — Cardinal97.
+4. `tickMageCancel` — Archmage94/Mystic Muse103.
+5. `tickInvulnerableMelee` — существующая защита от invul-мили/усиленной защиты танка, с исключением танк-танк86 и стационарной ротацией при root81.
 
-Каждый хук возвращает `true` (обработал) или `false` (пропустить). При `true` — остальные хуки в этом тике не выполняются.
+При `true` драйвер не продолжает обычную атаку в этом тике. При `false` возможен следующий обработчик. Это порядок публичных входов, **не** порядок выполнения каждого действия внутри `act`.
 
-**Хук 0** — самый первый: если `target.isInvul()`, вся атака/дебаффы блокируются сразу. Бот либо кайтит (мили-противник), либо ожидает/лечится (дальник-противник).
+`BotTactics.tick` тренировки содержит ту же пятёрку после `valid`/`ArenaCombatRules.update`. Ranked Berserker131 при отсутствии обязательной фазы возвращается специальному Rush/retreat-драйверу; там дополнительно вызывается `tickSoulCleanse` перед фазовыми действиями. Подготовка/завершённая тренировка/неактивная Олимпиада не получают управление как активная пара.
 
-```java
-// Типовая структура act() всех *AI.java
-protected void runAct() {
-    L2Character target = getTarget();
-    if (handleInvulnerableTarget(this, target))  return; // 0 — FIRST
-    if (escapeShackle(this))                     return; // 1
-    if (soulCleanse(this))                       return; // 2
-    if (bluffRear(this, target))                 return; // 3
-    if (cardinalSurvival(this, target))          return; // 4
-    if (tickMageCancel(this, target))            return; // 5
-    if (rootedByTank(this, target))              return; // 6
-    if (tickInvulnerableMelee(this, target))     return; // 7
-    normalAct(this, target);                             // 8
-}
-```
+## 2. Внутри `BotTactics.act`
+
+- На обычном входе (`!defenseOnly`) сначала проверяется фаза неуязвимого дальника. Self-support входит в `act` с `defenseOnly=true`, поэтому рекурсии фазы нет.
+- Настоящий каст/одновременный каст защищён от Idle, ретаргета и прерывания. Pending разрешается штатно; root-снятие не заменяет чужой pending.
+- Законно доступный хил Cardinal приHP<75% проверяется по существующим условиям78. Его класс не пересекается с root-снятием кинжальщиков/берсеркера.
+- `escapeShackle453` (93/101/108) проверяется раньше `soulCleanse1510` (131), Bluff-движения и обычного reaction/nextDecision. **Root-снятие важнее собственного Bluff.** Native запреты/ресурсы/reuse сохраняются. Эти навыки не «мгновенные» и не обходят настоящий каст/CC.
+- Затем идут классовые HOLD/сон/защита/Bluff-маршрут и обычный выбор навыка. При root от танка движение не выполняется; доступен законный стационарный бой. Готовый1097 Dominator после пробуждения защищённого танка допускается и в rooted-фазе, независимо от старого override и generic decision-таймера.
+- При настоящей неуязвимости противника никакой offensive-кандидат не допускается. Native guard и общий фильтр повторяют этот запрет.
+
+В отдельной обязательной фазе неуязвимого дальника: сохранить настоящий каст → остановить автоатаку/обслужить pending → проверить453/1510 → допустимую self-поддержку → подход/кайт/ожидание.
+
+## 3. Источники и проверки
+
+| Файл | Ответственность |
+|---|---|
+| `BotManager.java` | Два публичных аренных драйвера и отдельный Berserker-драйвер |
+| `BotTactics.java` | `tick`, публичные обязательные входы, `act`, pending, приоритеты |
+| `InvulnerableRangedTarget.java` | Движение/ожидание против неуязвимого дальника |
+| `BluffRear.java` | Настоящая спина и исключение для SELF453 при root |
+| `BotRecoveryRules.java`, `BotSpawner.java` | Native admission и общий фильтр кандидатов |
+
+Команды, полный список изменённых файлов и установка — [87](87-invulnerable-ranged-root-priorities-and-doc-audit.md). Не использовать прежние520 assertions или вымышленные вызовы как доказательство реализации.

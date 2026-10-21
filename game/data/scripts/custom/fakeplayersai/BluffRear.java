@@ -49,7 +49,8 @@ final class BluffRear
     }
     static boolean skillAllowed(Player bot,Player enemy,org.l2jmobius.gameserver.mechanics.skill.Skill skill)
     {
-        return stun(bot,enemy)==null || ready(bot,enemy) && (skill.getId()==531 || skill.isPhysical()&&BotTactics.directDamage(skill));
+        return skill.getId()==453 && bot.isRooted() && skill.getTargetType()==org.l2jmobius.gameserver.mechanics.skill.targets.TargetType.SELF
+            || stun(bot,enemy)==null || ready(bot,enemy) && (skill.getId()==531 || skill.isPhysical()&&BotTactics.directDamage(skill));
     }
     private boolean owns(Player bot)
     {

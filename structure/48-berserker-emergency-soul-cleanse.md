@@ -1,45 +1,39 @@
-# 48. Berserker: Soul Cleanse при критическом HP и руте
+# 48. Berserker: Soul Cleanse при root или физическом молчании
 
-> **Обязательный порядок хуков при руте (конфликт7):** см. [83-mandatory-hooks-order.md](83-mandatory-hooks-order.md). Сначала `escapeShackle` (Dagger 93/101/108, док49), затем `soulCleanse` (этот файл). **Оба навыка применяются немедленно при `isRooted()`** — до любых других действий.
+Уточнено аудитом87: прежний текст ошибочно называл1510 мгновенным root-only навыком, ссылался на условный commit, отсутствующие `BerserkerAI.java`, `berserker_tests.py` и412 assertions. Эти утверждения удалены; баланс навыка в87 не менялся.
 
-База: `7c0c3d2b1a8f4e9d0c5b6a3f2e1d0c9b8a7f6e5d` (условный; реальный отслеживать по log). Резервная ветка: `backup/before-berserker-soul-cleanse-2026-10-20`.
+## Фактическое поведение
 
-## Цель изменения
+Для clientless Berserker/Doombringer131 в разрешённой аренной паре реально изученный **Soul Cleanse1510** проверяется при `isRooted() || isPhysicalMuted()`, независимо отHP. Это targeted **магический** навык `TargetType.ONE`: бот временно выбирает себя, делает обычный `useMagic(skill,true,true)`, сохраняет self-target на время pending и затем восстанавливает противника.
 
-`BotTactics.soulCleanse` (classId 131 — Berserker/Doombringer) теперь **вызывается в первом приоритетном хуке** `act()` сразу после escapeShackle49 и до любого другого действия, если выполняются условия:
+Триггер означает приоритет проверки, а не гарантированное снятие любого контроля. Настоящий/одновременный каст, чужой pending, out-of-control и all-skills lock не прерываются. Сохраняются native reuse, magic silence,MP, target/race/checkCondition, Olympiad restrictions и failure backoff. Root/одно физическое молчание сами по себе не запрещают магический1510. Неизученный навык не выдаётся.
 
-- `isRooted()` — бот под рутом;
-- `isSkillReady(1510)` — Soul Cleanse готов;
-- `bot.getCurrentMp() >= skill.getMpConsume()` — достаточно MP.
+В `act` проверка идёт после `escapeShackle453` и до Bluff-движения/обычной ротации; классы131 и93/101/108 не пересекаются. В ranked Berserker-драйвере имеется отдельный обязательный `tickSoulCleanse`, чтобы фазовый Rush/retreat не ретаргетировал ONE-cast. В фазе неуязвимого дальника87 проверка1510 предшествует движению. Фактические уровни вызовов — [83](83-mandatory-hooks-order.md).
 
-Добавлено вторичное условие: вызов возвращает `true` — дальнейшие шаги act() не выполняются в этом тике.
+## Native параметры — без изменения
 
-## Логика внутри `soulCleanse`
+`game/data/stats/skills/01500-01599.xml`, skill1510: **2000мс cast,15000мс reuse,25MP +7 initialMP**, magic/ONE. Эффект снимает подходящие дебаффы по родным правилам; ИИ не удаляет эффекты вручную, не сбрасывает reuse и не выдаётMP. Повторный root не даёт права обойти откат; повтор возможен после штатной готовности.
 
-1. Если `!isRooted()` — return false сразу (не рут, не нужно).
-2. Если `!isSkillReady(1510) || mp < cost` — return false (reuse или MP недостаточно).
-3. `castSelf(1510)` — мгновенный само-каст, снимает CC-дебаффы.
-4. return true.
-
-> Замечание: Soul Cleanse снимает root/stun/freeze, но не предотвращает повторный root. Если танк рутует снова в том же тике — хук сработает снова на следующем тике.
-
-## Карта runtime-файлов
+## Карта файлов
 
 | Файл | Ответственность |
-| --- | --- |
-| `BotTactics.java` | `soulCleanse()` hook; вызывается в `act()` сразу после `escapeShackle` и до остальных хуков |
-| `BerserkerAI.java` | Вызывает `BotTactics.soulCleanse(this)` |
-| `83-mandatory-hooks-order.md` | Канонический порядок: escapeShackle→soulCleanse→... |
+|---|---|
+| `game/data/scripts/custom/fakeplayersai/BotTactics.java` | `soulCleanse`, публичный `tickSoulCleanse`, self-target lease/pending, native admission/failure |
+| `game/data/scripts/custom/fakeplayersai/BotManager.java` | Вызывает обязательные аренные фазы и `tickSoulCleanse` в Berserker-драйвере |
+| `game/data/stats/skills/01500-01599.xml` | Параметры/эффекты1510; в87 не изменены |
+| `tests/fakeplayersai/BerserkerSoulCleanseTest.java` | Настоящие Player/Skill и helper/act/pending с записью cast-запросов |
+| `tests/fakeplayersai/berserker_soul_cleanse_tests.py` | Компилирует скрипты и запускает фикстуру |
 
 ## Проверки
 
 ```bash
-python tests/fakeplayersai/berserker_tests.py --soul-cleanse-on-root
+python tests/fakeplayersai/berserker_soul_cleanse_tests.py
+python tests/fakeplayersai/invulnerable_target_tests.py
 python tests/fakeplayersai/passive_barrier_bluff_tests.py
 ```
 
-Полный прогон: **8 наборов**, `BerserkerSoulCleanseRootTest` — **412 assertions**.
+Это изолированные запросы/условия, не подтверждение live cast/scheduler или снятия дебаффа на работающем GameServer. Текущий прогон87 приведён в87; старые вымышленные цифры не используются.
 
-## Применение и откат
+## Установка
 
-Ostanovitь GameServer, заменить `BotTactics.java` и `BerserkerAI.java`. Перезапустить. Изменения GitHub не копируются автоматически в `C:\EpilogueServer`.
+Для текущих изменений переносить весь runtime-набор87 согласованно при остановленном GameServer, затем полный перезапуск. GitHub не обновляет автоматически установленный сервер. Отдельного `BerserkerAI.java` для копирования нет; JAR иXML в87 не менялись.

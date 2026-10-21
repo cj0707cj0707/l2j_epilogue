@@ -146,7 +146,7 @@ public class ClarityBluffPhaseTest extends CombatPriorityAuditTest {
    mp(p,10000);at(p,80,0);bluff(p,e);s=centered();f(state,"nextDecision").setLong(s,Long.MAX_VALUE);run(p,e,s,40000);verify(p.isMoving(),"new actual Bluff can start a new approach");
    clearSleep(e);f(state,"nextStep").setLong(s,Long.MAX_VALUE);run(p,e,s,40100);verify(!p.isMoving(),"expired Bluff releases owned route before ordinary tactics");
    // A genuine movement prohibition cannot be turned into a free rear teleport/cast.
-   at(p,80,0);bluff(p,e);flags(p,EffectFlag.ROOTED.getMask());s=centered();verify(run(p,e,s,50000)&&last==0&&!p.isMoving(),"root prevents rear approach; no premature blows or unrelated cast");flags(p,0);
+   at(p,80,0);bluff(p,e);flags(p,EffectFlag.ROOTED.getMask());s=centered();verify(run(p,e,s,50000)&&last==453&&!p.isMoving()&&p.getTarget()==p,"root escape preempts own Bluff, without premature blows or movement");p.setCastingNow(false);flags(p,0);
    clearSleep(e);
   }
  }

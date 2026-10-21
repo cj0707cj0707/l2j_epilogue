@@ -102,6 +102,8 @@ public final class BotTactics
 		final TacticsPolicy.CardinalProminence cardinalProminence = new TacticsPolicy.CardinalProminence();
 		final CardinalArenaSupport cardinalSupport = new CardinalArenaSupport();
 		final InvulnerableMeleeKite invulnerableKite = new InvulnerableMeleeKite();
+        final InvulnerableRangedTarget invulnerableRanged = new InvulnerableRangedTarget();
+        boolean rangedInvulnerableLease, rangedPreviousOwned;
 		final InvulnerableMeleeKite survivalKite = new InvulnerableMeleeKite();
         final CardinalSurvival.Window clarityWindow = new CardinalSurvival.Window();
         final BluffRear bluffRear = new BluffRear();
@@ -139,6 +141,7 @@ public final class BotTactics
 				ArenaCombatRules.clear(e.getKey());
 				e.getValue().cardinalSupport.clear();
 				e.getValue().invulnerableKite.stop();
+                e.getValue().invulnerableRanged.stop();
 				e.getValue().survivalKite.stop();
 				e.getValue().manaAutoAttack.clear();
 				clearEvidence(e.getValue());
@@ -434,6 +437,7 @@ public final class BotTactics
 		if (removed != null) removed.cardinalSupport.clear();
 		if (removed != null) removed.manaAutoAttack.clear();
 		if (removed != null) removed.invulnerableKite.stop();
+        if (removed != null) removed.invulnerableRanged.stop();
 		if (removed != null) removed.survivalKite.stop();
 	}
 	public static synchronized String describe(int botId)
@@ -493,6 +497,7 @@ public final class BotTactics
 			return false;
 		}
 		if (ArenaCombatRules.update(bot, enemy, preset)) return true;
+        if (tickInvulnerableTarget(bot, enemy, preset, ranked)) return true;
         if (tickBluffRear(bot, enemy, preset, ranked)) return true;
         if (tickCardinalControl(bot, enemy, preset, ranked)) return true;
         if (tickMageCancel(bot, enemy, preset, ranked)) return true;
@@ -541,6 +546,40 @@ public final class BotTactics
         claim(bot,s);return act(bot,enemy,preset,s,time,false);
     }
 
+    /** Mandatory ranged-target immunity phase, also with optional TacticalAI disabled.
+     * Existing invulnerable-melee behavior is serviced by tickInvulnerableMelee. */
+    public static synchronized boolean tickInvulnerableTarget(Player bot,Player enemy,BotClassPreset preset,boolean ranked)
+    {
+        if(bot==null||preset==null||!valid(bot,enemy,ranked,STATES.get(bot.getObjectId())))return false;
+        if(ArenaCombatRules.update(bot,enemy,preset))return true;
+        long time=now();State s=state(bot.getObjectId(),time);prepare(bot,enemy,s,time);
+        return rangedInvulnerable(bot,enemy,preset,s,time);
+    }
+    private static boolean rangedInvulnerable(Player bot,Player enemy,BotClassPreset preset,State s,long time)
+    {
+        boolean required=enemy.isInvul()&&!meleeOpponent(enemy);
+        if(!required&&!s.rangedInvulnerableLease)return false;
+        if(!required)
+        {
+            // Keep the route handle until the real cast ends; never abort a cast to clean up.
+            if(bot.isCastingNow()||bot.isCastingSimultaneouslyNow())return true;
+            s.invulnerableRanged.stop();s.owned=s.rangedPreviousOwned;s.rangedInvulnerableLease=false;
+            s.nextDecision=0;s.nextStep=0;return false;
+        }
+        if(!s.rangedInvulnerableLease)
+        {
+            s.rangedPreviousOwned=s.owned;s.rangedInvulnerableLease=true;
+            if(bot.isMoving()&&!bot.isCastingNow()&&!bot.isCastingSimultaneouslyNow())bot.getAI().setIntentionIdle();
+        }
+        claim(bot,s);
+        if(bot.isCastingNow()||bot.isCastingSimultaneouslyNow())return true;
+        stopBasicAttack(bot);s.summonAttack.tick(bot,enemy,time);pollAttempt(bot,enemy,s,time);restoreCardinalMana(bot,preset);
+        if(s.pendingId!=0)return true;
+        if(escapeShackle(bot,enemy,preset,s,time)||soulCleanse(bot,enemy,preset,s,time))return true;
+        if(supportBeforeMovement(bot,enemy,preset,s,time))return true;
+        return s.invulnerableRanged.tick(bot,enemy,meleeOpponent(bot),time);
+    }
+
     /** One policy for the mandatory hook, normal act and movement owner.
      * Tank mirrors keep fighting through UD/Vengeance/defense760; real invulnerability is unchanged. */
     private static boolean requiresInvulnerableKite(Player bot, Player enemy)
@@ -578,7 +617,7 @@ public final class BotTactics
         claim(bot, s);
         if (CardinalSurvival.active(bot, enemy) || preset.getClassId() == CARDINAL_CLASS_ID) return act(bot, enemy, preset, s, time, false);
         if (bot.isCastingNow() || bot.isCastingSimultaneouslyNow()) return true;
-        if (soulCleanse(bot, enemy, preset, s, time) || escapeShackle(bot, enemy, preset, s, time)) return true;
+        if (escapeShackle(bot, enemy, preset, s, time) || soulCleanse(bot, enemy, preset, s, time)) return true;
         if (dominatorTankSleepHold(bot,enemy,preset,s,time)) return true;
         if (supportBeforeMovement(bot, enemy, preset, s, time)) return true;
         return invulnerableMelee(bot, enemy, s, time);
@@ -683,7 +722,7 @@ public final class BotTactics
 		final int classId = preset.getClassId();
 		if ((classId != 93 && classId != 101 && classId != 108) || bot.getPlayerClass().getId() != classId || bot.getClient() != null) return false;
 		if (s.pendingId == ESCAPE_SHACKLE_ID) return true;
-		if (BluffRear.stun(bot, enemy) != null) return false; // during own Bluff only strikes/531 are permitted
+		// Root escape takes priority over the own-Bluff rear phase (87).
 		if (!bot.isRooted() || s.pendingId != 0 || bot.isCastingNow() || bot.isCastingSimultaneouslyNow()
 			|| bot.isOutOfControl() || bot.isAllSkillsDisabled()) return false;
 		final Skill skill = bot.getKnownSkill(ESCAPE_SHACKLE_ID);
@@ -722,7 +761,9 @@ public final class BotTactics
 		final int game = bot.isInOlympiadMode() ? bot.getOlympiadGameId() : -1;
 		if (s.enemy != enemy.getObjectId() || s.game != game || s.instance != bot.getInstanceId())
 		{
-			if (s.invulnerableLease) { s.owned = s.invulnerablePreviousOwned; s.invulnerableLease = false; }
+			if(s.rangedInvulnerableLease){s.owned=s.rangedPreviousOwned;s.rangedInvulnerableLease=false;}
+            s.invulnerableRanged.stop();
+            if (s.invulnerableLease) { s.owned = s.invulnerablePreviousOwned; s.invulnerableLease = false; }
 			s.invulnerableKite.reset(); s.survivalKite.reset(); s.clarityWindow.reset(); s.bluffRear.stop(bot);
 			if (s.cleanseLease) { s.owned = false; s.cleanseLease = false; }
 			s.cardinalSupport.clear();
@@ -773,6 +814,7 @@ public final class BotTactics
 
 	private static boolean act(Player bot, Player enemy, BotClassPreset preset, State s, long time, boolean defenseOnly, boolean movingSupport)
 	{
+        if(!defenseOnly && rangedInvulnerable(bot,enemy,preset,s,time))return true;
 		BotControlChance.apply(bot);
 		final boolean survival = (!defenseOnly || movingSupport) && CardinalSurvival.active(bot, enemy);
         final boolean rootedKite = !defenseOnly && rootedByTank(bot,enemy);
@@ -788,7 +830,7 @@ public final class BotTactics
         s.cardinalTrancePriority = !defenseOnly && !healPriority && !prominencePriority && CardinalSurvival.tranceTarget(bot,enemy)
             && (cardinalNoKite || cardinalTranceReady(bot,enemy,s,time));
         final boolean trancePriority = s.cardinalTrancePriority;
-        final boolean tankSleepPriority = movingSupport && dominatorTankSleepReady(bot,enemy,preset,s,time);
+        final boolean tankSleepPriority = (movingSupport || rootedKite) && dominatorTankSleepReady(bot,enemy,preset,s,time);
         final boolean cancelPriority = (!defenseOnly || movingSupport) && mageCancelReady(bot,enemy,preset,s,time);
 		if (!survival && !cardinalKiting && !movingSupport) s.survivalKite.stop();
         final BuffInfo bluffStun = BluffRear.stun(bot, enemy);
@@ -824,8 +866,8 @@ public final class BotTactics
             s.invulnerableKite.stop(); s.survivalKite.stop(); s.moveUntil=0;
             if (bot.isMoving()) bot.getAI().setIntentionIdle();
         }
+        if (escapeShackle(bot, enemy, preset, s, time)) return true;
         if (soulCleanse(bot, enemy, preset, s, time)) return true;
-		if (escapeShackle(bot, enemy, preset, s, time)) return true;
 		if (!defenseOnly && dominatorTankSleepHold(bot,enemy,preset,s,time)) return true;
         if (!defenseOnly && !rootedKite && !cancelPriority && !prominencePriority && !cardinalNoKite && !cardinalSleeping && !s.clarityWindow.pending() && !survival && !trancePriority && !bluffHold && !CardinalSurvival.ownCelestial(bot))
 		{
@@ -897,7 +939,7 @@ public final class BotTactics
 		// Never let a perpetually re-queued basic swing starve skills/defenses.
 		// Forbidden basic attacks are cancelled immediately; real casts are untouched.
 		final double hp = bot.getCurrentHp() / Math.max(1, bot.getMaxHp());
-		if (time < s.nextDecision || !TacticsPolicy.reactionReady(difficulty(s), time, s.observed, hp < .35))
+		if (!tankSleepPriority && (time < s.nextDecision || !TacticsPolicy.reactionReady(difficulty(s), time, s.observed, hp < .35)))
         {
             // Reaction latency must never pause the universal invulnerable-melee escape.
             if (survival && !trancePriority && !cardinalNoKite) invulnerableMelee(bot, enemy, s, time);
@@ -1032,10 +1074,8 @@ public final class BotTactics
 			final boolean resource = resources(bot, skill) && (self || !weaponUnavailable(bot) || !skill.isPhysical());
 			final boolean conditions = resource && skill.checkCondition(bot, self ? bot : enemy, false);
 			if (skill.getFlyType() == FlyType.CHARGE && (bot.isMovementDisabled() || !GeoEngine.getInstance().canMoveToTarget(bot.getX(), bot.getY(), bot.getZ(), enemy.getX(), enemy.getY(), enemy.getZ(), bot.getInstanceId()))) { continue; }
-			// The universal escape above already preempts invulnerable melee / strong-defense tanks.
-            // Against other invulnerable ranged targets the legacy engine handles DAMAGE immunity.
-			// CC/slow kinds are suppressed — they cannot land on invulnerable targets anyway.
-			final boolean offBlocked = protectedSleep || (enemy.isInvul() && (survival || kind != TacticsPolicy.Kind.DAMAGE));
+            // No offensive candidate may target actual invulnerability, regardless of role.
+            final boolean offBlocked = protectedSleep || enemy.isInvul();
 			if (!self && TacticsPolicy.allowed(kind, ready, true, visible, active, offBlocked, conditions, interrupt)) { offenseAvailable = true; }
 			if (!TacticsPolicy.allowed(kind, ready, inRange, visible, active, offBlocked, conditions, interrupt)) { continue; }
 			// Actual Backstab/FatalBlow handlers own positional rules and the admin bot success roll.
@@ -1184,8 +1224,8 @@ public final class BotTactics
 		// Every parent actual attack still requires LoS, including near obstacles.
 		if (TacticsPolicy.titanPursuit(preset.getClassId(), allowsBasicAttack(bot, preset), bot.isMovementDisabled() || bot.isOutOfControl() || bot.isAllSkillsDisabled() || bot.isDisabled(),
 			sleeping, enemy.isInvul(), enemy.isAutoAttackable(bot), bot.isCastingNow() || bot.isCastingSimultaneouslyNow() || s.pendingId != 0)) { return false; }
-		// During enemy invulnerability: melee/archer bots keep auto-attacking (engine handles immunity).
-		if (!defenseOnly && enemy.isInvul() && !preset.isCaster() && allowsBasicAttack(bot, preset)) { return false; }
+		// Actual invulnerability never delegates offense to a parent/legacy engine.
+        if (!defenseOnly && enemy.isInvul()) { stopBasicAttack(bot); return true; }
 		// Ordinary unavailable offense still holds; MP-starved physical bots yielded above.
 		if (!defenseOnly && chargeClosing && !bot.isMovementDisabled() && !bot.isOutOfControl()) return false;
 		if (!defenseOnly && !offenseAvailable) { stopBasicAttack(bot); return true; }

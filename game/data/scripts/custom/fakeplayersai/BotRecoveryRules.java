@@ -91,7 +91,7 @@ public final class BotRecoveryRules
     static TerminateReturn bluffAttack(OnCreatureAttack event)
     {
         return event!=null&&arenaManaged(event.getAttacker())&&event.getTarget()!=null&&event.getTarget().isPlayer()
-            &&(BluffRear.stun(event.getAttacker().asPlayer(),event.getTarget().asPlayer())!=null
+            &&(event.getTarget().isInvul() || BluffRear.stun(event.getAttacker().asPlayer(),event.getTarget().asPlayer())!=null
                 ||event.getAttacker().asPlayer().getPlayerClass().getId()==97&&event.getTarget().asPlayer().isSleeping()) ? new TerminateReturn(true,true,true):null;
     }
 
@@ -102,6 +102,12 @@ public final class BotRecoveryRules
         if (!CardinalSurvival.skillAllowed(actor,event.getSkill().getId())) return new TerminateReturn(true,true,true);
         Player victim=event.getTarget()!=null&&event.getTarget().isPlayer()?event.getTarget().asPlayer():null;
         if (event.getSkill().getId()==1230 && actor.getPlayerClass().getId()==97 && arenaManaged(actor) && !CardinalSurvival.prominenceAllowed(actor,victim)) return new TerminateReturn(true,true,true);
+        if(arenaManaged(actor))
+        {
+            if(victim!=null&&victim!=actor&&victim.isInvul())return new TerminateReturn(true,true,true);
+            if(event.getTargets()!=null)for(var target:event.getTargets())
+                if(target!=null&&target!=actor&&target.isCreature()&&target.asCreature().isInvul())return new TerminateReturn(true,true,true);
+        }
         if (victim!=null && victim!=actor && actor.getPlayerClass().getId()==97 && arenaManaged(actor) && victim.isSleeping()) return new TerminateReturn(true,true,true);
         if (victim!=null&&blockedBluffStrike(actor,victim,event.getSkill())) return new TerminateReturn(true,true,true);
         if (!healing(event.getSkill())) return null;

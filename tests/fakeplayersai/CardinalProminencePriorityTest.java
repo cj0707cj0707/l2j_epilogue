@@ -26,7 +26,7 @@ public class CardinalProminencePriorityTest extends CardinalAlwaysTranceTest {
    Player e=actor(92,ranked,true),p=cardinal(e,ranked,1394,1230);hp(p,p.getMaxHp());effects(p);Object s=arena(p,e);proc(p);
    disable(p,1230);verify(run(p,e,s,10000)&&last==1394,"native nuke reuse respected, no wait instead of Trance");finish(p,e,s,15000);disabled(p).clear();
    flags(p,EffectFlag.MUTED.getMask());verify(run(p,e,s,17000)&&last==0&&!p.isMoving(),"silence blocks nuke and sleep, no protected kite");flags(p,0);
-   e.setInvul(true);verify(run(p,e,s,20000)&&last==0&&!p.isMoving(),"invulnerable target: no nuke or Trance");e.setInvul(false);
+   e.setInvul(true);verify(run(p,e,s,20000)&&last==0&&p.isMoving(),"rule87: invulnerable ranged target has no nuke/Trance and takes kite priority");e.setInvul(false);
    appliedSleep(p,e,97);verify(run(p,e,s,25000)&&last==0&&!p.isMoving(),"sleeping target: no nuke even if10s ready, protected HOLD");
    verify(!BotSpawner.tacticalSkillAllowed(p,e,nativeSkill(1230),false),"shared sleep guard");clearSleep(e);
    hp(p,p.getMaxHp()*.90);verify(!BotSpawner.tacticalSkillAllowed(p,e,nativeSkill(1230),false),"shared exact90% veto");hp(p,p.getMaxHp()*.91);

@@ -852,6 +852,7 @@ public class BotSpawner
 
 	public static boolean tacticalSkillAllowed(Player player, Player enemy, Skill skill, boolean self)
 	{
+        if(player.getClient()==null && !self && enemy!=null && enemy.isInvul())return false;
         if (!CardinalSurvival.skillAllowed(player,skill.getId())) return false;
         if (!BotTactics.dominatorStunAllowed(player, enemy, skill)) return false;
         if (skill.getId()==1230 && !CardinalSurvival.prominenceAllowed(player,enemy)) return false;

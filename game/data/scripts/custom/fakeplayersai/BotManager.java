@@ -1472,6 +1472,7 @@ public class BotManager
 				}
 				withTarget++;
 
+				if (inOlympiad && target.isPlayer() && BotTactics.tickInvulnerableTarget(bot, target.asPlayer(), preset, true)) continue;
 				if (inOlympiad && target.isPlayer() && BotTactics.tickBluffRear(bot, target.asPlayer(), preset, true)) continue;
 				if (inOlympiad && target.isPlayer() && BotTactics.tickCardinalControl(bot, target.asPlayer(), preset, true)) continue;
                 if (inOlympiad && target.isPlayer() && BotTactics.tickMageCancel(bot, target.asPlayer(), preset, true)) continue;
@@ -1849,6 +1850,7 @@ public class BotManager
 				final Player activeOpponent = getOlympiadOpponent(bot);
 				if (activeOpponent != null && ArenaCombatRules.update(bot, activeOpponent, preset)) { OlympiadCombatGate.hold(bot); continue; }
 				BotTactics.tickSummonAttack(bot, activeOpponent, true);
+				if (BotTactics.tickInvulnerableTarget(bot, activeOpponent, preset, true)) continue;
 				if (BotTactics.tickBluffRear(bot, activeOpponent, preset, true)) continue;
 				if (BotTactics.tickCardinalControl(bot, activeOpponent, preset, true)) continue;
                 if (BotTactics.tickMageCancel(bot, activeOpponent, preset, true)) continue;
