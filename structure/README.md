@@ -1,230 +1,29 @@
-# Документация по структуре сервера Lineage 2 Gracia Epilogue (L2J-Mobius)
+# structure/
 
-> Назначение этой папки — справочник по структуре и устройству сервера в `C:\EpilogueServer`.
-> При любых последующих манипуляциях с сервером (правка конфигов, датапака, скриптов, БД) сначала сверяйся с этими документами.
-
-## Что это за сервер
-
-- **Проект:** L2J-Mobius, хроника **The 2nd Throne: Gracia Epilogue** (CT 2.6).
-- **Тип:** развёрнутая (скомпилированная) сборка — ядро в JAR, датапак и скрипты в исходниках (`game/data/scripts/**/*.java`, компилируются сервером при старте).
-- **Java:** OpenJDK 25 (аргументы запуска — в `game/java.cfg`, ZGC, heap 2–4 ГБ).
-- **БД:** MySQL/MariaDB, схема **`l2jmobiusepilogue`** (подключение — `game/config/Database.ini`, `login/config/Database.ini`, пользователь `root`, без пароля).
-- **Язык скриптов:** Java (квесты, ИИ, инстансы, события, хендлеры) + HTML-диалоги + XML-данные.
-
-## Архитектура в двух словах
-
-```
-Клиент L2 (Gracia Epilogue)
-      │  порт 2106 (протокол логина)        порт 7777 (игровой)
-      ▼                                        ▼
-LoginServer (login/)  ──регистрация──▶  GameServer (game/)
-      │                                        │
-      └──────────── MySQL: l2jmobiusepilogue ──┘
-```
-
-- **LoginServer** — авторизация аккаунтов, выдача hexid, список серверов. Таблицы БД: `accounts`, `gameservers` и др.
-- **GameServer** — вся игровая логика: мир, NPC, квесты, инстансы, осады, олимпиада и т.д. Таблицы БД: 116+ (`characters`, `items`, `clan_data`, ...).
-- Связка Login↔Game регистрируется один раз (файл `game/config/hexid.txt`); перерегистрация — `login/GameServerRegister`.
+Справочник файлов структуры сервера Lineage 2 Epilogue (l2j_epilogue).
 
 ## Последнее обновление
 
-- [81 — Root от танка: ротация с места вместо кайта](81-tank-root-stationary-rotation.md): реальный root временно передаёт ход обычным навыкам без движения; после снятия — кайт при необходимости, native ограничения и сон/HOLD сохранены.
+- [83 — Обязательный порядок хуков в `act`](83-mandatory-hooks-order.md): escapeShackle→soulCleanse→bluffRear→cardinalSurvival→tickMageCancel→rootedByTank→tickInvulnerableMelee→normalAct. Создан по итогам анализа конфликтов (док82).
+- [82 — Отчёт по конфликтам ботов](82-bot-conflict-report.md): 9 конфликтов, принятые решения.
+- [80 — Dominator sleep/hold; Archmage/Mystic Muse: Cancel на противника](80-dominator-sleep-hold-and-mage-cancel-priority.md): конфликтт4/5.
+- [79 — Dominator: сон танка под защитой](79-dominator-sleep-during-tank-defense.md): конфликтт2/4.
+- [75 — Cardinal: Trance, без кайта под Celestial, 210с](75-cardinal-always-trance-no-shield-kite-and-210s.md): конфликт1/8.
+- [49 — Dagger: Escape Shackle немедленно при руте](49-dagger-escape-shackle-root-only.md): конфликт7.
+- [48 — Berserker: Soul Cleanse немедленно при руте](48-berserker-emergency-soul-cleanse.md): конфликт7.
 
-- [80 — Dominator: отход/HOLD после сна танка; Archmage/Mystic Muse: Cancel первым против мили и Cardinal](80-dominator-sleep-hold-and-mage-cancel-priority.md): ожидание фактического пробуждения вместо кругового кайта;1056 при каждой native-готовности, mandatory hooks; карта файлов и тесты.
+## Ключевые концепции
 
-- [79 — Dominator: сон во время усиленной защиты танка](79-dominator-sleep-during-tank-defense.md): доступный1097 прерывает старый кайт перед кастом; фиксированный20%, штатные ограничения и fallback лечения/кайта сохранены; карта файлов и тесты.
-
-- [78 — Броня/бижутерия10, оружие16; меню заточки всех ботов; Cardinal хил<75% без своего Celestial](78-bot-gear10-and-cardinal-heal75-no-celestial.md): устранён пропуск тренировочных ботов; приоритет1218 раньше Trance/движения, фильтры старых1418 overrides, карта файлов и тесты.
-
-- [77 — Мили-преследование вне круга кайта](77-melee-pursuit-outside-kite-circle.md): снята глобальная460-привязка у мили, включая обход Bluff; кайт450 и внешний диапазон атаки2000/1000 сохранены. Карта файлов, native тесты, установка.
-
-- [76 — Cardinal: готовый Prominence приHP>90%](76-cardinal-prominence-above90-priority.md):1230 раньше Trance/хила/кайта при бодрствующей уязвимой цели, включая Clarity; ровно90% запрещено, интервал10с сохранён; shared/native guards, карта файлов и тесты.
-
-- [75 — Олимпиада210с; Cardinal: всегда готовый Trance, без кайта под Celestial](75-cardinal-always-trance-no-shield-kite-and-210s.md): +60с активного боя;1394 против всех классов независимо от Clarity; под1418/5576 не кайтить даже при сне цели. Заменяет противоречащие правила68/74; карта файлов, тесты и установка.
-
-- [74 — Cardinal: центр → ожидание сна → Mana Burn/Prominence](74-cardinal-sleep-center-hold-and-wake-combo.md): обязательный приоритет сна над кайтом/щитами, native маршрут через центр, запрет будить цель кастом/автоатакой, wake-комбо без зависимости от Clarity; карта файлов, тесты и установка.
-
-- [73 — Bluff: фиксированный шанс стана40%](73-bluff-fixed-stun40.md): native min=max40 для игроков и ботов, все Chance-уровни; защита от старого общего gate, проверка штатной формулы и применения Stun. Разворот/сброс80%, reuse12с, обход72 сохранены.
-
-- [72 — Bluff: достижимый маршрут за спину; Cardinal full epic+6](72-bluff-bounded-rear-route-and-cardinal-epic-check.md): полный проверенный обход и задний сектор у края вместо зацикливания; native PlayerAI/Backstab regression, точные5 эпиков+6 и повторная проверка локального IP.
-
-- [71 — Локальный IP без внешнего автоопределения](71-local-ipconfig-no-external-detection.md): активный `game/config/ipconfig.xml` с127.0.0.1 вместо HTTP-запроса внешнего IP при старте; native тест, карта файлов и установка.
-
-- [70 — Bluff: базовый откат12с (+50%)](70-bluff-reuse12s.md):8000→12000мс для игроков и ботов, включая Chance101–115; native регрессии, карта файлов и установка. AI обхода не менялся.
-
-- [69 — Cardinal/Dominator: строго фиксированный шанс сна20%](69-cardinal-dominator-fixed-sleep20.md):1394/1097 с20/20/20; защита от старого общего25%-gate; аудит M.Atk/эпика/заточки/резистов и native тесты. Fear15%, Celestial/Bluff без изменений.
-
-- [68 — Пассивный барьер; Bluff: реальная спина без автоатаки](68-passive-barrier-trance25-and-bluff-rear.md):1418 — кайт;655→5576 — попытки сна только на время эффекта; шансы актуализированы69; обход цели, проверки каста/удара и карта файлов.
-
-- [67 — История отменённой интерпретации](67-cardinal-invulnerability-trance-and-chance.md): поведение и шанс из67 исправлены в68.
-
-- [66 — Заказные олимпийские бои бот–бот у Trainer](66-ordered-olympiad-bot-battles.md): два класса текущего пула, резерв до завершения обоих боёв, перенос через5с, свободная арена (приоритет15), автоматическое наблюдение; шестой core-патч, карта файлов и установка.
-
-- [65 — Dominator без стана дальних целей; Cardinal: Trance перед кайтом](65-dominator-ranged-stun-ban-and-cardinal-trance-kite.md).
-
-[64. Cardinal: Mana Burn → Prominence → Trance под Clarity](64-cardinal-clarity-mana-burn-prominence-trance.md) — после собственного сна одна связка1398→готовый1230, затем1394; native/AI cooldown1230 пропускается без ожидания, лечение/щит выше цепочки. Карта файлов, тесты и установка.
-
-[63. Cardinal: Clarity/Trance; кинжальщики: Bluff → спина → удары](63-cardinal-clarity-trance-and-dagger-bluff-rear.md) — survival безProminence/Backfire, Mana Burn только после фактического окончанияTrance; собственный358-STUN требует реального обхода до ударов/531, без автоатаки даже при0MP. Актуальная карта файлов и установка.
-
-[62. Приоритет выживания и регрессии аудита](62-combat-survival-priorities-and-audit-regressions.md) — исправлены только1/3/4/5/9/12: спасательные self-касты перед движением, rooted131, ограниченные попытки115, полный тестовый агрегатор и актуальная карта файлов.
-
-[61. Phoenix: Flame Icon первым, Sacrifice запрещён под иконами](61-phoenix-flame-first-and-no-sacrifice-under-icons.md) — готовый785 раньше406/69;406 резерв lowHP; под785/406 запрет69 вAI,cast guard иHeal execution. Карта файлов, проверки и установка.
-
-[60. Кайт защиты танков и native классовые механики](60-tank-defense-kiting-and-native-class-mechanics.md) — все19 классов кайтят танка под110/368/760; Phoenix:406 при lowHP и784→5562/3→785, Hell:761→5561/3→762, Shillien:788→5564/3→789. Родные условия/ресурсы, карта файлов и тесты.
-
-[59. Cardinal: выживание против Clarity; три bot-only дебаффа15%](59-cardinal-clarity-survival-and-fixed-control-chance.md) — пока на противнике действующий3282, только Trance/Celestial Shield/Prominence/Greater Battle Heal с приоритетом защиты. Trance97, Dreaming Spirit115 иFear115: фикс15%, без изменения навыков игроков; карта файлов, тесты, установка. Это исключение к nativeChance из56/58.
-
-[58. Олимпиада150с, кайт invul-мили, штатная MP и Maximum Clarity](58-olympiad-150s-invulnerability-kite-native-mana-and-clarity.md) — все19 классов; Cardinal infinite MP сохранена,−90% regen и HP101 отменены; противник97 получает native3282 на60с от старта, без повторного обновления. Карта файлов, тесты и установка.
-
-[57. Штатные откаты Trance и Bluff](57-default-trance-and-bluff-cooldowns.md) — история: Bluff8000мс вместо16000 для игроков/ботов (с70 база12000мс); убран отдельный3с AI-delay Trance, native reuse1000мс сохранён. Chance/эпик и остальные механики без изменений.
-
-[56. Родные дебаффы/Chance и постоянный эпик+6](56-native-debuff-chance-and-permanent-epic-jewelry.md) — убраны tank25% и private Trance65%; реальные Chance+30/+15, полный список навыков19 классов; пять эпиков всем ботам, безопасная миграция и карта файлов.
-
-[55. Dominator: root/stun→200→Steal/CP; Shadow Step; Олимпиада90с](55-dominator-melee-control-shadow-step-and-90s-olympiad.md) — scoped CP до>85%,821 первым против кастеров, пятый core-патч переполнения таймера и обновлённая установка; лимит90с заменён150с в58.
-
-[54. Отход после сна и команда живому саммону раз в3с](54-post-sleep-retreat-and-summon-attack-pulse.md) — Cardinal до дальности Mana Burn внутри круга450, Dominator до300; фактический собственный сон, без повторного призыва.
-
-[52. GM: вход без invul/invisible и очистка после просмотра Олимпиады](52-gm-login-and-olympiad-observer-cleanup.md) — отключены все startup-пути автоскрытия; native выход из просмотра снимает оба флага и у GM. Четвёртый проверяемый core-патч, назначение файлов и установка.
-
-[51. Cardinal/Bishop: восстановление и ник противника на Олимпиаде](51-cardinal-recovery-and-olympiad-opponent-notice.md) — покрытие19 профессий при старом/заполненном лимите, безопасный поиск потерянного офлайн-бота в БД, личное сообщение при прибытии на арену; карта файлов, тесты и установка.
-
-[50. Dominator: обязательный серверный Victory of Pa'agrio](50-dominator-mandatory-server-victory.md) — дополнительный1414 перед Олимпиадой/тренировкой независимо от overrides/изученности, learned enchant или native base, только115, без бесплатного rebuff в бою.
-
-[49. Кинжальщики: Escape Shackle только при руте](49-dagger-escape-shackle-root-only.md) — приоритетный native453 для93/101/108, обычная ротация во время отката, повтор при сохраняющемся root; исключение из случайных auto/tactical-пулов, карта файлов и установка.
-
-[48. Берсеркер: срочный Soul Cleanse](48-berserker-emergency-soul-cleanse.md) — магический self-cast1510 при ROOT/PhysicalMute до Rush/movement/reaction-ограничений, удержание своей цели до завершения, native ресурсы и откат.
-
-[47. Кинжальщики: попытка захода за спину раз в две секунды](47-dagger-rear-approach-two-seconds.md) — восстановлен отдельный rear-approach для93/101/108 в обоих arena-режимах,2000мс между попытками, без generic recovery-отходов; карта файлов, регрессии и установка.
-
-[41. Trance65%, круговой кайт, граница бот–бот и MP магов](41-fixed-trance-orbit-boundary-and-mage-mana.md) — исторический private65%-ный Trance (отменён в56), движение по окружности450, core-ограничитель фактических координат460 только для бот–бот и исторический HP101 при истощении магов (отменён в58); обновление запуска/установщика.
-
-[40. Soultaker, защита танков и самолечение](40-soultaker-tank-recovery-and-invulnerability.md) — кайт95, Anti Magic Armor перед Vengeance против магов, bot-only Sacrifice +30 Power без отката ниже70%, запрет активного самолечения под invul и Body Reconstruction при≤40% в обеих аренах.
-
-[39. Физические боты: автоатака без MP](39-low-mana-physical-autoattack.md) — fallback для немагических классов, включая ножей/лучников/берсеркера; без физического MP floor и без изменений Cardinal.
-
-[38. Кардинал: неисчерпаемая мана в обоих режимах](38-cardinal-unlimited-arena-mana.md) — персональное восстановление MP в общем боевом тике после подтверждения каста; без изменения общих навыков и MP противника.
-
-[37. Кардинал: Олимпиада как тренировка](37-cardinal-olympiad-training-parity.md) — владение целью, сближение под Trance, исторический regMp×0.10 (снят в58) и запрет олимпийского full-MP floor в паре с ботом97; безопасная очистка.
-
-[36. Кардинал: имя без цифр и дополнительный Prominence](36-cardinal-name-and-prominence.md) — стабильное уникальное буквенное имя, bot-only1230/28, приоритет законного каста через10с и согласованные фильтры сна.
-
-[35. Вход персонажей: восстановление XML навыков](35-character-login-skill-xml-recovery.md) — исправлен placeholder вместо99 определений1300–1399; восстановлены1320/1322, добавлены XML/XSD и real-core регрессии общей цепочки входа/спавна.
-
-[34. Доминатор: Victory/CP; Титан: давление; Vengeance против всех](34-dominator-cp-titan-pressure-vengeance-all.md) — классовое исключение1414, реальные CP-самокасты около50%, отсутствие отхода Титана из-за откатов и разрешение368 против магов/лучников.
-
-[33. Танки: без самообездвиживания против дальников](33-tank-no-immobile-defense-vs-ranged.md) — общий запрет УД/Vengeance и корневой self-защиты против лучников/магов на любой дистанции, включая overrides.
-
-[32. Танки: сближение, рут/стан и Vengeance перед УД](32-tank-close-control-and-vengeance-first.md) — постоянная ближняя дистанция, приоритет контроля, строгий подход и защита без остановки дальнего преследования.
-
-[31. Циклический Rush Impact до окончания исходного стана](31-cyclic-rush-impact-until-original-stun-ends.md) — обработка точного нулевого приземления, повторный ограниченный отход и сброс после эффекта.
-
-[30. Исправление установщика и Windows-запуска](30-debuff-installer-windows-startup.md) — закрытие дескрипторов целевого JAR, независимый classpath, журнал точной ошибки; игровые механики не изменены.
-
-[26. Откаты до таймера селфбафов и тренировочные Frenzy/Zealot](26-training-prep-cooldowns-and-orc-buffs.md) — ранний reset обоих; финальная секунда восстанавливает только ресурсы.
-[27. Бафы игрока-орка и классовые ресурсы](27-training-orc-player-buffs-and-resources.md) — одинаковый Orc-набор для человека/бота, 70% HP / 15% CP / 100% MP для113/114.
-[28. Дебафы без замены/продления категории](28-debuff-category-no-refresh.md) — глобальная проверка ядра, установка при запуске, резерв и откат.
-[29. Защита танков, цикл Rush и входной хил](29-tank-defense-rush-loop-and-entry-heal.md) — защита после5с, непродлеваемый собственный стан, полный хил всех после телепорта.
-
-[25. Берсеркер: простой после Rush Impact на тренировке](25-training-berserker-post-rush.md) — отличие от олимпийского драйвера, серия навыков и обычное давление между откатами.
-
-[24. Тренировка: вход, подготовка, восстановление и возврат](24-training-preparation-location-and-return.md) — без порога ресурсов, очистка прежних эффектов, реальные селфкасты бота, финальный reset обоих, порт Гирана и устранение повторных остановок.
-
-[23. Ограниченное движение под страхом](23-bounded-fear-movement.md) — случайные короткие шаги вокруг места наложения; общий Fear handler, радиус100, установка и откат.
-
-
-[22. Навыки классов, усиления до старта, ворота и результаты тренировок](22-class-skills-openers-and-training-results.md) — карта файлов, установка, проверки и откат. История предыдущего обновления; актуальный порядок тренировки — документ24.
-
-## Состав документации
-
-| Файл | Содержание |
-|---|---|
-| [74-cardinal-sleep-center-hold-and-wake-combo.md](74-cardinal-sleep-center-hold-and-wake-combo.md) | Cardinal: приоритет сна, центр/удаление/ожидание, wake-комбо, passive Trance и native регрессии |
-| [73-bluff-fixed-stun40.md](73-bluff-fixed-stun40.md) | Bluff358: строгие40% стана, все Chance-уровни, native тесты и установка |
-| [72-bluff-bounded-rear-route-and-cardinal-epic-check.md](72-bluff-bounded-rear-route-and-cardinal-epic-check.md) | Bluff: полный маршрут в задний сектор у края, диагностика; Cardinal5 эпиков+6, native регрессии и установка |
-| [71-local-ipconfig-no-external-detection.md](71-local-ipconfig-no-external-detection.md) | Локальный IP127.0.0.1, отключение внешнего автоопределения, native тест и установка |
-| [70-bluff-reuse12s.md](70-bluff-reuse12s.md) | Bluff358: базовый reuse12с вместо8с, все Chance-уровни; проверки и установка |
-| [69-cardinal-dominator-fixed-sleep20.md](69-cardinal-dominator-fixed-sleep20.md) | Текущие20% для Trance1394 и Dreaming Spirit1097; аудит формулы, старого gate, native тесты; карта файлов/установка |
-| [68-passive-barrier-trance25-and-bluff-rear.md](68-passive-barrier-trance25-and-bluff-rear.md) | Актуально:1418 кайт;5576 Trance до сна/окончания эффекта; шанс см.69; Bluff обход/спина/без автоатаки; тесты/установка |
-| [67-cardinal-invulnerability-trance-and-chance.md](67-cardinal-invulnerability-trance-and-chance.md) | История ошибочной интерпретации; отменена68 |
-| [66-ordered-olympiad-bot-battles.md](66-ordered-olympiad-bot-battles.md) | Заказ пары классов у Trainer, ожидание без повторной регистрации, native матч/наблюдатель, шестая стадия core и тесты |
-| [62-combat-survival-priorities-and-audit-regressions.md](62-combat-survival-priorities-and-audit-regressions.md) | Текущие приоритеты выживания, root131, бюджет контроля115, восстановленные регрессии и установка |
-| [58-olympiad-150s-invulnerability-kite-native-mana-and-clarity.md](58-olympiad-150s-invulnerability-kite-native-mana-and-clarity.md) | Текущее:150с, всеобщий invul-кайт мили, обычнаяMP, native3282/60с, карта и установка |
-| [57-default-trance-and-bluff-cooldowns.md](57-default-trance-and-bluff-cooldowns.md) | Отмена увеличенного Bluff reuse и отдельного Cardinal Trance timer; штатные параметры, тесты и установка |
-| [56-native-debuff-chance-and-permanent-epic-jewelry.md](56-native-debuff-chance-and-permanent-epic-jewelry.md) | Native дебаффы вместо25%/65%, Chance+30/+15 по19 классам и постоянные пять эпиков+6 |
-| [48-berserker-emergency-soul-cleanse.md](48-berserker-emergency-soul-cleanse.md) | Срочное магическое самоочищение берсеркера131 при руте/запрете физических навыков, приоритеты и ownership |
-| [47-dagger-rear-approach-two-seconds.md](47-dagger-rear-approach-two-seconds.md) | Заход кинжальщиков за спину: реальное движение, интервал2000мс, приоритеты, geodata и отличие от recovery |
-| [39-low-mana-physical-autoattack.md](39-low-mana-physical-autoattack.md) | Оружейная автоатака при нехватке MP, исключения магов/Cardinal, временный MP-расход обычного выстрела |
-| [38-cardinal-unlimited-arena-mana.md](38-cardinal-unlimited-arena-mana.md) | Кардинал: неисчерпаемая MP только боту в активной тренировке/Олимпиаде, сохранение regMp противника |
-| [37-cardinal-olympiad-training-parity.md](37-cardinal-olympiad-training-parity.md) | Кардинал: отличия родительских драйверов, Trance-дальность и историческое -90% regMp (отменено в58), lifecycle эффекта |
-| [36-cardinal-name-and-prominence.md](36-cardinal-name-and-prominence.md) | Кардинал: безопасное имя без цифр, ручная выдача Prominence только боту и тактический интервал10с |
-| [35-character-login-skill-xml-recovery.md](35-character-login-skill-xml-recovery.md) | Вход после выбора персонажа: повреждённый XML1300–1399, восстановление, карта файлов и регрессии |
-| [01-root-structure.md](01-root-structure.md) | Корневые папки сервера: `game`, `login`, `libs`, `db_installer`, `backup`, `images` |
-| [02-launching.md](02-launching.md) | Запуск/остановка серверов, `java.cfg`, логи, консольные скрипты |
-| [03-game-config.md](03-game-config.md) | `game/config` — все конфиги GameServer (+ `Custom/` — кастомные фичи) |
-| [04-login-server.md](04-login-server.md) | `login/` — устройство LoginServer, его конфиги и данные |
-| [05-datapack-data.md](05-datapack-data.md) | `game/data` — датапак: XML-данные, geodata, зоны, спавны, мультиселлы, статы |
-| [06-scripts-and-quests.md](06-scripts-and-quests.md) | `game/data/scripts` — Java-скрипты: квесты, ИИ, инстансы, события, хендлеры |
-| [07-database.md](07-database.md) | `db_installer` — схема БД, установщик, бэкапы-дампы |
-| [08-admin-and-mods.md](08-admin-and-mods.md) | Админ-команды, кастомные моды, типовые задачи администратора |
-| [09-fake-players-ai.md](09-fake-players-ai.md) | Система боевых ботов FakePlayersAI: устройство, олимпиада, конфиг, `//bot`, журнал правок |
-| [10-stun-visual-and-olympiad-ui.md](10-stun-visual-and-olympiad-ui.md) | Визуал стана (звёзды над головой) и панель противника на олимпиаде (HP/CP + бафы/дебафы), журнал правок ядра и скриптов |
-| [11-line-of-sight-fix.md](11-line-of-sight-fix.md) | Фикс 11.09.2026: атака/касты/чарджи сквозь стены, двери и заборы (`GeoEngine.canSeeTarget`/`canMoveToTarget`), журнал правок ядра |
-| [12-blink-fix.md](12-blink-fix.md) | Фикс 13.09.2026: Blink (скилл 1448 Soul Hound) — self-эффекты применяются даже при пустом списке целей, журнал правок ядра |
-| [13-oly-remote-registration.md](13-oly-remote-registration.md) | Команда 14.09.2026: `/oly`, `//oly`, `.oly` — дистанционная регистрация на бесклассовую олимпиаду без менеджера; патч гейта AdminCommandHandler (команды с accessLevel=0 доступны игрокам) |
-| [14-bluff-turn.md](14-bluff-turn.md) | Фикс 18-19.09.2026: Bluff / Blinding Blow разворачивают противника спиной (ValidateLocation окружающим + «нулевой шаг» MoveToLocation/StopMove собственному клиенту жертвы — без телепорта и затемнения экрана) |
-| [15-dominator-enlightenment.md](15-dominator-enlightenment.md) | Фикс 03.10.2026: Enlightenment у Dominator — «волшебный» вариант 1532 (+40% M.Atk) вместо «хилерского» 1533 (+10% M.Atk/+40% Heal), как у всех магических классов; то же в бот-пресете |
-| [16-giran-adena-giver.md](16-giran-adena-giver.md) | NPC Adena Giver в Гиране: 100 000 000 адены за нажатие, файлы, проверки и установка |
-| [17-olympiad-predictive-chase.md](17-olympiad-predictive-chase.md) | Олимпийские боты: чтение направления движения противника, прогноз перехвата и сокращение дистанции |
-| [18-bot-combat-fixes-and-rollback.md](18-bot-combat-fixes-and-rollback.md) | Исправление ложных кастов ботов, улучшения боя и резервная точка/порядок отката |
-| [19-pursuit-movement-ownership.md](19-pursuit-movement-ownership.md) | Перехват v2: конфликт CAST-подхода/автокаста, приоритет движения, диагностика, установка и отдельный откат |
-| [20-olympiad-suite-and-giran-services.md](20-olympiad-suite-and-giran-services.md) | Тактика/сложности, изолированные тренировки, аналитика, четыре NPC Гирана, инструкция, восстановление и безопасный откат |
-| [21-strong-tempo-and-training-fixes.md](21-strong-tempo-and-training-fixes.md) | Strong/100ms, атака вместо частого кайта, исправление NPC-кнопок, олимпийский бафф и30сек. на селфбафф |
-| [22-class-skills-openers-and-training-results.md](22-class-skills-openers-and-training-results.md) | Классовые навыки, предбоевые усиления, ворота и результаты; старые правила тренировки уточняет24 |
-| [23-bounded-fear-movement.md](23-bounded-fear-movement.md) | Короткие шаги страха вокруг исходной точки, общий handler и регрессии |
-| [24-training-preparation-location-and-return.md](24-training-preparation-location-and-return.md) | Актуальные правила/файлы тренировки, scoped PeaceZone, подготовка/восстановление, возврат без повторного стопа |
-| [25-training-berserker-post-rush.md](25-training-berserker-post-rush.md) | Берсеркер на тренировке: приоритет серии после Rush и устранение простоя |
-| [26-training-prep-cooldowns-and-orc-buffs.md](26-training-prep-cooldowns-and-orc-buffs.md) | Сброс откатов до подготовки, тренировочные бафы Titan/Grand Khavatari |
-
-## Последнее изменение
-
-- [55: Контроль мили-цели, Shadow Step и90с](55-dominator-melee-control-shadow-step-and-90s-olympiad.md): карта файлов, таймер/установка, проверки и откат.
-
-- [54: Отход после сна; повторная атака саммона](54-post-sleep-retreat-and-summon-attack-pulse.md): маршрут внутри450, Cardinal — реальная дальность1398, Dominator —300; общий3000мс native attack pulse без resummon.
-
-- [53: Bluff ×2 reuse и Dominator против дальнего боя](53-bluff-reuse-and-dominator-ranged-pressure.md): исторический358 —16с (в57 возвращён8с, с70 —12с); бот115 — сближение → сон/стан → проклятия → атака с поддержкой CP.
-
-## Куда смотреть при типовых задачах
-
-| Задача | Документ |
-|---|---|
-| Заказать бой между двумя классами ботов и автоматически наблюдать | `66-ordered-olympiad-bot-battles.md` |
-| Не входит после выбора персонажа; Skill1322/1320 отсутствует; NPE getAllAvailableSkills | `35-character-login-skill-xml-recovery.md` |
-| Поменять рейты (XP/SP/дроп/адена) | `03-game-config.md` → `Rates.ini` |
-| Изменить порт/IP/сетевые настройки | `03-game-config.md` → `Network.ini`, `Server.ini`; `04-login-server.md` |
-| Включить/настроить офлайн-трейд, баффера и т.п. | `03-game-config.md` → `Custom/*.ini` |
-| Добавить/поправить квест или ИИ NPC | `06-scripts-and-quests.md` |
-| Поправить диалог NPC | `05-datapack-data.md` → `html/` |
-| Изменить спавны/добавить мобов | `05-datapack-data.md` → `spawns/` |
-| NPC для выдачи 100 миллионов адены в Гиране | `16-giran-adena-giver.md` |
-| Добавить предмет в магазин | `05-datapack-data.md` → `buylists/`, `multisell/` |
-| Проблемы с БД, восстановление | `07-database.md` |
-| Аккаунты, баны, права | `08-admin-and-mods.md` |
-| Боты FakePlayersAI (спавн, ротации, олимпиада) | `09-fake-players-ai.md`; новая тактика/тренировки — `20-olympiad-suite-and-giran-services.md` |
-| Перехват убегающего противника ботами на олимпиаде | `17-olympiad-predictive-chase.md`; актуальный фикс/диагностика — `19-pursuit-movement-ownership.md` |
-| Визуальные эффекты (стан/звёзды), панель противника олимпиады | `10-stun-visual-and-olympiad-ui.md` |
-| Неработающие скиллы (Blink и т.п.) — что смотреть в цепочке каста | `12-blink-fix.md` |
-| Bluff / Blinding Blow не разворачивают противника | `14-bluff-turn.md` |
-| Дистанционная регистрация на олимпиаду (`/oly`, `//oly`, `.oly`) | `13-oly-remote-registration.md` |
-
-## Важные файлы-«точки входа»
-
-| Файл | Роль |
-|---|---|
-| `game/GameServer.vbs` / `.sh` | Запуск GameServer (Windows/Linux) |
-| `login/LoginServer.vbs` / `.sh` | Запуск LoginServer |
-| `game/java.cfg`, `login/java.cfg` | Аргументы JVM (память, GC, кодировка) |
-| `game/config/Database.ini` | Подключение GameServer к MySQL |
-| `login/config/Database.ini` | Подключение LoginServer к MySQL |
-| `game/config/hexid.txt` | Идентификатор зарегистрированного GameServer |
-| `game/config/Server.ini` | Имя сервера, порт 7777, макс. игроков |
-| `game/config/Scripts.xml` | Управление загрузкой скриптов (exclude/include) |
+| # | Файл | Описание |
+|---|---|---|
+| 48 | `48-berserker-emergency-soul-cleanse.md` | Soul Cleanse1510 сразу при `isRooted()` |
+| 49 | `49-dagger-escape-shackle-root-only.md` | Escape Shackle453 сразу при `isRooted()`, первым хуком |
+| 53 | `53-bluff-reuse-and-dominator-ranged-pressure.md` | Bluff358 reuse 12000мс |
+| 57 | `57-default-trance-and-bluff-cooldowns.md` | Кулдауны Trance/Bluff |
+| 75 | `75-cardinal-always-trance-no-shield-kite-and-210s.md` | Cardinal: Trance→HP<75%→heal; Celestial1418 запрещён78 |
+| 78 | `78-bot-gear10-and-cardinal-heal75-no-celestial.md` | Gear+10; HP<75%→heal1218 первым; 1418 запрещён |
+| 79 | `79-dominator-sleep-during-tank-defense.md` | Dominator1097 vs tank; повторь при руте |
+| 80 | `80-dominator-sleep-hold-and-mage-cancel-priority.md` | HOLD после сна; Cancel1056 на противника, не Trance |
+| 81 | `81-tank-root-stationary-rotation.md` | Root → стационарная ротация |
+| 82 | `82-bot-conflict-report.md` | Анализ 9 конфликтов |
+| 83 | `83-mandatory-hooks-order.md` | Обязательный порядок хуков в act() |
