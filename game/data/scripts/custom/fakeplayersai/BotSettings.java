@@ -36,7 +36,7 @@ public class BotSettings
 	
 	// Gear
 	private int _enchantArmor = 10;
-	private int _enchantWeapon = 16;
+	private int _enchantWeapon = 10; // doc86: was 16
 	private int _enchantJewel = 10;
 	private boolean _useS84 = true; // true = Vesper (S84), false = Dynasty (S80)
 	private int _soulshotCount = 1500;
@@ -46,14 +46,14 @@ public class BotSettings
 	
 	// Behavior
 	private boolean _autoRegisterOlympiad = true;
-	private int _olympiadMinPoints = 18; // keep bot olympiad points at this floor so the core always accepts registration
-	private int _olympiadResetPoints = 200; // every bot's olympiad points are reset to this value at every server start (= OLYMPIAD_LOGIN_POINTS, the game entry rule of 04.10.2026)
+	private int _olympiadMinPoints = 18;
+	private int _olympiadResetPoints = 200;
 	private boolean _teleportHome = true;
 	private boolean _healBots = true;
 	private boolean _restoreMp = true;
 	private boolean _clearKarma = true;
 	private boolean _fixLevel = true;
-	private int _respawnSeconds = 1; // dead bots are revived this many seconds after death (1 s revive pass)
+	private int _respawnSeconds = 1;
 	private int _autoPotionPercent = 50;
 	
 	// Account metadata
@@ -177,226 +177,48 @@ public class BotSettings
 		}
 	}
 	
-	public boolean isEnabled()
-	{
-		return _enabled;
-	}
-	
-	public void setEnabled(boolean v)
-	{
-		_enabled = v;
-	}
-	
-	public boolean isSpawnOnStart()
-	{
-		return _spawnOnStart;
-	}
-	
-	public void setSpawnOnStart(boolean v)
-	{
-		_spawnOnStart = v;
-	}
-	
-	public int getSpawnDelaySeconds()
-	{
-		return _spawnDelaySeconds;
-	}
-	
-	public int getBotCount()
-	{
-		return _botCount;
-	}
-	
-	public void setBotCount(int v)
-	{
-		_botCount = Math.max(0, Math.min(60, v));
-	}
-	
-	public int getSpawnX()
-	{
-		return _spawnX;
-	}
-	
-	public int getSpawnY()
-	{
-		return _spawnY;
-	}
-	
-	public int getSpawnZ()
-	{
-		return _spawnZ;
-	}
-	
-	public int getSpawnRadius()
-	{
-		return _spawnRadius;
-	}
-	
-	public void setSpawnPoint(int x, int y, int z, int radius)
-	{
-		_spawnX = x;
-		_spawnY = y;
-		_spawnZ = z;
-		_spawnRadius = Math.max(50, Math.min(1500, radius));
-	}
-	
-	public int getEnchantArmor()
-	{
-		return _enchantArmor;
-	}
-	
-	public void setEnchantArmor(int v)
-	{
-		_enchantArmor = Math.max(0, Math.min(25, v));
-	}
-	
-	public int getEnchantWeapon()
-	{
-		return _enchantWeapon;
-	}
-
-	public void setEnchantWeapon(int v)
-	{
-		_enchantWeapon = Math.max(0, Math.min(25, v));
-	}
-
-	public int getEnchantJewel()
-	{
-		return _enchantJewel;
-	}
-
-	public void setEnchantJewel(int v)
-	{
-		_enchantJewel = Math.max(0, Math.min(25, v));
-	}
-	
-	public boolean isUseS84()
-	{
-		return _useS84;
-	}
-	
-	public void setUseS84(boolean v)
-	{
-		_useS84 = v;
-	}
-	
-	public int getSoulshotCount()
-	{
-		return _soulshotCount;
-	}
-	
-	public void setSoulshotCount(int v)
-	{
-		_soulshotCount = Math.max(0, Math.min(20000, v));
-	}
-	
-	public int getArrowCount()
-	{
-		return _arrowCount;
-	}
-	
-	public void setArrowCount(int v)
-	{
-		_arrowCount = Math.max(0, Math.min(40000, v));
-	}
-	
-	public int getPotionCount()
-	{
-		return _potionCount;
-	}
-	
-	public void setPotionCount(int v)
-	{
-		_potionCount = Math.max(0, Math.min(500, v));
-	}
-	
-	public String getBotTitle()
-	{
-		return _title;
-	}
-	
-	public void setBotTitle(String v)
-	{
-		_title = v == null ? "" : v;
-	}
-	
-	public boolean isAutoRegisterOlympiad()
-	{
-		return _autoRegisterOlympiad;
-	}
-	
-	public void setAutoRegisterOlympiad(boolean v)
-	{
-		_autoRegisterOlympiad = v;
-	}
-	
-	public int getOlympiadMinPoints()
-	{
-		return _olympiadMinPoints;
-	}
-	
-	public void setOlympiadMinPoints(int v)
-	{
-		_olympiadMinPoints = Math.max(0, Math.min(1000, v));
-	}
-
-	public int getOlympiadResetPoints()
-	{
-		return _olympiadResetPoints;
-	}
-
-	public void setOlympiadResetPoints(int v)
-	{
-		_olympiadResetPoints = Math.max(0, Math.min(1000, v));
-	}
-	
-	public boolean isTeleportHome()
-	{
-		return _teleportHome;
-	}
-	
-	public boolean isHealBots()
-	{
-		return _healBots;
-	}
-	
-	public boolean isRestoreMp()
-	{
-		return _restoreMp;
-	}
-	
-	public boolean isClearKarma()
-	{
-		return _clearKarma;
-	}
-	
-	public boolean isFixLevel()
-	{
-		return _fixLevel;
-	}
-	
-	public int getRespawnSeconds()
-	{
-		return _respawnSeconds;
-	}
-	
-	public void setRespawnSeconds(int v)
-	{
-		_respawnSeconds = Math.max(1, Math.min(600, v));
-	}
-	
-	public int getAutoPotionPercent()
-	{
-		return _autoPotionPercent;
-	}
-	
-	public void setAutoPotionPercent(int v)
-	{
-		_autoPotionPercent = Math.max(0, Math.min(99, v));
-	}
-	
-	public String getAccountPrefix()
-	{
-		return _accountPrefix;
-	}
+	public boolean isEnabled() { return _enabled; }
+	public void setEnabled(boolean v) { _enabled = v; }
+	public boolean isSpawnOnStart() { return _spawnOnStart; }
+	public void setSpawnOnStart(boolean v) { _spawnOnStart = v; }
+	public int getSpawnDelaySeconds() { return _spawnDelaySeconds; }
+	public int getBotCount() { return _botCount; }
+	public void setBotCount(int v) { _botCount = Math.max(0, Math.min(60, v)); }
+	public int getSpawnX() { return _spawnX; }
+	public int getSpawnY() { return _spawnY; }
+	public int getSpawnZ() { return _spawnZ; }
+	public int getSpawnRadius() { return _spawnRadius; }
+	public void setSpawnPoint(int x, int y, int z, int radius) { _spawnX=x; _spawnY=y; _spawnZ=z; _spawnRadius=Math.max(50,Math.min(1500,radius)); }
+	public int getEnchantArmor() { return _enchantArmor; }
+	public void setEnchantArmor(int v) { _enchantArmor = Math.max(0, Math.min(25, v)); }
+	public int getEnchantWeapon() { return _enchantWeapon; }
+	public void setEnchantWeapon(int v) { _enchantWeapon = Math.max(0, Math.min(25, v)); }
+	public int getEnchantJewel() { return _enchantJewel; }
+	public void setEnchantJewel(int v) { _enchantJewel = Math.max(0, Math.min(25, v)); }
+	public boolean isUseS84() { return _useS84; }
+	public void setUseS84(boolean v) { _useS84 = v; }
+	public int getSoulshotCount() { return _soulshotCount; }
+	public void setSoulshotCount(int v) { _soulshotCount = Math.max(0, Math.min(20000, v)); }
+	public int getArrowCount() { return _arrowCount; }
+	public void setArrowCount(int v) { _arrowCount = Math.max(0, Math.min(40000, v)); }
+	public int getPotionCount() { return _potionCount; }
+	public void setPotionCount(int v) { _potionCount = Math.max(0, Math.min(500, v)); }
+	public String getBotTitle() { return _title; }
+	public void setBotTitle(String v) { _title = v == null ? "" : v; }
+	public boolean isAutoRegisterOlympiad() { return _autoRegisterOlympiad; }
+	public void setAutoRegisterOlympiad(boolean v) { _autoRegisterOlympiad = v; }
+	public int getOlympiadMinPoints() { return _olympiadMinPoints; }
+	public void setOlympiadMinPoints(int v) { _olympiadMinPoints = Math.max(0, Math.min(1000, v)); }
+	public int getOlympiadResetPoints() { return _olympiadResetPoints; }
+	public void setOlympiadResetPoints(int v) { _olympiadResetPoints = Math.max(0, Math.min(1000, v)); }
+	public boolean isTeleportHome() { return _teleportHome; }
+	public boolean isHealBots() { return _healBots; }
+	public boolean isRestoreMp() { return _restoreMp; }
+	public boolean isClearKarma() { return _clearKarma; }
+	public boolean isFixLevel() { return _fixLevel; }
+	public int getRespawnSeconds() { return _respawnSeconds; }
+	public void setRespawnSeconds(int v) { _respawnSeconds = Math.max(1, Math.min(600, v)); }
+	public int getAutoPotionPercent() { return _autoPotionPercent; }
+	public void setAutoPotionPercent(int v) { _autoPotionPercent = Math.max(0, Math.min(99, v)); }
+	public String getAccountPrefix() { return _accountPrefix; }
 }
