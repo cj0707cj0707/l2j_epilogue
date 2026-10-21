@@ -22,6 +22,16 @@ final class TankClassMechanics
         };
     }
     static boolean support(int id) { return skill(id) && id != 762; }
+    static boolean finisher(int id) { return id==785||id==762||id==789; }
+    /** A real stage3 whose learned finisher is off native reuse; no charge simulation. */
+    static int readyFinisher(Player bot,Player enemy)
+    {
+        if(bot==null||bot.getClient()!=null)return 0;
+        int id=switch(bot.getPlayerClass().getId()){case 90->785;case 91->762;case 106->789;default->0;};
+        if(id==0)return 0;
+        var skill=bot.getKnownSkill(id);
+        return skill!=null&&!bot.isSkillDisabled(skill)&&allowed(bot,id)&&skill.checkCondition(bot,id==762?enemy:bot,false)?id:0;
+    }
     private static BuffInfo live(Player p,int id)
     {
         BuffInfo b=p.getEffectList().getBuffInfoBySkillId(id);

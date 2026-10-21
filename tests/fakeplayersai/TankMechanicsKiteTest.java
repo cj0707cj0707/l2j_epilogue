@@ -85,9 +85,12 @@ public class TankMechanicsKiteTest extends CardinalSurvivalControlChanceTest {
     verify(TankClassMechanics.allowed(p,finish)==(level==3),"only real stage3 unlocks final");
     verify(p.getKnownSkill(finish).checkCondition(p,cid==91?e:p,false)==(level==3),"native active_effect_id_lvl agrees stage"+level);
    }
-   verify(run(p,e,centered(),20000)&&last==finish,"actual native final chosen cid"+cid+" expected"+finish+" actual"+last);p.setCastingNow(false);
+   verify(TankClassMechanics.readyFinisher(p,e)==finish,"real stage3 exposes the class finisher as urgent cid"+cid);
+   Object urgent=centered();f(state,"nextDecision").setLong(urgent,Long.MAX_VALUE);
+   verify(run(p,e,urgent,20000)&&last==finish,"stage3 bypasses ordinary decision latency and spends charges immediately cid"+cid+" expected"+finish+" actual"+last);p.setCastingNow(false);
    if(cid!=91){apply(p,finish,1);verify(!TankClassMechanics.allowed(p,seed)&&!TankClassMechanics.allowed(p,finish),"don't replace or refresh active icon");clear(p,finish);}
    Map<Integer,Long> disabled=(Map<Integer,Long>)f(Creature.class,"_disabledSkills").get(p);disabled.put(p.getKnownSkill(finish).getReuseHashCode(),System.currentTimeMillis()+60000);
+   verify(TankClassMechanics.readyFinisher(p,e)==0,"disabled finisher is not marked urgent");
    run(p,e,centered(),30000);verify(last!=finish,"real finisher reuse respected");p.setCastingNow(false);clear(p,seed,trigger);verify(!TankClassMechanics.allowed(p,seed),"don't spend seed while final disabled");disabled.clear();
    verify(TankClassMechanics.allowed(p,seed),"after charges expire setup can be renewed when ready");
    mp(p,0);run(p,e,centered(),40000);verify(last==0,"no free seed MP");mp(p,10000);
@@ -148,6 +151,6 @@ public class TankMechanicsKiteTest extends CardinalSurvivalControlChanceTest {
   handlers.EffectMasterHandler.main(new String[0]);org.l2jmobius.gameserver.handler.TargetHandler.getInstance().registerHandler(new handlers.skill.targets.Party());skill=SkillData.getInstance().getSkill(1510,1);recordingType();state=Class.forName("custom.fakeplayersai.BotTactics$State");
   act=BotTactics.class.getDeclaredMethod("act",Player.class,Player.class,BotClassPreset.class,state,long.class,boolean.class);act.setAccessible(true);poll=BotTactics.class.getDeclaredMethod("pollAttempt",Player.class,Player.class,state,long.class);poll.setAccessible(true);
   var geo=java.nio.file.Files.createTempDirectory("tank60-geo-");org.l2jmobius.gameserver.config.GeoEngineConfig.GEODATA_PATH=geo;org.l2jmobius.gameserver.geoengine.GeoEngine.getInstance();java.nio.file.Files.delete(geo);
-  defenses();tankMirrorAct86();classSkills();phoenixPriorityAndSacrifice();System.out.println("PASS: "+checks+" all19 defense policy/tank mirror offense/Celestial lease/circle ownership, native class mechanics, Flame-first and icon Sacrifice cast/execution veto; no live server");System.exit(0);
+  defenses();tankMirrorAct86();classSkills();phoenixPriorityAndSacrifice();System.out.println("PASS: "+checks+" all19 defense policy/tank mirror offense/Celestial lease/circle ownership, native immediate stage3 finishers, Flame-first and icon Sacrifice cast/execution veto; no live server");System.exit(0);
  }
 }

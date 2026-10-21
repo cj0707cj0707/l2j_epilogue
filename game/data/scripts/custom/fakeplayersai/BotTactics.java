@@ -1003,7 +1003,10 @@ public final class BotTactics
 		// Never let a perpetually re-queued basic swing starve skills/defenses.
 		// Forbidden basic attacks are cancelled immediately; real casts are untouched.
 		final double hp = bot.getCurrentHp() / Math.max(1, bot.getMaxHp());
-		if (!tankSleepPriority && (time < s.nextDecision || !TacticsPolicy.reactionReady(difficulty(s), time, s.observed, hp < .35)))
+        // A real third tank charge is transient: bypass ordinary AI reaction/decision latency,
+        // but still use the common native legality/resource/range checks below.
+        final int chargedTankFinisher=TankClassMechanics.readyFinisher(bot,enemy);
+		if (!tankSleepPriority && chargedTankFinisher==0 && (time < s.nextDecision || !TacticsPolicy.reactionReady(difficulty(s), time, s.observed, hp < .35)))
         {
             // Reaction latency must never pause the universal invulnerable-melee escape.
             if (survival && !trancePriority && !cardinalNoKite) invulnerableMelee(bot, enemy, s, time);
@@ -1185,9 +1188,10 @@ public final class BotTactics
             : tranceKiteChoice >= 0 ? tranceKiteChoice : s.cardinalProminence.choose(preset.getClassId(), options, time);
 		final int shadowChoice = !defenseOnly && options.stream().anyMatch(o -> o.id() == 821) ? 821 : -1;
 		final int tankMechanicChoice = TankClassMechanics.choose(options);
-		// A legal charged Flame wins over both low-HP Angelic and Sacrifice; no waiting for unavailable charges.
-		final int recoveryChoice = (tankMechanicChoice == 785 || tankMechanicChoice == 406) ? tankMechanicChoice : options.stream().filter(o -> preset.getClassId() == 90 && o.id() == 69 || preset.getClassId() == 131 && o.id() == 833).mapToInt(TacticsPolicy.Option::id).findFirst().orElse(-1);
-		final int selected = roleRanged ? roleChoice : cancelPriority && options.stream().anyMatch(o -> o.id()==1056) ? 1056 : tankSleepPriority && options.stream().anyMatch(o -> o.id()==1097) ? 1097 : prominencePriority && options.stream().anyMatch(o -> o.id()==CARDINAL_PROMINENCE_ID) ? CARDINAL_PROMINENCE_ID : recoveryChoice >= 0 ? recoveryChoice : cardinalChoice >= 0 ? cardinalChoice : shadowChoice >= 0 ? shadowChoice : cpChoice >= 0 ? cpChoice : pressureChoice >= 0 ? pressureChoice : tankMechanicChoice >= 0 ? tankMechanicChoice : tankChoice >= 0 ? tankChoice : trainingRushActive
+        final int tankFinisherChoice=options.stream().anyMatch(o->o.id()==chargedTankFinisher)?chargedTankFinisher:-1;
+		// A legal charged finisher wins immediately;406 remains the Phoenix low-HP fallback.
+		final int recoveryChoice = tankMechanicChoice == 406 ? tankMechanicChoice : options.stream().filter(o -> preset.getClassId() == 90 && o.id() == 69 || preset.getClassId() == 131 && o.id() == 833).mapToInt(TacticsPolicy.Option::id).findFirst().orElse(-1);
+		final int selected = roleRanged ? roleChoice : tankFinisherChoice>=0 ? tankFinisherChoice : cancelPriority && options.stream().anyMatch(o -> o.id()==1056) ? 1056 : tankSleepPriority && options.stream().anyMatch(o -> o.id()==1097) ? 1097 : prominencePriority && options.stream().anyMatch(o -> o.id()==CARDINAL_PROMINENCE_ID) ? CARDINAL_PROMINENCE_ID : recoveryChoice >= 0 ? recoveryChoice : cardinalChoice >= 0 ? cardinalChoice : shadowChoice >= 0 ? shadowChoice : cpChoice >= 0 ? cpChoice : pressureChoice >= 0 ? pressureChoice : tankMechanicChoice >= 0 ? tankMechanicChoice : tankChoice >= 0 ? tankChoice : trainingRushActive
 			? options.stream().anyMatch(option -> option.id() == 793) ? 793 : -1
 			: trainingBerserker
 			? s.trainingBurst.choose(options, distance, skills.containsKey(793), difficulty(s), random.nextDouble(), random.nextDouble())
