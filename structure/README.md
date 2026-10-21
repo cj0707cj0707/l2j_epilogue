@@ -4,7 +4,8 @@
 
 ## Последнее обновление
 
-- [88 — классовые ротации и защита танков после сближения](88-dominator-ranged-cycle-charge-melee-and-tank-contact.md): Steal/Sleep/CP/Silence115, зарядники345/346 в конце, melee88/114 и UD после контакта; карта файлов и проверки.
+- [89 — Dominator: Steal до окончания собственного Silence](89-dominator-seal-steal-kill-window.md): после успешного собственного1246 — только1245 и немедленный pressure на нативной дальности; проверки и установка.
+- [88 — классовые ротации и защита танков после сближения](88-dominator-ranged-cycle-charge-melee-and-tank-contact.md): базовый Steal/Sleep/CP/Silence115, зарядники345/346 в конце, melee88/114 и UD после контакта.
 
 - [87 — Неуязвимый дальник, повторный сон под root и root-снятие раньше Bluff](87-invulnerable-ranged-root-priorities-and-doc-audit.md): реализованные правила, реальная карта файлов, проверки и исправление недостоверной документации.
 
@@ -39,4 +40,5 @@
 | 85 | `85-tank-vs-tank-no-defense-kite-only-celestial.md` | Исключение танк vs танк, реализовано86 во всех путях |
 | 86 | `86-tank-mirror-no-defense-kite-and-all-gear10.md` | Единая политика кайта, вся экипировка+10, карта файлов/тесты/установка |
 | 87 | `87-invulnerable-ranged-root-priorities-and-doc-audit.md` | Invul-дальник: подход/ожидание мили, кайт дальника; rooted1097;453 раньше Bluff; аудит docs |
-| 88 | `88-dominator-ranged-cycle-charge-melee-and-tank-contact.md` | Текущие ротации115, нативные заряды/melee88/114, защита танков только после сближения |
+| 89 | `89-dominator-seal-steal-kill-window.md` | Текущий kill-window115: только Steal Essence, пока действует собственный Seal of Silence |
+| 88 | `88-dominator-ranged-cycle-charge-melee-and-tank-contact.md` | Базовые ротации115, нативные заряды/melee88/114, защита танков только после сближения |

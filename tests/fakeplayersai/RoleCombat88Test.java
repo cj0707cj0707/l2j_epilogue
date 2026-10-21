@@ -15,6 +15,15 @@ public class RoleCombat88Test extends InvulnerableTargetBehaviorTest
         for(int id:new int[]{1245,1097,1246,1367,1092,1208,260,1306})learn(p,nativeSkill(id));
         return p;
     }
+    static void appliedSeal(Player p,Player e)throws Exception
+    {
+        var props=new org.l2jmobius.gameserver.util.StatSet();props.set("name","Mute");
+        BuffInfo mute=CpMeleeRushRecoveryTest.info(p,e,nativeSkill(1246),new handlers.skill.effects.Mute(null,null,props,new org.l2jmobius.gameserver.util.StatSet()));
+        e.getEffectList().getDebuffs().add(mute);
+        @SuppressWarnings("unchecked") var slots=(Map<AbnormalType,BuffInfo>)f(org.l2jmobius.gameserver.entity.actor.holders.creature.EffectList.class,"_stackedEffects").get(e.getEffectList());
+        slots.put(nativeSkill(1246).getAbnormalType(),mute);
+        flags(e,EffectFlag.SLEEP.getMask()|EffectFlag.MUTED.getMask());
+    }
     static void bows()throws Exception
     {
         for(boolean ranked:new boolean[]{false,true})for(boolean human:new boolean[]{false,true})for(int cid:new int[]{92,102,109,134})
@@ -43,9 +52,13 @@ public class RoleCombat88Test extends InvulnerableTargetBehaviorTest
             // Recording casts do not apply CP effects; model the real native effect result explicitly.
             cp(p,10000);prompt(s);verify(run(p,e,s,90000)&&last==1246,"full CP: Seal of Silence, not Steal/fear/other debuffs or a forced wake after5s");finish(p,e,s,95000);
             prompt(s);verify(run(p,e,s,100000)&&last==1246,"resisted Silence retries while actual Sleep remains; no two-attempt budget");finish(p,e,s,105000);
-            clearSleep(e);prompt(s);verify(run(p,e,s,110000)&&last==1245,"real wake immediately ends CP/Silence phase and restarts Steal burst");finish(p,e,s,115000);
-            disable(p,1245);prompt(s);verify(run(p,e,s,120000)&&last==0,"unavailable Steal does not fall back to unrelated curses or early Sleep");
-            flags(p,EffectFlag.MUTED.getMask());prompt(s);verify(run(p,e,s,130000)&&last==0,"native magic silence not bypassed");flags(p,0);
+            appliedSeal(p,e);
+            for(int id:new int[]{1097,1246,1306,1367})verify(!BotSpawner.tacticalSkillAllowed(p,e,nativeSkill(id),id==1306),"active own Seal admits only Steal, never support/control id="+id);
+            verify(BotSpawner.tacticalSkillAllowed(p,e,nativeSkill(1245),false),"active own Seal admits Steal even before its first hit wakes Sleep");
+            prompt(s);verify(run(p,e,s,110000)&&last==1245,"landed own Silence immediately switches to Steal-only kill pressure while Seal remains");finish(p,e,s,115000);
+            clearSleep(e);prompt(s);verify(run(p,e,s,120000)&&last==1245,"Seal expiry/wake returns to the ordinary Steal burst");finish(p,e,s,125000);
+            disable(p,1245);prompt(s);verify(run(p,e,s,130000)&&last==0,"unavailable Steal does not fall back to unrelated curses or early Sleep");
+            flags(p,EffectFlag.MUTED.getMask());prompt(s);verify(run(p,e,s,140000)&&last==0,"native magic silence not bypassed");flags(p,0);
         }
     }
     static void chargeFighters()throws Exception
@@ -110,13 +123,9 @@ public class RoleCombat88Test extends InvulnerableTargetBehaviorTest
                 verify(role(p,e,ranked)&&last==1246,"public hook casts Silence only after ordinary approach");
                 verify(BotRecoveryRules.guard(castEvent(p,p,1246))==null,"AURA primary self still allows legal Silence against own sleeping mage");
                 finish(p,e,s,clock()+5000);
-                var props=new org.l2jmobius.gameserver.util.StatSet();props.set("name","Mute");
-                BuffInfo mute=CpMeleeRushRecoveryTest.info(p,e,nativeSkill(1246),new handlers.skill.effects.Mute(null,null,props,new org.l2jmobius.gameserver.util.StatSet()));
-                e.getEffectList().getDebuffs().add(mute);
-                @SuppressWarnings("unchecked") var slots=(Map<AbnormalType,BuffInfo>)f(org.l2jmobius.gameserver.entity.actor.holders.creature.EffectList.class,"_stackedEffects").get(e.getEffectList());slots.put(nativeSkill(1246).getAbnormalType(),mute);
-                flags(e,EffectFlag.SLEEP.getMask()|EffectFlag.MUTED.getMask());prompt(s);
-                verify(role(p,e,ranked)&&last==0,"already active Silence is not redundantly recast");
-                clearSleep(e);at(p,center[0]-350,center[1]);at(e,center[0]+350,center[1]);prompt(s);
+                appliedSeal(p,e);prompt(s);
+                verify(role(p,e,ranked)&&last==1245,"confirmed own Seal immediately wakes with Steal instead of recast/support");
+                finish(p,e,s,clock()+5000);clearSleep(e);at(p,center[0]-350,center[1]);at(e,center[0]+350,center[1]);prompt(s);
                 var cycle=(RoleCombatPolicy.DominatorCycle)f(state,"rangedCycle").get(s);cycle.observe(false);for(int i=0;i<4;i++)cycle.completed(1245,true);f(state,"nextStep").setLong(s,0);
                 verify(role(p,e,ranked)&&last==0&&p.isMoving(),"due ready Sleep approaches600 instead of holding at Steal900");
             }finally{p.setCastingNow(false);cleanup(p,e);}
@@ -151,6 +160,6 @@ public class RoleCombat88Test extends InvulnerableTargetBehaviorTest
         act=BotTactics.class.getDeclaredMethod("act",Player.class,Player.class,BotClassPreset.class,state,long.class,boolean.class);act.setAccessible(true);poll=BotTactics.class.getDeclaredMethod("pollAttempt",Player.class,Player.class,state,long.class);poll.setAccessible(true);
         var geo=java.nio.file.Files.createTempDirectory("rules88-geo-");org.l2jmobius.gameserver.config.GeoEngineConfig.GEODATA_PATH=geo;org.l2jmobius.gameserver.geoengine.GeoEngine.getInstance();java.nio.file.Files.delete(geo);
         BotPresets.loadOverrides();bows();mageCycle();chargeFighters();mirrors();publicHooks();
-        System.out.println("PASS: "+checks+" structure88 ranged Dominator cycle, charge melee priorities and tank-mirror contact checks; no live server");System.exit(0);
+        System.out.println("PASS: "+checks+" structure89 Silence-to-Steal burst, ranged Dominator cycle, charge melee priorities and tank-mirror contact checks; no live server");System.exit(0);
     }catch(Throwable e){e.printStackTrace();System.exit(1);}}
 }

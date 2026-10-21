@@ -19,9 +19,10 @@ assert 'RoleCombatPolicy.candidate(actor,enemy,event.getSkill(),victim==actor)' 
 assert 'RoleCombatPolicy.needsCharge(actor)' in guard and 'RoleCombatPolicy.rangedDominator(event.getAttacker()' in guard
 assert 'drains>=4' in p and 'dx*((double)e.getXdestination()-e.getX())' in p
 assert 'SleepRetreat.ownSleep(p,e)!=null' in p
+assert 'ownSeal(p,e)!=null)return !self&&id==1245' in p and 'sealed ? new int[]{1245}' in p
 ini=dict(line.split('=',1) for line in (R/'game/config/Custom/FakePlayersAIOverrides.ini').read_text().splitlines() if line.startswith('rotation.'))
 for cid,rage in [(88,345),(114,346)]:
     ids=list(map(int,ini['rotation.'+str(cid)].split(',')))
     assert ids[-1]==rage and all(x not in (8,50,345,346) for x in ids[:-2])
-print('PASS: role-hook order in all3 entry paths, no active ranked refill, builder order, native guards and pursuit window',flush=True)
+print('PASS: role-hook order, own-Seal Steal-only burst, no active ranked refill, builder order, native guards and pursuit window',flush=True)
 subprocess.run([sys.executable,str(Path(__file__).with_name('passive_barrier_bluff_tests.py')),'--role-only'],cwd=R,check=True)

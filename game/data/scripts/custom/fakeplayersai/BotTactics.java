@@ -396,7 +396,7 @@ public final class BotTactics
         if(RoleCombatPolicy.rangedDominator(bot,enemy))
         {
             State rs=STATES.get(bot.getObjectId());
-            Skill chosen=bot.getKnownSkill(!RoleCombatPolicy.archer(enemy)&&rs!=null&&rs.rangedCycle.sleepDue()&&rangedSleepReady(bot,enemy,rs,now())?1097:1245);
+            Skill chosen=bot.getKnownSkill(!RoleCombatPolicy.archer(enemy)&&RoleCombatPolicy.ownSeal(bot,enemy)==null&&rs!=null&&rs.rangedCycle.sleepDue()&&rangedSleepReady(bot,enemy,rs,now())?1097:1245);
             if(chosen!=null)return TacticsPolicy.boundedApproachRange(bot.getMagicalAttackRange(chosen));
         }
 		if (TacticsPolicy.tankClass(preset.getClassId()) || strictMeleePressure(bot, enemy, preset))
@@ -579,7 +579,8 @@ public final class BotTactics
         boolean handled=act(bot,enemy,preset,s,time,false);
         if(bot.isCastingNow()||bot.isCastingSimultaneouslyNow()||s.pendingId!=0||bot.isOutOfControl()||bot.isAllSkillsDisabled()||enemy.isInvul())return true;
         double range=charge?bot.getPhysicalAttackRange()+bot.getTemplate().getCollisionRadius()+enemy.getTemplate().getCollisionRadius():tacticalApproachRange(bot,enemy,preset);
-        if(ranged&&enemy.isSleeping())
+        boolean sealed=ranged&&RoleCombatPolicy.ownSeal(bot,enemy)!=null;
+        if(ranged&&enemy.isSleeping()&&!sealed)
         {
             Skill silence=bot.getKnownSkill(1246);
             if(!RoleCombatPolicy.archer(enemy)&&SleepRetreat.ownSleep(bot,enemy)!=null&&silence!=null&&!active(enemy,silence))
@@ -587,7 +588,7 @@ public final class BotTactics
             return true;
         }
         if(charge&&requiresInvulnerableKite(bot,enemy)&&!rootedByTank(bot,enemy))return true;
-        if(!enemy.isSleeping()&&bot.calculateDistance2D(enemy)>range)roleApproach(bot,enemy,s,time,range);
+        if((!enemy.isSleeping()||sealed)&&bot.calculateDistance2D(enemy)>range)roleApproach(bot,enemy,s,time,range);
         else if(charge&&!handled)stationaryAttack(bot,enemy,preset,s);
         return true;
     }
@@ -1170,7 +1171,7 @@ public final class BotTactics
 			}
 		}
 		if(chargeMelee)RoleCombatPolicy.buildersLast(options);
-        final int roleChoice=roleRanged?s.rangedCycle.choose(options,RoleCombatPolicy.archer(enemy),sleeping):-1;
+        final int roleChoice=roleRanged?s.rangedCycle.choose(options,RoleCombatPolicy.archer(enemy),sleeping,RoleCombatPolicy.ownSeal(bot,enemy)!=null):-1;
         final ThreadLocalRandom random = ThreadLocalRandom.current();
 		final int tankSelected = timedTank ? s.tankDefense.choose(options, time, activeStrong != 0, enemy.isMageClass()) : -1;
 		final int tankChoice = tank ? TacticsPolicy.tankActionChoice(options, tankStuns, tankRoots, tankMelee, tankSelected,

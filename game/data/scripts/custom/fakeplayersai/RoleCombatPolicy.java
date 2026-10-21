@@ -3,6 +3,7 @@ package custom.fakeplayersai;
 import java.util.List;
 import org.l2jmobius.gameserver.entity.actor.Player;
 import org.l2jmobius.gameserver.entity.actor.enums.player.PlayerClass;
+import org.l2jmobius.gameserver.mechanics.skill.BuffInfo;
 import org.l2jmobius.gameserver.mechanics.skill.Skill;
 
 /** Role-specific selection only. Native cast/effects/resources remain authoritative. */
@@ -23,11 +24,22 @@ final class RoleCombatPolicy
         BotClassPreset s=BotPresets.getPresetByClassId(e.getPlayerClass().getId());
         return archer(e)||e.isMageClass()||s!=null&&s.isCaster();
     }
+    static BuffInfo ownSeal(Player p,Player e)
+    {
+        if(!rangedDominator(p,e))return null;
+        for(BuffInfo info:e.getEffectList().getEffects())
+            if(info!=null&&!info.isRemoved()&&info.isInUse()&&info.getEffector()==p&&info.getEffected()==e
+                &&info.getSkill()!=null&&info.getSkill().getId()==1246
+                &&e.getEffectList().getBuffInfoByAbnormalType(info.getSkill().getAbnormalType())==info)return info;
+        return null;
+    }
     static boolean candidate(Player p,Player e,Skill skill,boolean self)
     {
         if(!rangedDominator(p,e))return true;
         int id=skill.getId();
         if(archer(e))return !self&&id==1245&&!e.isSleeping();
+        // Once this Dominator's Seal has landed, spend its whole live window on Steal.
+        if(ownSeal(p,e)!=null)return !self&&id==1245;
         if(e.isSleeping())return SleepRetreat.ownSleep(p,e)!=null&&(id==1246||self&&TacticsPolicy.dominatorCpSkill(id)&&p.getCurrentCp()<p.getMaxCp());
         return !self&&(id==1245||id==1097);
     }
@@ -56,9 +68,9 @@ final class RoleCombatPolicy
         boolean sleepDue() { return drains>=4; }
         void completed(int id,boolean completed)
         { if(completed){if(id==1245)drains=Math.min(4,drains+1);else if(id==1097)drains=0;} }
-        int choose(List<TacticsPolicy.Option> legal,boolean bow,boolean sleeping)
+        int choose(List<TacticsPolicy.Option> legal,boolean bow,boolean sleeping,boolean sealed)
         {
-            int[] order=sleeping ? new int[]{1305,1306,1246} : !bow&&sleepDue()?new int[]{1097,1245}:new int[]{1245};
+            int[] order=sealed ? new int[]{1245} : sleeping ? new int[]{1305,1306,1246} : !bow&&sleepDue()?new int[]{1097,1245}:new int[]{1245};
             for(int id:order)for(var o:legal)if(o.id()==id)return id;
             return -1;
         }
