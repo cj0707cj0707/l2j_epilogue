@@ -1,5 +1,7 @@
 # 09. Система ботов FakePlayersAI (`game\data\scripts\custom\fakeplayersai\`)
 
+> **Последнее изменение93:** [Cardinal и Dominator ждут окончания сна только под активной защитой танка110/368/760](93-sleep-hold-only-during-tank-defense.md). Без усиления после одного отхода сразу выбирается законный Mana Burn1398 / Steal Essence1245; окончание защиты не перезапускает отход. Правило93 заменяет прежний безусловный HOLD Cardinal из74; Cleanse92, invul и native ограничения сохранены.
+
 > **Последнее изменение92:** [Cardinal немедленно использует Cleanse1409 при активном ограничении движения](92-cardinal-cleanse-movement-lock.md). Каст идёт на себя раньше лечения/Trance/атак/движения, но не обходит mute, hard CC, reuse, MP, реагент8874 и native condition.
 
 > **Последнее изменение91:** [круговой кайт динамически выбирает clockwise/counter-clockwise перед каждым waypoint](91-dynamic-two-way-kite-away-from-enemy.md); шаг, уменьшающий расстояние до противника, запрещён. Правила89/90 сохранены.

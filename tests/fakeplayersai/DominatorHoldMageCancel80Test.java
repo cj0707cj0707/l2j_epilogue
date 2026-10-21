@@ -48,7 +48,7 @@ public class DominatorHoldMageCancel80Test extends DominatorTankSleepTest {
     at(p,e.getX()+80,e.getY());
     verify(publicTank(p,e,ranked)&&last==0&&p.isMoving()&&ai.requests>before,"second landed sleep rearms retreat, no stale finished flag");
     defense.setInUse(false);before=ai.requests;
-    verify(!publicTank(p,e,ranked)&&!p.isMoving()&&ai.requests==before,"defense ends mid-retreat: release movement/lease, no extra orbit");
+    verify(publicTank(p,e,ranked)&&p.isMoving()&&ai.requests==before,"defense ends mid-retreat: preserve same sleep run for normal act, no restart/orbit");
     clearSleep(e);disable(p,1097);prompt(s);
     verify(run(p,e,s,clock()+10000)&&last==1245,"after all protection expires ordinary drain rotation restored");
    }finally{BotTactics.forget(p.getObjectId());roster.remove(p.getObjectId());roster.remove(e.getObjectId());}

@@ -45,7 +45,24 @@ final class SleepRetreat
         return null;
     }
 
-    /** Any real current sleep protects Cardinal's target, even another caster's sleep. */
+    /** Rule93: only landed own sleep; strong tank defense and real invulnerability still win.
+     * Dominator's ranged-opponent Silence cycle is deliberately outside this rule. */
+    static boolean wakeAllowed(Player bot, Player enemy)
+    {
+        if (bot == null || enemy == null || bot.getClient() != null || enemy.isInvul()
+            || TankClassMechanics.defendedTank(enemy) || ownSleep(bot, enemy) == null) return false;
+        int cid = bot.getPlayerClass().getId();
+        return cid == 97 || cid == 115 && TankClassMechanics.tank(enemy);
+    }
+
+    /** Narrow shared admission exception, not permission for arbitrary debuffs/legacy casts. */
+    static boolean wakeSkillAllowed(Player bot, Player enemy, Skill skill)
+    {
+        return skill != null && wakeAllowed(bot, enemy)
+            && skill.getId() == (bot.getPlayerClass().getId() == 97 ? 1398 : 1245);
+    }
+
+    /** Real current sleep used by Cardinal's retreat and protected-target HOLD. */
     static BuffInfo cardinalSleep(Player bot, Player enemy)
     {
         if (bot == null || enemy == null || bot.getClient() != null || bot.getPlayerClass().getId() != 97 || !enemy.isSleeping()) return null;

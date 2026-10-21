@@ -867,9 +867,9 @@ public class BotSpawner
         if (!CardinalSurvival.skillAllowed(player,skill.getId())) return false;
         if (!BotTactics.dominatorStunAllowed(player, enemy, skill)) return false;
         if (skill.getId()==1230 && !CardinalSurvival.prominenceAllowed(player,enemy)) return false;
-        if (player.getClient() == null && player.getPlayerClass().getId() == 97 && enemy != null && enemy.isSleeping() && !self) return false;
+        if (player.getClient() == null && player.getPlayerClass().getId() == 97 && enemy != null && enemy.isSleeping() && !self && !SleepRetreat.wakeSkillAllowed(player,enemy,skill)) return false;
         if (enemy != null && !BluffRear.skillAllowed(player, enemy, skill)) return false;
-		if (CardinalSurvival.active(player, enemy) && (!CardinalSurvival.allowed(skill.getId()) || (skill.getId() == 1398 || skill.getId() == 1230) && enemy.isSleeping())) return false;
+		if (CardinalSurvival.active(player, enemy) && (!CardinalSurvival.allowed(skill.getId()) || (skill.getId() == 1398 || skill.getId() == 1230) && enemy.isSleeping() && !SleepRetreat.wakeSkillAllowed(player,enemy,skill))) return false;
         if (!TankClassMechanics.allowed(player, skill.getId())) return false;
 		if (skill.getId() == ESCAPE_SHACKLE_ID || isOpenerOnlySkill(skill.getId())) return false;
 		if (player.isInOlympiadMode())

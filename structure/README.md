@@ -4,6 +4,8 @@
 
 ## Последнее обновление
 
+- [93 — условное ожидание сна Cardinal/Dominator](93-sleep-hold-only-during-tank-defense.md): HOLD только под защитой танка110/368/760; иначе один отход → немедленный законный Mana Burn/Steal.
+
 - [92 — Cardinal: Cleanse при ограничении движения](92-cardinal-cleanse-movement-lock.md): навык1409 имеет аварийный приоритет при активном movement lock; нативные запреты и реагент8874 сохранены.
 - [91 — динамический двусторонний кайт](91-dynamic-two-way-kite-away-from-enemy.md): каждый waypoint выбирает clockwise/counter-clockwise от текущей позиции противника и не ведёт ближе к нему.
 - [90 — танки: немедленный навык при stage3](90-tank-stage3-immediate-class-finisher.md): готовые785/762/789 обходят обычную задержку решения и выбираются первыми.
@@ -28,6 +30,7 @@
 
 | # | Файл | Описание |
 |---|---|---|
+| 93 | `93-sleep-hold-only-during-tank-defense.md` | Сон: ожидание только под защитой танка; иначе после отхода Mana Burn/Steal |
 | 92 | `92-cardinal-cleanse-movement-lock.md` | Cardinal: Cleanse1409 при movement lock, self-target, нативные условия/реагент |
 | 48 | `48-berserker-emergency-soul-cleanse.md` | Soul Cleanse1510 при root или physical mute, native cast |
 | 49 | `49-dagger-escape-shackle-root-only.md` | Escape Shackle453 при root, в том числе раньше собственного Bluff |

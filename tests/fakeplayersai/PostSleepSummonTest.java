@@ -80,7 +80,7 @@ public class PostSleepSummonTest extends DominatorPressureBluffTest
             if(cid==97){
                 verify(run(p,e,s,12000)&&last==0&&ai.requests==2,"center arrival dispatches one opposite endpoint");
                 tx=ai.requested.getX();ty=ai.requested.getY();at(p,tx,ty);f(Creature.class,"_move").set(p,null);
-                verify(run(p,e,s,13000)&&last==0&&!p.isMoving(),"Cardinal holds landed sleep after retreat, never burns it early");
+                verify(run(p,e,s,13000)&&last==1398&&!p.isMoving(),"rule93: Cardinal immediately uses Mana Burn after retreat against unprotected own sleep");finish(p,e,s,14000);
             }else{verify(run(p,e,s,12000)&&last==1367,"Dominator keeps legal curse after arrival");finish(p,e,s,17000);}
             verify(ai.requests==(cid==97?2:1),"one retreat per effect, no repeated circle walking");
             // SleepRetreat stops ONLY its owned route. A separately ready Trance may take movement ownership (75).

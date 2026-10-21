@@ -15,7 +15,7 @@ public class CardinalSleepPriorityTest extends ControlPursuitTranceKiteTest {
  static void centerSleep()throws Exception {
   for(boolean ranked:new boolean[]{false,true})for(boolean human:new boolean[]{false,true})for(boolean clarity:new boolean[]{false,true})
    for(int shield=0;shield<4;shield++)for(int heading=0;heading<360;heading+=45) {
-   Player e=actor(108,ranked,human),p=cardinal(e,ranked,1394,1398,1230,1218,1418);if(!clarity)clear(e,3282);effects(p);hp(p,10000);
+   Player e=actor(90,ranked,human),p=cardinal(e,ranked,1394,1398,1230,1218,1418);if(!clarity)clear(e,3282);effects(p);hp(p,10000);DominatorTankSleepTest.defense(e,110);
    if((shield&1)!=0){nativeSkill(1418).applyEffects(p,p,true,10);p.setInvul(true);}
    if((shield&2)!=0)proc(p);
    int cx=-20939,cy=-210729;double a=Math.toRadians(heading);
@@ -50,7 +50,7 @@ public class CardinalSleepPriorityTest extends ControlPursuitTranceKiteTest {
   Map<Integer,Player> roster=(Map<Integer,Player>)f(BotManager.class,"BOTS").get(null);
   Set<Integer> training=(Set<Integer>)f(TrainingArena.class,"BOTS").get(null);
   for(boolean ranked:new boolean[]{false,true})for(boolean human:new boolean[]{false,true}) {
-   Player e=actor(108,ranked,human),p=cardinal(e,ranked,1394,1398,1230,1218,1418);effects(p);clear(e,3282);hp(p,10000);Object local=arena(p,e);disable(p,1230);
+   Player e=actor(90,ranked,human),p=cardinal(e,ranked,1394,1398,1230,1218,1418);effects(p);clear(e,3282);hp(p,10000);Object local=arena(p,e);disable(p,1230);DominatorTankSleepTest.defense(e,110);
    if(ranked)roster.put(p.getObjectId(),p);else {training.add(p.getObjectId());BotTactics.initializeTraining(p,e);}
    if(!human)roster.put(e.getObjectId(),e);
    try {

@@ -112,7 +112,7 @@ public final class BotRecoveryRules
             if(event.getTargets()!=null)for(var target:event.getTargets())
                 if(target!=null&&target!=actor&&target.isCreature()&&target.asCreature().isInvul())return new TerminateReturn(true,true,true);
         }
-        if (victim!=null && victim!=actor && actor.getPlayerClass().getId()==97 && arenaManaged(actor) && victim.isSleeping()) return new TerminateReturn(true,true,true);
+        if (victim!=null && victim!=actor && actor.getPlayerClass().getId()==97 && arenaManaged(actor) && victim.isSleeping() && !SleepRetreat.wakeSkillAllowed(actor,victim,event.getSkill())) return new TerminateReturn(true,true,true);
         if (victim!=null&&blockedBluffStrike(actor,victim,event.getSkill())) return new TerminateReturn(true,true,true);
         if (!healing(event.getSkill())) return null;
         final Player bot = event.getCaster().asPlayer();
