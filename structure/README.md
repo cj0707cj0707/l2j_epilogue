@@ -4,6 +4,8 @@
 
 ## Последнее обновление
 
+- [94 — классовые фазы, олимпийский профиль и Duelist](94-arena-class-controls-and-duelist.md): Clarity-HOLD нетанков97; сон→root≤3→отход115; SoulGuard1283; без1268 в профиле; Trance под1418;261/9/7 и условный6.
+
 - [93 — условное ожидание сна Cardinal/Dominator](93-sleep-hold-only-during-tank-defense.md): HOLD только под защитой танка110/368/760; иначе один отход → немедленный законный Mana Burn/Steal.
 
 - [92 — Cardinal: Cleanse при ограничении движения](92-cardinal-cleanse-movement-lock.md): навык1409 имеет аварийный приоритет при активном movement lock; нативные запреты и реагент8874 сохранены.
@@ -30,6 +32,7 @@
 
 | # | Файл | Описание |
 |---|---|---|
+| 94 | `94-arena-class-controls-and-duelist.md` | Шесть актуальных правил Cardinal/Dominator/Duelist и олимпийских бафов |
 | 93 | `93-sleep-hold-only-during-tank-defense.md` | Сон: ожидание только под защитой танка; иначе после отхода Mana Burn/Steal |
 | 92 | `92-cardinal-cleanse-movement-lock.md` | Cardinal: Cleanse1409 при movement lock, self-target, нативные условия/реагент |
 | 48 | `48-berserker-emergency-soul-cleanse.md` | Soul Cleanse1510 при root или physical mute, native cast |

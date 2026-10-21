@@ -40,7 +40,7 @@ public class CardinalAlwaysTranceTest extends CardinalSleepPriorityTest {
   for(boolean ranked:new boolean[]{false,true})for(int protection=0;protection<5;protection++) {
    Player e=actor(92,ranked,true),p=cardinal(e,ranked,1394,1398,1230,1218,1418);hp(p,10000);clear(e,3282);shield(p,protection);Object s=arena(p,e);
    appliedSleep(p,e,97);run(p,e,s,10000);if(last==1398)finish(p,e,s,11000);clearSleep(e);f(Creature.class,"_move").set(p,null);
-   verify(run(p,e,s,15000)&&last==1230&&!p.isMoving(),"rule76: healthy ready Prominence supersedes wake Trance, even vs Sagittarius");finish(p,e,s,20000);
+   verify(run(p,e,s,15000)&&last==((protection&3)!=0?1394:1230)&&!p.isMoving(),"rule94: own Celestial keeps Trance; otherwise healthy Prominence resumes");finish(p,e,s,20000);
   }
  }
  static void gatesAndApproach()throws Exception {

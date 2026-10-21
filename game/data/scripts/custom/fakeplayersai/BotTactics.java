@@ -121,6 +121,7 @@ public final class BotTactics
         long chargePursuitUntil;
 		final SleepRetreat sleepRetreat = new SleepRetreat();
         final SleepRetreat tankSleepRetreat = new SleepRetreat();
+        final DominatorSleepRoot sleepRoot = new DominatorSleepRoot();
 		final DominatorControlRetreat controlRetreat = new DominatorControlRetreat();
 		final SummonAttackPulse summonAttack = new SummonAttackPulse();
 		final TacticsPolicy.OriginalRushStun<BuffInfo> rushLoop = new TacticsPolicy.OriginalRushStun<>();
@@ -315,13 +316,13 @@ public final class BotTactics
     private static boolean dominatorTankSleepHold(Player bot,Player enemy,BotClassPreset preset,State s,long time)
     {
         if(bot.getClient()!=null||preset.getClassId()!=115||bot.getPlayerClass().getId()!=115
-            ||!TankClassMechanics.tank(enemy)||!enemy.isSleeping())
+            ||!TankClassMechanics.tank(enemy)||!enemy.isSleeping()||s.sleepRoot.ownsSleep(enemy))
         { s.tankSleepRetreat.clear(bot); return false; }
         s.invulnerableKite.stop(); s.survivalKite.stop(); s.moveUntil=0;
         stopBasicAttack(bot);
         if(bot.isCastingNow()||bot.isCastingSimultaneouslyNow()||s.pendingId!=0)return true;
         // Only an actual own Sleep effect starts the retreat; a foreign/unknown sleep still means HOLD.
-        if(s.tankSleepRetreat.tick(bot,enemy,time,s.hasArenaCenter
+        if(!s.sleepRoot.ownsSleep(enemy)&&s.tankSleepRetreat.tick(bot,enemy,time,s.hasArenaCenter
             ? new int[]{s.arenaCenterX,s.arenaCenterY} : ArenaCombatRules.center(bot)))return true;
         if (SleepRetreat.wakeAllowed(bot,enemy)) return false; // ordinary legal Steal, no five-second wait
         supportBeforeMovement(bot,enemy,preset,s,time); // optional legal CP recovery while stationary
@@ -335,6 +336,61 @@ public final class BotTactics
             && skill.getId() == 821 && (enemy.isMageClass() || target != null && target.isCaster());
     }
     /** Shared candidate guard: this AI restriction never modifies a human Dominator's skills. */
+    public static synchronized boolean dominatorRootAllowed(Player bot,Player enemy,int id)
+    {
+        if(bot==null||bot.getClient()!=null||bot.getPlayerClass().getId()!=115||id!=1208)return true;
+        State s=STATES.get(bot.getObjectId());
+        return s==null||s.pendingId==1208||!s.sleepRoot.ownsSleep(enemy)||s.sleepRoot.rootAllowed();
+    }
+
+    /** Native self-toggle requests only while missing: never press an already active toggle. */
+    private static boolean soulGuard(Player bot,Player enemy,State s,long time)
+    {
+        if(!RoleCombatPolicy.soulGuard(bot,enemy)||CardinalSurvival.live(bot,1283))return false;
+        Skill skill=bot.getKnownSkill(1283);Failure f=s.failures.get(1283);
+        if(skill==null||s.pendingId!=0||bot.isCastingNow()||bot.isCastingSimultaneouslyNow()
+            ||bot.isOutOfControl()||bot.isAllSkillsDisabled()||bot.isMuted()||bot.isSkillDisabled(skill)
+            ||f!=null&&time<f.until||bot.isInOlympiadMode()&&skill.isBlockedInOlympiad()
+            ||!resources(bot,skill)||!skill.checkCondition(bot,bot,false))return false;
+        return phaseCast(bot,enemy,s,skill,time,true);
+    }
+
+    /** Shared pending/MP/cast accounting for the two mandatory class phases. */
+    private static boolean phaseCast(Player bot,Player enemy,State s,Skill skill,long time,boolean self)
+    {
+        stopBasicAttack(bot); if(bot.isMoving())bot.getAI().setIntentionIdle();
+        s.invulnerableKite.stop();s.survivalKite.stop();s.moveUntil=0;
+        bot.setTarget(self?bot:enemy);
+        s.pendingMp=bot.getCurrentMp();s.pendingHp=bot.getCurrentHp();s.pendingCharges=bot.getCharges();
+        s.pendingX=bot.getX();s.pendingY=bot.getY();s.pendingRushLoop=false;clearEvidence(s);
+        s.pendingCompletionMp=Math.max(0,bot.getStat().getMpInitialConsume(skill))+Math.max(0,bot.getStat().getMpConsume(skill));
+        if(!bot.useMagic(skill,true,true)){failure(s,skill.getId(),time);bot.setTarget(enemy);return false;}
+        s.pendingId=skill.getId();s.pendingAt=time;s.pendingSelf=self;s.pendingDebuff=skill.isDebuff();s.sawCast=bot.isCastingNow();
+        s.nextDecision=time+difficulty(s).reactionMs;return true;
+    }
+
+    private static boolean dominatorSleepRoot(Player bot,Player enemy,State s,long time)
+    {
+        if(bot.getClient()!=null||bot.getPlayerClass().getId()!=115||!meleeOpponent(enemy)||bot.getKnownSkill(1208)==null)return false;
+        s.sleepRoot.observe(bot,enemy);
+        if(!s.sleepRoot.active())return false;
+        stopBasicAttack(bot);
+        if(bot.isCastingNow()||bot.isCastingSimultaneouslyNow()||s.pendingId!=0||bot.isOutOfControl()||bot.isAllSkillsDisabled())return true;
+        Skill root=bot.getKnownSkill(1208);
+        if(enemy.isRooted())s.sleepRoot.rooted(DominatorControlRetreat.control(bot,enemy));
+        if(s.sleepRoot.retreating()||enemy.isRooted()||s.sleepRoot.attempts()>=3||root==null)
+            return s.sleepRoot.retreat(bot,enemy,time,s.hasArenaCenter?new int[]{s.arenaCenterX,s.arenaCenterY}:ArenaCombatRules.center(bot));
+        // Do not lose attempts to reuse, mute, native immunity/conditions or rejected requests.
+        if(enemy.isInvul())return true;
+        Failure f=s.failures.get(1208);
+        if(bot.isMuted()||bot.isSkillDisabled(root)||f!=null&&time<f.until
+            ||bot.isInOlympiadMode()&&root.isBlockedInOlympiad()||!resources(bot,root)||!root.checkCondition(bot,enemy,false))return true;
+        if(!inRange(bot,enemy,root,bot.calculateDistance2D(enemy))||!GeoEngine.getInstance().canSeeTarget(bot,enemy))
+        { roleApproach(bot,enemy,s,time,Math.max(1,root.getAffectRange()-10));return true; }
+        if(phaseCast(bot,enemy,s,root,time,false))s.sleepRoot.requested();
+        return true;
+    }
+
     public static boolean dominatorStunAllowed(Player bot, Player enemy, Skill skill)
     {
         return bot.getClient() != null || bot.getPlayerClass().getId() != 115
@@ -574,11 +630,13 @@ public final class BotTactics
     {
         if(bot==null||preset==null||!valid(bot,enemy,ranked,STATES.get(bot.getObjectId())))return false;
         boolean ranged=RoleCombatPolicy.rangedDominator(bot,enemy),charge=TacticsPolicy.chargeMeleeClass(preset.getClassId());
-        if(!ranged&&!charge)return false;
+        boolean meleeDom=bot.getClient()==null&&preset.getClassId()==115&&!ranged;
+        if(!ranged&&!charge&&!meleeDom)return false;
         if(ArenaCombatRules.update(bot,enemy,preset))return true;
         long time=now();State s=state(bot.getObjectId(),time);prepare(bot,enemy,s,time);claim(bot,s);
         s.summonAttack.tick(bot,enemy,time);
         boolean handled=act(bot,enemy,preset,s,time,false);
+        if(meleeDom)return true;
         if(bot.isCastingNow()||bot.isCastingSimultaneouslyNow()||s.pendingId!=0||bot.isOutOfControl()||bot.isAllSkillsDisabled()||enemy.isInvul())return true;
         double range=charge?bot.getPhysicalAttackRange()+bot.getTemplate().getCollisionRadius()+enemy.getTemplate().getCollisionRadius():tacticalApproachRange(bot,enemy,preset);
         boolean sealed=ranged&&RoleCombatPolicy.ownSeal(bot,enemy)!=null;
@@ -689,6 +747,7 @@ public final class BotTactics
         if (CardinalSurvival.active(bot, enemy) || preset.getClassId() == CARDINAL_CLASS_ID) return act(bot, enemy, preset, s, time, false);
         if (bot.isCastingNow() || bot.isCastingSimultaneouslyNow()) return true;
         if (escapeShackle(bot, enemy, preset, s, time) || soulCleanse(bot, enemy, preset, s, time)) return true;
+        if (preset.getClassId()==115 && SleepRetreat.ownSleep(bot,enemy)!=null) return act(bot,enemy,preset,s,time,false);
         if (dominatorTankSleepHold(bot,enemy,preset,s,time)) return true;
         if (supportBeforeMovement(bot, enemy, preset, s, time)) return true;
         return invulnerableMelee(bot, enemy, s, time);
@@ -876,7 +935,7 @@ public final class BotTactics
 			s.arenaCenterY = center != null ? center[1] : 0;
 			s.hasArenaCenter = center != null;
 			s.combatStartedAt = time; s.invulnerableKite.reset(); s.invulnerableLease = false;
-			s.trainingBurst.reset(); s.trainingBerserkerMode = false; s.dominatorCp.reset(); s.dominatorPressure.reset(); s.sleepRetreat.reset(); s.tankSleepRetreat.clear(bot); s.summonAttack.reset(); s.controlRetreat.reset();
+			s.trainingBurst.reset(); s.trainingBerserkerMode = false; s.dominatorCp.reset(); s.dominatorPressure.reset(); s.sleepRetreat.reset(); s.tankSleepRetreat.clear(bot); s.sleepRoot.reset(bot); s.summonAttack.reset(); s.controlRetreat.reset();
 			s.tankDefense.reset(time); s.rushLoop.clear(); s.nextRushStep = time; s.pendingRushLoop = false; s.rushMoving = false; s.rushDirectionX = 0; s.rushDirectionY = 0;
 			s.sleepObserved = -1; s.nextDecision = time; s.nextStep = time; s.pendingId = 0; s.failures.clear(); s.enemyCasting = false; s.moveUntil = 0;
 			s.cardinalProminence.reset(); s.cardinalTrancePriority = false;
@@ -928,7 +987,7 @@ public final class BotTactics
             && TankClassMechanics.tank(enemy) && enemy.isSleeping();
         final boolean cardinalNoKite = CardinalSurvival.noKite(bot);
         // Rule76: a legal ready Prominence at >90% HP precedes Trance, regardless of Clarity.
-        boolean healPriority = cardinalHealReady(bot,s,time);
+        boolean healPriority = !CardinalSurvival.sleepShield(bot)&&cardinalHealReady(bot,s,time);
         final boolean prominencePriority = !defenseOnly && !healPriority && cardinalProminenceReady(bot,enemy,s,time);
         // While protected, even native reuse/silence gaps must not fall back to fleeing.
         s.cardinalTrancePriority = !defenseOnly && !healPriority && !prominencePriority && CardinalSurvival.tranceTarget(bot,enemy)
@@ -960,7 +1019,7 @@ public final class BotTactics
 		// A removable movement lock outranks healing, Trance, attacks and every movement phase.
 		if (cardinalCleanse(bot, enemy, preset, s, time)) return true;
 		// Recheck after polling and the existing Cardinal MP policy; pending completion may unlock recovery.
-        healPriority = cardinalHealReady(bot,s,time);
+        healPriority = !CardinalSurvival.sleepShield(bot)&&cardinalHealReady(bot,s,time);
         // Reuse the normal self-skill admission/cast bookkeeping, before any movement phase.
         if (healPriority && (!defenseOnly || movingSupport))
         {
@@ -974,7 +1033,9 @@ public final class BotTactics
         }
         if (escapeShackle(bot, enemy, preset, s, time)) return true;
         if (soulCleanse(bot, enemy, preset, s, time)) return true;
-		if (!defenseOnly && dominatorTankSleepHold(bot,enemy,preset,s,time)) return true;
+		if (!defenseOnly && soulGuard(bot,enemy,s,time)) return true;
+        if (!defenseOnly && dominatorSleepRoot(bot,enemy,s,time)) return true;
+        if (!defenseOnly && dominatorTankSleepHold(bot,enemy,preset,s,time)) return true;
         if (!defenseOnly && !rootedKite && !cancelPriority && !prominencePriority && !cardinalNoKite && !cardinalSleeping && !s.clarityWindow.pending() && !survival && !trancePriority && !bluffHold && !CardinalSurvival.ownCelestial(bot))
 		{
 			final boolean mustKite = requiresInvulnerableKite(bot, enemy);
@@ -1000,6 +1061,7 @@ public final class BotTactics
             s.invulnerableKite.stop(); s.survivalKite.stop(); s.moveUntil=0;
             if (bot.isMoving() && (!trancePriority || !previousTrancePriority || inRange(bot,enemy,bot.getKnownSkill(1394),bot.calculateDistance2D(enemy)))) bot.getAI().setIntentionIdle();
         }
+        if (cardinalSleeping && CardinalSurvival.sleepShield(bot)) { stopBasicAttack(bot);return true; }
         if (cardinalSleeping)
         {
             // One center-crossing retreat; only a protected/foreign target keeps the old HOLD.
@@ -1022,7 +1084,7 @@ public final class BotTactics
 		final int[] bluffCenter = s.hasArenaCenter ? new int[]{s.arenaCenterX, s.arenaCenterY} : ArenaCombatRules.center(bot);
         if (!defenseOnly && s.bluffRear.tick(bot, enemy, bluffStun, time, bluffCenter)) return true;
         final boolean sleeping = enemy.isSleeping();
-        final BuffInfo meleeControl = (!defenseOnly || movingSupport) && !dominatorTankSleeping && bot.getPlayerClass().getId() == 115 && meleeOpponent(enemy)
+        final BuffInfo meleeControl = (!defenseOnly || movingSupport) && !dominatorTankSleeping && !s.sleepRoot.ownsSleep(enemy) && !s.sleepRoot.ownsRoot(bot,enemy) && bot.getPlayerClass().getId() == 115 && meleeOpponent(enemy)
             ? DominatorControlRetreat.control(bot, enemy) : null;
         final boolean controlHold = meleeControl != null;
         final int[] arenaCenter = s.hasArenaCenter ? new int[]{s.arenaCenterX, s.arenaCenterY} : ArenaCombatRules.center(bot);
@@ -1031,9 +1093,9 @@ public final class BotTactics
         if (controlHold) stopBasicAttack(bot);
 		// Actual landed own sleep, never a mere accepted request or another caster's effect.
 		final boolean roleRanged = RoleCombatPolicy.rangedDominator(bot,enemy);
-        final boolean ownSleep = !defenseOnly && !sleepPressure && !dominatorTankSleeping && !roleRanged && !controlHold && SleepRetreat.ownSleep(bot, enemy) != null;
+        final boolean ownSleep = !defenseOnly && !sleepPressure && !dominatorTankSleeping && !roleRanged && !controlHold && !s.sleepRoot.ownsSleep(enemy) && SleepRetreat.ownSleep(bot, enemy) != null;
 		if (ownSleep && !survival && supportBeforeMovement(bot, enemy, preset, s, time)) return true;
-		if (!defenseOnly && !cardinalSleeping && !dominatorTankSleeping && !roleRanged && !survival && !controlHold && s.sleepRetreat.tick(bot, enemy, time, s.hasArenaCenter ? new int[]{s.arenaCenterX, s.arenaCenterY} : ArenaCombatRules.center(bot))) return true;
+		if (!defenseOnly && !cardinalSleeping && !dominatorTankSleeping && !roleRanged && !survival && !controlHold && !s.sleepRoot.ownsSleep(enemy) && s.sleepRetreat.tick(bot, enemy, time, s.hasArenaCenter ? new int[]{s.arenaCenterX, s.arenaCenterY} : ArenaCombatRules.center(bot))) return true;
 		final boolean manaFallback = !defenseOnly && needsManaAutoAttack(bot, preset) && allowsBasicAttack(bot, preset);
 		final boolean dominator = preset.getClassId() == 115;
 		final boolean pressure = false; // Legacy ranged curse ladder superseded by role cycle88.
@@ -1051,7 +1113,7 @@ public final class BotTactics
         // A real third tank charge is transient: bypass ordinary AI reaction/decision latency,
         // but still use the common native legality/resource/range checks below.
         final int chargedTankFinisher=TankClassMechanics.readyFinisher(bot,enemy);
-		if (!sleepPressure && !tankSleepPriority && chargedTankFinisher==0 && (time < s.nextDecision || !TacticsPolicy.reactionReady(difficulty(s), time, s.observed, hp < .35)))
+		if (!CardinalSurvival.sleepShield(bot) && !sleepPressure && !tankSleepPriority && chargedTankFinisher==0 && (time < s.nextDecision || !TacticsPolicy.reactionReady(difficulty(s), time, s.observed, hp < .35)))
         {
             // Reaction latency must never pause the universal invulnerable-melee escape.
             if (!defenseOnly && survival && !trancePriority && !cardinalNoKite) invulnerableMelee(bot, enemy, s, time);
@@ -1091,7 +1153,8 @@ public final class BotTactics
 		// Mandatory learned recovery is independent of persisted buff/rotation overrides.
 		// Eligibility (HP <=40%, invulnerability, STUN phase, MP/reuse) is checked below.
 		if (preset.getClassId() == 131 && bot.getKnownSkill(833) != null) skills.put(833, bot.getKnownSkill(833));
-		if(roleRanged)for(int id:new int[]{1245,1097,1246}){Skill learned=bot.getKnownSkill(id);if(learned!=null)skills.put(id,learned);}
+		if(preset.getClassId()==88)for(int id:new int[]{261,9,7,6}){Skill learned=bot.getKnownSkill(id);if(learned!=null)skills.put(id,learned);}
+        if(roleRanged)for(int id:new int[]{1245,1097,1246}){Skill learned=bot.getKnownSkill(id);if(learned!=null)skills.put(id,learned);}
         if (controlHold && bot.getKnownSkill(1245) != null) skills.put(1245, bot.getKnownSkill(1245));
         Skill shadow = bot.getKnownSkill(821);
         if (!defenseOnly && shadow != null && daggerShadow(bot, enemy, preset, shadow)) skills.put(821, shadow);

@@ -121,7 +121,7 @@ public class BotSpawner
 		final List<int[]> result = new ArrayList<>(profile.length);
 		for (int[] buff : profile)
 		{
-			if (isChantOfVictoryFamily(buff[0])) continue;
+			if (isChantOfVictoryFamily(buff[0]) || buff[0]==1268) continue;
 			final Skill skill = SkillData.getInstance().getSkill(buff[0], buff[1]);
 			if ((skill != null) && skill.isDance()) continue;
 			result.add(buff);
@@ -852,6 +852,14 @@ public class BotSpawner
 		return result.stream().mapToInt(Integer::intValue).toArray();
 	}
 
+    /** Preparation only. The native toggle keeps its MP drain; no combat-time free rebuff. */
+    public static void prepareSoulGuard(Player bot,Player enemy)
+    {
+        if(!RoleCombatPolicy.soulGuard(bot,enemy)||bot.isAlikeDead()||CardinalSurvival.live(bot,1283))return;
+        Skill skill=bot.getKnownSkill(1283);
+        if(skill!=null)skill.applyEffects(bot,bot);
+    }
+
     static boolean tankMirrorDefenseAllowed(Player player,Player enemy,Skill skill)
     {
         if(player==null||player.getClient()!=null||enemy==null||!TankClassMechanics.tank(player)||!TankClassMechanics.tank(enemy)||!isStrongTankDefenseSkill(skill.getId()))return true;
@@ -861,7 +869,7 @@ public class BotSpawner
 
 	public static boolean tacticalSkillAllowed(Player player, Player enemy, Skill skill, boolean self)
 	{
-        if(!tankMirrorDefenseAllowed(player,enemy,skill)||!RoleCombatPolicy.candidate(player,enemy,skill,self))return false;
+        if(!tankMirrorDefenseAllowed(player,enemy,skill)||!RoleCombatPolicy.candidate(player,enemy,skill,self)||!BotTactics.dominatorRootAllowed(player,enemy,skill.getId()))return false;
         if(player.getClient()==null&&TacticsPolicy.chargeMeleeClass(player.getPlayerClass().getId())&&RoleCombatPolicy.builder(skill.getId())&&!RoleCombatPolicy.needsCharge(player))return false;
         if(player.getClient()==null && !self && enemy!=null && enemy.isInvul())return false;
         if (!CardinalSurvival.skillAllowed(player,skill.getId())) return false;
@@ -892,7 +900,8 @@ public class BotSpawner
 	{
 		if (player == null) return;
 		final AutoUseSettingsHolder aus = player.getAutoUseSettings();
-        aus.getAutoBuffs().removeIf(id -> !CardinalSurvival.skillAllowed(player,id));
+        aus.getAutoBuffs().removeIf(id -> !CardinalSurvival.skillAllowed(player,id)||player.getPlayerClass().getId()==115&&id==1283);
+        if(player.getClient()==null&&player.getPlayerClass().getId()==88)aus.getAutoSkills().removeIf(id -> id==5||id==6);
         aus.getAutoSkills().removeIf(id -> !CardinalSurvival.skillAllowed(player,id));
 		aus.getAutoBuffs().removeIf(id -> isOlympiadChantBanned(player, id));
 		aus.getAutoSkills().removeIf(id -> isOlympiadChantBanned(player, id));
@@ -979,7 +988,7 @@ public class BotSpawner
 		for (int id : preset.getBuffs())
 		{
 			Skill skill = bot.getKnownSkill(id);
-			if (!trainingPreparationSkillAllowed(skill) || isSelfBuffApplied(bot, id) || bot.isSkillDisabled(skill)) continue;
+			if (id==1283 || !trainingPreparationSkillAllowed(skill) || isSelfBuffApplied(bot, id) || bot.isSkillDisabled(skill)) continue;
 			BuffInfo stacked = skill.getAbnormalType() == AbnormalType.NONE ? null
 				: bot.getEffectList().getBuffInfoByAbnormalType(skill.getAbnormalType());
 			if (stacked != null && stacked.getSkill().getId() != id && stacked.getSkill().getAbnormalLevel() >= skill.getAbnormalLevel()) continue;

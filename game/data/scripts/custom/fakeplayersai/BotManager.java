@@ -625,6 +625,7 @@ public class BotManager
 				OlympiadSummonRules.prepare(player, preset);
 				BotSpawner.maintainOlympiadSummon(player, preset, null);
 				BotSpawner.applyPreCombatOpeners(player, preset);
+                BotSpawner.prepareSoulGuard(player, getOlympiadOpponent(player));
 			}
 
 			if (bot) OlympiadCombatGate.hold(player); // Also hold a newly prepared servitor.

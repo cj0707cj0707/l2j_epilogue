@@ -588,6 +588,7 @@ public final class TrainingArena
                 BotSpawner.applyTrainingClassBuffs(p, BotPresets.getPresetByClassId(p.getPlayerClass().getId()));
                 BotSpawner.applyTrainingClassBuffs(b, BotPresets.getPresetByClassId(s.choice.classId));
                 BotSpawner.applyPreCombatOpeners(b, BotPresets.getPresetByClassId(s.choice.classId));
+                BotSpawner.prepareSoulGuard(b,p);
                 s.preparationUntil = Math.max(s.preparationUntil, System.nanoTime() + 3_000_000_000L);
                 remaining = remainingSeconds(s.preparationUntil, System.nanoTime());
             }

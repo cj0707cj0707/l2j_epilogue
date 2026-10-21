@@ -54,10 +54,10 @@ public class CardinalSleepPriorityTest extends ControlPursuitTranceKiteTest {
    if(ranked)roster.put(p.getObjectId(),p);else {training.add(p.getObjectId());BotTactics.initializeTraining(p,e);}
    if(!human)roster.put(e.getObjectId(),e);
    try {
-    targetEnemy=e;last=0;proc(p);verify(BotTactics.tickCardinalControl(p,e,BotPresets.getPresetByClassId(97),ranked),"public mandatory proc hook handles active pair");
+    targetEnemy=e;last=0;proc(p);verify(BotTactics.tickCardinalControl(p,e,BotPresets.getPresetByClassId(97),ranked)&&last==1394,"rule94: public proc hook immediately requests Trance without ordinary reaction delay");
     Object s=((Map<Integer,?>)f(BotTactics.class,"STATES").get(null)).get(p.getObjectId());
     f(state,"observed").setLong(s,0);f(state,"nextDecision").setLong(s,0);f(state,"hpObserved").setLong(s,0);
-    last=0;verify(BotTactics.tickCardinalControl(p,e,BotPresets.getPresetByClassId(97),ranked)&&last==1394,"public hook requests Trance before generic outer kite");
+    last=0;verify(BotTactics.tickCardinalControl(p,e,BotPresets.getPresetByClassId(97),ranked)&&last==0&&p.isCastingNow(),"public hook preserves already accepted Trance without duplicate or outer kite");
     p.setCastingNow(false);f(state,"pendingId").setInt(s,0);appliedSleep(p,e,97);
     last=0;verify(BotTactics.tick(p,e,BotPresets.getPresetByClassId(97),ranked)&&last==0&&!p.isMoving(),"public common tick holds landed sleep under proc, no universal kite");
     BotRecoveryRules.init();
@@ -66,7 +66,10 @@ public class CardinalSleepPriorityTest extends ControlPursuitTranceKiteTest {
     verify(BotRecoveryRules.bluffAttack(attack).terminate(),"native attack admission protects sleep even from legacy engine");
     var result=org.l2jmobius.gameserver.mechanics.events.EventDispatcher.getInstance().notifyEvent(attack,org.l2jmobius.gameserver.mechanics.events.Containers.Global(),org.l2jmobius.gameserver.mechanics.events.returns.TerminateReturn.class);
     verify(result!=null&&result.terminate(),"real synchronous global listener blocks sleep autoattack");
-    clearSleep(e);verify(BotRecoveryRules.guard(castEvent(p,e,1398))==null&&BotRecoveryRules.bluffAttack(attack)==null,"wake releases only sleep-specific admission guards");
+    clearSleep(e);
+    verify(BotRecoveryRules.guard(castEvent(p,e,1394))==null&&BotRecoveryRules.guard(castEvent(p,e,1398))!=null,"rule94: awake target under Barrier admits Trance, not Mana Burn");
+    clear(p,5576);p.setInvul(false);
+    verify(BotRecoveryRules.guard(castEvent(p,e,1398))==null&&BotRecoveryRules.bluffAttack(attack)==null,"wake and shield expiry restore normal admission");
    } finally {BotTactics.forget(p.getObjectId());roster.remove(p.getObjectId());roster.remove(e.getObjectId());training.remove(p.getObjectId());}
   }
  }

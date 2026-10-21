@@ -21,6 +21,11 @@ final class CardinalSurvival
         BuffInfo b=bot.getEffectList().getBuffInfoBySkillId(id);
         return b!=null&&!b.isRemoved()&&b.isInUse();
     }
+    static boolean talismanClarity(Player enemy) { return live(enemy,3281)||live(enemy,3282); }
+    static boolean celestialSkillAllowed(Player bot,int id)
+    { return !sleepShield(bot)||id==1394||id==1409; }
+    static boolean sleepShield(Player bot)
+    { return bot!=null&&bot.getClient()==null&&bot.getPlayerClass().getId()==97&&(live(bot,1418)||live(bot,5576)); }
     static boolean ownCelestial(Player bot) { return bot!=null&&bot.getClient()==null&&bot.getPlayerClass().getId()==97&&live(bot,1418); }
     static boolean noKite(Player bot)
     {
@@ -38,7 +43,7 @@ final class CardinalSurvival
     static boolean prominenceAllowed(Player bot,Player enemy)
     {
         if(bot==null||bot.getClient()!=null||bot.getPlayerClass().getId()!=97)return true;
-        return enemy!=null&&bot.getCurrentHp()>bot.getMaxHp()*.90&&!enemy.isSleeping()&&!enemy.isInvul();
+        return !sleepShield(bot)&&enemy!=null&&bot.getCurrentHp()>bot.getMaxHp()*.90&&!enemy.isSleeping()&&!enemy.isInvul();
     }
     /** Ignore saved auto-use overrides for bot Cardinal's own Celestial; passive5576 is separate. */
     public static boolean skillAllowed(Player bot,int id)

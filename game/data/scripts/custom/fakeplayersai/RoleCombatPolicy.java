@@ -33,8 +33,24 @@ final class RoleCombatPolicy
                 &&e.getEffectList().getBuffInfoByAbnormalType(info.getSkill().getAbnormalType())==info)return info;
         return null;
     }
+    static boolean physical(Player e)
+    {
+        if(e==null)return false;
+        BotClassPreset preset=BotPresets.getPresetByClassId(e.getPlayerClass().getId());
+        return !e.isMageClass()&&(preset==null||!preset.isCaster());
+    }
+    static boolean soulGuard(Player p,Player e)
+    { return p!=null&&p.getClient()==null&&p.getPlayerClass().getId()==115&&physical(e); }
+    static boolean duelistAllowed(Player p,Player e,int id)
+    {
+        if(p==null||p.getClient()!=null||p.getPlayerClass().getId()!=88)return true;
+        return id!=5&&(id!=6||e!=null&&e.getCurrentHp()<e.getMaxHp()*.40&&kited(p,e));
+    }
     static boolean candidate(Player p,Player e,Skill skill,boolean self)
     {
+        if(skill.getId()==1283&&p!=null&&p.getClient()==null&&p.getPlayerClass().getId()==115)
+            return self&&soulGuard(p,e)&&!CardinalSurvival.live(p,1283);
+        if(!duelistAllowed(p,e,skill.getId())||!CardinalSurvival.celestialSkillAllowed(p,skill.getId()))return false;
         if(!rangedDominator(p,e))return true;
         int id=skill.getId();
         if(archer(e))return !self&&id==1245&&!e.isSleeping();

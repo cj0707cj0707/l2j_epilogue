@@ -45,14 +45,16 @@ final class SleepRetreat
         return null;
     }
 
-    /** Rule93: only landed own sleep; strong tank defense and real invulnerability still win.
-     * Dominator's ranged-opponent Silence cycle is deliberately outside this rule. */
+    /** Rules93/94: landed own sleep. Cardinal non-tanks HOLD only under talisman Clarity;
+     * tank defenses, invulnerability and Dominator's ranged Silence cycle retain their policy. */
     static boolean wakeAllowed(Player bot, Player enemy)
     {
         if (bot == null || enemy == null || bot.getClient() != null || enemy.isInvul()
-            || TankClassMechanics.defendedTank(enemy) || ownSleep(bot, enemy) == null) return false;
+            || ownSleep(bot, enemy) == null) return false;
         int cid = bot.getPlayerClass().getId();
-        return cid == 97 || cid == 115 && TankClassMechanics.tank(enemy);
+        if (cid == 97) return !CardinalSurvival.sleepShield(bot) && (TankClassMechanics.tank(enemy)
+            ? !TankClassMechanics.defendedTank(enemy) : !CardinalSurvival.talismanClarity(enemy));
+        return cid == 115 && !RoleCombatPolicy.rangedDominator(bot,enemy) && !TankClassMechanics.defendedTank(enemy);
     }
 
     /** Narrow shared admission exception, not permission for arbitrary debuffs/legacy casts. */
@@ -156,8 +158,13 @@ final class SleepRetreat
 
     boolean tick(Player bot, Player enemy, long time, int[] center)
     {
+        return tick(bot,enemy,time,center,bot.getPlayerClass().getId()==97 ? cardinalSleep(bot,enemy) : ownSleep(bot,enemy));
+    }
+
+    /** A landed-sleep token may survive wake-up while Dominator completes its one retreat. */
+    boolean tick(Player bot, Player enemy, long time, int[] center, BuffInfo effect)
+    {
         final boolean cardinal = bot.getClient() == null && bot.getPlayerClass().getId() == 97;
-        BuffInfo effect = cardinal ? cardinalSleep(bot, enemy) : ownSleep(bot, enemy);
         if (effect == null) { stopOwnedMove(bot); reset(); return false; }
         if (effect != sleep.get())
         {

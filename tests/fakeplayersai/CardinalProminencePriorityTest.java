@@ -9,7 +9,7 @@ public class CardinalProminencePriorityTest extends CardinalAlwaysTranceTest {
   try {
    preset.setRotationOverride(new int[]{1394,1398,1218,1418}); // Mandatory learned1230 must survive saved rotation overrides.
    for(var opponent:BotPresets.getPresets())for(boolean ranked:new boolean[]{false,true})for(boolean human:new boolean[]{false,true})
-    for(boolean clarity:new boolean[]{false,true})for(int protection=0;protection<4;protection++) {
+    for(boolean clarity:new boolean[]{false,true})for(int protection:new int[]{0}) {
     Player e=actor(opponent.getClassId(),ranked,human),p=cardinal(e,ranked,1394,1398,1230,1218,1418);clear(e,3282);shield(p,protection);if(clarity)nativeSkill(3282).applyEffects(e,e,true,60);
     hp(p,p.getMaxHp()*.91);Object s=arena(p,e);
     verify(run(p,e,s,10000)&&last==1230&&!p.isMoving(),">90%: ready Prominence before Trance/heal/kite, every class/arena/target/Clarity/shield");
@@ -29,6 +29,7 @@ public class CardinalProminencePriorityTest extends CardinalAlwaysTranceTest {
    e.setInvul(true);verify(run(p,e,s,20000)&&last==0&&p.isMoving(),"rule87: invulnerable ranged target has no nuke/Trance and takes kite priority");e.setInvul(false);
    appliedSleep(p,e,97);verify(run(p,e,s,25000)&&last==0&&!p.isMoving(),"sleeping target: no nuke even if10s ready, protected HOLD");
    verify(!BotSpawner.tacticalSkillAllowed(p,e,nativeSkill(1230),false),"shared sleep guard");clearSleep(e);
+   p.getEffectList().getBuffInfoBySkillId(5576).setInUse(false);p.setInvul(false);
    hp(p,p.getMaxHp()*.90);verify(!BotSpawner.tacticalSkillAllowed(p,e,nativeSkill(1230),false),"shared exact90% veto");hp(p,p.getMaxHp()*.91);
    verify(BotSpawner.tacticalSkillAllowed(p,e,nativeSkill(1230),false),"shared Clarity target allowed at91%");
    var roster=(java.util.Map<Integer,Player>)f(BotManager.class,"BOTS").get(null);var training=(java.util.Set<Integer>)f(TrainingArena.class,"BOTS").get(null);

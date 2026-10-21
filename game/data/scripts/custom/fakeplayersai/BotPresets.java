@@ -177,7 +177,7 @@ public class BotPresets
 				// builder Sonic Focus (8) is part of the rotation - the rotation itself
 				// rebuilds charges last. Active arena combat uses native builders only;
 				// preparation/world retains legacy4->7 refill; combat ceiling stays7.
-				261, 5, 6, 7, 9, 775, 8, 345
+				261, 9, 7, 6, 775, 8, 345
 			},
 			new int[]
 			{

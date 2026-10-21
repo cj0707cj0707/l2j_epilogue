@@ -66,6 +66,7 @@ public class PostSleepSummonTest extends DominatorPressureBluffTest
         Location across=SleepRetreat.goal(350,0,0,400,0,0,0,900);verify(across.getX()<-440,"ordinary straight run may cross arena center to far edge");
     }
     static void retreats()throws Exception {
+        // Dominator here deliberately has no learned1208: legacy retreat fallback, full root phase covered by94.
         for(boolean ranked:new boolean[]{false,true})for(int cid:new int[]{97,115}) {
             Player p=owner(cid,ranked),e=actor(cid==115?88:94,ranked,true);at(e,0,0);f(Creature.class,"_zones").set(e,new byte[64]);p.setTarget(e);
             if(cid==97)learn(p,nativeSkill(1398));else for(int id:new int[]{1245,1367})learn(p,nativeSkill(id));
@@ -81,7 +82,7 @@ public class PostSleepSummonTest extends DominatorPressureBluffTest
                 verify(run(p,e,s,12000)&&last==0&&ai.requests==2,"center arrival dispatches one opposite endpoint");
                 tx=ai.requested.getX();ty=ai.requested.getY();at(p,tx,ty);f(Creature.class,"_move").set(p,null);
                 verify(run(p,e,s,13000)&&last==1398&&!p.isMoving(),"rule93: Cardinal immediately uses Mana Burn after retreat against unprotected own sleep");finish(p,e,s,14000);
-            }else{verify(run(p,e,s,12000)&&last==1367,"Dominator keeps legal curse after arrival");finish(p,e,s,17000);}
+            }else{verify(run(p,e,s,12000)&&last==1245,"Dominator fallback wakes with legal Steal immediately after arrival");finish(p,e,s,17000);}
             verify(ai.requests==(cid==97?2:1),"one retreat per effect, no repeated circle walking");
             // SleepRetreat stops ONLY its owned route. A separately ready Trance may take movement ownership (75).
             at(p,80,0);clearSleep(e);appliedSleep(p,e,cid);s=centered();f(state,"nextDecision").setLong(s,Long.MAX_VALUE);run(p,e,s,20000);

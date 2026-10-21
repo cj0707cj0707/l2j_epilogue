@@ -12,7 +12,7 @@ public class SleepDefense93Test extends RoleCombat88Test
     static Player sleeper(Player e,int cid,boolean ranked)throws Exception
     {
         Player p=cid==97?cardinal(e,ranked,1394,1398,1230,1218):dom(e,ranked);
-        hp(p,10000);cp(p,10000);return p;
+        hp(p,10000);cp(p,10000);if(cid==115)p.removeSkill(1208,false);return p;
     }
     static void arrive93(Player p,NativeMoveAI ai)throws Exception
     {at(p,ai.requested.getX(),ai.requested.getY());f(Creature.class,"_move").set(p,null);}
