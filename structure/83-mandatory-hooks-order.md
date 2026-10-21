@@ -1,38 +1,39 @@
-# 83. Обязательный порядок хуков в `act`
+# 83. Обязательный порядок хуков в `act()`
 
-> **Конфликт9 — решение:** порядок обязательных хуков зафиксирован, чтобы будущие расширения не внесли регрессий или багов. Порядок в коде должен совпадать с данной таблицей.
+Создан по итогам анализа конфликтов (doc82). Обновлён: добавлен хук 0 (doc84).
 
-Документ зафиксирован как отдельный файл, поскольку `09-fake-players-ai.md` слишком велик для полного редактирования. Ссылки на этот документ есть в [48](48-berserker-emergency-soul-cleanse.md) и [49](49-dagger-escape-shackle-root-only.md).
+## Полный порядок
 
-## Порядок хуков в `BotTactics.act` (канонический)
+| № | Хук | Классы | Док |
+|---|---|---|---|
+| **0** | `handleInvulnerableTarget` | все | [84](84-invulnerable-enemy-no-attack-kite-or-wait.md) |
+| 1 | `escapeShackle(453)` | Dagger 93/101/108 | [49](49-dagger-escape-shackle-root-only.md) |
+| 2 | `soulCleanse(1510)` | Berserker 131 | [48](48-berserker-emergency-soul-cleanse.md) |
+| 3 | `bluffRear` | Dagger 93/101/108 | [53](53-bluff-reuse-and-dominator-ranged-pressure.md) |
+| 4 | `cardinalSurvival` | Cardinal 97 | [75](75-cardinal-always-trance-no-shield-kite-and-210s.md) |
+| 5 | `tickMageCancel(1056)` | Archmage 94, Mystic Muse 96 | [80](80-dominator-sleep-hold-and-mage-cancel-priority.md) |
+| 6 | `rootedByTank` | все vs танк | [81](81-tank-root-stationary-rotation.md) |
+| 7 | `tickInvulnerableMelee` | все vs танк | [75](75-cardinal-always-trance-no-shield-kite-and-210s.md) |
+| 8 | `normalAct` | все | — |
 
-| # | Хук / метод | Условие | Классы | Описание |
-|---|---|---|---|---|
-| 1 | `escapeShackle(453)` | `isRooted()` | 93, 101, 108 | Немедленно при руте; физический SELF-навык; ROOT-only |
-| 2 | `soulCleanse(1510)` | `isRooted() \| isPhysicalMuted()` | 131 | Немедленно при руте/PhysicalMute; магический self-target |
-| 3 | `bluffRear` | rear и цель бодрствует | 93, 101, 108 | Bluff358 с rear, reuse12000ms |
-| 4 | `cardinalSurvival` | цель = Cardinal97 | все | Trance1394 первым; HP<75% → хил1218 первым |
-| 5 | `tickMageCancel(1056)` | цель бодрствует | 94, 96 | Cancel на противника (снять его баффы); Trance не затрагивает |
-| 6 | `rootedByTank` | `isRooted()` | все vs танк | Стационарная ротация с места (правило81) |
-| 7 | `tickInvulnerableMelee` | цель неуязвима | все vs танк | Общий kite-хук |
-| 8 | `normalAct` | остальные | все | Обычная ротация |
+## Правило
 
-## Правила порядка
+Каждый хук возвращает `true` (обработал) или `false` (пропустить). При `true` — остальные хуки в этом тике не выполняются.
 
-1. **Классы взаимоисключающие:** Dagger (93/101/108) и Berserker (131) не пересекаются. Для каждого бота срабатывает ровно один хук — порядок (#1 все равно зафиксирован для безопасности при будущих изменениях).
-2. **Escape Shackle (453) физический SELF-навык**, Soul Cleanse (1510) магический self-таргет. Оба применяются немедленно при обнаружении root, без ожидания очереди ротации.
-3. **Cancel (1056) направлен на противника.** Снимает его положительные баффы (slot=buff). Trance — дебафф на противнике, **Cancel не может его снять**.
-4. **Порядок не менять без документации.** Добавление нового хука — в подходящую строку таблицы с обновлением этого документа и [structure/README.md](README.md).
+**Хук 0** — самый первый: если `target.isInvul()`, вся атака/дебаффы блокируются сразу. Бот либо кайтит (мили-противник), либо ожидает/лечится (дальник-противник).
 
-## Квалификация: когда хук является «обязательным»
-
-- Хук обязателен, если: его пропуск приведёт к багу или ложному поведению бота при любом порядке других хуков.
-- Прочие хуки (rush-to-target, autoattack, tactical skills) — не обязательные и могут появляться в любом порядке после обязательных.
-
-## Связанные документы
-
-- [48 — Soul Cleanse](48-berserker-emergency-soul-cleanse.md)
-- [49 — Escape Shackle](49-dagger-escape-shackle-root-only.md)
-- [80 — Cancel на противника](80-dominator-sleep-hold-and-mage-cancel-priority.md)
-- [81 — Стационарная ротация при руте](81-tank-root-stationary-rotation.md)
-- [09 — Архитектура BotTactics (общая)](09-fake-players-ai.md)
+```java
+// Типовая структура act() всех *AI.java
+protected void runAct() {
+    L2Character target = getTarget();
+    if (handleInvulnerableTarget(this, target))  return; // 0 — FIRST
+    if (escapeShackle(this))                     return; // 1
+    if (soulCleanse(this))                       return; // 2
+    if (bluffRear(this, target))                 return; // 3
+    if (cardinalSurvival(this, target))          return; // 4
+    if (tickMageCancel(this, target))            return; // 5
+    if (rootedByTank(this, target))              return; // 6
+    if (tickInvulnerableMelee(this, target))     return; // 7
+    normalAct(this, target);                             // 8
+}
+```
