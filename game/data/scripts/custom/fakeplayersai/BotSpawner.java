@@ -776,7 +776,7 @@ public class BotSpawner
 	public static int[] getTacticalRotation(Player player, Player enemy)
 	{
 		BotClassPreset preset = BotPresets.getPresetByClassId(BotManager.getBotClassId(player));
-		return preset == null ? new int[0] : java.util.Arrays.stream(preset.getRotation()).filter(id -> CardinalSurvival.skillAllowed(player,id)).toArray();
+		return preset == null ? new int[0] : java.util.Arrays.stream(preset.getRotation()).filter(id -> CardinalSurvival.skillAllowed(player,id)).boxed().sorted(java.util.Comparator.comparingInt(id -> RoleCombatPolicy.builder(id)?1:0)).mapToInt(Integer::intValue).toArray();
 	}
 
 	private static boolean isTacticalTank(Player player)
@@ -850,8 +850,17 @@ public class BotSpawner
 		return result.stream().mapToInt(Integer::intValue).toArray();
 	}
 
+    static boolean tankMirrorDefenseAllowed(Player player,Player enemy,Skill skill)
+    {
+        if(player==null||player.getClient()!=null||enemy==null||!TankClassMechanics.tank(player)||!TankClassMechanics.tank(enemy)||!isStrongTankDefenseSkill(skill.getId()))return true;
+        double reach=TacticsPolicy.tankApproachRange(player.getPhysicalAttackRange(),player.getTemplate().getCollisionRadius())+enemy.getTemplate().getCollisionRadius();
+        return player.calculateDistance3D(enemy)<=reach&&GeoEngine.getInstance().canSeeTarget(player,enemy);
+    }
+
 	public static boolean tacticalSkillAllowed(Player player, Player enemy, Skill skill, boolean self)
 	{
+        if(!tankMirrorDefenseAllowed(player,enemy,skill)||!RoleCombatPolicy.candidate(player,enemy,skill,self))return false;
+        if(player.getClient()==null&&TacticsPolicy.chargeMeleeClass(player.getPlayerClass().getId())&&RoleCombatPolicy.builder(skill.getId())&&!RoleCombatPolicy.needsCharge(player))return false;
         if(player.getClient()==null && !self && enemy!=null && enemy.isInvul())return false;
         if (!CardinalSurvival.skillAllowed(player,skill.getId())) return false;
         if (!BotTactics.dominatorStunAllowed(player, enemy, skill)) return false;

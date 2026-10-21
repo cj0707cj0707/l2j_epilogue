@@ -118,20 +118,13 @@ public class BotManager
 	 */
 	private static final Consumer<OnPlayerLogin> OLYMPIAD_LOGIN_LISTENER = BotManager::onPlayerLogin;
 
-	// Charge window for the sonic/force charge classes (admin rules of 16.09.2026):
-	// the charge REQUIREMENTS of the Duelist/Grand Khavatari skills are back in the
-	// datapack (chargeConsume + Charges conditions), the charge builder skills are part
-	// of the class ROTATIONS (Sonic Focus 8 for the Duelist, Focused Force 50 for the
-	// Grand Khavatari), and the combat driver keeps the charge LEVEL of those bots inside
-	// the window: below CHARGE_MIN it is refilled up to CHARGE_MAX instantly (the same
-	// style as the olympiad buff set - the core auto-buff engine never fires under a
-	// continuous auto-attack), above CHARGE_MAX it is trimmed back (a rotation builder
-	// cast at the ceiling or a Maximum Focus/Sonic Focus from a //bot buff set would
-	// otherwise sit at the retail cap of 8). Between the 2 s ticks the level may dip
-	// lower while the rotation spends charges on attacks - exactly like a real player.
+	// Charge ceiling7 and legacy world/preparation refill4->7. Structure88:
+	// active ranked Duelist/Grand Khavatari must rebuild through native skills;
+	// no instant refill during combat. Training never had this refill task.
+	// Native requirements/costs remain intact; builders are last in the rotation.
 	private static final int SONIC_FOCUS_ID = 8; // Sonic Focus (Duelist line, +1 charge per cast)
 	private static final int FOCUS_FORCE_ID = 50; // Focused Force (Grand Khavatari line, +1 charge per cast)
-	private static final int CHARGE_MIN = 4; // admin rule: keep the charge level at 4 or above
+	private static final int CHARGE_MIN = 4; // legacy preparation/world refill threshold, not arena minimum
 	private static final int CHARGE_MAX = 7; // admin rule: keep the charge level at 7 or below
 
 	// Chase-the-runner: melee bots re-path to the player's CURRENT coordinates on
@@ -1403,14 +1396,12 @@ public class BotManager
 
 				}
 
-				// Charge window (see the constants above): bots of the charge classes keep
-				// their sonic/force charges between CHARGE_MIN and CHARGE_MAX. Applied
-				// instantly, the same way as the olympiad buff set; bots that know no
-				// charge builder are skipped (they have no charge skills at all).
+				// Legacy world/preparation refill, but NO refill in an active ranked
+				// charge-fighter duel (88). The upper cap7 still applies everywhere.
 				if ((bot.getKnownSkill(SONIC_FOCUS_ID) != null) || (bot.getKnownSkill(FOCUS_FORCE_ID) != null))
 				{
 					final int charges = bot.getCharges();
-					if (charges < CHARGE_MIN)
+					if (charges < CHARGE_MIN && !(bot.isInOlympiadMode() && bot.isOlympiadStart() && TacticsPolicy.chargeMeleeClass(preset.getClassId())))
 					{
 						// Refill up to the window ceiling (max cap = CHARGE_MAX as well).
 						bot.increaseCharges(CHARGE_MAX - charges, CHARGE_MAX);
@@ -1473,6 +1464,7 @@ public class BotManager
 				withTarget++;
 
 				if (inOlympiad && target.isPlayer() && BotTactics.tickInvulnerableTarget(bot, target.asPlayer(), preset, true)) continue;
+                if (inOlympiad && target.isPlayer() && BotTactics.tickRoleCombat(bot,target.asPlayer(),preset,true)) continue;
 				if (inOlympiad && target.isPlayer() && BotTactics.tickBluffRear(bot, target.asPlayer(), preset, true)) continue;
 				if (inOlympiad && target.isPlayer() && BotTactics.tickCardinalControl(bot, target.asPlayer(), preset, true)) continue;
                 if (inOlympiad && target.isPlayer() && BotTactics.tickMageCancel(bot, target.asPlayer(), preset, true)) continue;
@@ -1851,6 +1843,7 @@ public class BotManager
 				if (activeOpponent != null && ArenaCombatRules.update(bot, activeOpponent, preset)) { OlympiadCombatGate.hold(bot); continue; }
 				BotTactics.tickSummonAttack(bot, activeOpponent, true);
 				if (BotTactics.tickInvulnerableTarget(bot, activeOpponent, preset, true)) continue;
+                if (BotTactics.tickRoleCombat(bot,activeOpponent,preset,true)) continue;
 				if (BotTactics.tickBluffRear(bot, activeOpponent, preset, true)) continue;
 				if (BotTactics.tickCardinalControl(bot, activeOpponent, preset, true)) continue;
                 if (BotTactics.tickMageCancel(bot, activeOpponent, preset, true)) continue;
@@ -2082,7 +2075,7 @@ public class BotManager
 		return game>=0&&game<OLYMPIAD_STADIUM_CENTERS.length?OLYMPIAD_STADIUM_CENTERS[game].clone():null;
 	}
 
-	private static Player getOlympiadOpponent(Player player)
+	static Player getOlympiadOpponent(Player player)
 	{
 		try
 		{

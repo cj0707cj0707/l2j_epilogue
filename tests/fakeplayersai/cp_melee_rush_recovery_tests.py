@@ -7,7 +7,7 @@ m=(S/'BotManager.java').read_text();t=(S/'BotTactics.java').read_text();sp=(S/'B
 a=sp[sp.index('public static int[] getTacticalCpSupport'):sp.index('private static int[][] buildOlympiadProfile')]
 assert 'dominatorPresetAllows' not in a and 'getKnownSkill' in a
 for text in [m,(S/'TrainingArena.java').read_text()]:assert 'BotTactics.strictMeleePressure(' in text
-assert 'if (chargeClosing && !self(kind)) { continue; }' in t
+assert 'if (chargeClosing && !chargeKited && !self(kind)) { continue; }' in t
 assert 'chargeClosing && !bot.isMovementDisabled() && !bot.isOutOfControl()) return false' in t
 assert 'TacticsPolicy.chargeMeleeRecoveryAllowed(strictMeleePressure(bot, enemy, preset)' in t
 assert 'if (trainingRushActive && skill.getId() != 793)' in t

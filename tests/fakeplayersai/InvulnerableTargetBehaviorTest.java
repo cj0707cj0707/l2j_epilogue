@@ -48,11 +48,11 @@ public class InvulnerableTargetBehaviorTest extends TankRootStationary81Test
                 verify(BotRecoveryRules.bluffAttack(attack)!=null,"native managed-arena autoattack veto during immunity");
                 verify(BotRecoveryRules.guard(castEvent(p,e,1230))!=null,"native offensive cast admission veto");
                 verify(!BotSpawner.tacticalSkillAllowed(p,e,nativeSkill(1230),false),"shared legacy/tactical candidate veto");
-                var self=castEvent(p,p,1218);verify(BotRecoveryRules.guard(self)==null,"legal self support is not blocked because opponent is invulnerable");
+                var self=castEvent(p,p,1218);verify((BotRecoveryRules.guard(self)==null)==(preset.getClassId()!=115),"rule88 Dominator ranged restriction, otherwise invulnerability does not block legal self support");
                 p.setCastingNow(true);verify(phase(p,e,ranked)&&p.isCastingNow()&&ai.requests==moves,"real cast is not interrupted/duplicated");
                 e.setInvul(false);verify(phase(p,e,ranked)&&p.isCastingNow(),"expiry during a real cast retains route handle for later cleanup");p.setCastingNow(false);
                 verify(!phase(p,e,ranked)&&!p.isMoving()&&!BotTactics.isOwned(p.getObjectId()),"expiry releases old route and previous parent authority");
-                verify(BotRecoveryRules.bluffAttack(attack)==null&&BotRecoveryRules.guard(castEvent(p,e,1230))==null,"native attack/cast gate reopens immediately after immunity");
+                verify((BotRecoveryRules.bluffAttack(attack)==null&&BotRecoveryRules.guard(castEvent(p,e,1230))==null)==(preset.getClassId()!=115),"immunity gate reopens; rule88 Dominator still only uses Steal Essence against ranged");
             }
             finally{cleanup(p,e);}
         }

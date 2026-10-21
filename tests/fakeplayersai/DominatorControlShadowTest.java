@@ -51,7 +51,7 @@ public class DominatorControlShadowTest extends PostSleepSummonTest
         targetEnemy=honor;last=0;Object hs=centered();act.invoke(null,honor,victim,BotPresets.getPresetByClassId(115),hs,10000L,false);
         verify(last==1305&&honor.getTarget()==honor,"native Honor PARTY_CLAN safely targets self at80% under own root");finish(honor,victim,hs,16000);
         Player ranged=actor(94,false,true),d=owner(115,false);at(d,0,0);at(ranged,30,0);f(Creature.class,"_zones").set(ranged,new byte[64]);applied(d,ranged,1208);learn(d,nativeSkill(1245));learn(d,nativeSkill(1097));
-        run(d,ranged,centered(),10000);verify(last==1097,"ranged target retains pressure/control rotation, not melee-only restriction");d.setCastingNow(false);
+        run(d,ranged,centered(),10000);verify(last==1245,"rule88 ranged target starts with Steal, not melee-only restriction");d.setCastingNow(false);
         BuffInfo otherStun=applied(d,ranged,260);f(BuffInfo.class,"_skill").set(otherStun,nativeSkill(358));
         verify(DominatorControlRetreat.control(d,ranged)==null,"other stun skill cannot impersonate Hammer Crush");
         for(int angle=0;angle<360;angle+=5)for(int radius:new int[]{0,40,199,449,450,600}) {

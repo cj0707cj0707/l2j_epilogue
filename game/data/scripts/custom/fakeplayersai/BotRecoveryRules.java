@@ -91,7 +91,7 @@ public final class BotRecoveryRules
     static TerminateReturn bluffAttack(OnCreatureAttack event)
     {
         return event!=null&&arenaManaged(event.getAttacker())&&event.getTarget()!=null&&event.getTarget().isPlayer()
-            &&(event.getTarget().isInvul() || BluffRear.stun(event.getAttacker().asPlayer(),event.getTarget().asPlayer())!=null
+            &&(RoleCombatPolicy.rangedDominator(event.getAttacker().asPlayer(),event.getTarget().asPlayer()) || event.getTarget().isInvul() || BluffRear.stun(event.getAttacker().asPlayer(),event.getTarget().asPlayer())!=null
                 ||event.getAttacker().asPlayer().getPlayerClass().getId()==97&&event.getTarget().asPlayer().isSleeping()) ? new TerminateReturn(true,true,true):null;
     }
 
@@ -104,6 +104,10 @@ public final class BotRecoveryRules
         if (event.getSkill().getId()==1230 && actor.getPlayerClass().getId()==97 && arenaManaged(actor) && !CardinalSurvival.prominenceAllowed(actor,victim)) return new TerminateReturn(true,true,true);
         if(arenaManaged(actor))
         {
+            Player enemy=BotTactics.currentOpponent(actor);
+            if(!BotSpawner.tankMirrorDefenseAllowed(actor,enemy,event.getSkill())
+                ||!RoleCombatPolicy.candidate(actor,enemy,event.getSkill(),victim==actor)
+                ||TacticsPolicy.chargeMeleeClass(actor.getPlayerClass().getId())&&RoleCombatPolicy.builder(event.getSkill().getId())&&!RoleCombatPolicy.needsCharge(actor))return new TerminateReturn(true,true,true);
             if(victim!=null&&victim!=actor&&victim.isInvul())return new TerminateReturn(true,true,true);
             if(event.getTargets()!=null)for(var target:event.getTargets())
                 if(target!=null&&target!=actor&&target.isCreature()&&target.asCreature().isInvul())return new TerminateReturn(true,true,true);

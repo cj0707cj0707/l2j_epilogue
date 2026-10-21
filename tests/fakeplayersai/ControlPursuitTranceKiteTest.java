@@ -24,9 +24,9 @@ public class ControlPursuitTranceKiteTest extends ClarityBluffPhaseTest {
     if(cid==134)e.addStatFunc(new org.l2jmobius.gameserver.mechanics.stats.functions.FuncAdd(org.l2jmobius.gameserver.mechanics.stats.Stat.POWER_ATTACK_RANGE,0x10,new Object(),500,null));
     for(int id:new int[]{1097,260,1367,1245})learn(p,nativeSkill(id));Object s=centered();
     verify(!BotSpawner.tacticalSkillAllowed(p,e,p.getKnownSkill(260),false),"bot115 common guard rejects any STUN vs ranged human/bot cid"+cid);
-    verify(BotTactics.tacticalApproachRange(p,e,BotPresets.getPresetByClassId(115))==600,"no40u melee pursuit vs ranged cid"+cid);
-    verify(run(p,e,s,10000)&&last==1097,"actual sleep at500u without melee chase cid"+cid);finish(p,e,s,15000);
-    disable(p,1097);at(e,30,0);s=centered();verify(run(p,e,s,20000)&&last==1367,"sleep unavailable: curse, never Hammer even at30u");finish(p,e,s,25000);
+    verify(BotTactics.tacticalApproachRange(p,e,BotPresets.getPresetByClassId(115))==900,"rule88 Steal range, not40u melee pursuit vs ranged cid"+cid);
+    verify(run(p,e,s,10000)&&last==1245,"rule88 Steal at500u before occasional sleep cid"+cid);finish(p,e,s,15000);
+    disable(p,1097);at(e,30,0);s=centered();verify(run(p,e,s,20000)&&last==1245,"rule88 sleep unavailable: Steal, never curse/Hammer at30u");finish(p,e,s,25000);
     disable(p,1367);s=centered();verify(run(p,e,s,30000)&&last==1245,"control/curses unavailable: ranged drain, not stun wait");finish(p,e,s,35000);
    }
    Player e=actor(88,ranked,human),p=owner(115,ranked);foeReady(p,e);at(p,0,0);at(e,30,0);learn(p,nativeSkill(260));
@@ -103,6 +103,6 @@ public class ControlPursuitTranceKiteTest extends ClarityBluffPhaseTest {
   handlers.EffectMasterHandler.main(new String[0]);skill=SkillData.getInstance().getSkill(1510,1);recordingType();state=Class.forName("custom.fakeplayersai.BotTactics$State");
   act=BotTactics.class.getDeclaredMethod("act",Player.class,Player.class,BotClassPreset.class,state,long.class,boolean.class);act.setAccessible(true);poll=BotTactics.class.getDeclaredMethod("pollAttempt",Player.class,Player.class,state,long.class);poll.setAccessible(true);
   var geo=java.nio.file.Files.createTempDirectory("control65-geodata-");org.l2jmobius.gameserver.config.GeoEngineConfig.GEODATA_PATH=geo;org.l2jmobius.gameserver.geoengine.GeoEngine.getInstance();java.nio.file.Files.delete(geo);
-  BotPresets.loadOverrides();dominatorTargets();tranceGaps();closeWakeCombo();ownInvulnerability();System.out.println("PASS: "+checks+" native Dominator ranged-stun guard/600u pursuit and Cardinal ready-Trance/kite-gap/wake-combo checks; no live server");System.exit(0);
+  BotPresets.loadOverrides();dominatorTargets();tranceGaps();closeWakeCombo();ownInvulnerability();System.out.println("PASS: "+checks+" native Dominator ranged-stun guard/900u Steal approach and Cardinal ready-Trance/kite-gap/wake-combo checks; no live server");System.exit(0);
  }catch(Throwable e){e.printStackTrace();System.exit(1);}}
 }

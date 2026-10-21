@@ -175,9 +175,9 @@ public class BotPresets
 				// Charge rules of 16.09.2026: the sonic skills require charges again (the
 				// datapack chargeConsume/Charges requirements are restored) and the charge
 				// builder Sonic Focus (8) is part of the rotation - the rotation itself
-				// rebuilds the charges it spends. The charge LEVEL (4..7) is maintained by
-				// the combat driver (BotManager CHARGE_MIN/CHARGE_MAX).
-				261, 5, 345, 6, 7, 9, 775, 8
+				// rebuilds charges last. Active arena combat uses native builders only;
+				// preparation/world retains legacy4->7 refill; combat ceiling stays7.
+				261, 5, 6, 7, 9, 775, 8, 345
 			},
 			new int[]
 			{
@@ -356,9 +356,9 @@ public class BotPresets
 				// Charge rules of 16.09.2026: the force skills require charges again (the
 				// datapack chargeConsume/Charges requirements are restored) and the charge
 				// builder Focused Force (50) is part of the rotation - the rotation itself
-				// rebuilds the charges it spends. The charge LEVEL (4..7) is maintained by
-				// the combat driver (BotManager CHARGE_MIN/CHARGE_MAX).
-				281, 120, 776, 284, 81, 280, 54, 346, 17, 35, 95, 50
+				// rebuilds charges last. Active arena combat uses native builders only;
+				// preparation/world retains legacy4->7 refill; combat ceiling stays7.
+				281, 120, 776, 284, 81, 280, 54, 17, 35, 95, 50, 346
 			},
 			new int[]
 			{

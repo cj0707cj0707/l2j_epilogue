@@ -66,7 +66,7 @@ public class CpMeleeRushRecoveryTest
                 }
                 verify(!TacticsPolicy.chargeMeleeRecoveryAllowed(true,false),"armed fighter does not backpedal just for cooldown");
                 verify(TacticsPolicy.chargeMeleeRecoveryAllowed(true,true),"real disarm exception retained");
-                verify(!BotTactics.strictMeleePressure(b,actor(131,ranked,true),preset),"physical opponent unchanged");
+                verify(BotTactics.strictMeleePressure(b,actor(131,ranked,true),preset),"rule88 melee pursuit also applies against physical opponents");
             }
             for(int cid:new int[]{90,92,95,113,131})verify(!BotTactics.strictMeleePressure(actor(cid,ranked,false),enemy,BotPresets.getPresetByClassId(cid)),"other class policy unchanged");
         }

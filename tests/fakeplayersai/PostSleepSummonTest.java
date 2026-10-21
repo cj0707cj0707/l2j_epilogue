@@ -67,7 +67,7 @@ public class PostSleepSummonTest extends DominatorPressureBluffTest
     }
     static void retreats()throws Exception {
         for(boolean ranked:new boolean[]{false,true})for(int cid:new int[]{97,115}) {
-            Player p=owner(cid,ranked),e=actor(94,ranked,true);at(e,0,0);f(Creature.class,"_zones").set(e,new byte[64]);p.setTarget(e);
+            Player p=owner(cid,ranked),e=actor(cid==115?88:94,ranked,true);at(e,0,0);f(Creature.class,"_zones").set(e,new byte[64]);p.setTarget(e);
             if(cid==97)learn(p,nativeSkill(1398));else for(int id:new int[]{1245,1367})learn(p,nativeSkill(id));
             MoveAI ai=new MoveAI(p);f(Creature.class,"_ai").set(p,ai);Object s=centered();f(state,"nextDecision").setLong(s,Long.MAX_VALUE);
             BuffInfo sleep=appliedSleep(p,e,cid);verify(SleepRetreat.ownSleep(p,e)==sleep,"real current own applied SLEEP");

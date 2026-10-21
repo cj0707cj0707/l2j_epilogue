@@ -59,8 +59,8 @@ public class CombatPriorityAuditTest extends TankMechanicsKiteTest {
   verify(policy.choose(legal,List.of(1097),List.of(1367),false)==1367,"bounded control retries then curses");policy.resolved(1367,false,false,false,true,false);verify(!policy.curseDone(1367),"interrupted curse not recorded as applied");
   policy.requested(1367,false,true);policy.requested(1367,false,true);verify(policy.choose(legal,List.of(1097),List.of(1367),false)==1245,"bounded failed curse attempts then attack");
   policy.resolved(1245,false,false,false,false,true);verify(policy.controlFinished(),"interrupted damage cannot rearm sleep");policy.resolved(1245,true,false,false,false,true);verify(!policy.controlFinished(),"completed damage rearms next cycle");
-  Player p=owner(115,false),e=actor(94,false,true);foeReady(p,e);at(p,0,0);at(e,30,0);learn(p,nativeSkill(1097));Object s=centered();run(p,e,s,10000);verify(last==1097,"native opener requested");p.setCastingNow(false);poll.invoke(null,p,e,s,15000L);
-  verify(!((TacticsPolicy.DominatorPressure)f(state,"dominatorPressure").get(s)).opened(),"production sawCast alone cannot open control phase");
+  Player p=owner(115,false),e=actor(94,false,true);foeReady(p,e);at(p,0,0);at(e,30,0);learn(p,nativeSkill(1097));learn(p,nativeSkill(1245));Object s=centered();run(p,e,s,10000);verify(last==1245,"rule88 native Steal opener requested");p.setCastingNow(false);poll.invoke(null,p,e,s,15000L);
+  verify(!((RoleCombatPolicy.DominatorCycle)f(state,"rangedCycle").get(s)).sleepDue()&&f(RoleCombatPolicy.DominatorCycle.class,"drains").getInt(f(state,"rangedCycle").get(s))==0,"rule88 sawCast alone cannot count an interrupted drain or admit sleep");
   // Native direct hit confirms zero-MP attacks too (Maximum Clarity), without a new tactical lock.
   p.setCastingNow(false);clearSleep(e);learn(p,nativeSkill(1245));
   Object ds=centered();TacticsPolicy.DominatorPressure phase=(TacticsPolicy.DominatorPressure)f(state,"dominatorPressure").get(ds);
@@ -70,7 +70,7 @@ public class CombatPriorityAuditTest extends TankMechanicsKiteTest {
   var event=new org.l2jmobius.gameserver.mechanics.events.holders.actor.creature.OnCreatureDamageDealt();event.setAttacker(p);event.setTarget(e);event.setSkill(p.getKnownSkill(1245));event.setDamage(100);
   var observe=evidence.getClass().getDeclaredMethod("observe",event.getClass());observe.setAccessible(true);observe.invoke(evidence,event);
   f(state,"pendingCompletionMp").setDouble(ds,0);p.setCastingNow(false);poll.invoke(null,p,e,ds,25000L);
-  verify(!phase.controlFinished()&&f(state,"pendingEvidence").get(ds)==null,"native hit rearms cycle at zeroMP; observer detached on resolution");
+  verify(f(RoleCombatPolicy.DominatorCycle.class,"drains").getInt(f(state,"rangedCycle").get(ds))==1&&f(state,"pendingEvidence").get(ds)==null,"native hit advances role88 cycle at zeroMP; observer detached on resolution");
 
  }
  public static void main(String[]args){try{

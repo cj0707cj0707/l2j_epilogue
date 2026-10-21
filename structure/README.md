@@ -4,6 +4,8 @@
 
 ## Последнее обновление
 
+- [88 — классовые ротации и защита танков после сближения](88-dominator-ranged-cycle-charge-melee-and-tank-contact.md): Steal/Sleep/CP/Silence115, зарядники345/346 в конце, melee88/114 и UD после контакта; карта файлов и проверки.
+
 - [87 — Неуязвимый дальник, повторный сон под root и root-снятие раньше Bluff](87-invulnerable-ranged-root-priorities-and-doc-audit.md): реализованные правила, реальная карта файлов, проверки и исправление недостоверной документации.
 
 - [86 — Танк против танка без кайта по UD/Vengeance; броня, оружие и бижутерия +10](86-tank-mirror-no-defense-kite-and-all-gear10.md): реализованы все три точки проверки, актуальный конфиг, регрессии и установка.
@@ -37,3 +39,4 @@
 | 85 | `85-tank-vs-tank-no-defense-kite-only-celestial.md` | Исключение танк vs танк, реализовано86 во всех путях |
 | 86 | `86-tank-mirror-no-defense-kite-and-all-gear10.md` | Единая политика кайта, вся экипировка+10, карта файлов/тесты/установка |
 | 87 | `87-invulnerable-ranged-root-priorities-and-doc-audit.md` | Invul-дальник: подход/ожидание мили, кайт дальника; rooted1097;453 раньше Bluff; аудит docs |
+| 88 | `88-dominator-ranged-cycle-charge-melee-and-tank-contact.md` | Текущие ротации115, нативные заряды/melee88/114, защита танков только после сближения |

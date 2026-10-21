@@ -68,34 +68,16 @@ public class DominatorPressureBluffTest extends BerserkerSoulCleanseTest {
             if(cid==134)e.addStatFunc(new org.l2jmobius.gameserver.mechanics.stats.functions.FuncAdd(org.l2jmobius.gameserver.mechanics.stats.Stat.POWER_ATTACK_RANGE,0x10,new Object(),500,null));
             f(Player.class,"_mountType").set(p,org.l2jmobius.gameserver.entity.actor.enums.player.MountType.NONE);p.setTarget(e);hp(p,10000);
             for(int id:new int[]{1245,1097,1367})learn(p,nativeSkill(id));
-            Object s=fresh();verify(BotTactics.tacticalApproachRange(p,e,BotPresets.getPresetByClassId(115))==600,"Dreaming Spirit range vs mage/archer "+cid);
-            actAt(p,e,s,10000);verify(last==0,"no ranged drain/sleep before closing");
-            location(e,30);actAt(p,e,s,20000);            verify(last==1097,"actual act prioritizes sleep over earlier1245 in effective rotation");
-            finish(p,e,s,25000);verify(!((TacticsPolicy.DominatorPressure)f(state,"dominatorPressure").get(s)).opened(),"completed resisted control is not a landed opener");
-            actAt(p,e,s,30000);verify(last==1097,"one bounded control retry after resist");finish(p,e,s,35000);
-            for(long clock:new long[]{40000,50000}){actAt(p,e,s,clock);verify(last==1367,"bounded curse attempts after exhausted control budget");finish(p,e,s,clock+5000);}
-            actAt(p,e,s,60000);verify(last==1245,"damage after bounded resisted control/curse, never infinite sleep");finish(p,e,s,65000);
-            // A rejected opener does not claim a landed stage; backoff still applies.
-            s=fresh();traces.get(p).accept=false;actAt(p,e,s,70000);verify(last==1097&&f(state,"pendingId").getInt(s)==0,"rejection stays out of pending phase");
-            traces.get(p).accept=true;actAt(p,e,s,75000);verify(last==1097,"retry opener after ordinary failure backoff");finish(p,e,s,80000);
-            // Native silence/resources/reuse still gate both opening and rotation.
-            s=fresh();mp(p,0);actAt(p,e,s,90000);verify(last==0,"zeroMP never bypassed");mp(p,10000);
+            Object s=fresh();verify(BotTactics.tacticalApproachRange(p,e,BotPresets.getPresetByClassId(115))==900,"rule88 native Steal approach vs ranged "+cid);
+            actAt(p,e,s,10000);verify(last==1245,"rule88 starts with Steal, not sleep/curse");finish(p,e,s,15000);
+            s=fresh();traces.get(p).accept=false;actAt(p,e,s,20000);verify(last==1245&&f(state,"pendingId").getInt(s)==0,"rejected Steal never creates pending or advances cycle");
+            traces.get(p).accept=true;actAt(p,e,s,25000);verify(last==1245,"native failure backoff allows later retry");finish(p,e,s,30000);
+            s=fresh();mp(p,0);actAt(p,e,s,35000);verify(last==0,"zeroMP never bypassed");mp(p,10000);
             @SuppressWarnings("unchecked") Map<Integer,Long> disabled=(Map<Integer,Long>)f(Creature.class,"_disabledSkills").get(p);
-            disabled.put(p.getKnownSkill(1097).getReuseHashCode(),System.currentTimeMillis()+60000);
-            actAt(p,e,s,95000);verify(last==1367,"sleep on native cooldown -> available curse without waiting");finish(p,e,s,100000);disabled.clear();
-            s=fresh();learn(p,nativeSkill(260));
-            f(org.l2jmobius.gameserver.entity.item.Weapon.class,"_type").set(p.getActiveWeaponItem(),org.l2jmobius.gameserver.entity.item.type.WeaponType.BLUNT);
-            f(org.l2jmobius.gameserver.entity.itemcontainer.Inventory.class,"_wearedMask").setInt(p.getInventory(),org.l2jmobius.gameserver.entity.item.type.WeaponType.BLUNT.mask());
-            disabled.put(p.getKnownSkill(1097).getReuseHashCode(),System.currentTimeMillis()+60000);
-            actAt(p,e,s,101000);verify(last==1367,"ranged target: Hammer Crush forbidden, ready curse follows unavailable sleep");finish(p,e,s,106000);disabled.clear();
-            @SuppressWarnings("unchecked") Map<Integer,Skill> known=(Map<Integer,Skill>)f(Creature.class,"_skills").get(p);known.remove(260);
+            disabled.put(p.getKnownSkill(1245).getReuseHashCode(),System.currentTimeMillis()+60000);
+            actAt(p,e,s,40000);verify(last==0,"Steal cooldown never falls back to unrequested curse/early sleep");disabled.clear();
             s=fresh();learn(p,nativeSkill(1306));f(org.l2jmobius.gameserver.entity.actor.status.PlayerStatus.class,"_currentCp").setDouble(p.getStatus(),2000);
-            actAt(p,e,s,110000);verify(last==1306&&p.getTarget()==p,"lowCP support interrupts opening, real self target");finish(p,e,s,115000);
-            actAt(p,e,s,120000);verify(last==1097,"afterCP follow control phase, not CP-weave damage override");finish(p,e,s,125000);
-            actAt(p,e,s,130000);verify(last==1306,"maintain lowCP between control attempts");finish(p,e,s,135000);
-            actAt(p,e,s,140000);verify(last==1097,"CP support did not consume/reset the control retry budget");finish(p,e,s,145000);
-            f(org.l2jmobius.gameserver.entity.actor.status.PlayerStatus.class,"_currentCp").setDouble(p.getStatus(),6000);
-            actAt(p,e,s,150000);verify(last==1367,"adequateCP: bounded curse follows control budget, no unnecessary CP cast");finish(p,e,s,155000);
+            actAt(p,e,s,45000);verify(last==1245&&p.getTarget()==e,"rule88 awake ranged opponent: only Steal despite lowCP");finish(p,e,s,50000);
             Player melee=actor(131,ranked,true);verify(BotTactics.tacticalApproachRange(p,melee,BotPresets.getPresetByClassId(115))>40,"melee opponent keeps existing ranged approach");
         }
         // Native SkillData sees Bluff base reuse +50% (8s ->12s), including every Chance level.

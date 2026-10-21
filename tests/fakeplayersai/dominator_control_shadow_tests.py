@@ -8,7 +8,8 @@ t=(S/'BotTactics.java').read_text();m=(S/'BotManager.java').read_text();sp=(S/'B
 a=t[t.index('private static boolean act('):t.index('private static void restoreCardinalMana(')]
 assert a.index('s.pendingId != 0')<a.index('s.sleepRetreat.tick(')<a.index('time < s.nextDecision')
 assert 'if (controlHold) return true;' in a and 'shadowChoice >= 0 ? shadowChoice' in a
-assert 's.sleepRetreat.reset(); s.summonAttack.reset();' in t
+reset=t[t.index('private static void prepare('):t.index('private static boolean act(')]
+assert 's.sleepRetreat.reset();' in reset and 's.summonAttack.reset();' in reset and 's.rangedCycle.reset();' in reset
 assert 's.summonAttack.tick(bot, enemy, time);' in t
 assert 'BotTactics.tickSummonAttack(bot, activeOpponent, true);' in m
 assert 'BotTactics.tickSummonAttack(player, target.asPlayer(), true);' in sp
