@@ -4,6 +4,7 @@
 
 ## Последнее обновление
 
+- [92 — Cardinal: Cleanse при ограничении движения](92-cardinal-cleanse-movement-lock.md): навык1409 имеет аварийный приоритет при активном movement lock; нативные запреты и реагент8874 сохранены.
 - [91 — динамический двусторонний кайт](91-dynamic-two-way-kite-away-from-enemy.md): каждый waypoint выбирает clockwise/counter-clockwise от текущей позиции противника и не ведёт ближе к нему.
 - [90 — танки: немедленный навык при stage3](90-tank-stage3-immediate-class-finisher.md): готовые785/762/789 обходят обычную задержку решения и выбираются первыми.
 - [89 — Dominator: Steal до окончания собственного Silence](89-dominator-seal-steal-kill-window.md): после успешного собственного1246 — только1245 и немедленный pressure на нативной дальности; проверки и установка.
@@ -27,6 +28,7 @@
 
 | # | Файл | Описание |
 |---|---|---|
+| 92 | `92-cardinal-cleanse-movement-lock.md` | Cardinal: Cleanse1409 при movement lock, self-target, нативные условия/реагент |
 | 48 | `48-berserker-emergency-soul-cleanse.md` | Soul Cleanse1510 при root или physical mute, native cast |
 | 49 | `49-dagger-escape-shackle-root-only.md` | Escape Shackle453 при root, в том числе раньше собственного Bluff |
 | 53 | `53-bluff-reuse-and-dominator-ranged-pressure.md` | Bluff358 reuse 12000мс |

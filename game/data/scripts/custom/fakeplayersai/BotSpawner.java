@@ -43,6 +43,7 @@ public class BotSpawner
 {
 	private static final Logger LOGGER = Logger.getLogger(BotSpawner.class.getName());
 	private static final int SPIRIT_ORE_ID = 3031;
+	private static final int EINHASAD_HOLY_WATER_ID = 8874;
 	private static final int ESCAPE_SHACKLE_ID = 453;
 	public static final int COUNTER_CELESTIAL_ID = 655;
 	private static final int MAX_SKILL_ENCHANT_LEVEL = 30;
@@ -153,6 +154,7 @@ public class BotSpawner
 	private static final int CRYSTAL_A_ID = 1461;
 	private static final int SERVITOR_CRYSTAL_STOCK = 100;
 	private static final int SPIRIT_ORE_CAP = 1000;
+	private static final int CARDINAL_CLEANSE_REAGENT_CAP = 1000;
 	private static final int ARCANE_POWER_ID = 337;
 	private static final int ENLIGHTENMENT_ID = 1532;
 	private static final int FINAL_SECRET_ID = 917;
@@ -1069,6 +1071,12 @@ public class BotSpawner
 			final Item ore = player.getInventory().getItemByItemId(SPIRIT_ORE_ID);
 			if (ore != null) player.getInventory().destroyItem(ItemProcessType.DESTROY, ore, oreCount - SPIRIT_ORE_CAP, player, null);
 		}
+		if (player.getPlayerClass().getId() == CLASS_CARDINAL)
+		{
+			final long holyWater = player.getInventory().getInventoryItemCount(EINHASAD_HOLY_WATER_ID, -1);
+			if (holyWater < CARDINAL_CLEANSE_REAGENT_CAP)
+				player.getInventory().addItem(ItemProcessType.REWARD, EINHASAD_HOLY_WATER_ID, CARDINAL_CLEANSE_REAGENT_CAP - holyWater, player, null);
+		}
 	}
 
 	private static void ensureShot(Player player, int itemId)
@@ -1366,6 +1374,8 @@ public class BotSpawner
 		player.getInventory().addItem(ItemProcessType.REWARD, BotPresets.getFighterShotId(), settings.getSoulshotCount(), player, null);
 		player.getInventory().addItem(ItemProcessType.REWARD, BLESSED_SPIRITSHOT_S, settings.getSoulshotCount(), player, null);
 		player.getInventory().addItem(ItemProcessType.REWARD, SPIRIT_ORE_ID, SPIRIT_ORE_CAP, player, null);
+		if (preset.getClassId() == CLASS_CARDINAL)
+			player.getInventory().addItem(ItemProcessType.REWARD, EINHASAD_HOLY_WATER_ID, CARDINAL_CLEANSE_REAGENT_CAP, player, null);
 		if (preset.useArrows())
 		{
 			final int ammoId = preset.getWeaponKind() == BotClassPreset.WeaponKind.CROSSBOW ? BotPresets.getBoltId() : BotPresets.getArrowId();

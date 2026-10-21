@@ -40,6 +40,7 @@ public final class BotTactics
 	private static final int ESCAPE_SHACKLE_ID = 453;
 	// Cardinal-specific IDs for timing gates and Trance-kite logic.
 	private static final int CARDINAL_CLASS_ID = 97;
+	private static final int CARDINAL_CLEANSE_ID = 1409;
 	private static final int CARDINAL_TRANCE_ID = 1394;
 	private static final int CARDINAL_MANA_BURN_ID = 1398;
 	private static final int CARDINAL_PROMINENCE_ID = 1230;
@@ -775,6 +776,34 @@ public final class BotTactics
 		return true; // Preserve self target until pollAttempt observes resolution.
 	}
 
+	/** Cardinal emergency self-dispel for an active movement lock. Native Cleanse
+	 * still obeys cast/reuse/MP/reagent/condition rules and never cancels a cast. */
+	private static boolean cardinalCleanse(Player bot, Player enemy, BotClassPreset preset, State s, long time)
+	{
+		if (preset.getClassId() != CARDINAL_CLASS_ID || bot.getPlayerClass().getId() != CARDINAL_CLASS_ID || bot.getClient() != null) return false;
+		if (s.pendingId == CARDINAL_CLEANSE_ID) return true;
+		if (!bot.isMovementDisabled() || s.pendingId != 0 || bot.isCastingNow() || bot.isCastingSimultaneouslyNow()
+			|| bot.isOutOfControl() || bot.isAllSkillsDisabled() || bot.isMuted()) return false;
+		final Skill skill = bot.getKnownSkill(CARDINAL_CLEANSE_ID);
+		final Failure backoff = s.failures.get(CARDINAL_CLEANSE_ID);
+		if (skill == null || !skill.isMagic() || skill.getTargetType() != TargetType.ONE || skill.isPassive()
+			|| bot.isSkillDisabled(skill) || bot.isInOlympiadMode() && skill.isBlockedInOlympiad()
+			|| !resources(bot, skill) || backoff != null && time < backoff.until) return false;
+		bot.setTarget(bot);
+		if (!skill.checkCondition(bot, bot, false)) { bot.setTarget(enemy); return false; }
+		AutoUseTaskManager.getInstance().stopAutoUseTask(bot);
+		AutoPlayTaskManager.getInstance().stopAutoPlay(bot);
+		stopBasicAttack(bot);
+		bot.setTarget(bot);
+		s.pendingMp = bot.getCurrentMp(); s.pendingHp = bot.getCurrentHp(); s.pendingCharges = bot.getCharges();
+		s.pendingX = bot.getX(); s.pendingY = bot.getY(); s.pendingRushLoop = false;
+		if (!bot.useMagic(skill, true, true)) { failure(s, CARDINAL_CLEANSE_ID, time); bot.setTarget(enemy); return false; }
+		s.pendingId = CARDINAL_CLEANSE_ID; s.pendingAt = time; s.pendingSelf = true; s.pendingDebuff = false; s.sawCast = bot.isCastingNow();
+		s.moveUntil = 0;
+		CombatAnalytics.tacticalRequest(bot.getObjectId(), "DEFENSE");
+		return true;
+	}
+
 	/** Learned dagger-only root escape. Unavailable means continue normal combat,
 	 * not wait here; retry before the normal decision gate while ROOT persists. */
 	private static boolean escapeShackle(Player bot, Player enemy, BotClassPreset preset, State s, long time)
@@ -915,6 +944,8 @@ public final class BotTactics
 		if (bluffHold) stopBasicAttack(bot); // never Idle/abort an already running real cast
 		pollAttempt(bot, enemy, s, time);
 		restoreCardinalMana(bot, preset);
+		// A removable movement lock outranks healing, Trance, attacks and every movement phase.
+		if (cardinalCleanse(bot, enemy, preset, s, time)) return true;
 		// Recheck after polling and the existing Cardinal MP policy; pending completion may unlock recovery.
         healPriority = cardinalHealReady(bot,s,time);
         // Reuse the normal self-skill admission/cast bookkeeping, before any movement phase.

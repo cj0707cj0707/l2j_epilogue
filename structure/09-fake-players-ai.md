@@ -1,5 +1,7 @@
 # 09. Система ботов FakePlayersAI (`game\data\scripts\custom\fakeplayersai\`)
 
+> **Последнее изменение92:** [Cardinal немедленно использует Cleanse1409 при активном ограничении движения](92-cardinal-cleanse-movement-lock.md). Каст идёт на себя раньше лечения/Trance/атак/движения, но не обходит mute, hard CC, reuse, MP, реагент8874 и native condition.
+
 > **Последнее изменение91:** [круговой кайт динамически выбирает clockwise/counter-clockwise перед каждым waypoint](91-dynamic-two-way-kite-away-from-enemy.md); шаг, уменьшающий расстояние до противника, запрещён. Правила89/90 сохранены.
 
 > **Изменение90:** при фактической третьей стадии Spirit of Phoenix / Seed of Revenge / Pain of Shilen соответствующий [классовый навык785/762/789 выполняется без обычной задержки решения и первым среди законных действий](90-tank-stage3-immediate-class-finisher.md). Нативные условия и правила89 сохранены.
