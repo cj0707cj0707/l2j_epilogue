@@ -1,5 +1,7 @@
 # 03. Конфигурация GameServer (`game\config\`)
 
+> **Актуализация86:** в `game/config/Custom/FakePlayersAI.ini` установлены `EnchantArmor=10`, `EnchantWeapon=10`, `EnchantJewel=10`. Значения по умолчанию в `BotSettings.java` совпадают. [Порядок применения к новым и сохранённым ботам](86-tank-mirror-no-defense-kite-and-all-gear10.md).
+
 > Актуальные исправления навыков/ворот/победителя и настройки тренировки (10сек, сброс откатов при входе, заточка как на Олимпиаде): [22](22-class-skills-openers-and-training-results.md). При противоречии со старыми записями использовать документ22.
 
 

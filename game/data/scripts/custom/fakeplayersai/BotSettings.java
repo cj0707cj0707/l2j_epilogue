@@ -36,7 +36,7 @@ public class BotSettings
 	
 	// Gear
 	private int _enchantArmor = 10;
-	private int _enchantWeapon = 10; // doc86: was 16
+	private int _enchantWeapon = 10; // All three gear categories default to +10.
 	private int _enchantJewel = 10;
 	private boolean _useS84 = true; // true = Vesper (S84), false = Dynasty (S80)
 	private int _soulshotCount = 1500;

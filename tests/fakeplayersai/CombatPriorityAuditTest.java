@@ -17,11 +17,13 @@ public class CombatPriorityAuditTest extends TankMechanicsKiteTest {
  static void rescue()throws Exception{
   for(boolean ranked:new boolean[]{false,true}) {
    Player e=actor(90,ranked,true),p=knight(90,ranked,e);learn(p,nativeSkill(69));hp(p,2000);effects(e).add(new BuffInfo(e,e,nativeSkill(110)));
+   // 86: UD alone no longer kites tank mirrors; actual immunity keeps this rescue-before-kite scenario.
+   e.setInvul(true);
    int[] c=ArenaCombatRules.center(p);at(p,c[0]+80,c[1]);at(e,c[0],c[1]);
    Object s=centered();verify(run(p,e,s,10000)&&last==406,"emergency Angelic preempts defensive kite");verify(!p.isMoving(),"no movement replaces self cast");
    int requests=traces.get(p).requests;run(p,e,s,10100);verify(traces.get(p).requests==requests&&p.getTarget()==p,"inflight rescue retained, no duplicate");finish(p,e,s,15000);
    disable(p,406);disable(p,69);mp(p,0);run(p,e,s,20000);verify(last==0&&p.isMoving(),"unavailable rescue resumes native kite, no free MP");
-   clear(e,110);run(p,e,s,25000);verify(!p.isMoving(),"defense expired: normal act releases its previous kite movement");
+   e.setInvul(false);clear(e,110);run(p,e,s,25000);verify(!p.isMoving(),"defense expired: normal act releases its previous kite movement");
    Player h=owner(97,ranked),sleeper=actor(88,ranked,true);foeReady(h,sleeper);learn(h,nativeSkill(1398));learn(h,nativeSkill(1218));hp(h,1000);appliedSleep(h,sleeper,97);
    Object hs=centered();verify(run(h,sleeper,hs,30000)&&last==1218&&!h.isMoving(),"critical Cardinal heal before own-sleep retreat");finish(h,sleeper,hs,35000);hp(h,10000);
    verify(run(h,sleeper,hs,40000)&&h.isMoving()&&last==0,"after rescue continue original sleep retreat inside circle");

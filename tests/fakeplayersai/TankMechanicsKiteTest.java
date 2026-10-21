@@ -32,6 +32,17 @@ public class TankMechanicsKiteTest extends CardinalSurvivalControlChanceTest {
    list.add(info);verify(TankClassMechanics.defendedTank(e),"actual live defense on any human/bot tank including Eva");
    int[] c=ArenaCombatRules.center(p);at(p,c[0]+80,c[1]);at(e,c[0],c[1]);p.setTarget(e);MoveAI ai=new MoveAI(p);f(Creature.class,"_ai").set(p,ai);
    if(!human)roster.put(e.getObjectId(),e);if(ranked)roster.put(p.getObjectId(),p);else BotTactics.initializeTraining(p,e);
+   if(TankClassMechanics.tank(p)) {
+    verify(!BotTactics.tickInvulnerableMelee(p,e,preset,ranked)&&ai.requests==0,"tank mirror: defense alone cannot acquire kite ownership");
+    e.setInvul(true);
+    verify(BotTactics.tickInvulnerableMelee(p,e,preset,ranked)&&ai.requests==1,"tank mirror: real invulnerability still kites");
+    e.setInvul(false);p.setCastingNow(true);int before=ai.requests;
+    verify(BotTactics.tickInvulnerableMelee(p,e,preset,ranked)&&p.isCastingNow()&&ai.requests==before,"invulnerability ends: don't interrupt a real cast to release lease");
+    p.setCastingNow(false);
+    verify(!BotTactics.tickInvulnerableMelee(p,e,preset,ranked)&&!p.isMoving()&&!BotTactics.isOwned(p.getObjectId()),"UD remains but Celestial ended: stop old route and release ownership");
+    verify(!BotTactics.tickInvulnerableMelee(p,e,preset,ranked)&&ai.requests==before,"no reacquisition under defense alone");
+    list.remove(SkillFinishType.REMOVED,info);BotTactics.forget(p.getObjectId());roster.remove(p.getObjectId());roster.remove(e.getObjectId());continue;
+   }
    last=0;verify(BotTactics.tickInvulnerableMelee(p,e,preset,ranked)&&last==0&&ai.requests==1,"all19 actual public hooks preempt offense and ranked131");
    verify(Math.hypot(ai.requested.getX()-c[0],ai.requested.getY()-c[1])<=450,"inside450 circle");
    int before=ai.requests;verify(BotTactics.tickInvulnerableMelee(p,e,preset,ranked)&&ai.requests==before,"route ownership across ticks");
@@ -43,6 +54,24 @@ public class TankMechanicsKiteTest extends CardinalSurvivalControlChanceTest {
   }
   for(int cid:new int[]{88,93,94,97,115,131}) {Player e=actor(cid,false,true);effects(e).add(new BuffInfo(e,e,nativeSkill(760)));verify(!TankClassMechanics.defendedTank(e),"not arbitrary class with defensive buff");}
   Player tank=actor(90,false,true);effects(tank);apply(tank,406,3);verify(!TankClassMechanics.defendedTank(tank),"long class icon is not UD");
+ }
+ static void tankMirrorAct86()throws Exception {
+  // Exercise act independently: changing only the mandatory public hook is insufficient.
+  for(int self:new int[]{90,91,106}) {
+   var preset=BotPresets.getPresetByClassId(self);int[] saved=(int[])f(BotClassPreset.class,"_rotationOverride").get(preset);
+   preset.setRotationOverride(new int[]{1230});
+   try {for(boolean ranked:new boolean[]{false,true})for(boolean human:new boolean[]{false,true})
+    for(int cid:new int[]{90,91,99,106})for(int id:new int[]{110,368,760}) {
+     Player e=actor(cid,ranked,human),p=knight(self,ranked,e);
+     // Remove learned tank support skills so the native legal probe can demonstrate offense.
+     for(int skillId:TankClassMechanics.skills(self))p.removeSkill(skillId,false);
+     effects(e).add(new BuffInfo(e,e,nativeSkill(id)));learn(p,nativeSkill(1230));
+     MoveAI ai=new MoveAI(p);f(Creature.class,"_ai").set(p,ai);
+     verify(run(p,e,centered(),10000)&&last==1230&&p.getTarget()==e&&ai.requests==0,"act: tank attacks defended tank without a kite via the secondary path");
+     p.setCastingNow(false);
+    }
+   }finally{preset.setRotationOverride(saved);}
+  }
  }
  @SuppressWarnings("unchecked") static void classSkills()throws Exception {
   for(boolean ranked:new boolean[]{false,true})for(int cid:new int[]{90,91,106}) {
@@ -119,6 +148,6 @@ public class TankMechanicsKiteTest extends CardinalSurvivalControlChanceTest {
   handlers.EffectMasterHandler.main(new String[0]);org.l2jmobius.gameserver.handler.TargetHandler.getInstance().registerHandler(new handlers.skill.targets.Party());skill=SkillData.getInstance().getSkill(1510,1);recordingType();state=Class.forName("custom.fakeplayersai.BotTactics$State");
   act=BotTactics.class.getDeclaredMethod("act",Player.class,Player.class,BotClassPreset.class,state,long.class,boolean.class);act.setAccessible(true);poll=BotTactics.class.getDeclaredMethod("pollAttempt",Player.class,Player.class,state,long.class);poll.setAccessible(true);
   var geo=java.nio.file.Files.createTempDirectory("tank60-geo-");org.l2jmobius.gameserver.config.GeoEngineConfig.GEODATA_PATH=geo;org.l2jmobius.gameserver.geoengine.GeoEngine.getInstance();java.nio.file.Files.delete(geo);
-  defenses();classSkills();phoenixPriorityAndSacrifice();System.out.println("PASS: "+checks+" all19 tank-defense circle/ownership, native class mechanics, Flame-first and icon Sacrifice cast/execution veto; no live server");System.exit(0);
+  defenses();tankMirrorAct86();classSkills();phoenixPriorityAndSacrifice();System.out.println("PASS: "+checks+" all19 defense policy/tank mirror offense/Celestial lease/circle ownership, native class mechanics, Flame-first and icon Sacrifice cast/execution veto; no live server");System.exit(0);
  }
 }

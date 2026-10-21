@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Structure60 real native Skill/stat behavior; scheduling/network/AI recording seams."""
+"""Structure60/86 real native Skill/stat behavior; scheduling/network/AI recording seams."""
 from pathlib import Path
 import os, subprocess, tempfile, shutil
 R=Path(__file__).resolve().parents[2];T=Path(__file__).parent
@@ -35,7 +35,11 @@ assert 'classId==97&&skillId==1394' in chance and 'classId==115&&(skillId==1097|
 assert all(f's.set("{key}",chance)' in chance for key in ['activateRate','minChance','maxChance'])
 assert 'bot.addSkill(copy,false)' in chance and 'getClient()!=null' in chance
 mechanics=(S/'TankClassMechanics.java').read_text()
-assert 'TankClassMechanics.defendedTank(enemy)' in tactics
+policy=body(tactics,'private static boolean requiresInvulnerableKite(')
+assert 'enemy.isInvul() && meleeOpponent(enemy)' in policy
+assert 'TankClassMechanics.defendedTank(enemy) && !TankClassMechanics.tank(bot)' in policy
+assert tactics.count('requiresInvulnerableKite(bot, enemy)')==3
+assert tactics.count('TankClassMechanics.defendedTank(enemy) && !TankClassMechanics.tank(bot)')==1
 assert 'TankClassMechanics.support(skill.getId()) ? 230' in tactics
 assert '(tankMechanicChoice == 785 || tankMechanicChoice == 406) ? tankMechanicChoice' in tactics
 assert 'TankClassMechanics.sacrificeBlocked(bot)' in (S/'BotRecoveryRules.java').read_text()

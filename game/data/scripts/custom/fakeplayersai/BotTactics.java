@@ -541,7 +541,15 @@ public final class BotTactics
         claim(bot,s);return act(bot,enemy,preset,s,time,false);
     }
 
-    /** Universal arena escape: invulnerable melee OR tank with native110/368/760, including ranked131. */
+    /** One policy for the mandatory hook, normal act and movement owner.
+     * Tank mirrors keep fighting through UD/Vengeance/defense760; real invulnerability is unchanged. */
+    private static boolean requiresInvulnerableKite(Player bot, Player enemy)
+    {
+        return (enemy.isInvul() && meleeOpponent(enemy))
+            || (TankClassMechanics.defendedTank(enemy) && !TankClassMechanics.tank(bot));
+    }
+
+    /** Arena escape from invulnerable melee or a defended tank facing a non-tank, including ranked131. */
     public static synchronized boolean tickInvulnerableMelee(Player bot, Player enemy, BotClassPreset preset, boolean ranked)
     {
         if (bot == null || preset == null || !valid(bot, enemy, ranked, STATES.get(bot.getObjectId()))) return false;
@@ -549,7 +557,7 @@ public final class BotTactics
         final long time = now();
         final State s = state(bot.getObjectId(), time);
         prepare(bot, enemy, s, time);
-        final boolean required = (enemy.isInvul() && meleeOpponent(enemy)) || TankClassMechanics.defendedTank(enemy);
+        final boolean required = requiresInvulnerableKite(bot, enemy);
         if (!required && !s.invulnerableLease) return false;
         if (required && !s.invulnerableLease)
         { s.invulnerablePreviousOwned = s.owned; s.invulnerableLease = true; }
@@ -559,9 +567,10 @@ public final class BotTactics
         if(rootedByTank(bot,enemy)) { claim(bot,s);act(bot,enemy,preset,s,time,false);return true; }
         if (s.invulnerableLease && !required)
         {
-            s.invulnerableKite.stop();
-            // Protect an in-flight self-targeted cleanse even when enemy invul expires mid-cast.
+            // Keep the route handle until the cast ends, so cleanup can still stop our old kite.
+            // Never abort a real cast when invulnerability expires while UD remains.
             if (bot.isCastingNow() || bot.isCastingSimultaneouslyNow()) return true;
+            s.invulnerableKite.stop();
             s.tankSleepRetreat.clear(bot);
             s.owned = s.invulnerablePreviousOwned; s.invulnerableLease = false;
             s.nextStep = 0; s.nextDecision = 0; return false;
@@ -592,7 +601,7 @@ public final class BotTactics
     private static boolean invulnerableMelee(Player bot, Player enemy, State s, long time)
     {
         if(rootedByTank(bot,enemy)){s.invulnerableKite.stop();return false;}
-        return s.invulnerableKite.tick(bot, enemy, time, (enemy.isInvul() && meleeOpponent(enemy)) || TankClassMechanics.defendedTank(enemy));
+        return s.invulnerableKite.tick(bot, enemy, time, requiresInvulnerableKite(bot, enemy));
     }
 
 	/** Frequent active-match hook; shares the same3s clock with maintenance/training. */
@@ -820,7 +829,7 @@ public final class BotTactics
 		if (!defenseOnly && dominatorTankSleepHold(bot,enemy,preset,s,time)) return true;
         if (!defenseOnly && !rootedKite && !cancelPriority && !prominencePriority && !cardinalNoKite && !cardinalSleeping && !s.clarityWindow.pending() && !survival && !trancePriority && !bluffHold && !CardinalSurvival.ownCelestial(bot))
 		{
-			final boolean mustKite = (enemy.isInvul() && meleeOpponent(enemy)) || TankClassMechanics.defendedTank(enemy);
+			final boolean mustKite = requiresInvulnerableKite(bot, enemy);
 			if (mustKite && supportBeforeMovement(bot, enemy, preset, s, time)) return true;
 			if (invulnerableMelee(bot, enemy, s, time)) return true; // also releases the previous route when protection ends
 		}

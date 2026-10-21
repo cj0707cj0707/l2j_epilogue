@@ -19,6 +19,9 @@ public class TankRootStationary81Test extends DominatorHoldMageCancel80Test {
   // A common legal learned probe isolates routing for all19 classes. It is test-only:
   // production does not learn skills, change presets, or add a new rotation.
   for(var preset:BotPresets.getPresets()) {
+   // Tank mirrors no longer enter defense-kite/root leases (86). Stationary tank
+   // auto-attack under root remains covered by auto81; mirror offense by test60.
+   if(TankClassMechanics.tank(owner(preset.getClassId(),false)))continue;
    int[] saved=(int[])f(BotClassPreset.class,"_rotationOverride").get(preset);preset.setRotationOverride(new int[]{1230});
    try{for(boolean ranked:new boolean[]{false,true})for(boolean human:new boolean[]{false,true})for(int cid:new int[]{90,91,99,106})for(int id:new int[]{110,368,760}) {
     Player e=actor(cid,ranked,human),p=owner(preset.getClassId(),ranked);foeReady(p,e);quiet(p);arena(p,e);quiet(p);BuffInfo shield=defense(e,id);learn(p,nativeSkill(1230));if(preset.getClassId()==131)disable(p,1510);

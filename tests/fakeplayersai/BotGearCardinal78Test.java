@@ -19,8 +19,8 @@ public class BotGearCardinal78Test extends MeleePursuitBoundaryTest {
 
  @SuppressWarnings("unchecked") static void gear78()throws Exception {
   NativeDebuffEpicTest.unsafe=unsafe;var settings=BotManager.getSettings();settings.load();
-  verify(settings.getEnchantArmor()==10&&settings.getEnchantJewel()==10&&settings.getEnchantWeapon()==16,"active config10/16/10");
-  var defaults=new BotSettings();verify(defaults.getEnchantArmor()==10&&defaults.getEnchantJewel()==10&&defaults.getEnchantWeapon()==16,"fallback defaults match config");
+  verify(settings.getEnchantArmor()==10&&settings.getEnchantJewel()==10&&settings.getEnchantWeapon()==10,"active config10/10/10");
+  var defaults=new BotSettings();verify(defaults.getEnchantArmor()==10&&defaults.getEnchantJewel()==10&&defaults.getEnchantWeapon()==10,"fallback defaults match config");
   var roster=(Map<Integer,Player>)f(BotManager.class,"BOTS").get(null);
   var training=(Set<Integer>)f(TrainingArena.class,"BOTS").get(null);
   var sessions=(Map<Integer,Object>)f(TrainingArena.class,"SESSIONS").get(null);
@@ -33,17 +33,17 @@ public class BotGearCardinal78Test extends MeleePursuitBoundaryTest {
     var inv=new NativeDebuffEpicTest.TestInventory(p);f(Inventory.class,"_paperdollListeners").set(inv,new ArrayList<>());f(Player.class,"_inventory").set(p,inv);
     List<Integer> ids=new ArrayList<>();for(int id:BotPresets.getArmorSet(preset,true))ids.add(id);int shield=BotPresets.getShieldId(preset,true);if(shield>0)ids.add(shield);
     ids.add(BotPresets.getWeaponId(preset,true));for(int id:BotPresets.getJewelryIds())ids.add(id);
-    for(int id:ids){var item=new NativeDebuffEpicTest.TestItem(id);item.setEnchantLevel(3);inv.own(item);inv.equipItem(item);}
+    for(int id:ids){var item=new NativeDebuffEpicTest.TestItem(id);item.setEnchantLevel(item.isWeapon()?16:3);inv.own(item);inv.equipItem(item);}
     actors.add(p);snapshots.put(p,new ArrayList<>(inv.getPaperdollItems()));
     if(mode!=2)roster.put(p.getObjectId(),p);else {training.add(p.getObjectId());Object s=unsafe.allocateInstance(session);f(session,"bot").set(s,p);sessions.put(p.getObjectId(),s);}
    }
    verify(TrainingArena.getBots().size()==19&&actors.size()==57,"all19 classes in world/ranked/training registries");
    // Actual same private application called by encharmor/enchweapon/enchjewel/reenchant menu branches.
    verify((int)apply.invoke(null,false,true,false)>0,"armor menu changes all live registries");
-   for(Player p:actors)for(var item:p.getInventory().getPaperdollItems())verify(item.getEnchantLevel()==(item.isArmor()&&!BotPresetsIsJewel(item.getId())?10:3),"armor-only leaves weapon/jewels untouched");
+   for(Player p:actors)for(var item:p.getInventory().getPaperdollItems())verify(item.getEnchantLevel()==(item.isArmor()&&!BotPresetsIsJewel(item.getId())?10:item.isWeapon()?16:3),"armor-only leaves weapon/jewels untouched");
    verify((int)apply.invoke(null,false,false,true)>0,"jewel menu includes training");
    verify((int)apply.invoke(null,true,false,false)>0,"weapon menu includes training");
-   for(Player p:actors)for(var item:p.getInventory().getPaperdollItems())verify(item.getEnchantLevel()==(item.isWeapon()?16:10),"all equipped armor/shields/jewelry10 weapon16; class="+p.getPlayerClass());
+   for(Player p:actors)for(var item:p.getInventory().getPaperdollItems())verify(item.getEnchantLevel()==10,"all equipped armor/shields/jewelry/weapon10; class="+p.getPlayerClass());
    verify((int)apply.invoke(null,true,true,true)==0,"reenchant idempotent, no DB churn");
    settings.setEnchantArmor(12);settings.setEnchantJewel(14);settings.setEnchantWeapon(18);apply.invoke(null,true,true,true);
    for(Player p:actors)for(var item:p.getInventory().getPaperdollItems())verify(item.getEnchantLevel()==(item.isWeapon()?18:BotPresetsIsJewel(item.getId())?14:12),"menu remains adjustable, no class hardcoding");
@@ -90,6 +90,6 @@ public class BotGearCardinal78Test extends MeleePursuitBoundaryTest {
   handlers.EffectMasterHandler.main(new String[0]);skill=org.l2jmobius.gameserver.data.xml.SkillData.getInstance().getSkill(1510,1);recordingType();state=Class.forName("custom.fakeplayersai.BotTactics$State");
   act=BotTactics.class.getDeclaredMethod("act",Player.class,Player.class,BotClassPreset.class,state,long.class,boolean.class);act.setAccessible(true);poll=BotTactics.class.getDeclaredMethod("pollAttempt",Player.class,Player.class,state,long.class);poll.setAccessible(true);
   var geo=java.nio.file.Files.createTempDirectory("cardinal75-geo-");org.l2jmobius.gameserver.config.GeoEngineConfig.GEODATA_PATH=geo;org.l2jmobius.gameserver.geoengine.GeoEngine.getInstance();java.nio.file.Files.delete(geo);
-  BotPresets.loadOverrides();gear78();healing78();System.out.println("PASS: "+checks+" gear78 all19/menu coverage/10-16-10 and Cardinal heal75/no own Celestial checks; no live server");System.exit(0);
+  BotPresets.loadOverrides();gear78();healing78();System.out.println("PASS: "+checks+" gear78 all19/menu coverage/10-10-10 and Cardinal heal75/no own Celestial checks; no live server");System.exit(0);
  }catch(Throwable e){e.printStackTrace();System.exit(1);}}
 }
