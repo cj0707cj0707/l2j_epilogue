@@ -1,5 +1,7 @@
 # 09. Система ботов FakePlayersAI (`game\data\scripts\custom\fakeplayersai\`)
 
+> **Уточнение97:** [готовый Cancel94/103 снимает кратковременную защиту танка даже при живом питомце; pet-focus ограничен реальным прогрессом8с с retry3с; потерянныйATTACK саммона восстанавливается сразу](97-kite-rush-cancel-and-summon-progress.md). Остальные owner-directed атаки при действующем pet-focus запрещены; invul остаётся обязательным запретом.
+
 > **Актуально96:** [вход со стартовой позиции без скачка для всех19 классов; Panther/Phoenix прежде танка; Cursed Man после invul некроманта; repeat101; Duelist без5 во всех бот-путях](96-arena-entry-summon-priority-stun-shot-and-duelist.md). Новая обязательная summon-фаза выше owner-only фаз. Для101 обновляется установленный core-helper, см. инструкцию96.
 
 

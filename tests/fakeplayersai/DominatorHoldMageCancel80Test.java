@@ -93,7 +93,8 @@ public class DominatorHoldMageCancel80Test extends DominatorTankSleepTest {
    if(!human)roster.put(e.getObjectId(),e);if(ranked)roster.put(p.getObjectId(),p);else BotTactics.initializeTraining(p,e);
    try {
     publicCancel(p,e,ranked);Object s=publicState(p);prompt(s);
-    verify(publicCancel(p,e,ranked)&&last==1056,"mandatory hook chooses ready Cancel before generic escape/nuke, even without optional tactical driver");
+    if(target==90)verify(last==1056,"ready Cancel on active tank defense starts immediately without generic latency");
+    else verify(publicCancel(p,e,ranked)&&last==1056,"mandatory hook chooses ready Cancel before generic escape/nuke, even without optional tactical driver");
     int casts=traces.get(p).requests;verify(publicCancel(p,e,ranked)&&p.isCastingNow()&&traces.get(p).requests==casts,"public in-flight Cancel retained");
     finish(p,e,s,clock()+7000);disable(p,1056);verify(!publicCancel(p,e,ranked),"native reuse releases mandatory hook to normal driver");
    }finally{BotTactics.forget(p.getObjectId());roster.remove(p.getObjectId());roster.remove(e.getObjectId());}

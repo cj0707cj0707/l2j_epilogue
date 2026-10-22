@@ -40,7 +40,7 @@ def main():
         tmp=Path(tmp); launcher=tmp/'Compile.java'
         launcher.write_text('import javax.tools.ToolProvider; public class Compile {public static void main(String[]a){System.exit(ToolProvider.getSystemJavaCompiler().run(null,System.out,System.err,a));}}')
         cp=os.pathsep.join(map(str,sorted((ROOT/'libs').glob('*.jar'))))
-        sources=list(SCRIPTS.glob('*.java'))+[ROOT/'game/data/scripts/handlers/skill/effects/Stun.java',ROOT/'tests/fakeplayersai/RankedRushOriginalStunRegression.java']
+        sources=list(SCRIPTS.glob('*.java'))+[ROOT/'game/data/scripts/custom/GiranServices/Preparation.java']+[ROOT/'game/data/scripts/handlers/skill/effects/Stun.java',ROOT/'tests/fakeplayersai/RankedRushOriginalStunRegression.java']
         subprocess.run(['java',str(launcher),'-cp',cp,'-d',str(tmp/'classes'),*map(str,sources)],check=True)
         subprocess.run(['java','-cp',str(tmp/'classes')+os.pathsep+cp,'custom.fakeplayersai.RankedRushOriginalStunRegression'],check=True,timeout=60,cwd=ROOT/'game')
 if __name__=='__main__':main()

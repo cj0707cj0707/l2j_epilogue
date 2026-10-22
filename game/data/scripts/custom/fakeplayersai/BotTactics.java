@@ -316,6 +316,14 @@ public final class BotTactics
             &&resources(bot,skill)&&skill.checkCondition(bot,enemy,false)
             &&inRange(bot,enemy,skill,bot.calculateDistance2D(enemy))&&GeoEngine.getInstance().canSeeTarget(bot,enemy);
     }
+    /** Narrow owner-target exception to summon-first: native Cancel of a live short tank defense. */
+    static boolean tankDefenseCancel(Player bot,Player enemy,Skill skill)
+    {
+        if(bot==null||enemy==null||skill==null||skill.getId()!=1056||bot.getClient()!=null
+            ||bot.getKnownSkill(1056)==null||enemy.isInvul()||enemy.isSleeping())return false;
+        int cid=bot.getPlayerClass().getId();
+        return (cid==94||cid==103)&&TankClassMechanics.defendedTank(enemy);
+    }
     /** One retreat per own tank sleep; HOLD only while strong defense/invulnerability remains. */
     private static boolean dominatorTankSleepHold(Player bot,Player enemy,BotClassPreset preset,State s,long time)
     {
@@ -603,6 +611,10 @@ public final class BotTactics
         if(bot==null||preset==null||!valid(bot,enemy,ranked,STATES.get(bot.getObjectId())))return false;
         long time=now();State s=state(bot.getObjectId(),time);prepare(bot,enemy,s,time);
         if(ArenaCombatRules.update(bot,enemy,preset))return true;
+        // A ready anti-defense Cancel may briefly target the owner, even with a live Panther.
+        // Pending casts finish before pet retargeting; all ordinary owner damage stays blocked.
+        if(tankDefenseCancel(bot,enemy,bot.getKnownSkill(1056))
+            &&tickMageCancel(bot,enemy,preset,ranked))return true;
         Summon pet=s.summonFocus.target(bot,enemy);
         if(pet==null&&!s.summonFocus.leased())return false;
         // No retarget/abort during a real cast, even if the pet dies or the owner changes shield.
@@ -1260,7 +1272,8 @@ public final class BotTactics
         // A real third tank charge is transient: bypass ordinary AI reaction/decision latency,
         // but still use the common native legality/resource/range checks below.
         final int chargedTankFinisher=TankClassMechanics.readyFinisher(bot,enemy);
-		if (!CardinalSurvival.sleepShield(bot) && !sleepPressure && !tankSleepPriority && chargedTankFinisher==0 && (time < s.nextDecision || !TacticsPolicy.reactionReady(difficulty(s), time, s.observed, hp < .35)))
+        final boolean urgentTankCancel=cancelPriority&&tankDefenseCancel(bot,enemy,bot.getKnownSkill(1056));
+		if (!CardinalSurvival.sleepShield(bot) && !sleepPressure && !tankSleepPriority && !urgentTankCancel && chargedTankFinisher==0 && (time < s.nextDecision || !TacticsPolicy.reactionReady(difficulty(s), time, s.observed, hp < .35)))
         {
             // Reaction latency must never pause the universal invulnerable-melee escape.
             if (!defenseOnly && survival && !trancePriority && !cardinalNoKite) invulnerableMelee(bot, enemy, s, time);

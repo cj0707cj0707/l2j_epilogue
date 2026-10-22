@@ -9,7 +9,8 @@ final class SummonAttackPulse
 {
     private long nextAt;
     private int targetId;
-    void reset() { nextAt = 0; targetId=0; }
+    private boolean attacking;
+    void reset() { nextAt = 0; targetId=0; attacking=false; }
     void tick(Player owner, Creature enemy, long time)
     {
         if(enemy!=null&&enemy.isPlayer())
@@ -25,11 +26,14 @@ final class SummonAttackPulse
             if(summon.getAI().getIntention()==org.l2jmobius.gameserver.ai.Intention.ATTACK)summon.getAI().setIntentionIdle();
             return;
         }
-        if(time<nextAt&&targetId==enemy.getObjectId())return;
+        // Repair a lost ATTACK immediately, but a rejected native/path request still waits3s.
+        if(time<nextAt&&targetId==enemy.getObjectId()&&(!attacking||summon.getTarget()==enemy
+            &&summon.getAI().getIntention()==org.l2jmobius.gameserver.ai.Intention.ATTACK))return;
         targetId=enemy.getObjectId();
         nextAt = time + 3000;
         // Intentionally repeat even when the target is unchanged or AI has fallen idle.
         // Do not retarget the OWNER: it may be in the middle of a self-targeted cast.
         summon.doSummonAttack(enemy);
+        attacking=summon.getTarget()==enemy&&summon.getAI().getIntention()==org.l2jmobius.gameserver.ai.Intention.ATTACK;
     }
 }

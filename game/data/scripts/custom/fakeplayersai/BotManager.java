@@ -2333,7 +2333,17 @@ public class BotManager
             stopBerserkerEngines(bot, state);
             return true;
         }
-		if ((bot.getAI().getIntention() == Intention.CAST) && (dist > CHASE_RANGE))
+        // A fleeing opponent must not strand the cycle behind out-of-range melee fillers.
+        // No cast/pending/CC is interrupted; the normal Rush branch below retains every native gate.
+        final boolean chaseRush = enemy.isPlayer() && RoleCombatPolicy.kited(bot,enemy.asPlayer())
+            && dist >= 220 && state.movement.canRush(now) && canBerserkerCast(bot,BERSERKER_RUSH_IMPACT_ID);
+        if (chaseRush)
+        {
+            state.rushDone = false;
+            // No real cast is running (checked above): release only the stale filler approach.
+            if (bot.getAI().getIntention() == Intention.CAST) bot.getAI().setIntentionIdle();
+        }
+		if (!chaseRush && (bot.getAI().getIntention() == Intention.CAST) && (dist > CHASE_RANGE))
 		{
 			// Filler useMagic can leave CAST while merely following an out-of-range foe.
 			// Give that non-casting approach back to the phase driver's movement.

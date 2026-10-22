@@ -121,7 +121,8 @@ public final class BotRecoveryRules
                 ||event.getSkill().getId()==762&&event.getTargets()!=null&&event.getTargets().contains(priority));
             if(petCast&&(!CardinalSurvival.celestialSkillAllowed(actor,event.getSkill().getId())
                 ||actor.getPlayerClass().getId()==88&&event.getSkill().getId()==6))return new TerminateReturn(true,true,true);
-            if(priority!=null&&actualTarget!=actor&&!petCast)return new TerminateReturn(true,true,true);
+            if(priority!=null&&actualTarget!=actor&&!petCast
+                &&!(actualTarget==enemy&&BotTactics.tankDefenseCancel(actor,enemy,event.getSkill())))return new TerminateReturn(true,true,true);
             if(!TankClassMechanics.castAllowed(actor,petCast?priority:enemy,event.getSkill())
                 ||!BotTactics.dominatorRootAllowed(actor,enemy,event.getSkill().getId())
                 ||!BotSpawner.tankMirrorDefenseAllowed(actor,enemy,event.getSkill())

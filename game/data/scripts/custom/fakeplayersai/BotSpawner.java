@@ -870,7 +870,7 @@ public class BotSpawner
 
 	public static boolean tacticalSkillAllowed(Player player, Player enemy, Skill skill, boolean self)
 	{
-        if(!self&&BotTactics.prioritySummon(player,enemy)!=null)return false;
+        if(!self&&BotTactics.prioritySummon(player,enemy)!=null&&!BotTactics.tankDefenseCancel(player,enemy,skill))return false;
         if(!tankMirrorDefenseAllowed(player,enemy,skill)||!RoleCombatPolicy.candidate(player,enemy,skill,self)||!BotTactics.dominatorRootAllowed(player,enemy,skill.getId()))return false;
         if(player.getClient()==null&&TacticsPolicy.chargeMeleeClass(player.getPlayerClass().getId())&&RoleCombatPolicy.builder(skill.getId())&&!RoleCombatPolicy.needsCharge(player))return false;
         if(player.getClient()==null && !self && enemy!=null && enemy.isInvul())return false;

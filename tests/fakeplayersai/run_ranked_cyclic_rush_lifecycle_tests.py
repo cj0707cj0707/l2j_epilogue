@@ -53,7 +53,7 @@ def main():
         launcher.write_text('import javax.tools.ToolProvider;public class Compile{public static void main(String[]a){System.exit(ToolProvider.getSystemJavaCompiler().run(null,System.out,System.err,a));}}')
         javap.write_text('public class InspectClass{public static void main(String[]a){System.exit(java.util.spi.ToolProvider.findFirst("javap").orElseThrow().run(System.out,System.err,a));}}')
         cp=os.pathsep.join(map(str,sorted((ROOT/'libs').glob('*.jar'))))
-        subprocess.run(['java',str(launcher),'-cp',cp,'-d',str(tmp/'actual'),*map(str,sorted(SRC.glob('*.java')))],check=True,cwd=ROOT)
+        subprocess.run(['java',str(launcher),'-cp',cp,'-d',str(tmp/'actual'),*map(str,sorted(SRC.glob('*.java'))),str(ROOT/'game/data/scripts/custom/GiranServices/Preparation.java')],check=True,cwd=ROOT)
         print('PASS: all production fake-player scripts compile against actual libs/*.jar',flush=True)
         creature=subprocess.check_output(['java',str(javap),'-classpath',cp,'-p','-c','org.l2jmobius.gameserver.entity.actor.Creature'],text=True)
         begin=creature.split('private void beginCast(',2)[2].split('\n  public ',1)[0]
