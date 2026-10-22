@@ -1,5 +1,8 @@
 # 09. Система ботов FakePlayersAI (`game\data\scripts\custom\fakeplayersai\`)
 
+> **Актуально95:** [три настоящих заряда → немедленный разрешённый785/762/789](95-tank-three-charge-finisher-permission.md), без ordinary decision/defense reaction; mandatory hook обеих арен,762 только в контакте,785 разрешён под406, собственный саммон не блокирует PARTY-икону. Условия ресурсов, cooldown и CC сохранены.
+
+
 > Актуальные уточнения: [правило94](94-arena-class-controls-and-duelist.md) — сон/Clarity Cardinal, root≤3 и SoulGuard Dominator, Celestial→Trance, олимпийский профиль без Vampiric Rage, ротация Duelist261/9/7 и условный6.
 > **Последнее изменение93:** [Cardinal и Dominator ждут окончания сна только под активной защитой танка110/368/760](93-sleep-hold-only-during-tank-defense.md). Без усиления после одного отхода сразу выбирается законный Mana Burn1398 / Steal Essence1245; окончание защиты не перезапускает отход. Правило93 заменяет прежний безусловный HOLD Cardinal из74; Cleanse92, invul и native ограничения сохранены.
 
@@ -55,15 +58,16 @@
 
 | Файл | Назначение |
 |---|---|
-| `BotManager.java` | Реестр/спаун, ranked-драйвер131; root-hook неподвижных умений; обязательная фаза собственногоBluff |
-| `BotSpawner.java` | Спаун/деспаун ботов, выдача экипировки и скиллов, назначение пресетов |
+| `BotManager.java` | Обязательный stage3-hook95 в обоих ranked-проходах; реестр/спаун, ranked-драйвер131; root-hook неподвижных умений; обязательная фаза собственногоBluff |
+| `BotSpawner.java` | Stage3/contact/target cast-permission95; спаун/деспаун ботов, выдача экипировки и скиллов, назначение пресетов |
 | `BotClassPreset.java` | Пресеты классов: ротация скиллов, тип оружия, флаг кастера |
 | `BotPresets.java` | Справочник пресетов по classId, таблицы снаряжения, методы выдачи снаряжения |
-| `BotTactics.java` | Обязательный `tickRoleCombat`, цикл115 и движение88/114 по88; исторически: выбор native-действия/ownership; правила STUN/дистанции115 и Trance-кайт65; Clarity/Trance и Bluff-rear фазы63, запрет автоатаки под собственным358; сохранены self-support/rooted131/evidence115 |
+| `BotTactics.java` | Срочный `tickTankFinisher`95 раньше обычных задержек/движения; обязательный `tickRoleCombat`, цикл115 и движение88/114 по88; исторически: выбор native-действия/ownership; правила STUN/дистанции115 и Trance-кайт65; Clarity/Trance и Bluff-rear фазы63, запрет автоатаки под собственным358; сохранены self-support/rooted131/evidence115 |
 | `RoleCombatPolicy.java` | Роли стрелок/маг, допустимые навыки115, цикл четырёх исполненных1245, обнаружение реального кайта и низший приоритет зарядников |
 | `CardinalSurvival.java` | Живой3282, recovery приоритет, после настоящего собственного сна1398→готовый1230→1394; одноразовое окно и cooldown skip64 |
 | `BluffRear.java` | Собственный актуальный358-STUN; геометрия/LOS/geodata обхода до задней позиции в радиусе40; освобождение своего маршрута |
-| `TankClassMechanics.java` | Native HP/seed/stage3/finisher;785 перед406, живые иконы для запрета69; сильная защита танка для общего кайта |
+| `TankClassMechanics.java` | Stage3-permission95, контакт762,785 под406, PARTY с собственным саммоном; native HP/seed/stage3/finisher;785 перед406, живые иконы для запрета69; сильная защита танка для общего кайта |
+| `BotRecoveryRules.java` | Синхронный cast-guard: в том числе stage3/contact/цели финальных навыков95; ограничения восстановления и атак |
 | `TacticsPolicy.java` | Политики/пороги/скоринг; бюджет двух попыток контроля/проклятий115, CP-weave |
 | `OlympiadChase.java` | Фазовый драйвер преследования на Олимпиаде (rush/retreat) |
 | `TrainingArena.java` | Тренировочная арена: границы, инициализация пар |

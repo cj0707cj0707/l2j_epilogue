@@ -105,7 +105,8 @@ public final class BotRecoveryRules
         if(arenaManaged(actor))
         {
             Player enemy=BotTactics.currentOpponent(actor);
-            if(!BotTactics.dominatorRootAllowed(actor,enemy,event.getSkill().getId())
+            if(!TankClassMechanics.castAllowed(actor,enemy,event.getSkill())
+                ||!BotTactics.dominatorRootAllowed(actor,enemy,event.getSkill().getId())
                 ||!BotSpawner.tankMirrorDefenseAllowed(actor,enemy,event.getSkill())
                 ||!RoleCombatPolicy.candidate(actor,enemy,event.getSkill(),victim==actor)
                 ||TacticsPolicy.chargeMeleeClass(actor.getPlayerClass().getId())&&RoleCombatPolicy.builder(event.getSkill().getId())&&!RoleCombatPolicy.needsCharge(actor))return new TerminateReturn(true,true,true);

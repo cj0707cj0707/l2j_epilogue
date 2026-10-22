@@ -4,6 +4,8 @@
 
 ## Последнее обновление
 
+- [95 — танки: разрешение финального навыка только при трёх зарядах](95-tank-three-charge-finisher-permission.md): обязательный hook без задержек,785 под406,789, контактный762 и безопасный баф собственного саммона.
+
 - [94 — классовые фазы, олимпийский профиль и Duelist](94-arena-class-controls-and-duelist.md): Clarity-HOLD нетанков97; сон→root≤3→отход115; SoulGuard1283; без1268 в профиле; Trance под1418;261/9/7 и условный6.
 
 - [93 — условное ожидание сна Cardinal/Dominator](93-sleep-hold-only-during-tank-defense.md): HOLD только под защитой танка110/368/760; иначе один отход → немедленный законный Mana Burn/Steal.
@@ -32,6 +34,7 @@
 
 | # | Файл | Описание |
 |---|---|---|
+| 95 | `95-tank-three-charge-finisher-permission.md` | Реальная stage3, немедленные785/762/789, контакт Crusher и native cast-guard |
 | 94 | `94-arena-class-controls-and-duelist.md` | Шесть актуальных правил Cardinal/Dominator/Duelist и олимпийских бафов |
 | 93 | `93-sleep-hold-only-during-tank-defense.md` | Сон: ожидание только под защитой танка; иначе после отхода Mana Burn/Steal |
 | 92 | `92-cardinal-cleanse-movement-lock.md` | Cardinal: Cleanse1409 при movement lock, self-target, нативные условия/реагент |

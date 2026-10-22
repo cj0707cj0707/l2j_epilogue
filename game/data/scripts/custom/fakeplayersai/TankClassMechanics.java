@@ -1,9 +1,11 @@
 package custom.fakeplayersai;
 
 import java.util.List;
+import org.l2jmobius.gameserver.geoengine.GeoEngine;
 import org.l2jmobius.gameserver.entity.actor.Player;
 import org.l2jmobius.gameserver.entity.actor.enums.player.PlayerClass;
 import org.l2jmobius.gameserver.mechanics.skill.BuffInfo;
+import org.l2jmobius.gameserver.mechanics.skill.Skill;
 
 /** Native tank mechanics only: no HP manipulation, fake proc/charges, or SkillData edits. */
 final class TankClassMechanics
@@ -23,6 +25,34 @@ final class TankClassMechanics
     }
     static boolean support(int id) { return skill(id) && id != 762; }
     static boolean finisher(int id) { return id==785||id==762||id==789; }
+    /** Exact contact envelope, additionally bounded by the native AURA radius. */
+    static boolean crusherContact(Player bot,Player enemy,Skill skill)
+    {
+        if(bot==null||enemy==null||skill==null)return false;
+        double reach=bot.getPhysicalAttackRange()+bot.getTemplate().getCollisionRadius()+enemy.getTemplate().getCollisionRadius();
+        return Math.abs(bot.getZ()-enemy.getZ())<150
+            &&bot.calculateDistance2D(enemy)<=Math.min(reach,skill.getAffectRange())
+            &&GeoEngine.getInstance().canSeeTarget(bot,enemy);
+    }
+    /** PARTY icons may buff our own summon, never an arena opponent/foreign party. */
+    static boolean iconTargets(Player bot,Skill skill)
+    {
+        return iconTargets(bot,skill.getTargetList(bot,false,bot));
+    }
+    static boolean iconTargets(Player bot,List<?> targets)
+    {
+        if(targets==null||!targets.contains(bot))return false;
+        for(var target:targets)if(target==null||target!=bot&&target!=bot.getSummon())return false;
+        return true;
+    }
+    /** Shared tactical + synchronous legacy/auto-use guard. Native costs/reuse still apply. */
+    static boolean castAllowed(Player bot,Player enemy,Skill skill)
+    {
+        if(!finisher(skill.getId()))return true;
+        return allowed(bot,skill.getId())&&(skill.getId()==762
+            ?enemy!=null&&!enemy.isInvul()&&!enemy.isSleeping()&&crusherContact(bot,enemy,skill)
+            :iconTargets(bot,skill));
+    }
     /** A real stage3 whose learned finisher is off native reuse; no charge simulation. */
     static int readyFinisher(Player bot,Player enemy)
     {
@@ -73,7 +103,8 @@ final class TankClassMechanics
             return !possession&&live(bot,seed)==null&&live(bot,trigger)==null&&finisher!=null&&!bot.isSkillDisabled(finisher);
         }
         BuffInfo charge=live(bot,trigger);
-        return !possession&&charge!=null&&charge.getSkill().getLevel()>=3;
+        // Angelic Icon must not veto a newly ready Flame Icon. Do not refresh a live finisher.
+        return live(bot,785)==null&&live(bot,789)==null&&charge!=null&&charge.getSkill().getLevel()==3;
     }
     /** Only legal, ready options from the common engine; no skill/condition bypass. */
     static int choose(List<TacticsPolicy.Option> options)

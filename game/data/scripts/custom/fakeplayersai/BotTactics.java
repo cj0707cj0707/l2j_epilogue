@@ -568,6 +568,7 @@ public final class BotTactics
 			return false;
 		}
 		if (ArenaCombatRules.update(bot, enemy, preset)) return true;
+        if (tickTankFinisher(bot, enemy, preset, ranked)) return true;
         if (tickInvulnerableTarget(bot, enemy, preset, ranked)) return true;
         if (tickRoleCombat(bot, enemy, preset, ranked)) return true;
         if (tickBluffRear(bot, enemy, preset, ranked)) return true;
@@ -584,6 +585,53 @@ public final class BotTactics
 		claim(bot, s);
 		return act(bot, enemy, preset, s, time, false);
 	}
+
+    /** Mandatory transient stage3 phase; no enduring ownership, also with TacticalAI off. */
+    public static synchronized boolean tickTankFinisher(Player bot,Player enemy,BotClassPreset preset,boolean ranked)
+    {
+        if(bot==null||preset==null||TankClassMechanics.skills(preset.getClassId()).length==0
+            ||!valid(bot,enemy,ranked,STATES.get(bot.getObjectId())))return false;
+        if(ArenaCombatRules.update(bot,enemy,preset))return true;
+        long time=now();State s=state(bot.getObjectId(),time);prepare(bot,enemy,s,time);
+        pollAttempt(bot,enemy,s,time);
+        if(TankClassMechanics.finisher(s.pendingId))return true;
+        return tankFinisher(bot,enemy,s,time);
+    }
+
+    /** Spend the real native third stage before decision/reaction/defense/movement filters. */
+    private static boolean tankFinisher(Player bot,Player enemy,State s,long time)
+    {
+        if(s.pendingId!=0||bot.isCastingNow()||bot.isCastingSimultaneouslyNow()
+            ||bot.isOutOfControl()||bot.isAllSkillsDisabled())return false;
+        int id=TankClassMechanics.readyFinisher(bot,enemy);
+        if(id==0)return false;
+        Skill skill=bot.getKnownSkill(id);Failure backoff=s.failures.get(id);
+        if(backoff!=null&&time<backoff.until||bot.isInOlympiadMode()&&skill.isBlockedInOlympiad()
+            ||!resources(bot,skill)||id==762&&weaponUnavailable(bot))return false;
+        if(id==762&&!TankClassMechanics.crusherContact(bot,enemy,skill))
+        {
+            // Never fire an empty AURA at200: approach actual melee contact first.
+            if(enemy.isInvul()||enemy.isSleeping())return false;
+            roleApproach(bot,enemy,s,time,Math.min(skill.getAffectRange(),bot.getPhysicalAttackRange()
+                +bot.getTemplate().getCollisionRadius()+enemy.getTemplate().getCollisionRadius()));
+            return true;
+        }
+        boolean self=id!=762;
+        if(!TankClassMechanics.castAllowed(bot,enemy,skill)||!BotSpawner.tacticalSkillAllowed(bot,enemy,skill,self))return false;
+        AutoUseTaskManager.getInstance().stopAutoUseTask(bot);
+        AutoPlayTaskManager.getInstance().stopAutoPlay(bot);
+        s.invulnerableKite.stop();s.invulnerableRanged.stop();s.survivalKite.stop();s.moveUntil=0;
+        if(bot.isMoving())bot.getAI().setIntentionIdle();
+        stopBasicAttack(bot);bot.setTarget(self?bot:enemy);
+        s.pendingMp=bot.getCurrentMp();s.pendingHp=bot.getCurrentHp();s.pendingCharges=bot.getCharges();
+        s.pendingX=bot.getX();s.pendingY=bot.getY();s.pendingRushLoop=false;clearEvidence(s);
+        s.pendingCompletionMp=Math.max(0,bot.getStat().getMpInitialConsume(skill))+Math.max(0,bot.getStat().getMpConsume(skill));
+        if(!bot.useMagic(skill,true,true)){failure(s,id,time);bot.setTarget(enemy);return true;}
+        s.pendingId=id;s.pendingAt=time;s.pendingSelf=self;s.pendingDebuff=false;s.sawCast=bot.isCastingNow();
+        s.nextDecision=time+difficulty(s).reactionMs;
+        CombatAnalytics.tacticalRequest(bot.getObjectId(),self?"DEFENSE":"DAMAGE");
+        return true;
+    }
 
     /** Mandatory live-Bluff owner, independent of the optional tactical toggle. */
     public static synchronized boolean tickBluffRear(Player bot, Player enemy, BotClassPreset preset, boolean ranked)
@@ -1016,6 +1064,7 @@ public final class BotTactics
 		if (bluffHold) stopBasicAttack(bot); // never Idle/abort an already running real cast
 		pollAttempt(bot, enemy, s, time);
 		restoreCardinalMana(bot, preset);
+        if (tankFinisher(bot,enemy,s,time)) return true;
 		// A removable movement lock outranks healing, Trance, attacks and every movement phase.
 		if (cardinalCleanse(bot, enemy, preset, s, time)) return true;
 		// Recheck after polling and the existing Cardinal MP policy; pending completion may unlock recovery.
@@ -1235,7 +1284,7 @@ public final class BotTactics
 			// PARTY_CLAN may include a same-clan/party opponent. Never heal/buff them;
 			// query ordinary targets without changing the target or skill implementation.
 			if (self && (skill.getId() == 1305 || skill.getId() == 1414 || skill.getId() == 785 || skill.getId() == 789)
-				&& !TacticsPolicy.selfOnlyTargets(bot, skill.getTargetList(bot, false, bot))) { continue; }
+				&& !(TankClassMechanics.finisher(skill.getId()) ? TankClassMechanics.iconTargets(bot,skill) : TacticsPolicy.selfOnlyTargets(bot, skill.getTargetList(bot, false, bot)))) { continue; }
 			final boolean cpSupport = dominator && kind == TacticsPolicy.Kind.HEAL && TacticsPolicy.dominatorCpSkill(skill.getId()) && skill.hasEffectType(EffectType.CPHEAL);
 			if (cpSupport && !roleRanged && !(controlHold ? TacticsPolicy.dominatorControlCpNeeded(cpRatio(bot)) : TacticsPolicy.dominatorCpNeeded(cpRatio(bot)))) { continue; }
 			if (movingSupport && controlHold && cpSupport && s.dominatorCp.owesAttack()) continue;
