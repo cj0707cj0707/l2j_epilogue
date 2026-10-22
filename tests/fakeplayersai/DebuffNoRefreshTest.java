@@ -91,6 +91,31 @@ public class DebuffNoRefreshTest
         catch(TimeoutException e){throw new AssertionError("LOCK_ORDER actor/effect-list inversion",e);}
         finally{proceed.countDown();threads.shutdownNow();}
     }
+    static void stunShotRefresh96()throws Exception
+    {
+        for(int cid:new int[]{9,24,37,92,102,109})for(int oldId:new int[]{101,260,362,793})for(int level:new int[]{1,130,230})
+        {
+            Player archer=(Player)allocate(Player.class);
+            var template=(org.l2jmobius.gameserver.entity.actor.templates.PlayerTemplate)allocate(org.l2jmobius.gameserver.entity.actor.templates.PlayerTemplate.class);
+            set(template,"_playerClass",org.l2jmobius.gameserver.entity.actor.enums.player.PlayerClass.getPlayerClass(cid));set(archer,"_template",template);
+            EffectList list=new EffectList(null);Info old=info(oldId,"STUN",flag(EffectFlag.STUNNED),EffectType.STUN,1);list.add(old);
+            Info shot=info(101,"STUN",flag(EffectFlag.STUNNED),EffectType.STUN,level);set(shot,"_effector",archer);set(shot,"_periodStartTicks",54321);
+            list.add(shot);
+            check(old.stops==1&&shot.starts==1&&list.getDebuffs().size()==1&&list.getDebuffs().peek()==shot,"incoming archer101 refreshes actual STUN timer cid="+cid);
+            check(shot.getPeriodStartTicks()==54321,"new successful shot owns its real timer");
+            Info other=info(260,"STUN",flag(EffectFlag.STUNNED),EffectType.STUN,level+1);list.add(other);
+            check(other.starts==0&&shot.stops==0,"reverse direction still blocks other stuns over101");
+            // A compound STUN+MUTE package must not get erased by this narrow exception.
+            EffectList mixed=new EffectList(null);Info compound=info(701,"STUN",flag(EffectFlag.STUNNED)|flag(EffectFlag.MUTED),EffectType.STUN,1);mixed.add(compound);
+            Info next=info(101,"STUN",flag(EffectFlag.STUNNED),EffectType.STUN,1);set(next,"_effector",archer);mixed.add(next);
+            check(next.starts==0&&compound.stops==0,"exception is pure STUN only, other categories unchanged");
+        }
+        Player wrong=(Player)allocate(Player.class);var template=(org.l2jmobius.gameserver.entity.actor.templates.PlayerTemplate)allocate(org.l2jmobius.gameserver.entity.actor.templates.PlayerTemplate.class);
+        set(template,"_playerClass",org.l2jmobius.gameserver.entity.actor.enums.player.PlayerClass.getPlayerClass(94));set(wrong,"_template",template);
+        EffectList list=new EffectList(null);Info old=info(260,"STUN",flag(EffectFlag.STUNNED),EffectType.STUN,1);list.add(old);
+        Info wrongShot=info(101,"STUN",flag(EffectFlag.STUNNED),EffectType.STUN,1);set(wrongShot,"_effector",wrong);list.add(wrongShot);
+        check(old.stops==0&&wrongShot.starts==0,"non-archer101 is not an exception");
+    }
     static int flag(EffectFlag f){return f.getMask();}
     public static void main(String[] args)throws Exception
     {
@@ -104,7 +129,7 @@ public class DebuffNoRefreshTest
         }
         check(!Modifier.isSynchronized(EffectList.class.getMethod("add",BuffInfo.class).getModifiers()),"no implicit list-before-owner monitor");
         check(!Modifier.isSynchronized(EffectList.class.getMethod("guardOriginalAdd",BuffInfo.class).getModifiers()),"bridge cannot lock list before owner");
-        lockOrder(false); lockOrder(true);
+        lockOrder(false); lockOrder(true);stunShotRefresh96();
         EffectList list=new EffectList(null);Info old=info(260,"STUN",flag(EffectFlag.STUNNED),EffectType.STUN,1);list.add(old);
         for(int level:new int[]{1,2,1030})for(int id:new int[]{260,485,9999})
         {

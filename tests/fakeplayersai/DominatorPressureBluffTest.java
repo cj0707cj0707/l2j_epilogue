@@ -21,10 +21,10 @@ public class DominatorPressureBluffTest extends BerserkerSoulCleanseTest {
     public static boolean request(Player p,Skill s,boolean force,boolean shift) {
         Trace t=traces.get(p); t.requests++;t.castTarget=p.getTarget();last=s.getId();
         verify(force&&shift,"ordinary forced shift cast, never native walk-to-cast");
-        verify(p.getTarget()==((s.getId()==1283||s.getId()==69||s.getId()==833||s.getId()==1305||s.getId()==1306||s.getId()==1510||s.getId()==453||s.getId()==1218||s.getId()==1418||TankClassMechanics.support(s.getId()))?p:targetEnemy),"correct self/enemy cast target");
+        verify(p.getTarget()==((s.getId()==1283||s.getId()==69||s.getId()==833||s.getId()==1305||s.getId()==1306||s.getId()==1510||s.getId()==453||s.getId()==1218||s.getId()==1418||TankClassMechanics.support(s.getId())||s.getId()==8||s.getId()==50)?p:targetEnemy),"correct self/enemy cast target");
         if(t.accept)p.setCastingNow(true);return t.accept;
     }
-    static Player targetEnemy;
+    static org.l2jmobius.gameserver.entity.actor.Creature targetEnemy;
     static void recordingType()throws Exception
     {
         ClassDesc player=ClassDesc.of("org.l2jmobius.gameserver.entity.actor.Player"),world=ClassDesc.of("org.l2jmobius.gameserver.entity.WorldObject"),sk=ClassDesc.of("org.l2jmobius.gameserver.mechanics.skill.Skill"),test=ClassDesc.of(DominatorPressureBluffTest.class.getName());

@@ -1,5 +1,8 @@
 # 09. Система ботов FakePlayersAI (`game\data\scripts\custom\fakeplayersai\`)
 
+> **Актуально96:** [вход со стартовой позиции без скачка для всех19 классов; Panther/Phoenix прежде танка; Cursed Man после invul некроманта; repeat101; Duelist без5 во всех бот-путях](96-arena-entry-summon-priority-stun-shot-and-duelist.md). Новая обязательная summon-фаза выше owner-only фаз. Для101 обновляется установленный core-helper, см. инструкцию96.
+
+
 > **Актуально95:** [три настоящих заряда → немедленный разрешённый785/762/789](95-tank-three-charge-finisher-permission.md), без ordinary decision/defense reaction; mandatory hook обеих арен,762 только в контакте,785 разрешён под406, собственный саммон не блокирует PARTY-икону. Условия ресурсов, cooldown и CC сохранены.
 
 
@@ -58,11 +61,12 @@
 
 | Файл | Назначение |
 |---|---|
-| `BotManager.java` | Обязательный stage3-hook95 в обоих ranked-проходах; реестр/спаун, ranked-драйвер131; root-hook неподвижных умений; обязательная фаза собственногоBluff |
+| `BotManager.java` | Pet-priority96 до owner-retarget;  Обязательный stage3-hook95 в обоих ranked-проходах; реестр/спаун, ranked-драйвер131; root-hook неподвижных умений; обязательная фаза собственногоBluff |
 | `BotSpawner.java` | Stage3/contact/target cast-permission95; спаун/деспаун ботов, выдача экипировки и скиллов, назначение пресетов |
-| `BotClassPreset.java` | Пресеты классов: ротация скиллов, тип оружия, флаг кастера |
+| `BotClassPreset.java` | Sanitization5 во всех эффективных списках Duelist96;  Пресеты классов: ротация скиллов, тип оружия, флаг кастера |
 | `BotPresets.java` | Справочник пресетов по classId, таблицы снаряжения, методы выдачи снаряжения |
-| `BotTactics.java` | Срочный `tickTankFinisher`95 раньше обычных задержек/движения; обязательный `tickRoleCombat`, цикл115 и движение88/114 по88; исторически: выбор native-действия/ownership; правила STUN/дистанции115 и Trance-кайт65; Clarity/Trance и Bluff-rear фазы63, запрет автоатаки под собственным358; сохранены self-support/rooted131/evidence115 |
+| `BotTactics.java` | Mandatory `tickSummonPriority`96/native атаки по Creature;  Срочный `tickTankFinisher`95 раньше обычных задержек/движения; обязательный `tickRoleCombat`, цикл115 и движение88/114 по88; исторически: выбор native-действия/ownership; правила STUN/дистанции115 и Trance-кайт65; Clarity/Trance и Bluff-rear фазы63, запрет автоатаки под собственным358; сохранены self-support/rooted131/evidence115 |
+| `SummonPriority.java` | Текущий живой собственный питомец противника; tank-pet priority и Cursed Man latch96 |
 | `RoleCombatPolicy.java` | Роли стрелок/маг, допустимые навыки115, цикл четырёх исполненных1245, обнаружение реального кайта и низший приоритет зарядников |
 | `CardinalSurvival.java` | Живой3282, recovery приоритет, после настоящего собственного сна1398→готовый1230→1394; одноразовое окно и cooldown skip64 |
 | `BluffRear.java` | Собственный актуальный358-STUN; геометрия/LOS/geodata обхода до задней позиции в радиусе40; освобождение своего маршрута |

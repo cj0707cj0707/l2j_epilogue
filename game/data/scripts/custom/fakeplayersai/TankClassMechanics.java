@@ -3,6 +3,7 @@ package custom.fakeplayersai;
 import java.util.List;
 import org.l2jmobius.gameserver.geoengine.GeoEngine;
 import org.l2jmobius.gameserver.entity.actor.Player;
+import org.l2jmobius.gameserver.entity.actor.Creature;
 import org.l2jmobius.gameserver.entity.actor.enums.player.PlayerClass;
 import org.l2jmobius.gameserver.mechanics.skill.BuffInfo;
 import org.l2jmobius.gameserver.mechanics.skill.Skill;
@@ -26,7 +27,7 @@ final class TankClassMechanics
     static boolean support(int id) { return skill(id) && id != 762; }
     static boolean finisher(int id) { return id==785||id==762||id==789; }
     /** Exact contact envelope, additionally bounded by the native AURA radius. */
-    static boolean crusherContact(Player bot,Player enemy,Skill skill)
+    static boolean crusherContact(Player bot,Creature enemy,Skill skill)
     {
         if(bot==null||enemy==null||skill==null)return false;
         double reach=bot.getPhysicalAttackRange()+bot.getTemplate().getCollisionRadius()+enemy.getTemplate().getCollisionRadius();
@@ -46,7 +47,7 @@ final class TankClassMechanics
         return true;
     }
     /** Shared tactical + synchronous legacy/auto-use guard. Native costs/reuse still apply. */
-    static boolean castAllowed(Player bot,Player enemy,Skill skill)
+    static boolean castAllowed(Player bot,Creature enemy,Skill skill)
     {
         if(!finisher(skill.getId()))return true;
         return allowed(bot,skill.getId())&&(skill.getId()==762

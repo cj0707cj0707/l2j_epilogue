@@ -1,15 +1,19 @@
 package custom.fakeplayersai;
 
 import org.l2jmobius.gameserver.entity.actor.Player;
+import org.l2jmobius.gameserver.entity.actor.Creature;
 import org.l2jmobius.gameserver.entity.actor.Summon;
 
 /** Commands only an already existing living summon; never learns/casts a summon skill. */
 final class SummonAttackPulse
 {
     private long nextAt;
-    void reset() { nextAt = 0; }
-    void tick(Player owner, Player enemy, long time)
+    private int targetId;
+    void reset() { nextAt = 0; targetId=0; }
+    void tick(Player owner, Creature enemy, long time)
     {
+        if(enemy!=null&&enemy.isPlayer())
+        { Summon priority=BotTactics.prioritySummon(owner,enemy.asPlayer());if(priority!=null)enemy=priority; }
         Summon summon = owner.getSummon();
         if (summon == null || summon.getOwner() != owner || summon.isAlikeDead() || summon.isTeleporting()
             || summon.getInstanceId() != owner.getInstanceId() || enemy == null || enemy.isAlikeDead()
@@ -21,7 +25,8 @@ final class SummonAttackPulse
             if(summon.getAI().getIntention()==org.l2jmobius.gameserver.ai.Intention.ATTACK)summon.getAI().setIntentionIdle();
             return;
         }
-        if(time<nextAt)return;
+        if(time<nextAt&&targetId==enemy.getObjectId())return;
+        targetId=enemy.getObjectId();
         nextAt = time + 3000;
         // Intentionally repeat even when the target is unchanged or AI has fallen idle.
         // Do not retarget the OWNER: it may be in the middle of a self-targeted cast.

@@ -1,5 +1,8 @@
 # 94. Cardinal, Dominator, олимпийские бафы и Duelist
 
+> **Уточнение96:** запрет Double Sonic Slash5 дополнительно закрыт в getters всех списков/старых overrides и global bot cast-guard обычного мира; повторный101 и новый pet-focus описаны в96. [Карта изменений96](96-arena-entry-summon-priority-stun-shot-and-duelist.md).
+
+
 Актуальные уточнения поверх правил75/76/78/88/93. Изменения AI относятся к clientless-ботам в тренировке и на олимпиаде; изменение серверного олимпийского профиля относится и к ботам, и к игрокам.
 
 ## 1. Cardinal: сон нетанка и Clarity

@@ -63,6 +63,16 @@ public final class DebuffCategoryGuard
     static boolean conflicts(BuffInfo active, BuffInfo incoming)
     {
         Skill old = active.getSkill(), next = incoming.getSkill();
+        // Only an incoming archer Stunning Shot101 may refresh a pure STUN.
+        // Native success/immunity/abnormal-level checks have NOT been bypassed.
+        if (next.getId()==101 && controls(active)==1 && controls(incoming)==1
+            && incoming.getEffector()!=null && incoming.getEffector().isPlayer())
+        {
+            var c=incoming.getEffector().asPlayer().getPlayerClass();
+            if(c.equalsOrChildOf(org.l2jmobius.gameserver.entity.actor.enums.player.PlayerClass.HAWKEYE)
+                ||c.equalsOrChildOf(org.l2jmobius.gameserver.entity.actor.enums.player.PlayerClass.SILVER_RANGER)
+                ||c.equalsOrChildOf(org.l2jmobius.gameserver.entity.actor.enums.player.PlayerClass.PHANTOM_RANGER))return false;
+        }
         if (old.getId() == next.getId()) return true; // same skill, caster/enchant/level never bypass the rule
         long a = controls(active), b = controls(incoming);
         if ((a & b) != 0) return true;

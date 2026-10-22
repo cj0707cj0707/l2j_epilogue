@@ -40,7 +40,7 @@ final class CardinalSurvival
     static boolean passiveTrance(Player bot,Player enemy)
     { return tranceTarget(bot,enemy)&&bot.isInvul()&&live(bot,5576); }
     /** Bot97 only: strict >90%, awake and vulnerable target; Clarity is irrelevant. */
-    static boolean prominenceAllowed(Player bot,Player enemy)
+    static boolean prominenceAllowed(Player bot,org.l2jmobius.gameserver.entity.actor.Creature enemy)
     {
         if(bot==null||bot.getClient()!=null||bot.getPlayerClass().getId()!=97)return true;
         return !sleepShield(bot)&&enemy!=null&&bot.getCurrentHp()>bot.getMaxHp()*.90&&!enemy.isSleeping()&&!enemy.isInvul();

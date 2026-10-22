@@ -598,6 +598,7 @@ public class BotSpawner
 			for (int skillId : preset.getRotation()) aus.getAutoSkills().add(skillId);
 		// Escape Shackle is exclusively driven by BotTactics while rooted, even with overrides.
 		aus.getAutoSkills().remove(Integer.valueOf(ESCAPE_SHACKLE_ID));
+        if(player.getPlayerClass().getId()==88){aus.getAutoSkills().remove(Integer.valueOf(5));aus.getAutoBuffs().remove(Integer.valueOf(5));}
         aus.getAutoSkills().removeIf(TankClassMechanics::skill);
 		aus.getAutoBuffs().clear();
 		for (int skillId : preset.getBuffs()) if (skillId != ESCAPE_SHACKLE_ID && !TankClassMechanics.skill(skillId)) aus.getAutoBuffs().add(skillId);
@@ -869,6 +870,7 @@ public class BotSpawner
 
 	public static boolean tacticalSkillAllowed(Player player, Player enemy, Skill skill, boolean self)
 	{
+        if(!self&&BotTactics.prioritySummon(player,enemy)!=null)return false;
         if(!tankMirrorDefenseAllowed(player,enemy,skill)||!RoleCombatPolicy.candidate(player,enemy,skill,self)||!BotTactics.dominatorRootAllowed(player,enemy,skill.getId()))return false;
         if(player.getClient()==null&&TacticsPolicy.chargeMeleeClass(player.getPlayerClass().getId())&&RoleCombatPolicy.builder(skill.getId())&&!RoleCombatPolicy.needsCharge(player))return false;
         if(player.getClient()==null && !self && enemy!=null && enemy.isInvul())return false;
@@ -900,7 +902,7 @@ public class BotSpawner
 	{
 		if (player == null) return;
 		final AutoUseSettingsHolder aus = player.getAutoUseSettings();
-        aus.getAutoBuffs().removeIf(id -> !CardinalSurvival.skillAllowed(player,id)||player.getPlayerClass().getId()==115&&id==1283);
+        aus.getAutoBuffs().removeIf(id -> player.getPlayerClass().getId()==88&&id==5 || !CardinalSurvival.skillAllowed(player,id)||player.getPlayerClass().getId()==115&&id==1283);
         if(player.getClient()==null&&player.getPlayerClass().getId()==88)aus.getAutoSkills().removeIf(id -> id==5||id==6);
         aus.getAutoSkills().removeIf(id -> !CardinalSurvival.skillAllowed(player,id));
 		aus.getAutoBuffs().removeIf(id -> isOlympiadChantBanned(player, id));

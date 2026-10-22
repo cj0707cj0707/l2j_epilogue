@@ -71,12 +71,11 @@ public final class ArenaCombatRules
             {
                 if(meleeClass(actor)) { clearBoundary(actor.getObjectId()); continue; }
                 Player opponent=actor==bot?enemy:bot;
+                // Start rooms are about1200 from center. Never bind/snap a ranged
+                // entrant into the460 kite disk: let ordinary geodata movement enter it.
+                if(Math.hypot((double)actor.getX()-c[0],(double)actor.getY()-c[1])>460)
+                { clearBoundary(actor.getObjectId()); continue; }
                 bind.invoke(null,actor,opponent,c[0],c[1]);
-                // Only actors retaining the radial rule may be normalized on admission.
-                if(Math.hypot((double)actor.getX()-c[0],(double)actor.getY()-c[1])<=460)continue;
-                actor.stopMove(null);
-                actor.setXYZ(actor.getX(),actor.getY(),actor.getZ());
-                actor.broadcastPacket(new org.l2jmobius.gameserver.network.serverpackets.ValidateLocation(actor));
             }
             return false;
         }

@@ -41,6 +41,12 @@ final class RoleCombatPolicy
     }
     static boolean soulGuard(Player p,Player e)
     { return p!=null&&p.getClient()==null&&p.getPlayerClass().getId()==115&&physical(e); }
+    static boolean stunRefresh(Player p,int id)
+    {
+        if(p==null||id!=101)return false;
+        PlayerClass c=p.getPlayerClass();
+        return c.equalsOrChildOf(PlayerClass.HAWKEYE)||c.equalsOrChildOf(PlayerClass.SILVER_RANGER)||c.equalsOrChildOf(PlayerClass.PHANTOM_RANGER);
+    }
     static boolean duelistAllowed(Player p,Player e,int id)
     {
         if(p==null||p.getClient()!=null||p.getPlayerClass().getId()!=88)return true;

@@ -90,27 +90,44 @@ public final class BotRecoveryRules
 
     static TerminateReturn bluffAttack(OnCreatureAttack event)
     {
-        return event!=null&&arenaManaged(event.getAttacker())&&event.getTarget()!=null&&event.getTarget().isPlayer()
-            &&(RoleCombatPolicy.rangedDominator(event.getAttacker().asPlayer(),event.getTarget().asPlayer()) || event.getTarget().isInvul() || BluffRear.stun(event.getAttacker().asPlayer(),event.getTarget().asPlayer())!=null
-                ||event.getAttacker().asPlayer().getPlayerClass().getId()==97&&event.getTarget().asPlayer().isSleeping()) ? new TerminateReturn(true,true,true):null;
+        if(event==null||event.getAttacker()==null||event.getTarget()==null)return null;
+        Creature attacker=event.getAttacker();
+        Player bot=attacker.isPlayer()?attacker.asPlayer():attacker.isSummon()?attacker.asSummon().getOwner():null;
+        if(arenaManaged(bot))
+        {
+            if(event.getTarget().isInvul())return new TerminateReturn(true,true,true);
+            var priority=BotTactics.prioritySummon(bot,BotTactics.currentOpponent(bot));
+            if(priority!=null&&event.getTarget()!=priority)return new TerminateReturn(true,true,true);
+        }
+        return arenaManaged(attacker)&&event.getTarget().isPlayer()
+            &&(RoleCombatPolicy.rangedDominator(attacker.asPlayer(),event.getTarget().asPlayer()) || event.getTarget().isInvul() || BluffRear.stun(attacker.asPlayer(),event.getTarget().asPlayer())!=null
+                ||attacker.asPlayer().getPlayerClass().getId()==97&&event.getTarget().asPlayer().isSleeping()) ? new TerminateReturn(true,true,true):null;
     }
 
     static TerminateReturn guard(OnCreatureSkillUse event)
     {
         if (event == null || !managed(event.getCaster()) || event.getSkill()==null) return null;
         final Player actor=event.getCaster().asPlayer();
+        if(actor.getPlayerClass().getId()==88&&event.getSkill().getId()==5)return new TerminateReturn(true,true,true);
+        Creature actualTarget=event.getTarget()!=null&&event.getTarget().isCreature()?event.getTarget().asCreature():null;
         if (!CardinalSurvival.skillAllowed(actor,event.getSkill().getId())) return new TerminateReturn(true,true,true);
         Player victim=event.getTarget()!=null&&event.getTarget().isPlayer()?event.getTarget().asPlayer():null;
-        if (event.getSkill().getId()==1230 && actor.getPlayerClass().getId()==97 && arenaManaged(actor) && !CardinalSurvival.prominenceAllowed(actor,victim)) return new TerminateReturn(true,true,true);
+        if (event.getSkill().getId()==1230 && actor.getPlayerClass().getId()==97 && arenaManaged(actor) && !CardinalSurvival.prominenceAllowed(actor,actualTarget)) return new TerminateReturn(true,true,true);
         if(arenaManaged(actor))
         {
             Player enemy=BotTactics.currentOpponent(actor);
-            if(!TankClassMechanics.castAllowed(actor,enemy,event.getSkill())
+            var priority=BotTactics.prioritySummon(actor,enemy);
+            boolean petCast=priority!=null&&(actualTarget==priority
+                ||event.getSkill().getId()==762&&event.getTargets()!=null&&event.getTargets().contains(priority));
+            if(petCast&&(!CardinalSurvival.celestialSkillAllowed(actor,event.getSkill().getId())
+                ||actor.getPlayerClass().getId()==88&&event.getSkill().getId()==6))return new TerminateReturn(true,true,true);
+            if(priority!=null&&actualTarget!=actor&&!petCast)return new TerminateReturn(true,true,true);
+            if(!TankClassMechanics.castAllowed(actor,petCast?priority:enemy,event.getSkill())
                 ||!BotTactics.dominatorRootAllowed(actor,enemy,event.getSkill().getId())
                 ||!BotSpawner.tankMirrorDefenseAllowed(actor,enemy,event.getSkill())
-                ||!RoleCombatPolicy.candidate(actor,enemy,event.getSkill(),victim==actor)
+                ||!petCast&&!RoleCombatPolicy.candidate(actor,enemy,event.getSkill(),victim==actor)
                 ||TacticsPolicy.chargeMeleeClass(actor.getPlayerClass().getId())&&RoleCombatPolicy.builder(event.getSkill().getId())&&!RoleCombatPolicy.needsCharge(actor))return new TerminateReturn(true,true,true);
-            if(victim!=null&&victim!=actor&&victim.isInvul())return new TerminateReturn(true,true,true);
+            if(actualTarget!=null&&actualTarget!=actor&&actualTarget.isInvul())return new TerminateReturn(true,true,true);
             if(event.getTargets()!=null)for(var target:event.getTargets())
                 if(target!=null&&target!=actor&&target.isCreature()&&target.asCreature().isInvul())return new TerminateReturn(true,true,true);
         }

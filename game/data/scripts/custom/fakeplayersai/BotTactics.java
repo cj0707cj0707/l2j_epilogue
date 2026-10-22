@@ -14,6 +14,8 @@ import org.l2jmobius.gameserver.mechanics.events.listeners.ConsumerEventListener
 import org.l2jmobius.gameserver.ai.Intention;
 import org.l2jmobius.gameserver.entity.Location;
 import org.l2jmobius.gameserver.entity.actor.Player;
+import org.l2jmobius.gameserver.entity.actor.Creature;
+import org.l2jmobius.gameserver.entity.actor.Summon;
 import org.l2jmobius.gameserver.geoengine.GeoEngine;
 import org.l2jmobius.gameserver.mechanics.effects.EffectType;
 import org.l2jmobius.gameserver.mechanics.effects.EffectFlag;
@@ -124,6 +126,8 @@ public final class BotTactics
         final DominatorSleepRoot sleepRoot = new DominatorSleepRoot();
 		final DominatorControlRetreat controlRetreat = new DominatorControlRetreat();
 		final SummonAttackPulse summonAttack = new SummonAttackPulse();
+        final SummonPriority summonFocus = new SummonPriority();
+        java.lang.ref.WeakReference<Creature> pendingPet;
 		final TacticsPolicy.OriginalRushStun<BuffInfo> rushLoop = new TacticsPolicy.OriginalRushStun<>();
 		long nextRushStep;
 		int rushAnchorX, rushAnchorY, rushMoveX, rushMoveY;
@@ -568,6 +572,7 @@ public final class BotTactics
 			return false;
 		}
 		if (ArenaCombatRules.update(bot, enemy, preset)) return true;
+        if (tickSummonPriority(bot, enemy, preset, ranked)) return true;
         if (tickTankFinisher(bot, enemy, preset, ranked)) return true;
         if (tickInvulnerableTarget(bot, enemy, preset, ranked)) return true;
         if (tickRoleCombat(bot, enemy, preset, ranked)) return true;
@@ -585,6 +590,99 @@ public final class BotTactics
 		claim(bot, s);
 		return act(bot, enemy, preset, s, time, false);
 	}
+
+    static synchronized Summon prioritySummon(Player bot,Player enemy)
+    {
+        State s=bot==null?null:STATES.get(bot.getObjectId());
+        return s==null?null:s.summonFocus.target(bot,enemy);
+    }
+
+    /** Both mandatory ranked passes and the shared training tick call before owner-only phases. */
+    public static synchronized boolean tickSummonPriority(Player bot,Player enemy,BotClassPreset preset,boolean ranked)
+    {
+        if(bot==null||preset==null||!valid(bot,enemy,ranked,STATES.get(bot.getObjectId())))return false;
+        long time=now();State s=state(bot.getObjectId(),time);prepare(bot,enemy,s,time);
+        if(ArenaCombatRules.update(bot,enemy,preset))return true;
+        Summon pet=s.summonFocus.target(bot,enemy);
+        if(pet==null&&!s.summonFocus.leased())return false;
+        // No retarget/abort during a real cast, even if the pet dies or the owner changes shield.
+        pollAttempt(bot,enemy,s,time);
+        restoreCardinalMana(bot,preset); // preserve the existing Cardinal arena resource policy
+        if(bot.isCastingNow()||bot.isCastingSimultaneouslyNow()||s.pendingId!=0)return true;
+        if(pet==null)
+        {
+            s.owned=s.summonFocus.release();s.nextDecision=0;s.nextStep=0;
+            stopBasicAttack(bot);bot.setTarget(enemy);return false;
+        }
+        s.summonFocus.lease(s.owned);claim(bot,s);
+        if(cardinalCleanse(bot,enemy,preset,s,time)||escapeShackle(bot,enemy,preset,s,time)||soulCleanse(bot,enemy,preset,s,time))return true;
+        s.invulnerableKite.stop();s.invulnerableRanged.stop();s.survivalKite.stop();s.moveUntil=0;
+        if(bot.isOutOfControl()||bot.isAllSkillsDisabled())return true;
+        if(bot.getTarget()!=pet){stopBasicAttack(bot);bot.setTarget(pet);}
+        s.summonAttack.tick(bot,pet,time);
+        if(pet.isInvul()||!pet.isAutoAttackable(bot)){stopBasicAttack(bot);return true;}
+        boolean visible=GeoEngine.getInstance().canSeeTarget(bot,pet);
+        double distance=bot.calculateDistance2D(pet);
+        java.util.LinkedHashSet<Integer> ids=new java.util.LinkedHashSet<>();
+        for(int id:TankClassMechanics.skills(preset.getClassId()))if(TankClassMechanics.finisher(id))ids.add(id);
+        if(preset.getClassId()==90)ids.add(406); // native low-HP fallback when785 cannot be paid
+        if(preset.getClassId()==97&&CardinalSurvival.sleepShield(bot))ids.add(1394);
+        // Cardinal's borrowed nuke requires >90%HP; a native heal gets it back into that window.
+        if(preset.getClassId()==97&&bot.getCurrentHp()<bot.getMaxHp()*.95)ids.add(1218);
+        if(preset.getClassId()==90&&bot.getCurrentHp()<bot.getMaxHp()*.65)ids.add(69);
+        if(preset.getClassId()==131&&bot.getCurrentHp()<=bot.getMaxHp()*.40)ids.add(833);
+        for(int id:BotSpawner.getTacticalRotation(bot,enemy))ids.add(id);
+        if(preset.getClassId()==88)for(int id:new int[]{261,9,7})ids.add(id);
+        if(preset.getClassId()==97)ids.add(1230);
+        if(preset.getClassId()==115)ids.add(1245);
+        for(int id:TankClassMechanics.skills(preset.getClassId()))ids.add(id);
+        double approach=bot.getPhysicalAttackRange()+bot.getTemplate().getCollisionRadius()+pet.getTemplate().getCollisionRadius();
+        boolean offense=false;
+        for(int id:ids)
+        {
+            Skill skill=bot.getKnownSkill(id);Failure f=s.failures.get(id);
+            if(skill==null||skill.isPassive()||skill.isToggle()||skill.isSuicideAttack()||BotSpawner.isOpenerOnlySkill(id)
+                ||id==5&&preset.getClassId()==88||id==6&&preset.getClassId()==88
+                ||bot.isSkillDisabled(skill)||bot.isInOlympiadMode()&&skill.isBlockedInOlympiad()
+                ||f!=null&&time<f.until||!resources(bot,skill))continue;
+            boolean support=TankClassMechanics.support(id)||BotRecoveryRules.healing(skill)||id==8||id==50;
+            boolean petTrance=id==1394&&preset.getClassId()==97&&CardinalSurvival.sleepShield(bot)&&!pet.isSleeping();
+            if(!CardinalSurvival.skillAllowed(bot,id)||!CardinalSurvival.celestialSkillAllowed(bot,id)
+                ||!TankClassMechanics.allowed(bot,id)||!TankClassMechanics.castAllowed(bot,pet,skill))continue;
+            if(RoleCombatPolicy.builder(id)&&!RoleCombatPolicy.needsCharge(bot))continue;
+            if(support)
+            {
+                if(!BotRecoveryRules.selfHealAllowed(bot,skill)||active(bot,skill)&&!BotRecoveryRules.healing(skill)||!supportedTarget(skill,true))continue;
+            }
+            else
+            {
+                // Targeted native damage only: don't spray an owner's protected phase with AURA/AREA fillers.
+                if(!directDamage(skill)&&!petTrance||skill.getTargetType()!=TargetType.ONE&&id!=762||weaponUnavailable(bot)&&skill.isPhysical()
+                    ||id==1230&&!CardinalSurvival.prominenceAllowed(bot,pet))continue;
+                if(!skill.checkCondition(bot,pet,false))continue;
+                offense=true;
+                approach=Math.max(approach,skill.isMagic()?bot.getMagicalAttackRange(skill):Math.max(1,skill.getCastRange()));
+                if(!visible||!inRange(bot,pet,skill,distance))continue;
+            }
+            if(!skill.checkCondition(bot,support?bot:pet,false))continue;
+            if(!support&&!petTrance&&time<s.nextDecision)continue;
+            stopBasicAttack(bot);if(bot.isMoving())bot.getAI().setIntentionIdle();bot.setTarget(support?bot:pet);
+            s.pendingMp=bot.getCurrentMp();s.pendingHp=bot.getCurrentHp();s.pendingCharges=bot.getCharges();
+            s.pendingPet=new java.lang.ref.WeakReference<>(pet);s.pendingSelf=support;s.pendingDebuff=false;s.pendingRushLoop=false;clearEvidence(s);
+            if(bot.useMagic(skill,true,true))
+            {
+                s.pendingId=id;s.pendingAt=time;s.sawCast=bot.isCastingNow();s.nextDecision=time+difficulty(s).reactionMs;
+                CombatAnalytics.tacticalRequest(bot.getObjectId(),support?"DEFENSE":"DAMAGE");
+            }
+            else{s.pendingPet=null;failure(s,id,time);bot.setTarget(pet);}
+            return true;
+        }
+        if(!visible||distance>approach){roleApproach(bot,pet,s,time,approach);return true;}
+        if((!preset.isCaster()||!offense)&&allowsBasicAttack(bot,preset)&&!bot.isAttackingNow()
+            &&distance<=bot.getPhysicalAttackRange()+bot.getTemplate().getCollisionRadius()+pet.getTemplate().getCollisionRadius())
+            bot.getAI().setIntentionAttack(pet);
+        return true;
+    }
 
     /** Mandatory transient stage3 phase; no enduring ownership, also with TacticalAI off. */
     public static synchronized boolean tickTankFinisher(Player bot,Player enemy,BotClassPreset preset,boolean ranked)
@@ -700,7 +798,7 @@ public final class BotTactics
         else if(charge&&!handled)stationaryAttack(bot,enemy,preset,s);
         return true;
     }
-    private static void roleApproach(Player bot,Player enemy,State s,long time,double range)
+    private static void roleApproach(Player bot,Creature enemy,State s,long time,double range)
     {
         if(bot.isMovementDisabled()||bot.isDisabled()||time<s.nextStep)return;
         double distance=bot.calculateDistance2D(enemy);
@@ -983,7 +1081,7 @@ public final class BotTactics
 			s.arenaCenterY = center != null ? center[1] : 0;
 			s.hasArenaCenter = center != null;
 			s.combatStartedAt = time; s.invulnerableKite.reset(); s.invulnerableLease = false;
-			s.trainingBurst.reset(); s.trainingBerserkerMode = false; s.dominatorCp.reset(); s.dominatorPressure.reset(); s.sleepRetreat.reset(); s.tankSleepRetreat.clear(bot); s.sleepRoot.reset(bot); s.summonAttack.reset(); s.controlRetreat.reset();
+			s.trainingBurst.reset(); s.trainingBerserkerMode = false; s.dominatorCp.reset(); s.dominatorPressure.reset(); s.sleepRetreat.reset(); s.tankSleepRetreat.clear(bot); s.sleepRoot.reset(bot); s.summonAttack.reset(); if(s.summonFocus.leased())s.owned=s.summonFocus.release(); s.summonFocus.reset(); s.pendingPet=null; s.controlRetreat.reset();
 			s.tankDefense.reset(time); s.rushLoop.clear(); s.nextRushStep = time; s.pendingRushLoop = false; s.rushMoving = false; s.rushDirectionX = 0; s.rushDirectionY = 0;
 			s.sleepObserved = -1; s.nextDecision = time; s.nextStep = time; s.pendingId = 0; s.failures.clear(); s.enemyCasting = false; s.moveUntil = 0;
 			s.cardinalProminence.reset(); s.cardinalTrancePriority = false;
@@ -1307,7 +1405,7 @@ public final class BotTactics
 			final Failure f = s.failures.get(skill.getId());
 			final boolean ready = !bot.isSkillDisabled(skill) && (f == null || time >= f.until) && (!bot.isInOlympiadMode() || !skill.isBlockedInOlympiad());
 			final boolean inRange = self || inRange(bot, enemy, skill, distance);
-			final boolean active = (self || !directDamage(skill)) && (skill.isDebuff() || kind != TacticsPolicy.Kind.DAMAGE && kind != TacticsPolicy.Kind.HEAL && kind != TacticsPolicy.Kind.CHARGE)
+			final boolean active = !RoleCombatPolicy.stunRefresh(bot,skill.getId()) && (self || !directDamage(skill)) && (skill.isDebuff() || kind != TacticsPolicy.Kind.DAMAGE && kind != TacticsPolicy.Kind.HEAL && kind != TacticsPolicy.Kind.CHARGE)
 				&& active(self ? bot : enemy, skill);
 			final boolean interrupt = !s.enemyCasting || interruptReady;
 			final boolean resource = resources(bot, skill) && (self || !weaponUnavailable(bot) || !skill.isPhysical());
@@ -1536,6 +1634,15 @@ public final class BotTactics
 	{
 		if (s.pendingId == 0) { return; }
 		if (bot.isCastingNow() || bot.isCastingSimultaneouslyNow()) { s.sawCast = true; return; }
+        if(s.pendingPet!=null)
+        {
+            Skill petSkill=bot.getKnownSkill(s.pendingId);
+            boolean paid=s.sawCast||bot.getCurrentMp()<s.pendingMp||bot.getCharges()!=s.pendingCharges
+                ||s.pendingSelf&&bot.getCurrentHp()>s.pendingHp||petSkill!=null&&bot.isSkillDisabled(petSkill);
+            if(!TacticsPolicy.attemptResolved(s.sawCast,paid,time-s.pendingAt))return;
+            if(paid)s.failures.remove(s.pendingId);else failure(s,s.pendingId,time);
+            s.pendingId=0;s.pendingPet=null;clearEvidence(s);return;
+        }
 		final Skill skill = bot.getKnownSkill(s.pendingId);
 		final boolean paid = s.sawCast || bot.getCurrentMp() < s.pendingMp || bot.getCharges() > s.pendingCharges
 			|| (s.pendingSelf && bot.getCurrentHp() > s.pendingHp)
@@ -1692,7 +1799,7 @@ public final class BotTactics
 			|| skill.getTargetType() == TargetType.AURA || skill.getTargetType() == TargetType.FRONT_AURA
 			|| skill.getTargetType() == TargetType.FRONT_AREA || skill.getTargetType() == TargetType.BEHIND_AREA || skill.getTargetType() == TargetType.BEHIND_AURA;
 	}
-	private static boolean inRange(Player bot, Player enemy, Skill skill, double distance)
+	private static boolean inRange(Player bot, Creature enemy, Skill skill, double distance)
 	{
 		final boolean aura = skill.getTargetType() == TargetType.AURA || skill.getTargetType() == TargetType.FRONT_AURA || skill.getTargetType() == TargetType.BEHIND_AURA;
 		// AURA defaults to castRange=-1; this is not an invalid skill. Physical

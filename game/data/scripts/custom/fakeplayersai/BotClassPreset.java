@@ -145,24 +145,28 @@ public class BotClassPreset
 		return _weapon == WeaponKind.MAGIC;
 	}
 	
+    /** Skill5 is never part of a bot Duelist list, including persisted overrides. */
+    private int[] permitted(int[] ids)
+    { return _classId==88 ? java.util.Arrays.stream(ids).filter(id->id!=5).toArray() : ids; }
+
 	public int[] getRotation()
 	{
-		return _rotationOverride != null ? _rotationOverride : _rotation;
+		return permitted(_rotationOverride != null ? _rotationOverride : _rotation);
 	}
 	
 	public int[] getBuffs()
 	{
-		return _buffsOverride != null ? _buffsOverride : _buffs;
+		return permitted(_buffsOverride != null ? _buffsOverride : _buffs);
 	}
 	
 	public int[] getDefaultRotation()
 	{
-		return _rotation;
+		return permitted(_rotation);
 	}
 	
 	public int[] getDefaultBuffs()
 	{
-		return _buffs;
+		return permitted(_buffs);
 	}
 	
 	public boolean hasRotationOverride()

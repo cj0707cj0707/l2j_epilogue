@@ -4,6 +4,8 @@
 
 ## Последнее обновление
 
+- [96 — вход без скачка, питомцы первыми, Stun Shot и Duelist](96-arena-entry-summon-priority-stun-shot-and-duelist.md): все19 классов; Panther/Phoenix раньше танка; Cursed Man под invul; обновление101; полный запрет5. Требуется переустановка core-helper.
+
 - [95 — танки: разрешение финального навыка только при трёх зарядах](95-tank-three-charge-finisher-permission.md): обязательный hook без задержек,785 под406,789, контактный762 и безопасный баф собственного саммона.
 
 - [94 — классовые фазы, олимпийский профиль и Duelist](94-arena-class-controls-and-duelist.md): Clarity-HOLD нетанков97; сон→root≤3→отход115; SoulGuard1283; без1268 в профиле; Trance под1418;261/9/7 и условный6.
@@ -34,6 +36,7 @@
 
 | # | Файл | Описание |
 |---|---|---|
+| 96 | `96-arena-entry-summon-priority-stun-shot-and-duelist.md` | Вход от старта без snap; pet-focus; incoming101 refresh; Duelist без5; карта/установка core |
 | 95 | `95-tank-three-charge-finisher-permission.md` | Реальная stage3, немедленные785/762/789, контакт Crusher и native cast-guard |
 | 94 | `94-arena-class-controls-and-duelist.md` | Шесть актуальных правил Cardinal/Dominator/Duelist и олимпийских бафов |
 | 93 | `93-sleep-hold-only-during-tank-defense.md` | Сон: ожидание только под защитой танка; иначе после отхода Mana Burn/Steal |

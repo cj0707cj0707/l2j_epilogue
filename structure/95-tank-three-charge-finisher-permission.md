@@ -6,7 +6,7 @@
 
 | Бот | Реальная третья стадия от получения урона | Приоритетный навык |
 |---|---|---|
-| Phoenix Knight / паладин90 | Spirit of Phoenix5562, уровень3 | Flame Icon785 |
+| Phoenix Knight90 | Spirit of Phoenix5562, уровень3 | Flame Icon785 |
 | Hell Knight / Dark Avenger91 | Seed of Revenge5561, уровень3 | Insane Crusher762, только в контакте с целью |
 | Shillien Templar / Shillien Knight106 | Pain of Shilen5564, уровень3 | Spirit of Shilen789 |
 

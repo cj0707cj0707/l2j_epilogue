@@ -33,10 +33,18 @@ for signature in ['private static void combatTick(', 'private static void olympi
     assert section.index('BotTactics.tickBluffRear(')<section.index('BotTactics.tickCardinalControl(')<section.index('BotTactics.tickMageCancel(')<section.index('BotTactics.tickInvulnerableMelee(')
 assert 'TacticalSettings.isEnabled() || BotTactics.isOwned(bot.getObjectId())' in manager
 recovery=(S/'BotRecoveryRules.java').read_text()
-assert 'EventType.ON_CREATURE_ATTACK' in recovery and 'arenaManaged(event.getAttacker())' in recovery
+assert 'EventType.ON_CREATURE_ATTACK' in recovery and 'arenaManaged(attacker)' in recovery
 for name in ['Backstab', 'FatalBlow']:
     effect=(R/f'game/data/scripts/handlers/skill/effects/{name}.java').read_text()
     assert effect.index('blockedBluffStrike(')<effect.index('Formulas.calcBackstabDamage(' if name=='Backstab' else 'Formulas.calcBlowDamage(')
+# Rule96: every entry point runs summon-first before owner-only phases/retargeting.
+assert 'actor.setXYZ(' not in (S/'ArenaCombatRules.java').read_text()
+for signature in ['private static void combatTick(', 'private static void olympiadChaseTick(']:
+    section=manager[manager.index(signature):]
+    assert section.index('BotTactics.tickSummonPriority(')<section.index('BotTactics.tickTankFinisher(')
+assert 'if (tickSummonPriority(bot, enemy, preset, ranked)) return true;' in tactics
+assert 'priority!=null&&actualTarget!=actor&&!petCast' in recovery
+assert 'priority!=null&&event.getTarget()!=priority' in recovery
 # Rule95 is mandatory before generic immunity/movement and before slow-pass retargeting.
 common=tactics[tactics.index('public static synchronized boolean tick('):tactics.index('public static synchronized boolean tickBluffRear(')]
 assert common.index('tickTankFinisher(bot, enemy, preset, ranked)')<common.index('tickInvulnerableTarget(bot, enemy, preset, ranked)')
@@ -44,7 +52,7 @@ for signature in ['private static void combatTick(', 'private static void olympi
     section=manager[manager.index(signature):]
     assert section.index('BotTactics.tickTankFinisher(')<section.index('BotTactics.tickInvulnerableTarget(')
 assert manager.index('BotTactics.tickTankFinisher(bot, getOlympiadOpponent(bot)')<manager.index('// Match the training caller: an owned driver')
-assert 'TankClassMechanics.castAllowed(actor,enemy,event.getSkill())' in recovery
+assert 'TankClassMechanics.castAllowed(actor,petCast?priority:enemy,event.getSkill())' in recovery
 print('PASS: both shield no-kite guards, all-opponent Trance priority, 20% sleep policy, Bluff priority/owner and native event/execution wiring',flush=True)
 with tempfile.TemporaryDirectory(prefix='passive-bluff68-') as directory:
     d=Path(directory)
@@ -60,7 +68,7 @@ with tempfile.TemporaryDirectory(prefix='passive-bluff68-') as directory:
                *sorted((R / 'game/data/scripts/handlers/skill/targets').glob('*.java')),
                *sorted((R / 'game/data/scripts/custom').rglob('*.java')),
                *[T / name for name in ['LowManaAutoAttackTest.java', 'CombatRecoveryRulesTest.java',
-                                        'ArenaOrbitTranceManaTest.java', 'BerserkerSoulCleanseTest.java', 'DominatorPressureBluffTest.java', 'DaggerRearApproachTest.java', 'DominatorCpTitanPressureRegression.java', 'CpMeleeRushRecoveryTest.java', 'PostSleepSummonTest.java', 'DominatorControlShadowTest.java', 'ArenaInvulnerabilityClarityTest.java', 'CardinalSurvivalControlChanceTest.java', 'NativeDebuffEpicTest.java', 'TankMechanicsKiteTest.java', 'CombatPriorityAuditTest.java', 'ClarityBluffPhaseTest.java', 'ControlPursuitTranceKiteTest.java', 'CardinalSleepPriorityTest.java', 'CardinalAlwaysTranceTest.java', 'CardinalProminencePriorityTest.java', 'MeleePursuitBoundaryTest.java', 'BotGearCardinal78Test.java', 'DominatorTankSleepTest.java', 'DominatorHoldMageCancel80Test.java', 'TankRootStationary81Test.java', 'InvulnerableTargetBehaviorTest.java', 'RoleCombat88Test.java', 'SleepDefense93Test.java', 'ArenaClassRules94Test.java', 'TankChargeFinisher95Test.java']]]
+                                        'ArenaOrbitTranceManaTest.java', 'BerserkerSoulCleanseTest.java', 'DominatorPressureBluffTest.java', 'DaggerRearApproachTest.java', 'DominatorCpTitanPressureRegression.java', 'CpMeleeRushRecoveryTest.java', 'PostSleepSummonTest.java', 'DominatorControlShadowTest.java', 'ArenaInvulnerabilityClarityTest.java', 'CardinalSurvivalControlChanceTest.java', 'NativeDebuffEpicTest.java', 'TankMechanicsKiteTest.java', 'CombatPriorityAuditTest.java', 'ClarityBluffPhaseTest.java', 'ControlPursuitTranceKiteTest.java', 'CardinalSleepPriorityTest.java', 'CardinalAlwaysTranceTest.java', 'CardinalProminencePriorityTest.java', 'MeleePursuitBoundaryTest.java', 'BotGearCardinal78Test.java', 'DominatorTankSleepTest.java', 'DominatorHoldMageCancel80Test.java', 'TankRootStationary81Test.java', 'InvulnerableTargetBehaviorTest.java', 'RoleCombat88Test.java', 'SleepDefense93Test.java', 'ArenaClassRules94Test.java', 'TankChargeFinisher95Test.java', 'ArenaEntrySummon96Test.java']]]
 
     def run(command, cwd):
         result = subprocess.run(command, cwd=cwd, capture_output=True, text=True, timeout=180)
@@ -74,7 +82,7 @@ with tempfile.TemporaryDirectory(prefix='passive-bluff68-') as directory:
         return result.stdout.strip()
 
     run(['java', str(compiler), '-cp', cp, '-d', str(d / 'classes'), *map(str, sources)], R)
-    suites=['SleepDefense93Test'] if options.sleep_defense_only else ['RoleCombat88Test'] if options.role_only else ['InvulnerableTargetBehaviorTest'] if options.invulnerable_only else ['TankRootStationary81Test'] if options.tank_root_only else ['DominatorHoldMageCancel80Test'] if options.hold_cancel_only else ['DominatorTankSleepTest'] if options.tank_sleep_only else ['BotGearCardinal78Test'] if options.gear_heal_only else ['MeleePursuitBoundaryTest'] if options.pursuit_only else ['CardinalProminencePriorityTest'] if options.prominence_only else ['CardinalAlwaysTranceTest'] if options.trance_only else ['CardinalSleepPriorityTest'] if options.cardinal_only else ['ClarityBluffPhaseTest'] if options.bluff_only else ['ControlPursuitTranceKiteTest','CardinalSurvivalControlChanceTest','ArenaOrbitTranceManaTest','NativeDebuffEpicTest','ClarityBluffPhaseTest','TankMechanicsKiteTest','CombatPriorityAuditTest','CardinalSleepPriorityTest','DominatorPressureBluffTest','PostSleepSummonTest','CardinalAlwaysTranceTest','CardinalProminencePriorityTest','MeleePursuitBoundaryTest','BotGearCardinal78Test','DominatorTankSleepTest','DominatorHoldMageCancel80Test','TankRootStationary81Test','InvulnerableTargetBehaviorTest','RoleCombat88Test','SleepDefense93Test','ArenaClassRules94Test','TankChargeFinisher95Test']
+    suites=['SleepDefense93Test'] if options.sleep_defense_only else ['RoleCombat88Test'] if options.role_only else ['InvulnerableTargetBehaviorTest'] if options.invulnerable_only else ['TankRootStationary81Test'] if options.tank_root_only else ['DominatorHoldMageCancel80Test'] if options.hold_cancel_only else ['DominatorTankSleepTest'] if options.tank_sleep_only else ['BotGearCardinal78Test'] if options.gear_heal_only else ['MeleePursuitBoundaryTest'] if options.pursuit_only else ['CardinalProminencePriorityTest'] if options.prominence_only else ['CardinalAlwaysTranceTest'] if options.trance_only else ['CardinalSleepPriorityTest'] if options.cardinal_only else ['ClarityBluffPhaseTest'] if options.bluff_only else ['ControlPursuitTranceKiteTest','CardinalSurvivalControlChanceTest','ArenaOrbitTranceManaTest','NativeDebuffEpicTest','ClarityBluffPhaseTest','TankMechanicsKiteTest','CombatPriorityAuditTest','CardinalSleepPriorityTest','DominatorPressureBluffTest','PostSleepSummonTest','CardinalAlwaysTranceTest','CardinalProminencePriorityTest','MeleePursuitBoundaryTest','BotGearCardinal78Test','DominatorTankSleepTest','DominatorHoldMageCancel80Test','TankRootStationary81Test','InvulnerableTargetBehaviorTest','RoleCombat88Test','SleepDefense93Test','ArenaClassRules94Test','TankChargeFinisher95Test','ArenaEntrySummon96Test']
     if options.suites:suites=options.suites
     for name in suites:
         print(run(['java', '-cp', str(d / 'classes') + os.pathsep + cp, 'custom.fakeplayersai.'+name, str(R / 'game'), *([str(d/'audit68.md')] if name=='NativeDebuffEpicTest' else [])], R / 'game'), flush=True)

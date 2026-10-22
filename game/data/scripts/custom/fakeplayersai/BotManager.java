@@ -1421,7 +1421,8 @@ public class BotManager
 				// (admin rule), and every buff of the set lasts far longer - so the old
 				// "apply once at battle start" pass was removed with its per-match marker.
 
-				if (inOlympiad && BotTactics.tickTankFinisher(bot, getOlympiadOpponent(bot), preset, true)) continue;
+				if (inOlympiad && BotTactics.tickSummonPriority(bot, getOlympiadOpponent(bot), preset, true)) continue;
+                if (inOlympiad && BotTactics.tickTankFinisher(bot, getOlympiadOpponent(bot), preset, true)) continue;
 
 				// Match the training caller: an owned driver keeps its target, including self-casts.
 				if (inOlympiad && bot.isOlympiadStart() && BotTactics.isOwned(bot.getObjectId()))
@@ -1845,7 +1846,8 @@ public class BotManager
 				final Player activeOpponent = getOlympiadOpponent(bot);
 				if (activeOpponent != null && ArenaCombatRules.update(bot, activeOpponent, preset)) { OlympiadCombatGate.hold(bot); continue; }
 				BotTactics.tickSummonAttack(bot, activeOpponent, true);
-				if (BotTactics.tickTankFinisher(bot, activeOpponent, preset, true)) continue;
+				if (BotTactics.tickSummonPriority(bot, activeOpponent, preset, true)) continue;
+                if (BotTactics.tickTankFinisher(bot, activeOpponent, preset, true)) continue;
 				if (BotTactics.tickInvulnerableTarget(bot, activeOpponent, preset, true)) continue;
                 if (BotTactics.tickRoleCombat(bot,activeOpponent,preset,true)) continue;
 				if (BotTactics.tickBluffRear(bot, activeOpponent, preset, true)) continue;
