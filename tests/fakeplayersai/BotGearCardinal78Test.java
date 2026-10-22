@@ -17,6 +17,38 @@ public class BotGearCardinal78Test extends MeleePursuitBoundaryTest {
   f(Creature.class,"_status").set(p,status);
  }
 
+ static void casterShields()throws Exception {
+  NativeDebuffEpicTest.unsafe=unsafe;
+  BotManager.getSettings().load();
+  int casters=0;
+  for(var preset:BotPresets.getPresets()) {
+   if(preset.isCaster())casters++;
+   for(boolean s84:new boolean[]{false,true}) {
+    int shield=BotPresets.getShieldId(preset,s84);
+    int expected=preset.isCaster()?13471:preset.getWeaponKind()==BotClassPreset.WeaponKind.SWORD?(s84?13471:9441):0;
+    verify(shield==expected,"caster Vesper shield in both tiers; other classes unchanged: "+preset.getClassName());
+    if(!preset.isCaster())continue;
+    Player p=NativeDebuffEpicTest.recordingPlayer(preset.getClassId(),false);
+    var inv=new NativeDebuffEpicTest.TestInventory(p);
+    f(Inventory.class,"_paperdollListeners").set(inv,new ArrayList<>());
+    f(Player.class,"_inventory").set(p,inv);
+    int weaponId=BotPresets.getWeaponId(preset,s84);
+    var weapon=new NativeDebuffEpicTest.TestItem(weaponId);
+    var offhand=new NativeDebuffEpicTest.TestItem(shield);
+    inv.own(weapon);inv.own(offhand);
+    // Existing bot: add the shield without removing/replacing its equipped weapon.
+    inv.equipItem(weapon);inv.equipItem(offhand);
+    verify(weapon.isEquipped()&&offhand.isEquipped(),"existing caster retains weapon alongside shield: "+preset.getClassName());
+    // Spawn path equips the shield first, then the current weapon.
+    inv.equipItem(weapon);
+    verify(weapon.isEquipped()&&offhand.isEquipped(),"spawn order retains both hand slots: "+preset.getClassName());
+    BotSpawner.reenchantGear(p);
+    verify(offhand.getEnchantLevel()==10,"caster Vesper shield +10: "+preset.getClassName());
+    verify(inv.getPaperdollItemByItemId(weaponId)==weapon,"current weapon identity preserved: "+preset.getClassName());
+   }
+  }
+  verify(casters==6,"Dominator, Cardinal and all four mage presets covered");
+ }
  @SuppressWarnings("unchecked") static void gear78()throws Exception {
   NativeDebuffEpicTest.unsafe=unsafe;var settings=BotManager.getSettings();settings.load();
   verify(settings.getEnchantArmor()==10&&settings.getEnchantJewel()==10&&settings.getEnchantWeapon()==10,"active config10/10/10");
@@ -90,6 +122,6 @@ public class BotGearCardinal78Test extends MeleePursuitBoundaryTest {
   handlers.EffectMasterHandler.main(new String[0]);skill=org.l2jmobius.gameserver.data.xml.SkillData.getInstance().getSkill(1510,1);recordingType();state=Class.forName("custom.fakeplayersai.BotTactics$State");
   act=BotTactics.class.getDeclaredMethod("act",Player.class,Player.class,BotClassPreset.class,state,long.class,boolean.class);act.setAccessible(true);poll=BotTactics.class.getDeclaredMethod("pollAttempt",Player.class,Player.class,state,long.class);poll.setAccessible(true);
   var geo=java.nio.file.Files.createTempDirectory("cardinal75-geo-");org.l2jmobius.gameserver.config.GeoEngineConfig.GEODATA_PATH=geo;org.l2jmobius.gameserver.geoengine.GeoEngine.getInstance();java.nio.file.Files.delete(geo);
-  BotPresets.loadOverrides();gear78();healing78();System.out.println("PASS: "+checks+" gear78 all19/menu coverage/10-10-10 and Cardinal heal75/no own Celestial checks; no live server");System.exit(0);
+  BotPresets.loadOverrides();casterShields();gear78();healing78();System.out.println("PASS: "+checks+" caster Vesper shields/both tiers/weapon retained, gear78 all19/menu coverage/10-10-10 and Cardinal heal75/no own Celestial checks; no live server");System.exit(0);
  }catch(Throwable e){e.printStackTrace();System.exit(1);}}
 }

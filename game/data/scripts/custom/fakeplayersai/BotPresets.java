@@ -883,6 +883,12 @@ public class BotPresets
 	
 	public static int getShieldId(BotClassPreset preset, boolean useS84)
 	{
+		// Casters keep their current right-hand weapon and gain a Vesper off-hand shield.
+		// Includes Cardinal and Dominator, regardless of the selected armor tier.
+		if (preset.isCaster())
+		{
+			return VESPER_SHIELD;
+		}
 		return preset.getWeaponKind() == BotClassPreset.WeaponKind.SWORD ? (useS84 ? VESPER_SHIELD : DYNASTY_SHIELD) : 0;
 	}
 	
